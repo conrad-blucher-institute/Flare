@@ -1,4 +1,4 @@
-# Flare
+# Flare - IN DEVELOPMENT
 
 ## Description
 
