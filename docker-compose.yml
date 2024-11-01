@@ -1,0 +1,33 @@
+
+services:
+    # Service for Python
+  backend:
+    container_name: flare-backend
+    build:
+      context: .    
+      dockerfile: Dockerfile.backend  
+    restart: always
+    command: ["tail", "-f", "/dev/null"]
+    volumes:
+      - ./data:/app/data:z  # Shared volume for CSV files
+    networks:
+      - broadcast-network
+
+  # Service for Vue app with Nginx
+  frontend:
+    container_name: flare-frontend
+    build:
+      context: .   
+      dockerfile: Dockerfile.frontend 
+    restart: always
+    ports:
+      - "${FRONTEND_HOST_PORT}:80"  # Host Port:Container Port
+    volumes:
+      - ./data:/app/data:z  # Shared volume for CSV files
+    networks:
+      - broadcast-network
+
+# Define the shared network
+networks:
+  broadcast-network: #Change name based on the repository name
+    driver: bridge
