@@ -31,3 +31,4 @@ services:
 networks:
   broadcast-network: #Change name based on the repository name
     driver: bridge
+    
