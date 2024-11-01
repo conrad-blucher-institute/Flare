@@ -8,10 +8,14 @@ Flare is a student-built and maintained web application that visualizes data gen
  - Docker Desktop: Ensure Docker Desktop is installed and running to manage containerized applications.
  - Node.js and NVM: Use Node Version Manager (NVM) to manage Node versions, ensuring compatibility with the frontend Vue app.
 
-## To set up and run Flare in a Docker container:
-0. Set Up Environment Variables:
+## Nginx Configuration
+    - Copy the `nginx.conf.template` to `nginx.conf` and adjust the server name and ports.
+
+## Enviornment Variables Configuration
     - Create a .env file in the project’s root directory. This file will contain environment variables needed by Docker.
     - Copy the contents from env.dist and update the values with your own variables.
+
+## Run Flare in a Docker container:
 1. Ensure that Docker Desktop is running on your machine.
 2. Start in the root directory: 'cd CDL-Broadcast'
 2. Run 'docker compose build' and 'docker compose up' (run 'docker compose up -d' to run in the background)
