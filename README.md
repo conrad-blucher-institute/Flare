@@ -9,18 +9,28 @@ Flare is a student-built and maintained web application that visualizes data gen
  - Node.js and NVM: Use Node Version Manager (NVM) to manage Node versions, ensuring compatibility with the frontend Vue app.
 
 ## To set up and run Flare in a Docker container:
-0. Set Up Environment Variables:
+0. Set Up Environment Variables and Nginx:
     - Create a .env file in the project’s root directory. This file will contain environment variables needed by Docker.
     - Copy the contents from env.dist and update the values with your own variables.
+    - Create a nginx.conf file in the project's root directory.
+    - Copy and paste nginx.conf.template's contents into nginx.conf
+    - Replace __Port__ and __ServerName__ with the correct variables.
 1. Ensure that Docker Desktop is running on your machine.
 2. Start in the root directory: 'cd CDL-Broadcast'
-2. Run 'docker compose build' and 'docker compose up' (run 'docker compose up -d' to run in the background)
-3. If you make changes to the code make sure you 'docker compose down' and then repeat step 2.
+3. Run 'docker compose build' and 'docker compose up' (run 'docker compose up -d' to run in the background)
+4. If you make changes to the code make sure you 'docker compose down' and then repeat step 3.
 
 ## Vue Development Setup(Frontend)
 1. Use nvm (Node Version Manager) to switch to the Node version specified in the frontend container.
-2. Change to the Vue app directory 'cd CDL-Broadcast/src/ui-vue'
+    - Windows Installation: https://github.com/coreybutler/nvm-windows
+    - Linux/WSL Installation is more straightforward:
+        - Install:'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash'
+        - Install node using nvm : nvm install node 
+        - Switch to the version used in the frontend container  : 'nvm use <version>'
+        - Check the node version: node -v
+2. Change to the Vue app directory 'cd CDL-Broadcast/vue-ui'
 3. Run the development enviornment : 'npm run dev'
+
 
 ## Authors
 * [@Anointiyae Beasley](https://github.com/abeasley1722) - anointiyae.beasley@tamucc.edu
