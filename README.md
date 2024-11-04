@@ -1,4 +1,4 @@
-# Flare - IN DEVELOPMENT
+##Flare
 
 ## Description
 
@@ -28,3 +28,5 @@ Flare is a student-built and maintained web application that visualizes data gen
 * [@Beto Estrada](https://github.com/bestrada33) - bestrada4@islander.tamucc.edu
 * [@Savannah Stephenson](https://github.com/lovelysandlonelys) - sstephenson2@islander.tamucc.edu
 * [@Florence Tissot](https://github.com/ccftissot)
+
+
