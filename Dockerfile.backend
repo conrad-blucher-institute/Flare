@@ -17,8 +17,8 @@ RUN pip install -r requirements.txt
 #Copy data/cspec directory
 COPY ./data/cspec .
 
-# Copy the Backend directory
-COPY ./Backend .
+# Copy the backend directory
+COPY ./backend .
 
 
 
