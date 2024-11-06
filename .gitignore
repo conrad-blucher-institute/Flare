@@ -17,4 +17,4 @@ nginx.conf
 conf.d/
 
 # Ignore data directory
-data/
+data/csv/*
