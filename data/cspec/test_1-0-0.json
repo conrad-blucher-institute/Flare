@@ -1,0 +1,42 @@
+{
+    "chart_name": "test",
+    "CSPEC_version": "1.0.0",
+    "data_requests" : [
+      {
+        "key": "semaphore_inputs",
+        "args": {
+          "column_name": "str",
+          "source": "str", 
+          "series": "str", 
+          "location": "str",       
+          "datum": "None", 
+          "interval": "None",
+          "range": [-11, 0]
+        }
+      },
+      {
+        "key": "semaphore_outputs_latest",
+        "args": {
+          "model_names": [
+            "12hr_VirginiaKey_wl",
+            "24hr_VirginiaKey_wl",
+            "48hr_VirginiaKey_wl",
+            "72hr_VirginiaKey_wl",
+            "96hr_VirginiaKey_wl"           
+          ] 
+        }
+      }
+    ],
+    "post_processing" : [],
+    "csv_config": {
+      "csv_name": "test_1-0-0.csv",
+      "included_columns": [
+        "12hr_VirginiaKey_wl",
+        "24hr_VirginiaKey_wl",
+        "48hr_VirginiaKey_wl",
+        "72hr_VirginiaKey_wl",
+        "96hr_VirginiaKey_wl"  
+      ]
+    }
+  }
+  

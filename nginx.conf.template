@@ -1,0 +1,53 @@
+# /etc/nginx/nginx.conf.template
+
+user nginx;
+
+# Sets the number of worker processes based on CPU cores available
+worker_processes auto; 
+pid /var/run/nginx.pid;
+
+events {
+    # Handles how many connections each worker process can handle simultaneously
+    worker_connections 1024; 
+}
+
+# Handles requests for the Vue static files
+http {
+    # Loads the mime types file that defines mappings between file extensions and content types
+    include /etc/nginx/mime.types; 
+
+    # Default content type if unspecified
+    default_type application/octet-stream;
+
+    # Enables the sendfile system call for faster file transfers
+    sendfile on;
+
+    # Time in seconds to keep a connection open after completing a request
+    keepalive_timeout 65;
+
+    server {
+        # Nginx listens on the specified port
+        listen __PORT__; 
+
+        # Sets the server name, use the hostname or domain in production
+        server_name __SERVER_NAME__;
+
+        # Serves files from the root directory
+        location / {
+            root /usr/share/nginx/html;
+            try_files $uri $uri/ /index.html;
+        }
+
+        # Maps /test-chart/ to the CSV data directory
+        location /test-chart/ {
+            alias /app/data/csv/;
+            autoindex on;
+        }
+
+        # Custom error handling for 404 errors
+        error_page 404 /404.html;
+        location = /404.html {
+            internal;
+        }
+    }
+}
