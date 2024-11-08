@@ -1,0 +1,20 @@
+# Environment and config files
+.env
+.env.*
+
+# Python-related files
+*.pyc
+__pycache__/
+
+# Virtual environments
+venv/
+
+# Node modules
+**/node_modules/
+
+# Ignore Nginx configuration files
+nginx.conf
+conf.d/
+
+# Ignore data directory
+data/
