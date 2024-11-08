@@ -8,7 +8,11 @@ Flare is a student-built and maintained web application that visualizes data gen
  - Docker Desktop: Ensure Docker Desktop is installed and running to manage containerized applications.
  - Linux/WSl: Required to ensure permissions are handled appropriately.
     - Installation for Windows:https://learn.microsoft.com/en-us/windows/wsl/install
- - Node.js and NVM: Use Node Version Manager (NVM) to manage Node versions, ensuring compatibility with the frontend Vue app.
+ - NVM: Use Node Version Manager (NVM) to manage Node versions, ensuring compatibility with the frontend Vue app. 
+    - Installation: Detailed below in Vue Development Setup
+ - Node.js: A JavaScript runtime for running server-side code.
+    - Installation: Detailed below in Vue Development Setup
+ - Vite: A development server and build tool optimized for Vue.
     - Installation: Detailed below in Vue Development Setup
 
 ## To set up and run Flare in a Docker container:
@@ -25,12 +29,13 @@ Flare is a student-built and maintained web application that visualizes data gen
 5. If you make changes to the code make sure you 'docker compose down' and then repeat step 4.
 
 ## Vue Development Setup(Frontend)
-1. Use nvm (Node Version Manager) to switch to the Node version specified in the frontend container.
+1. Use NVM to switch to the Node version specified in the frontend container.
     - Linux/WSL Installation:
         - Install:'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash'
-        - Install node using nvm : nvm install node 
+        - Install node using nvm : 'nvm install node '
         - Switch to the version used in the frontend container  : 'nvm use <version>'
         - Check the node version: node -v
+        - Install vite: 'nvm install vite'
 2. Change to the Vue app directory 'cd CDL-Broadcast/vue-ui'
 3. Run the development enviornment : 'npm run dev'
 
