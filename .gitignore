@@ -2,6 +2,9 @@
 .env
 .env.*
 
+#vscode stuffs
+.vscode
+
 # Python-related files
 *.pyc
 __pycache__/
@@ -17,4 +20,4 @@ nginx.conf
 conf.d/
 
 # Ignore data directory
-data/
+data/csv/*

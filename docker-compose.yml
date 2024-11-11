@@ -9,7 +9,7 @@ services:
     restart: always
     command: ["tail", "-f", "/dev/null"]
     volumes:
-      - ./data:/app/data:z  # Shared volume for CSV files
+      - ./data:/app/data/csv:z  # Shared volume for CSV files
     networks:
       - broadcast-network
 
@@ -23,7 +23,7 @@ services:
     ports:
       - "${FRONTEND_HOST_PORT}:80"  # Host Port:Container Port
     volumes:
-      - ./data:/app/data:z  # Shared volume for CSV files
+      - ./data:/app/data/csv:z  # Shared volume for CSV files
     networks:
       - broadcast-network
 
