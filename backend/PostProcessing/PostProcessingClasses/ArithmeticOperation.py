@@ -12,7 +12,6 @@ By the index of the data frame!
 #
 #Imports
 from PostProcessing.IPostProcessing import IPostProcessing
-import numpy as np
 from pandas import DataFrame
 
 
