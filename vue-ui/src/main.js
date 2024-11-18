@@ -14,6 +14,7 @@
 //   - Vue: Provides the framework for creating reactive applications.
 //   - Pinia: State management library for managing global state.
 //   - Router: Manages client-side navigation within the app.
+//   - HighchartsVue: Displays advanced charts
 //
 // Author: Anointiyae Beasley
 // Date: 11/04/2024
@@ -23,8 +24,10 @@ import './assets/main.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
+
 import App from './App.vue'
 import router from './router'
+import Highcharts from 'highcharts';
 
 const app = createApp(App)
 
@@ -32,4 +35,7 @@ app.use(createPinia())
 app.use(router)
 
 
+
 app.mount('#app')
+
+  

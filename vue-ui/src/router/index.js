@@ -29,13 +29,13 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: '/test-chart',
-      name: 'testChart',
+      path: '/south-bird-island-chart',
+      name: 'southBirdIslandChart',
 
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import('../views/TestChartView.vue'),
+      component: () => import('../views/SouthBirdIslandChartView.vue'),
     }
   ],
 })
