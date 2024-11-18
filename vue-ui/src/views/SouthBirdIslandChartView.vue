@@ -57,7 +57,7 @@ const southBirdIslandChart = {
       'localhost:8080'
     ) + '/csv-data/test.csv',
     enablePolling: true, // Refresh data periodically
-    dataRefreshRate: 10, // Interval for refreshing (in seconds)
+    dataRefreshRate: 3600, // Interval for refreshing (in seconds)
     complete: function (data) {
       // Parse and filter CSV data for the chart
       const waterTemperatureMeasurements = data.series[0]; // Series for water measurements
