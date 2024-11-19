@@ -25,7 +25,7 @@ class IPostProcessing(ABC):
         raise NotImplementedError
     
 
-def post_process_factory(data: DataFrame, key: str, **kwargs) -> bool:
+def post_process_factory(data: DataFrame, key: str, kwargs) -> bool:
     """ Initiates a call to a class of IDataIngestion returning the result. The call is determined by a passed key, and arguments through the kwargs.
         :param data: DataFrame - A pre initialized data frame to insert collected data into
         :param key: str - The string key that will be used to detect the correct module.
@@ -34,9 +34,10 @@ def post_process_factory(data: DataFrame, key: str, **kwargs) -> bool:
     """
     try:
         post_processing_class: IPostProcessing = getattr(import_module(f'.PostProcessingClasses.{key}', 'PostProcessing'), key)()
-        return post_processing_class.post_process(data, kwargs)
+        return post_processing_class.post_process(data, **kwargs)
     except ModuleNotFoundError:
         raise ModuleNotFoundError(f'[Error]:: No module named {key} in PostProcessingClasses!')
-    except TypeError:
+    except TypeError as e:
+        print(e)
         raise TypeError(f'[Error]:: kwargs mismatch for key: {key} and kwargs: {kwargs}')
     
