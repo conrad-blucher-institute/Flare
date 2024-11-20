@@ -17,7 +17,6 @@ from pandas import DataFrame, date_range, read_csv, Series
 from numpy import nan
 from datetime import datetime
 from PostProcessing.IPostProcessing import post_process_factory
-from io import StringIO
 
 
 series = {'data6Min': [val for val in range(101)]} # 10 hours of 5min data
@@ -37,7 +36,7 @@ five_hour_to_ten_hour_interpolation = df_1hr.join(df_5hr, how='outer')['data5hr'
 
 
 @pytest.mark.parametrize("df_data, col_name, interpolation_interval, limit, expected_results", [
-    # Tests interpolation into a dataframe of the same index
+    # Tests interpolation into a dataframe of the same index resolution
     (df_6min.join(df_1hr, how='outer'), 'data1hr', 360, 500, one_hour_to_six_min_interpolation), 
     # Tests interpolation into a dataframe with a higher index resolution
     (df_6min.join(df_1hr, how='outer').join(df_5hr, how='outer'), 'data5hr', 3600, 500, five_hour_to_ten_hour_interpolation), 
@@ -72,7 +71,7 @@ def test_post_process_data(df_data: DataFrame, col_name: str, interpolation_inte
 
 
 @pytest.mark.parametrize("df_data, col_name, interpolation_interval, limit, expected_results", [
-    # Tests interpolation into a dataframe of the same index
+    # Tests interpolation into a dataframe of the same index resolution
     (df_6min.join(df_1hr, how='outer'), 'data1hr', 360, 500, 101), 
     # Tests interpolation into a dataframe with a higher index resolution
     (df_6min.join(df_1hr, how='outer').join(df_5hr, how='outer'), 'data5hr', 3600, 500, 101), 

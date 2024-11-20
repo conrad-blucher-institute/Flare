@@ -29,9 +29,7 @@ class LinearInterpolation(IPostProcessing):
         Returns:
             DataFrame : A new dataframe obj might have to be created, this will always be a reference to the most updated version.
 
-        NOTE::It is expected the data will not need to be reindexed by this function.
         NOTE::This function actually uses time based interpolation which is the same as linear interpolation.
-
 
         JSON Call:
         {
@@ -64,7 +62,7 @@ class LinearInterpolation(IPostProcessing):
         # Here we repair the mistake by looking at the forward cumulative mask and inserting Nan.
         backwards_interpolation[forward_cumulative_nan_mask] = np.nan
    
-        # We have to reindex the data back in, hopefully this reindex does nothing and Nans were in-placed correctly before this call.
+        # Outer join to preserve all data in the dataframe.
         df.drop(columns=[col_name], inplace=True)
         df = df.join(backwards_interpolation, how='outer')
         return df
