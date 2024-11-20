@@ -17,7 +17,7 @@ from pandas import DataFrame
 
 class ImmediateArithmeticOperation(IPostProcessing):
 
-    def post_process(self, data: DataFrame, op: str, left_col_key: str, value: float, out_col_key: str) -> bool:
+    def post_process(self, data: DataFrame, op: str, left_col_key: str, value: float, out_col_key: str) -> DataFrame:
         """The post processing in this file preforms an arithmetic operation on columns in a data frame by a constant.
         By the index of the data frame!
 
@@ -29,7 +29,7 @@ class ImmediateArithmeticOperation(IPostProcessing):
             out_col_key - The key to save the column under.
 
         Returns:
-            bool : A boolean value based on the operations success.
+            DataFrame : A new dataframe obj might have to be created, this will always be a reference to the most updated version.
 
         NOTE::The operation available are:
             addition (out = Left + value)
@@ -64,5 +64,5 @@ class ImmediateArithmeticOperation(IPostProcessing):
             case _:
                 raise NotImplementedError(f'ERROR:: {op} not found in ImmediateArithmeticOperation class')
 
-        return True
+        return data
 

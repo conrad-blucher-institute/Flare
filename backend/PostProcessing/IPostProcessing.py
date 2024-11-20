@@ -21,11 +21,11 @@ from pandas import DataFrame
 class IPostProcessing(ABC):
 
     @abstractmethod
-    def post_process(self, data: DataFrame, **kwargs) -> bool:
+    def post_process(self, data: DataFrame, **kwargs) -> DataFrame:
         raise NotImplementedError
     
 
-def post_process_factory(data: DataFrame, key: str, kwargs) -> bool:
+def post_process_factory(data: DataFrame, key: str, kwargs) -> DataFrame:
     """ Initiates a call to a class of IDataIngestion returning the result. The call is determined by a passed key, and arguments through the kwargs.
         :param data: DataFrame - A pre initialized data frame to insert collected data into
         :param key: str - The string key that will be used to detect the correct module.

@@ -17,7 +17,7 @@ from pandas import DataFrame
 
 class ArithmeticOperation(IPostProcessing):
 
-    def post_process(self, data: DataFrame, op: str, left_col_key: str, right_col_key: str, out_col_key: str) -> bool:
+    def post_process(self, data: DataFrame, op: str, left_col_key: str, right_col_key: str, out_col_key: str) -> DataFrame:
         """The post processing in this file preforms a set-wise arithmetic operation columns in a data frame.
         By the index of the data frame!
 
@@ -29,7 +29,7 @@ class ArithmeticOperation(IPostProcessing):
             out_col_key - The key to save the column under.
 
         Returns:
-            bool : A boolean value based on the operations success.
+            DataFrame : A new dataframe obj might have to be created, this will always be a reference to the most updated version.
 
         NOTE::  
         The operation available are:
@@ -65,4 +65,4 @@ class ArithmeticOperation(IPostProcessing):
             case _:
                 raise NotImplementedError(f'ERROR:: {op} not found in ArithmeticOperation class')
 
-        return True
+        return data

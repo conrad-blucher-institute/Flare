@@ -49,7 +49,7 @@ def test_post_process_data(test_df: DataFrame, operation: str, expected_results:
     }
 
     # Call the factory to get the resolver and pass it the fake input data and the post process call
-    assert True == post_process_factory(test_df, call, kwargs)
+    test_df = post_process_factory(test_df, call, kwargs)
 
     # Unpack the resulting components
     result = test_df['result'].tolist()
@@ -57,7 +57,6 @@ def test_post_process_data(test_df: DataFrame, operation: str, expected_results:
     # Iterate through the resulting components checking if they were calculated correctly
     for actual, expected in zip(result, expected_results):
         tolerance = 1e-5
-        print(actual, expected)
         if not isclose(actual, expected, abs_tol=tolerance):
             assert False
     assert True
