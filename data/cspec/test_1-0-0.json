@@ -3,21 +3,9 @@
     "CSPEC_version": "1.0.0",
     "data_requests" : [
       {
-        "key": "SemaphoreInputs",
-        "args": {
-          "column_name": "str",
-          "source": "str", 
-          "series": "str", 
-          "location": "str",       
-          "datum": "None", 
-          "interval": "None",
-          "range": [-11, 0]
-        }
-      },
-      {
         "key": "SemaphoreOutputLatest",
         "args": {
-          "column_name": "str",
+          "column_name": "initial_data",
           "model_names": [
             "12hr_VirginiaKey_wl",
             "24hr_VirginiaKey_wl",
@@ -28,15 +16,40 @@
         }
       }
     ],
-    "post_processing" : [],
+    "post_processing" : [
+      {
+        "key": "ArithmeticOperation",
+        "args": {
+              "op": "addition",
+              "left_col_key": "initial_data",
+              "right_col_key": "initial_data",
+              "out_col_key": "initial_data_doubled"   
+        }
+      },
+      {
+        "key": "ImmediateArithmeticOperation",
+        "args": {
+            "op": "addition",
+            "left_col_key": "initial_data_doubled",
+            "value": 7.5,
+            "out_col_key": "initial_data_doubled_plus"   
+        }
+      },
+      {
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "initial_data_doubled_plus",
+            "interpolation_interval": 3600,
+            "limit": 5000
+        }
+      }
+    ],
     "csv_config": {
       "csv_name": "test_1-0-0.csv",
       "included_columns": [
-        "12hr_VirginiaKey_wl",
-        "24hr_VirginiaKey_wl",
-        "48hr_VirginiaKey_wl",
-        "72hr_VirginiaKey_wl",
-        "96hr_VirginiaKey_wl"  
+        "initial_data",
+        "initial_data_doubled",
+        "initial_data_doubled_plus"
       ]
     }
   }
