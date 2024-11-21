@@ -3,7 +3,7 @@
     "CSPEC_version": "1.0.0",
     "data_requests" : [
       {
-        "key": "semaphore_inputs",
+        "key": "SemaphoreInputs",
         "args": {
           "column_name": "str",
           "source": "str", 
@@ -15,8 +15,9 @@
         }
       },
       {
-        "key": "semaphore_outputs_latest",
+        "key": "SemaphoreOutputLatest",
         "args": {
+          "column_name": "str",
           "model_names": [
             "12hr_VirginiaKey_wl",
             "24hr_VirginiaKey_wl",
