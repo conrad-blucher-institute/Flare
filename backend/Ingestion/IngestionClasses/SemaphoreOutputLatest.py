@@ -24,10 +24,8 @@ class SemaphoreOutputLatest(IDataIngestion):
         '''Ingests data from the Semaphore Inputs API.'''
 
         url = self.__prepare_url(model_names)
-        print(url)
 
         response = api_request(url)
-        print(response)
         if not self.__validate_response(response, model_names):
             return add_empty_column(data, column_name)
 

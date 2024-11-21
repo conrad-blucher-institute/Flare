@@ -33,7 +33,7 @@ class LinearInterpolation(IPostProcessing):
 
         JSON Call:
         {
-            "call": "LinearInterpolation",
+            "key": "LinearInterpolation",
             "args": {
                 "col_name": "",
                 "interpolation_interval": -1,
