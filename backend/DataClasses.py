@@ -19,8 +19,8 @@ class Call():
 
     def __str__(self):
         return f'''[Call]--------------------------------
-            \call_key: {self.call_key}
-            \kwargs: {self.kwargs}\n---------------------------------------'''
+            call_key: {self.call_key}
+            kwargs: {self.kwargs}\n---------------------------------------'''
     
 
 class CSPEC():
@@ -44,7 +44,7 @@ class CSPEC():
         if not post_processing: post_processing = '\tNone\n'
 
         # I know this looks formatted weird but this prints it correctly, dont indent it!
-        return  f'[CSPEC]--------------------------------\n\
+        return  f'[CSPEC]--------------------------------\n \
     chart_name: {self.chart_name}\n\
     data_requests:\n{requests}\n\
     post_processing: \n{post_processing}\n\
