@@ -1,1 +1,21 @@
 /* base css*/
+* {
+    padding: 0;
+    margin: 0;
+  }
+
+  html, body {
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #333;
+  }
+
+  :root {
+    --navy-blue: #02172f; 
+    --off-white: #f4f4f4; 
+    --deep-teal:#2c849b;
+    --blue-gradient: linear-gradient(to bottom, #000000,#004184, #05c1d4);
+    --dark-blue-gradient: linear-gradient(to bottom, #000000,#004184, #1899a7);  
+    --font-main: 'Arial', sans-serif;
+  }
