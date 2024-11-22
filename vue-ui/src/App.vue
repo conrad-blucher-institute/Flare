@@ -1,92 +1,53 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
+<!-- ===================================================
+     File: App.vue
+     Description: Root component for the Vue application. 
+                  This component serves as the main layout for the app, 
+                  containing the header with a dropdown menu that appears on 
+                  all pages and a section for displaying route-based views.
+                  
+                  - <header>: Contains the dropdown menu, which remains fixed 
+                    at the top of the viewport.
+                  - <section>: Holds the <RouterView> component, which dynamically
+                    loads the appropriate component based on the current route.
+                  
+     Components:
+       - DropDownMenu: The dropdown menu component that appears on all pages.
+       - RouterView: Vue Router component that renders the active route's view.
+
+     Styles:
+       - `.dropdown-section`: Styles the fixed dropdown menu header with a background color
+         and shadow for separation, ensuring it stays above other content.
+
+     Author: Anointiyae Beasley
+     Date: 11/04/2024
+======================================================= -->
+<script setup>import DropDownMenu from './components/DropDownMenu.vue';</script>
 
 <template>
+
   <header>
-    <img
-      alt="Vue logo"
-      class="logo"
-      src="@/assets/logo.svg"
-      width="125"
-      height="125"
-    />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-        <RouterLink to="/test-chart">Test</RouterLink>
-      </nav>
+   <!-- DropDown Menu and header that appears on all pages -->
+    <div class="dropdown-section">
+      <DropDownMenu/> 
     </div>
   </header>
 
-  <RouterView />
+  <!-- Displays page based on route-->
+   <section>
+      <div>
+        <RouterView/>
+      </div>
+   </section>
+  
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
+  .dropdown-section{
+  position: fixed; 
+  top: 0;          /* Aligns it to the top of the viewport */
+  left: 0;         /* Aligns it to the left of the viewport */
+  width: 100%;     /* Full width across the screen */
+  z-index: 1000;   /* Ensures it displays above other content */
+  background-color: #02172f; 
   }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
 </style>
