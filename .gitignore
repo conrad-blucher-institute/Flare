@@ -1,6 +1,6 @@
 # Environment and config files
 .env
-.env.*
+.env.!
 
 #vscode stuffs
 .vscode
