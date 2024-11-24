@@ -15,10 +15,10 @@ RUN /bin/bash -c "source ./venv/vsem/bin/activate"
 RUN pip install -r requirements.txt
 
 #Copy data/cspec directory
-COPY ./data/cspec .
+COPY ./data/cspec ./data/cspec
 
 # Copy the backend directory
-COPY ./backend .
+COPY ./backend ./backend
 
 
 
