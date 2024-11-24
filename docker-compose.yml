@@ -5,7 +5,11 @@ services:
     container_name: flare-backend
     build:
       context: .    
-      dockerfile: Dockerfile.backend  
+      dockerfile: Dockerfile.backend 
+    env_file:
+      - .env
+    environment:
+      - SEMAPHORE_API_URL=${SEMAPHORE_API_URL}
     restart: always
     command: ["tail", "-f", "/dev/null"]
     volumes:

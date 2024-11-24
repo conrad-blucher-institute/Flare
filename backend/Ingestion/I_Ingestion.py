@@ -15,27 +15,29 @@ New data will be inserted into the dataframe by reference
 from abc import ABC, abstractmethod
 from importlib import import_module
 from pandas import DataFrame
+from datetime import datetime
 
 
 class IDataIngestion(ABC):
 
     @abstractmethod
-    def ingest_data(self, data: DataFrame, **kwargs) -> bool:
+    def ingest_data(self, data: DataFrame, ref_time: datetime, **kwargs) -> DataFrame:
         raise NotImplementedError
     
 
-def data_ingestion_factory(data: DataFrame, key: str, **kwargs) -> bool:
+def data_ingestion_factory(data: DataFrame, ref_time: datetime,  key: str, kwargs) -> DataFrame:
     """ Initiates a call to a class of IDataIngestion returning the result. The call is determined by a passed key, and arguments through the kwargs.
-        :param data: DataFrame - A pre initialized data frame to insert collected data into
+        :param data: DataFrame - A pre initialized data frame to insert collected data into.
+        :ref_time: DateTime - The datetime to base the ingestion off of.
         :param key: str - The string key that will be used to detect the correct module.
         :kwargs: dict - The keyword args to pas to the resulting method. Make sure this is formatted as the targeted method wants.
-        :returns bool - True indicated the process succeeded while false indicated it failed for some reason. 
+        :returns DataFrame - A reference to the most updated DataFrame
     """
     try:
         ingestion_class: IDataIngestion = getattr(import_module(f'.IngestionClasses.{key}', 'Ingestion'), key)()
-        return ingestion_class.ingest_data(data, kwargs)
+        return ingestion_class.ingest_data(data, ref_time, **kwargs)
     except ModuleNotFoundError:
         raise ModuleNotFoundError(f'[Error]:: No module named {key} in IngestionClasses!')
-    except TypeError:
-        raise TypeError(f'[Error]:: kwargs mismatch for key: {key} and kwargs: {kwargs}')
+    except TypeError as e:
+        raise TypeError(f'[Error]:: kwargs mismatch for key: {key} and kwargs: {kwargs}\n{e}')
     
