@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+# flareRunner.py.py
+#----------------------------------
+# Created By : Matthew Kastl
+#----------------------------------
+""" This is the main runner script for Flare
+ """ 
+#----------------------------------
+# 
+#
+#Imports
 from CSPEC_Parser import CSPEC_Parser
 from DataClasses import Call
 from datetime import datetime
