@@ -37,7 +37,7 @@ Flare is a student-built and maintained web application that visualizes data gen
         - Switch to the version used in the frontend container  : 'nvm use 22.10.0'
         - Check the node version: node -v
         - Install vite: 'nvm install vite'
-2. Change to the Vue app directory 'cd CDL-Broadcast/vue-ui'
+2. Change to the Vue app directory 'cd vue-ui'
 3. Run the development enviornment : 'npm run dev'
 
 
