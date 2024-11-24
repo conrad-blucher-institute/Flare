@@ -10,8 +10,8 @@ def generate_test_csv(file_name="data/csv/test.csv"):
     
     # Define the time range
     now = datetime.now(cdt)  # Current time in CDT
-    start_time = now - timedelta(days=7)  # A week from now
-    end_time = now + timedelta(days=2)    # Two days after now
+    start_time = now - timedelta(days=14)  # A week from now
+    end_time = now + timedelta(days=7)    # Two days after now
     prediction_start_time = now  # Predictions begin from the current time
 
     # Initialize an empty list to store data
