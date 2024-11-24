@@ -40,7 +40,7 @@ class ImmediateArithmeticOperation(IPostProcessing):
 
         JSON Call:
         {
-            "call": "ImmediateArithmeticOperation",
+            "key": "ImmediateArithmeticOperation",
             "args": {
                 "op": "",
                 "left_col_key": "",

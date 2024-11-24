@@ -41,7 +41,7 @@ class ArithmeticOperation(IPostProcessing):
 
         JSON Call :
             {
-                "call": "ArithmeticOperation",
+                "key": "ArithmeticOperation",
                 "args": {
                     "op": "",
                     "left_col_key": "",

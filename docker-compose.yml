@@ -13,7 +13,7 @@ services:
     restart: always
     command: ["tail", "-f", "/dev/null"]
     volumes:
-      - ./data:/app/data/csv:z  # Shared volume for CSV files
+      - ./data:/app/data/:z  # Shared volume for CSV files
     networks:
       - broadcast-network
 
