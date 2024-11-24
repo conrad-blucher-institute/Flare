@@ -25,7 +25,7 @@ class ImmediateArithmeticOperation(IPostProcessing):
             data DataFrame: The DataFrame containing this collation of the data that has been collected.
             op - the operation to preform (ex. addition)
             left_col_key - The key the column that will be on the left side of the operation.
-            right_col_key - The key for the column on the right side of the operation.
+            value - The right operands value.
             out_col_key - The key to save the column under.
 
         Returns:
