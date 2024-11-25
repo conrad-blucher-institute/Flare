@@ -11,7 +11,7 @@ services:
     volumes:
       - ./data/csv:/app/data/csv:z  # Shared volume for CSV files
     networks:
-      - broadcast-network
+      - flare-network
 
   # Service for Vue app with Nginx
   frontend:
@@ -25,10 +25,10 @@ services:
     volumes:
       - ./data/csv:/app/data/csv:z  # Shared volume for CSV files
     networks:
-      - broadcast-network
+      - flare-network
 
 # Define the shared network
 networks:
-  broadcast-network: #Change name based on the repository name
+  flare-network: #Change name based on the repository name
     driver: bridge
     
