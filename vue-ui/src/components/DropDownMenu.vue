@@ -18,7 +18,7 @@
        - `.dropdown` positions the button and content.
        - `.dropbtn` styles the button, `.bar` creates the hamburger icon.
        - `.dropdown-content` displays options and styles them with hover effects.
-
+       - '@Media' query adjusts styles for mobile screens.
      Author: Anointiyae Beasley
      Date: 11/04/2024
 ======================================================= -->
@@ -58,47 +58,124 @@
  
   
   <style scoped>
-  .dropdown {
-    position: relative;
-    display: inline-block;
-    float: right; /* Align to the right */
-    margin: 10px; /* Add some margin for spacing */
-  }
-  
+
+/* Hamburger Button */
+.dropbtn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.bar {
+  display: block;
+  width: 30px; 
+  height: 4px;
+  background-color: var(--primary-text-dark-background); 
+  margin: 4px 0;
+  border-radius: 2px; /* Rounded corners*/
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+
+/* Dropdown Container */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  float: right; /* Align to the right */
+  margin: 10px;
+  z-index: 10;
+}
+
+
+/* Dropdown Content */
+.dropdown-content {
+  position: absolute;
+  right: 0;
+  top: 100%; /* Position the dropdown below the button */
+  background-color: var(--secondary-background);
+  border-radius: 8px;
+  overflow: hidden; 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
+  z-index: 20;
+  min-width: 200px; 
+  animation: fadeIn 0.3s ease-out; /* Referencing the animation in main.css */
+}
+
+/* Dropdown Options */
+.dropdown-content div {
+  color: var(--primary-text-light-background);
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease, color 0.2s ease;  
+}
+
+.dropdown-content div:hover {
+  background-color: var(--secondary-background); 
+  color: var(--primary-text-light-background);
+}
+
+
+.dropdown-content a {
+  text-decoration: none; /* Remove underline */
+  color: inherit; /* Inherit the color from the parent */
+}
+
+.dropdown-content a:hover {
+  color:var(--primary-text-light-background);
+}
+/* Media Query for Mobile Screens */
+@media (max-width: 480px) {
+
   .dropbtn {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 10px; 
+  position: fixed; /* Keeps the button in a fixed position on the screen */
+  top: 5px; 
+  right: 10px; /* Keeps it near the right edge */
+  padding: 10px; 
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000; /* Ensures the button is above other elements */
+}
+  .dropdown {
+    float: none; 
+    width: 50%; 
+    height: 10px;
+    text-align: center;
   }
-  
-  .bar {
-    display: block;
-    width: 25px; 
-    height: 3px; /* Height of the hamburger bars */
-    background-color: white; /* Color of the bars */
-    margin: 4px auto; /* Spacing between the bars */
-  }
-  
+
   .dropdown-content {
-    display: block;
-    position: absolute;
-    right: 0; /* Align dropdown to the right */
-    background-color: white;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-    min-width: 160px;
+    min-width: 10%;
+    border-radius: 0.8; 
+    position: fixed; 
+    top: 50px; 
+    right: 10px; /* Keeps it near the right edge */
+    padding: 10px;
   }
-  
+
   .dropdown-content div {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    cursor: pointer;
+    font-size: 16px; 
+    padding: 14px 20px; 
   }
-  
-  .dropdown-content div:hover {
-    background-color: #f1f1f1;
+
+  .bar {
+    width: 25px; /* Slightly smaller hamburger icon for mobile */
+    height: 3px;
   }
-  </style>
+}
+
+
+
+</style>
+
   

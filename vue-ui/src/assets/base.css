@@ -4,8 +4,9 @@
     margin: 0;
   }
 
+
   html, body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Georgia';
     font-size: 16px;
     line-height: 1.5;
     color: #333;
@@ -13,9 +14,14 @@
 
   :root {
     --navy-blue: #02172f; 
-    --off-white: #f4f4f4; 
-    --deep-teal:#2c849b;
-    --blue-gradient: linear-gradient(to bottom, #000000,#004184, #05c1d4);
-    --dark-blue-gradient: linear-gradient(to bottom, #000000,#004184, #1899a7);  
-    --font-main: 'Arial', sans-serif;
-  }
+    --primary-background: #f4f4f4; 
+    --secondary-background: white;
+    --banner-gradient-background: linear-gradient(to bottom, #000000,#06335f, #1899a7);  
+    --section-gradient-background: linear-gradient(to bottom right, #1899a7, #0f4c5c); 
+    --primary-text-light-background:#0f4f66;
+    --primary-text-dark-background:#f4f4f4;
+    --secondary-text:#333;
+    --blue-secondary-text:#5c779d;
+ 
+    --font-main:'Georgia';
+  } 
