@@ -1,5 +1,5 @@
 # /etc/nginx/nginx.conf
-user nginx;
+
 worker_processes auto; # Adjust based on the number of CPU cores
 pid /var/run/nginx.pid;
 
@@ -28,12 +28,12 @@ http {
     }
 
     server {
-        listen __PORT__; 
+        listen 80; 
         server_name __SERVER_NAME__; # Replace with the domain or hostname
 
         # Serve Vue app or static files
         location / {
-            root __PATH_TO_FILE__; # Replace with the root directory of your files
+            root /usr/share/nginx/html;
             try_files $uri $uri/ /index.html; # SPA fallback to index.html
 
             # Add CORS headers for SPA
