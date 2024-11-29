@@ -29,15 +29,15 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: '/south-bird-island-chart',
-      name: 'southBirdIslandChart',
+      path: '/south-bird-island',
+      name: 'southBirdIsland',
 
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => {
         // Check the screen size and load the appropriate component
-        if (window.innerWidth <= 480) {
+        if (window.innerWidth <= 930) {
           return import('../views/MobileSouthBirdIslandChartView.vue');
         } else {
           return import('../views/DesktopSouthBirdIslandChartView.vue');

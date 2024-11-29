@@ -22,7 +22,7 @@ export const useMenuStore = defineStore('menu', {
       { label: 'Home', link: { name: 'home' }}
     ],
     slidingMenuOptions: [
-      { label: 'South Bird Island Chart', link: { name: 'southBirdIslandChart' }, image: TurtleImage, location: 'South Bird Island, Texas', message: '120 hour predictions of water and air temperature'}
+      { label: 'South Bird Island Chart', link: { name: 'southBirdIsland' }, image: TurtleImage, location: 'South Bird Island, Texas', message: '120 hour predictions of water and air temperature'}
     ]
   })
 });

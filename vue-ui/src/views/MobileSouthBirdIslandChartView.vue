@@ -4,6 +4,7 @@
                   Features include:
                   - A dynamically updating Highcharts line chart using live CSV data.
                   - Instructions for interacting with the chart.
+                  - Information on the data of the chart.
                   - Informative sections about South Bird Island and its environmental significance.
                   - A team introduction section.
      Author: Anointiyae Beasley
@@ -44,10 +45,11 @@
       style: {
         fontFamily: 'Georgia',
       },
+      spacing: [30, 30, 30, 30], // Add padding: [top, right, bottom, left]
       height: 500, // Reduce chart height 
     },
     title: {
-      text: 'Temperature of Upper South Bird Island', // Simplified title for smaller screens
+      text: 'Temperature of Upper Laguna Madre', // Simplified title for smaller screens
       style: {
         fontSize: '16px', // Smaller font size
         fontWeight: 'bold',
@@ -203,7 +205,7 @@
       },
       useHTML: true, // Enable HTML for custom label formatting
       style: {
-          fontSize: '12px', // Smaller font size for x-axis labels
+          fontSize: '10px', // Smaller font size for x-axis labels
           color: '#0f4f66',
           fontWeight: 'bold',
           fontFamily: 'Georgia', 
@@ -304,11 +306,11 @@
 
       <!-- Text content on the right of the overlay image-->
       <div class="banner-content">
-        <h1 class="header-title">Water and Air Temperature Trends and Forecasts for South Bird Island, Texas</h1>
+        <h1 class="header-title">Water and Air Temperature Trends and Forecasts for the Texas Upper Laguna Madre</h1>
       </div>
     </section>
 
-    <div class="chart-container">
+    <section class="chart-container">
       <!-- Display the Chart -->
       <div class="chart-scroll-container" v-if="chartOptions">
         <div class="chart-wrapper">
@@ -341,7 +343,33 @@
           </li>
         </ul>
       </div>
-    </div>
+    </section>
+
+    <!-- Data on The Chart -->
+    <section class="chart-data-info">
+      <h3>Data on This Graph:</h3>
+      <ul>
+        <li>
+          Past six-day measurement of air and water temperature from&nbsp;  
+          <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8776139" target="_blank" rel="noopener noreferrer">
+             NOAA's South Bird Island Station (8776139)
+          </a>.
+        </li>
+        <li>Backup water temperature data from&nbsp;
+          <a href="https://lighthouse.tamucc.edu/overview/171" target="_blank" rel="noopener noreferrer">
+            National Park Service South Bird Island station
+          </a>.
+        </li>
+        <li>Backup air temperature data from&nbsp;  
+          <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8776604" target="_blank" rel="noopener noreferrer">
+               NOAA's Baffin Bay Station (8776604)
+          </a>.
+        </li>
+        <li>Air temperature predictions from the National Digital Forecast Database (points).</li>
+        <li>Cubic interpolation of predicted air temperature (dashed line).</li>
+        <li>Water temperature predictions from Semaphore (dashed line).</li>
+      </ul>
+    </section>
     
     <!-- Section Divider -->
     <div class="section-divider"> </div>
@@ -352,7 +380,7 @@
       <div class="about-container">
         <img src="@/assets/images/SouthBirdIslandMap.jpg" alt="Map of South Bird Island, Texas" class="about-image">
         <div class="about-content">
-          <h2 class="about-header">South Bird Island Model</h2>
+          <h2 class="about-header">Laguna Madre AI Model</h2>
 
           <p>
             In the Laguna Madre, the longest hypersaline lagoon in the United States, the passage of cold fronts can lower air temperature by more than <strong>10°C</strong> in less than 24 hours. 
@@ -369,35 +397,51 @@
       </div>
     </section>
 
-   <!-- Meet the Team Section -->
-   <section class="coldstunning-team-section">
-     <h2 class="coldstunning-team-header">Meet the Team Behind This AI Model</h2>
-     <div class="coldstunning-coldstunning-team-members">
-       <div class="coldstunning-team-member">
-         <img src="@/assets/images/MatthewKastl.png" alt="Matthew Kastl" class="team-image">
-         <h3 class="coldstunning-team-name">Matthew Kastl</h3>
-         <p class="coldstunning-team-role">Graduate Student</p>
-       </div>
+    <!-- Footer -->
+    <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-logos">
+        <a href="https://www.conradblucherinstitute.org/" target="_blank">
+          <img class="footer-logo cbi-logo" src="@/assets/images/CBI-Logo.png" alt="CBI Logo">
+        </a>
+        <a href="https://github.com/conrad-blucher-institute/semaphore" target="_blank">
+        <img class="footer-logo" src="@/assets/images/Semaphore-Logo.png" alt="Semaphore Logo">
+        </a>
+        <a href="https://www.usace.army.mil/" target="_blank">
+          <img class="footer-logo" src="@/assets/images/USACE-Logo.jpg" alt="US Army Corps Logo">
+        </a>
+        <a href="https://www.nsf.gov/" target="_blank">
+          <img class="footer-logo" src="@/assets/images/NSF-Logo.png" alt="National Science Foundation Logo">
+        </a>
+        <a href="https://www.gicaonline.com/" target="_blank">
+          <img class="footer-logo" src="@/assets/images/GICA-Logo.png" alt="Gulf Intracoastal Canal Association Logo">
+        </a>
+        <a href="https://tpwd.texas.gov/" target="_blank">
+          <img class="footer-logo" src="@/assets/images/TPWD-Logo.gif" alt="Texas Parks and Wildlife Logo">
+        </a>
+        <a href="https://www.coastaldynamicslab.org/" target="_blank">
+          <img class="footer-logo" src="@/assets/images/CDL-Logo.png" alt="Coastal Dynamics Lab Logo">
+        </a>
+        <a href="https://www.nps.gov/index.htm" target="_blank">
+          <img class="footer-logo" src="@/assets/images/NPS-Logo.png" alt="National Park Service Logo">
+        </a>
+        <a href="https://www.weather.gov/" target="_blank">
+          <img class="footer-logo" src="@/assets/images/NWS-Logo.png" alt="National Weather Service Logo">
+        </a>
+        <a href="https://www.uscg.mil/" target="_blank">
+          <img class="footer-logo" src="@/assets/images/CG-Logo.png" alt="USA Coast Guard Logo">
+        </a>
+        <a href="https://www.joincca.org/" target="_blank">
+          <img class="footer-logo" src="@/assets/images/CCA-Logo.png" alt="Coastal Conservation Association Logo">
+        </a>
+      </div>
+      <div class="footer-info">
+        <p>Photos courtesy of the National Park Service, Division of Sea Turtle Science and Recovery.</p>
+        <p>(Click on a logo to visit the respective website.)</p>
+      </div>
+    </div>
+  </footer>
 
-       <div class="coldstunning-team-member">
-         <img src="@/assets/images/BetoEstrada.png" alt="Beto Estrada" class="team-image">
-         <h3 class="coldstunning-team-name">Beto Estrada</h3>
-         <p class="coldstunning-team-role">Graduate Student</p>
-       </div>
-
-       <div class="coldstunning-team-member">
-         <img src="@/assets/images/AnointiyaeBeasley.png" alt="Anointiyae Beasley" class="team-image">
-         <h3 class="coldstunning-team-name">Anointiyae Beasley</h3>
-         <p class="coldstunning-team-role">Undergraduate Student</p>
-       </div>
-
-       <div class="coldstunning-team-member">
-         <img src="@/assets/images/SavannahStephenson.png" alt="Savannah Stephenson" class="team-image">
-         <h3 class="coldstunning-team-name">Savannah Stephenson</h3>
-         <p class="coldstunning-team-role">Graduate Student</p>
-       </div>
-     </div>
-   </section>
   </div>
 </template>
 
@@ -428,7 +472,7 @@
   object-fit: cover;
   opacity: 100%;
   overflow: hidden;
-  padding-right: 10px;
+  padding-right: 60px;
   
 
 }
@@ -445,7 +489,6 @@
   padding-right: 140px;
   font-size: 1.1rem;
   line-height: 1.4;
-
   padding-bottom: 10px;
 }
 
@@ -479,7 +522,7 @@
 /* Instructions Section */
 .instructions-list {
   width: 100%;
-  background-color: var(--primary-background);
+  background-color: var(--accent-background);
   padding: 10px;
   font-size: 0.5rem;
   line-height: 1.4;
@@ -512,10 +555,60 @@
   color: var(--primary-text-light-background);
 }
 
+/* Chart Data Info Section */
+.chart-data-info {
+  background-color: var(--accent-background); /* Match the overall theme */
+  padding: 25px 30px;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Slightly deeper shadow for a modern look */
+  font-size: 1rem;
+  line-height: 1.8;
+  border: 1px solid rgba(0, 0, 0, 0.1); 
+}
+
+/* Section Title */
+.chart-data-info h3 {
+  font-size: 1.1rem; 
+  color: var(--primary-text-light-background); 
+  margin-bottom: 20px;
+  text-align: center;
+  letter-spacing: 1px; /* Slightly spaced letters */
+  border-bottom: 2px solid var(--secondary-text); /* Underline title*/
+  display: inline-block; /* Adjust inline alignment */
+  padding-bottom: 5px;
+}
+
+/* List Styling */
+.chart-data-info ul {
+  list-style: none; /* Remove default list bullets */
+  margin: 0;
+  padding: 0; /* Align to container */
+}
+
+.chart-data-info li {
+  display: flex; 
+  flex-wrap: wrap;
+  align-items: center; /* Vertically center items */
+  margin-bottom: 15px;
+  color: var(--secondary-text);
+  font-size: 1rem; 
+}
+
+.chart-data-info li:before {
+  content: "•"; /* Add custom bullet */
+  font-size: 1.5rem; /* Larger bullet size */
+  color: var(--primary-text-light-background); 
+  margin-right: 10px; /* Space between bullet and text */
+}
+
+
 /* About Section */
 .about-section {
   padding: 20px 10px;
   margin: 10px auto;
+}
+
+strong {
+  color: var(--primary-text-light-background);
 }
 
 .about-container {
@@ -548,52 +641,90 @@
   color: var(--primary-text-light-background);
 }
 
-/* Team Section */
-.coldstunning-team-section {
-  background: var(--section-gradient-background);
-  color: var(--primary-background);
+/* Footer Styles */
+.footer {
+  background-color: var(--navy-blue);
+  padding: 40px 20px;
   text-align: center;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.coldstunning-team-header {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
+.footer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.coldstunning-coldstunning-team-members {
+/* Footer Logos */
+.footer-logos {
   display: flex;
   flex-wrap: wrap;
+  gap: 40px;
   justify-content: center;
-  gap: 30px;
 }
 
-.coldstunning-team-member {
-  width: 70%;
-  background-color: var(--primary-background);
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.footer-logos a {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.footer-logos a:hover {
+  transform: scale(1.1);
+}
+
+.footer-logo {
+  max-width: 70px;
+  max-height: 70px;
+  object-fit: contain;
+}
+
+/* Footer Info */
+.footer-info {
+  font-size: 14px;
+  color: var(--primary-text-dark-background);
+  margin-top: 30px;
   text-align: center;
-  padding: 20px;
 }
 
-.team-image {
-  width: 200px;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 15px;
+/* Specific Style for CBI Logo */
+.cbi-logo {
+  max-width: 200px; 
+  max-height: auto;
 }
 
-.coldstunning-team-name {
-  font-size: 1rem;
-  color: var(--primary-text-light-background);
-  margin-bottom: 10px;
+
+@media (min-width: 830px) {
+    .header-title {
+    font-size: 1.5rem;
+    padding-bottom: 40px;
+  }
+
+  .chart-container {
+    gap: 10px;
+    padding: 0; 
+    width: 100%; 
+    overflow: hidden; /* Prevent overflow issues */
+  }
+
+  .chart-wrapper {
+    width: 100%; 
+    min-width: 0; /* Reset min-width */
+  }
+
+  .chart {
+    width: 100%; 
+    max-width: 100%; 
+    height: auto;
+  }
+
+  .overlay-image{
+    padding-right: 20px;
+    height: 500px;
+  }
+
+
 }
 
-.coldstunning-team-role {
-  font-size: 0.85rem;
-  color: var(--secondary-text);
-}
+
 </style>

@@ -196,7 +196,7 @@ p {
     width: 150px;
     height: auto; 
     margin: 0 auto; 
-    animation: vibrate 0.6s ease-in 0.35s;
+    animation: vibrate 0.6s ease-in 0.160s;
   }
 
   h1 {

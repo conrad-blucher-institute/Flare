@@ -99,6 +99,21 @@
           </a>
         </div>
       </section>
+
+      <footer class="footer">
+        <div class="footer-container">
+          <!-- Logo Block -->
+          <div class="logo-block">
+            <img class="semaphore-logo" src="@/assets/images/Semaphore-Logo.png" alt="Semaphore Logo">
+            <img class="cbi-logo" src="@/assets/images/CBI-Logo.png" alt="Conrad Blutcher Institute Logo">
+          </div>
+
+          <!-- Links or Credits Block -->
+          <div class="footer-info">
+            <p>&copy; 2024 Flare. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
 </template>
 
@@ -198,7 +213,8 @@
   align-items: center;
   height: auto;
   overflow: hidden;
-  padding: 60px 20px; 
+
+
   
 }
 
@@ -295,7 +311,7 @@
   width: 80%;
   height: 80%;
   object-fit: cover; /* Crop the image to fit the container */
-  border-radius: 8px; /* Rounded corners for the image */
+  border-radius: 8px; /* Rounded corners */
   margin-bottom: 15px;
 }
 
@@ -310,31 +326,72 @@
   color:var(--secondary-text);
 }
 
-@media (max-width: 480px) {
+/* General Footer Styles */
+.footer {
+  background: var(--navy-blue); 
+  padding: 20px;
+  text-align: center;
+  color: var(--primary-text-dark-background);
+}
+
+.footer-container {
+  flex-direction: column; /* Stack elements vertically*/
+  align-items: center;
+  gap: 15px; /* Add space between elements */
+}
+
+/* Logo Block */
+.logo-block {
+  justify-content: center;
+  gap: 40px; 
+}
+
+.semaphore-logo {
+    width: 100px; 
+    height: 100px;
+  }
+  .cbi-logo{
+    width: 400px; 
+    height: 100px;
+  }
+
+
+/* Footer Info Block */
+.footer-info {
+  font-size: 0.9rem; /* Adjust font size for smaller screens */
+  text-align: center; /* Center the text */
+  line-height: 1.4;
+}
+
+@media (max-width: 930px) {
   .home-banner {
     flex-direction: column;
-    height: 200px;
-    padding: 20px 10px;
+    height: 250px;
+
   }
 
   .page-container {
-  overflow-x: hidden; 
-  width: 100%; 
-  position: relative; 
-}
-
+    overflow-x: hidden; 
+    width: 100%; 
+    position: relative; 
+  }
+  .overlay-image {
+    width: 100%;
+    height: 300px;
+    opacity: 20%; 
+  }
 
   .banner-content {
-    padding-bottom: 20px;
+    padding-bottom: 40px;
   }
 
   .header-title {
-    font-size: 1.8rem; /* Reduced size for mobile */
+    font-size: 2.3rem; /* Reduced size for mobile */
     line-height: 1.3;
   }
 
   .subtitle {
-    font-size: 1rem; /* Smaller subtitle for readability */
+    font-size: .9rem; /* Smaller subtitle for readability */
   }
 
   .sliding-menu-section {
@@ -347,7 +404,7 @@
     padding: 5px 5px;
     position: absolute;
     right: 0;
-    top: 250px; /* Ensure it starts just below the button */
+    top: 255px; /* Ensure it starts just below the button */
     overflow: hidden;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 20;
@@ -357,8 +414,9 @@
   }
 
   .about-flare-section {
+    display:flex;
     flex-direction: column;
-    padding: 20px 10px;
+   
   }
 
   .about-flare-container {
@@ -367,12 +425,15 @@
   }
 
   .about-flare-section h2 {
-    font-size: 1.6rem; /* Adjusted header size for mobile */
+    font-size: 1.6rem; 
+    padding-top: 20px;
   }
 
   .about-flare-section p {
-    font-size: 1rem; /* Reduced paragraph size */
-    line-height: 1.5; /* Maintain good readability */
+    font-size: 1rem; 
+    line-height: 1.5; 
+    padding-right: 20px;
+    padding-left: 20px;
   }
 
   .flare-team-section {
@@ -380,7 +441,7 @@
   }
 
   .flare-team-header {
-    font-size: 1.2rem; /* Smaller team header for mobile */
+    font-size: 1.3rem; 
     padding: 20px;
   }
 
@@ -389,7 +450,7 @@
   }
 
   .team-member {
-    width: 90%;
+    width: 200px;
   }
 
   .team-image {
@@ -398,12 +459,33 @@
   }
 
   .flare-team-name {
-    font-size: 1rem; /* Smaller text size for team names */
+    font-size: 1rem; 
+  
   }
 
   .flare-team-role {
-    font-size: 0.85rem; /* Adjusted role font size */
+    font-size: 0.85rem;
+
   }
+
+  .footer {
+    padding: 15px; 
+  }
+
+  .semaphore-logo {
+    width: 85px; 
+    height: 85px;
+  }
+  .cbi-logo{
+    width: 350px; 
+    height: 80px;
+  }
+
+
+  .footer-info {
+    font-size: 0.8rem; 
+  }
+ 
 }
 
 
