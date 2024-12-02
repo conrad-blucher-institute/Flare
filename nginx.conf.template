@@ -1,51 +1,76 @@
-# /etc/nginx/nginx.conf.template
+# /etc/nginx/nginx.conf
 
-user nginx;
-
-# Sets the number of worker processes based on CPU cores available
-worker_processes auto; 
+worker_processes auto; # Adjust based on the number of CPU cores
 pid /var/run/nginx.pid;
 
 events {
-    # Handles how many connections each worker process can handle simultaneously
-    worker_connections 1024; 
+    worker_connections 1024; # Maximum simultaneous connections per worker
 }
 
-# Handles requests for the Vue static files
 http {
-    # Loads the mime types file that defines mappings between file extensions and content types
-    include /etc/nginx/mime.types; 
+    # Load standard MIME types
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream; # Fallback MIME type for unknown files
 
-    # Default content type if unspecified
-    default_type application/octet-stream;
-
-    # Enables the sendfile system call for faster file transfers
+    # Optimize file transfer
     sendfile on;
-
-    # Time in seconds to keep a connection open after completing a request
     keepalive_timeout 65;
 
+    # Define allowed CORS origins
+    map $http_origin $cors_origin {
+        default ""; # Default to disallow all origins
+        "http://localhost:6100" "http://localhost:6100";
+        "http://localhost:8080" "http://localhost:8080";
+        "http://127.0.0.1:6100" "http://127.0.0.1:6100";
+        "http://127.0.0.1:8080" "http://127.0.0.1:8080";
+        "https://__DEV_DOMAIN__" "https://__DEV_DOMAIN__";
+        "https://__PROD_DOMAIN__" "https://__PROD_DOMAIN__";
+    }
+
     server {
-        # Nginx listens on the specified port
-        listen __PORT__; 
+        listen 80; 
+        server_name frontend;
 
-        # Sets the server name, use the hostname or domain in production
-        server_name __SERVER_NAME__;
-
-        # Serves files from the root directory
+        # Serve Vue app or static files
         location / {
             root /usr/share/nginx/html;
-            try_files $uri $uri/ /index.html;
+            try_files $uri $uri/ /index.html; # SPA fallback to index.html
+
+            # Add CORS headers for SPA
+            add_header Access-Control-Allow-Origin $cors_origin always;
+            add_header Access-Control-Allow-Methods "GET, OPTIONS";
+            add_header Access-Control-Allow-Headers "Content-Type, Authorization";
+
+            # Handle preflight OPTIONS requests
+            if ($request_method = 'OPTIONS') {
+                add_header Access-Control-Allow-Origin $cors_origin always;
+                add_header Access-Control-Allow-Methods "GET, OPTIONS";
+                add_header Access-Control-Allow-Headers "Content-Type, Authorization";
+                return 204;
+            }
         }
 
-        # Maps /test-chart/ to the CSV data directory
-        location /test-chart/ {
-            alias /app/data/csv/;
-            autoindex on;
+        # Serve CSV or other data files
+        location /csv-data/ {
+            alias <path-to-your-csv-files>; # Replace with the directory containing CSV files
+            autoindex on; # Enable directory listing (optional)
+
+            # Add CORS headers for data
+            add_header Access-Control-Allow-Origin $cors_origin always;
+            add_header Access-Control-Allow-Methods "GET, OPTIONS";
+            add_header Access-Control-Allow-Headers "Content-Type";
+
+            # Handle preflight OPTIONS requests
+            if ($request_method = 'OPTIONS') {
+                add_header Access-Control-Allow-Origin $cors_origin always;
+                add_header Access-Control-Allow-Methods "GET, OPTIONS";
+                add_header Access-Control-Allow-Headers "Content-Type";
+                return 204;
+            }
         }
 
-        # Custom error handling for 404 errors
-        error_page 404 /404.html;
+        # Error handling
+        error_page 404 /404.html; # Serve custom 404 page
         location = /404.html {
             internal;
         }
