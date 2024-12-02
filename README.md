@@ -46,6 +46,7 @@ Flare is a student-built and maintained web application that visualizes data gen
 * [@Matthew Kastl](https://github.com/matdenkas) - mkastl@islander.tamucc.edu
 * [@Beto Estrada](https://github.com/bestrada33) - bestrada4@islander.tamucc.edu
 * [@Savannah Stephenson](https://github.com/lovelysandlonelys) - sstephenson2@islander.tamucc.edu
+* [@Jeremiah Sosa](https://github.com/jeremiahsosa77) - jsosa14@islander.tamucc.edu
 * [@Florence Tissot](https://github.com/ccftissot)
 
 
