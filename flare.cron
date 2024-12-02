@@ -1,0 +1,3 @@
+0,30 * * * * mkdir -p ./logs/test_1-0-0 && docker exec flare-backend python3 flareRunner.py -c ./data/cspec/test_1-0-0.json >> ./logs/test_1-0-0/$(date "+\%Y")_$(date "+\%m").log 2>> ./logs/CRON.log
+# DO NOT DELETE NEW LINE!
+ 
