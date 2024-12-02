@@ -1,4 +1,6 @@
-#! /usr/bin/bash
+#!/usr/bin/bash
+
+# A script that deploys flare and initializes its cron file.
 
 #Update to latest version of main
 git fetch origin --tags $1 
@@ -12,13 +14,11 @@ docker-compose down
 #Build docker containers
 docker-compose build
 
-#LAunch docker containers
+#Launch docker containers
 docker-compose up -d
-
-#Run the cron file initalizer
-python3 init_cron.py
 
 #Remove existing cron file
 crontab -r
+
 #Initialize new cronfile
 crontab ./flare.cron
