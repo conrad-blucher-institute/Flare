@@ -2,6 +2,9 @@
 .env
 .env.!
 
+# Ignore logs
+logs/*
+
 #vscode stuffs
 .vscode
 
