@@ -66,7 +66,7 @@
     },
     data: {
       // URL for fetching CSV data dynamically
-      csvURL:`http://localhost:8080/csv-data/test.csv`, // Will be changed for production
+      csvURL:`http://localhost:8080/flare/csv-data/test.csv`, // Will be changed for production
       enablePolling: true, // Refresh data periodically
       dataRefreshRate: 3600, // Interval for refreshing in seconds
       complete: function (data) {

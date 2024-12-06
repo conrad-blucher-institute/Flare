@@ -69,7 +69,7 @@
       },
     },
     data: {
-      csvURL: `http://localhost:8080/csv-data/test.csv`, // Will be changed for production
+      csvURL: `http://localhost:8080/flare/csv-data/test.csv`, // Will be changed for production
       enablePolling: true,
       dataRefreshRate: 10,
       complete: function (data) {
