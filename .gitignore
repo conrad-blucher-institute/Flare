@@ -19,7 +19,6 @@ venv/
 **/node_modules/
 
 # Ignore Nginx configuration files
-nginx.conf
 conf.d/
 
 # Ignore data directory

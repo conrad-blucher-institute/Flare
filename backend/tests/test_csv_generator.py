@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import random
 import time
 import pytz  # For timezone handling
+import os
 
 def generate_test_csv(file_name="data/csv/test.csv"):
     # Define the CDT timezone
@@ -10,8 +11,8 @@ def generate_test_csv(file_name="data/csv/test.csv"):
     
     # Define the time range
     now = datetime.now(cdt)  # Current time in CDT
-    start_time = now - timedelta(days=14)  # A week from now
-    end_time = now + timedelta(days=7)    # Two days after now
+    start_time = now - timedelta(days=14)  # Two weeks ago
+    end_time = now + timedelta(days=7)    # A week from now
     prediction_start_time = now  # Predictions begin from the current time
 
     # Initialize an empty list to store data
@@ -33,22 +34,18 @@ def generate_test_csv(file_name="data/csv/test.csv"):
             "Water Prediction": prediction,
             "Air Measurement": measurement2,
             "Air Prediction": prediction2,
-            
         })
         current_time += timedelta(hours=6)  # Increment by specified time
 
     df = pd.DataFrame(data)
 
     # Ensure the directory exists
-    import os
     os.makedirs(os.path.dirname(file_name), exist_ok=True)
 
     # Write the DataFrame to a CSV file
     df.to_csv(file_name, index=False)
     print(f"Data written to {file_name}")
-    
-    time.sleep(5)
 
 if __name__ == "__main__":
-
-    generate_test_csv("data/csv/test.csv")
+    while True:
+        generate_test_csv("data/csv/test.csv")
