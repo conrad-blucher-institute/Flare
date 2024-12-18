@@ -49,3 +49,4 @@ def generate_test_csv(file_name="data/csv/test.csv"):
 if __name__ == "__main__":
     while True:
         generate_test_csv("data/csv/test.csv")
+        time.sleep(360)

@@ -66,38 +66,30 @@
     },
     data: {
       // URL for fetching CSV data dynamically
-      csvURL:`http://localhost:8080/flare/csv-data/test.csv`, // Will be changed for production
+      csvURL:`${window.location.origin}/flare/csv-data/test.csv`, 
       enablePolling: true, // Refresh data periodically
       dataRefreshRate: 3600, // Interval for refreshing in seconds
-      complete: function (data) {
+      complete: function (chartData) {
         // Parse and filter CSV data for the chart
-        const waterTemperatureMeasurements = data.series[0]; 
-        const waterTemperaturePredictions = data.series[1]; 
-        const airTemperatureMeasurements = data.series[2]; 
-        const airTemperaturePredictions = data.series[3]; 
+        const waterTemperatureMeasurements = chartData.series?.[0] || { data: [] };
+        const waterTemperaturePredictions = chartData.series?.[1] || { data: [] };
+        const airTemperatureMeasurements = chartData.series?.[2] || { data: [] };
+        const airTemperaturePredictions = chartData.series?.[3] || { data: [] };
 
-        // Filter water measurements before the current time
-        const filteredWaterMeasurementData = waterTemperatureMeasurements.data.filter(
-          (point) => new Date(point[0]) <= nowTime
-        );
+        //Check for valid date entries
+        const filterDataBefore = (data) =>
+          data.filter((point) => point[0] && new Date(point[0]) <= nowTime);
+        const filterDataAfter = (data) =>
+          data.filter((point) => point[0] && new Date(point[0]) >= nowTime);
 
-        // Filter water predictions starting from the current time
-        const filteredWaterPredictionData = waterTemperaturePredictions.data.filter(
-          (point) => new Date(point[0]) >= nowTime
-        );
-
-        // Filter air measurements before the current time
-        const filteredAirMeasurementData = airTemperatureMeasurements.data.filter(
-          (point) => new Date(point[0]) <= nowTime
-        );
-
-        // Filter air predictions starting from the current time
-        const filteredAirPredictionData = airTemperaturePredictions.data.filter(
-          (point) => new Date(point[0]) >= nowTime
-        );
+        // Filter measurements and predictions
+        const filteredWaterMeasurementData = filterDataBefore(waterTemperatureMeasurements.data);
+        const filteredWaterPredictionData = filterDataAfter(waterTemperaturePredictions.data);
+        const filteredAirMeasurementData = filterDataBefore(airTemperatureMeasurements.data);
+        const filteredAirPredictionData = filterDataAfter(airTemperaturePredictions.data);
 
         // Update the chart with filtered data
-        data.series = [
+        chartData.series = [
           {
             name: 'Water Temperature Measurements',
             data: filteredWaterMeasurementData,
