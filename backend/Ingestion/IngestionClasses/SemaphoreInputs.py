@@ -47,7 +47,8 @@ class SemaphoreInputs(IDataIngestion):
 
         url = f'{getenv("SEMAPHORE_API_URL")}input/source={source}/series={series}/location={location}/fromDateTime={fromDateTime}/toDateTime={toDateTime}'
         if datum != None: url += f'?datum={datum}'
-
+        print('')
+        print(f'-------------------------URL: {url}')
         return url
     
 

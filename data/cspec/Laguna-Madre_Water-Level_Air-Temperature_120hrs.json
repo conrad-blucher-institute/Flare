@@ -1,0 +1,111 @@
+{
+    "chart_name": "Laguna_Madre",
+    "CSPEC_version": "1.0.0",
+    "data_requests" : [
+      {  "key": "SemaphoreInputs",
+         "args": {
+            "column_name": "Water Temperature Measurement",
+            "location": "SBI", 
+            "source": "NOAATANDC",
+            "series": "dWaterTmp",
+            "interval": 3600,
+            "range": [-144, 0]
+         }
+            
+        },
+        {  "key": "SemaphoreInputs",
+         "args": {
+            "column_name": "Air Temperature Measurement",
+            "location": "SBI",
+            "source": "NOAATANDC",
+            "series": "dAirTmp",
+            "interval": 3600,
+            "range": [-144, 0]
+         }
+            
+        },
+        {  "key": "SemaphoreInputs",
+         "args": {
+            "column_name": "Air Temperature Prediction",
+            "location": "lagunamadre", 
+            "source": "NDFD_EXP",
+            "series": "pAirTemp",
+            "interval": 3600,
+            "range": [120, 1]
+         }
+            
+        },
+        {  "key": "SemaphoreOutputLatest",
+         "args": {
+            "column_name": "Water Temperature Prediction",
+            "model_names": [
+              "Bird-Island_Water-Temperatue_3hr",
+              "Bird-Island_Water-Temperatue_6hr",
+              "Bird-Island_Water-Temperatue_12hr",
+              "Bird-Island_Water-Temperatue_18hr",
+              "Bird-Island_Water-Temperatue_24hr",
+              "Bird-Island_Water-Temperatue_30hr",
+              "Bird-Island_Water-Temperatue_36hr",
+              "Bird-Island_Water-Temperatue_42hr",
+              "Bird-Island_Water-Temperatue_48hr",
+              "Bird-Island_Water-Temperatue_54hr",
+              "Bird-Island_Water-Temperatue_60hr",
+              "Bird-Island_Water-Temperatue_66hr",
+              "Bird-Island_Water-Temperatue_72hr",
+              "Bird-Island_Water-Temperatue_78hr",
+              "Bird-Island_Water-Temperatue_84hr",
+              "Bird-Island_Water-Temperatue_90hr",
+              "Bird-Island_Water-Temperatue_96hr",
+              "Bird-Island_Water-Temperatue_102hr",
+              "Bird-Island_Water-Temperatue_108hr",
+              "Bird-Island_Water-Temperatue_114hr",
+              "Bird-Island_Water-Temperatue_120hr"
+            ] 
+          }
+            
+        }
+    ],
+    "post_processing" : [
+      {
+        "key": "AddMostRecentMeasurement",
+        "args": {
+              "measurement_col_key": "Air Temperature Measurement",
+              "prediction_col_key": "Air Temperature Prediction"
+        }
+      },
+      {
+        "key": "AddMostRecentMeasurement",
+        "args": {
+              "measurement_col_key": "Water Temperature Measurement",
+              "prediction_col_key": "Water Temperature Prediction"
+        }
+      },
+      {
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Air Temperature Prediction",
+            "interpolation_interval": 3600,
+            "limit": 10800
+        }
+      },
+      {
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction",
+            "interpolation_interval": 3600,
+            "limit": 144000
+        }
+      }
+
+    ],
+    "csv_config": {
+      "csv_name": "Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv",
+      "included_columns": [
+        "Water Temperature Measurement",
+        "Water Temperature Prediction",
+        "Air Temperature Measurement",
+        "Air Temperature Prediction"
+      ]
+    }
+  }
+  

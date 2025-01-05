@@ -14,7 +14,19 @@
             "96hr_VirginiaKey_wl"           
           ] 
         }
-      }
+      },
+      {  "key": "SemaphoreInputs",
+         "args": {
+            "column_name": "Water Temperature Measurement",
+            "location": "VirginiaKey", 
+            "source": "NOAATANDC",
+            "series": "dWl",
+            "datum": "NAVD",
+            "interval": 3600,
+            "range": [-144, 0]
+         }
+            
+        }
     ],
     "post_processing" : [
       {
