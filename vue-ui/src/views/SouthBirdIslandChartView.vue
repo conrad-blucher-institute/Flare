@@ -631,7 +631,7 @@ onUnmounted(() => {
     <!-- Left Column -->
     <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
       <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
-        Data on This Graph
+        Data on this Graph:
       </h3>
       <ul class="list-disc list-inside space-y-4 text-base md:text-lg text-gray-700">
         <li>
