@@ -19,13 +19,11 @@
 // Author: Anointiyae Beasley
 // Date: 11/04/2024
 // ===================================================
-import './assets/main.css'// Application-specific styles
-import './assets/base.css'; // Global reset and utility styles
-
-
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import './assets/tailwind.css'
+
 
 
 import App from './App.vue'
