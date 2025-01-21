@@ -31,14 +31,18 @@ Flare is a student-built and maintained web application that visualizes data gen
 ## Vue Development Setup(Frontend)
 1. Use NVM to switch to the Node version specified in the frontend container.
     - Linux/WSL Installation:
-        - Install:'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash'
-        - Install node using nvm : 'nvm install node '
-        -Install node version: 'nvm install 22.10.0'
-        - Switch to the version used in the frontend container  : 'nvm use 22.10.0'
-        - Check the node version: node -v
-        - Install vite: 'nvm install vite'
-2. Change to the Vue app directory 'cd vue-ui'
-3. Run the development enviornment : 'npm run dev'
+        - Install:`curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash`
+           - If that fails use `curl https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash`
+        - Install node using nvm : `nvm install node`
+        -Install node version: `nvm install 22.10.0`
+        - Switch to the version used in the frontend container  : `nvm use 22.10.0`
+        - Check the node version: `node -v`
+2. Change to the Vue app directory `cd vue-ui`
+    - Install vite: `npm install vite`
+3. Build containers
+   - Run `docker compose build`
+   - Run `docker compose up -d`
+4. Run the development enviornment : `npm run dev`
 
 
 ## Authors
