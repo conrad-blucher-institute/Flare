@@ -34,7 +34,7 @@ class AddMostRecentMeasurement(IPostProcessing):
         # Isolate the relevant series
         s_measurement = data[measurement_col_key]
         s_prediction = data[prediction_col_key]
-        s_date = data["Date"]
+        s_date = data.index
         # Get the current date
         now = datetime.now()
 
@@ -43,7 +43,11 @@ class AddMostRecentMeasurement(IPostProcessing):
         closest_time_diff = None
         for i in range(len(data)):
             if not isna(s_measurement.iloc[i]):  # Only consider rows with valid measurements
-                row_date = datetime.strptime(s_date.iloc[i], '%Y-%m-%d')  # Convert date string to datetime
+                row_date =s_date[i]  # Convert date string to datetime
+                if isinstance(row_date, str):  # In case the index values are strings
+                    row_date = datetime.strptime(row_date, '%Y-%m-%d %H:%M:%S') 
+
+                
                 time_diff = abs((row_date - now).total_seconds())  # Calculate time difference in seconds
                 
                 if closest_time_diff is None or time_diff < closest_time_diff:

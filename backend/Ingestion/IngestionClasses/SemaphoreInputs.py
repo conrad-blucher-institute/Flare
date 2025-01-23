@@ -47,8 +47,6 @@ class SemaphoreInputs(IDataIngestion):
 
         url = f'{getenv("SEMAPHORE_API_URL")}input/source={source}/series={series}/location={location}/fromDateTime={fromDateTime}/toDateTime={toDateTime}'
         if datum != None: url += f'?datum={datum}'
-        print('')
-        print(f'-------------------------URL: {url}')
         return url
     
 
@@ -73,8 +71,9 @@ class SemaphoreInputs(IDataIngestion):
 
             # Check its not a null datapoint
             value = datapoint['dataValue']
-            if value == 'None': value = nan
-            else: value = float(value)
+            if (value == 'None') or (value is None): value = nan
+            else: 
+                value = float(value)
             data.append(value)
 
         # Add this to the collation df with an outer join to ensure all data is preserved

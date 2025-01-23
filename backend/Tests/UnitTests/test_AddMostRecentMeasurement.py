@@ -10,7 +10,7 @@ import sys
 sys.path.append('/app/backend')
 
 import pytest
-from pandas import DataFrame
+from pandas import DataFrame, to_datetime
 from PostProcessing.IPostProcessing import post_process_factory
 from datetime import datetime, timedelta
 from numpy import nan
@@ -25,14 +25,15 @@ start_date = today - timedelta(days=2)
 # Generate a list of 4 dates
 dates = []
 for i in range(5):
-    dates.append((start_date + timedelta(days=i)).strftime('%Y-%m-%d'))
+    dates.append((start_date + timedelta(days=i)).strftime('%Y-%m-%d %H:%M:%S'))
     
 # Define the test DataFrame
 test_df = DataFrame({
     'measurement': [1.0, 2.0, 2.5, nan, nan],
     'prediction': [nan, nan, nan, 2.2, 2.6],
     'Date': dates
-})
+}).set_index('Date')  # Set Date as the index
+
 
 @pytest.mark.parametrize("test_df, measurement_key, prediction_key, expected_results", [
     (
@@ -43,7 +44,7 @@ test_df = DataFrame({
             'measurement': [1.0, 2.0, 2.5, nan, nan],
             'prediction': [nan, nan, 2.5, 2.2, 2.6],
             'Date': dates 
-        })
+        }).set_index('Date')  # Set Date as the index
     )
 ])
 def test_post_process(test_df: DataFrame, measurement_key: str, prediction_key: str, expected_results: DataFrame):

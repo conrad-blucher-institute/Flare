@@ -48,6 +48,8 @@ def generate_csv(cspec_file_path: str, verbose: bool = False) -> None:
         if verbose: print(df)
     print(f'IPost Processing data columns: {df.columns}')
 
+    # Rename the index to "Date"
+    df.index.name = "Date" 
     # Export CSV
     print('Init csv export...')
     export_path = f'./data/csv/{CSPEC.csv_name}'
