@@ -37,7 +37,7 @@ def generate_csv(cspec_file_path: str, verbose: bool = False) -> None:
         print(f'\t\tkwargs: {ingestion_call.kwargs}')
         df = data_ingestion_factory(data=df, ref_time=reference_time, key=ingestion_call.call_key, **ingestion_call.kwargs)
         if verbose: print(df)
-    
+    print(f'Ingestion data columns: {df.columns}')
 
     # Run PostProcessing
     print('Init Post Process Calls...')
@@ -46,7 +46,10 @@ def generate_csv(cspec_file_path: str, verbose: bool = False) -> None:
         print(f'\t\tkwargs: {post_processing_call.kwargs}')
         df = post_process_factory(data=df, key=post_processing_call.call_key, **post_processing_call.kwargs)
         if verbose: print(df)
+    print(f'IPost Processing data columns: {df.columns}')
 
+    # Rename the index to "Date"
+    df.index.name = "Date" 
     # Export CSV
     print('Init csv export...')
     export_path = f'./data/csv/{CSPEC.csv_name}'
