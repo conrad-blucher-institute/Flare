@@ -150,7 +150,7 @@ const smallScreenChartOptions = ref({
     {
       color: "red",
       width: 2,
-      value: 45,
+      value: 46.4,
       dashStyle: "Dash",
       label: {
         text: "Sea Turtle Water Temperature Threshold",
@@ -343,7 +343,7 @@ const largeScreenChartOptions = ref({
       {
         color: "red",
         width: 2,
-        value: 45,
+        value: 46.4,
         dashStyle: "Dash",
         label: {
           text: "Sea Turtle Water Temperature Threshold",
@@ -399,7 +399,7 @@ if (isSmallScreen) {
 // Function to fetch and process CSV data
 const fetchAndFilterData = async () => {
   try {
-    const response = await fetch(`${window.location.origin}/flare/csv-data/test.csv`);
+    const response = await fetch(`${window.location.origin}/flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv`);
     if (!response.ok) throw new Error("Failed to fetch CSV data");
 
     const csvText = await response.text();
@@ -557,9 +557,9 @@ onUnmounted(() => {
     <!-- Overlay image on the left -->
     <div class="relative w-full h-full" >
       <img
-        src="@/assets/images/MapOverlayDesktop.png"
+        src="@/assets/images/LagunaMadreBay.jpg"
         alt="Map Overlay"
-        class="lg:w-[150%] h-full object-cover absolute opacity-30 lg:pr-[500px]"
+        class="lg:w-full h-full object-cover absolute opacity-30"
       />
       <!-- Text content overlay -->
       <div class="absolute  inset-0 flex items-center justify-end pr-10">
@@ -588,7 +588,7 @@ onUnmounted(() => {
       <ul v-if="isExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
         <li>
           <a 
-            href="http://localhost:8080//flare/csv-data/test.csv" 
+            href="http://localhost:8080//flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv" 
             download="chart_data.csv" 
             class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
             Download CSV
