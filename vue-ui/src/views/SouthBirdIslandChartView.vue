@@ -14,15 +14,24 @@
 import Highcharts from "highcharts";
 import { Chart } from "highcharts-vue";
 
-import { ref, onMounted, onUnmounted, watch } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 
 const isSmallScreen = window.innerWidth <= 600;
+const csvURL = ref(`${window.location.origin}/flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv`);
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
 
 
 // Define the current date and time
 const nowDate = new Date();// Current timestamp
+const nowTime = Date.UTC(
+  nowDate.getUTCFullYear(),
+  nowDate.getUTCMonth(),
+  nowDate.getUTCDate(),
+  nowDate.getUTCHours(),
+  nowDate.getUTCMinutes()
+);
+
 const chartOptions = ref({});
 // Small screen chart options
 const smallScreenChartOptions = ref({
@@ -86,7 +95,7 @@ const smallScreenChartOptions = ref({
       {
         color: "red",
         width: 2, // Line width
-        value: nowDate.getTime(), // Use timestamp for correct placement
+        value: nowTime, // Use timestamp for correct placement
         dashStyle: "Solid",
         label: {
           text: "Now",
@@ -279,7 +288,7 @@ const largeScreenChartOptions = ref({
       {
         color: "red",
         width: 2,
-        value: new Date().getTime(),
+        value: nowTime,
         dashStyle: "Solid",
         label: {
           text: "Now",
@@ -399,73 +408,66 @@ if (isSmallScreen) {
 // Function to fetch and process CSV data
 const fetchAndFilterData = async () => {
   try {
-    const response = await fetch(`${window.location.origin}/flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv`);
+    const response = await fetch(csvURL.value);
     if (!response.ok) throw new Error("Failed to fetch CSV data");
 
     const csvText = await response.text();
-    console.log("UPDATED CSV Data:", csvText); // Log the raw CSV data
+    console.log("UPDATED CSV Data:", csvText);
 
     const parsedData = parseCSV(csvText);
-    console.log("Parsed CSV Data:", parsedData); // Log the parsed data
+    console.log("Parsed CSV Data:", parsedData);
 
-    // Filter data based on current time
-    const nowTime = new Date();
-    const filterDataBefore = (data) => data.filter((point) => new Date(point[0]) <= nowTime);
-    const filterDataAfter = (data) => data.filter((point) => new Date(point[0]) >= nowTime);
+    console.log("---------NOW TIME---------");
+    console.log(nowTime);
 
-    const WaterMeasurementData = filterDataBefore(parsedData.waterMeasurements);
-    const AirMeasurementData = filterDataBefore(parsedData.airMeasurements);
-    const InterpolatedAirPredictionData = filterDataAfter(parsedData.airPredictions);
-    const InterpolatedWaterPredictionData = filterDataAfter(parsedData.waterPredictions);
+    // Ensure parsed arrays are initialized
+    const WaterMeasurementData = parsedData.waterMeasurements || [];
+    const AirMeasurementData = parsedData.airMeasurements || [];
+    const InterpolatedAirPredictionData = parsedData.airPredictions || [];
+    const InterpolatedWaterPredictionData = parsedData.waterPredictions || [];
 
     // Filter `InterpolatedAirPrediction` to only include hourly data
-    const AirPredictionData = parsedData.airPredictions.filter((point) => {
+    const AirPredictionData = InterpolatedAirPredictionData.filter((point) => {
       const pointTime = new Date(point[0]);
       return pointTime >= nowTime && pointTime.getMinutes() === 0; // Include only hourly points
     });
 
     // Filter `InterpolatedWaterPrediction` for specific intervals
     const hoursToFilter = [3, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 102, 114, 120];
-    const WaterPredictionData = parsedData.waterPredictions.filter((point) => {
+    const WaterPredictionData = InterpolatedWaterPredictionData.filter((point) => {
       const pointTime = new Date(point[0]);
       const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
       return hoursToFilter.includes(hoursDifference);
     });
 
-  
-  const AirMeasurementDataFahrenheit = AirMeasurementData.map(([time, celsius]) => [
-    time,
-    (celsius * 9) / 5 + 32, // Convert Celsius to Fahrenheit
-  ]);
- 
-  const WaterMeasurementDataFahrenheit = WaterMeasurementData.map(([time, celsius]) => [
-    time,
-    (celsius * 9) / 5 + 32, // Convert Celsius to Fahrenheit
-  ]);
+    // Convert all data to Fahrenheit
+    const AirMeasurementDataFahrenheit = AirMeasurementData.map(([time, celsius]) => [
+      time,
+      (celsius * 9) / 5 + 32,
+    ]);
 
-  
-  const InterpolatedWaterPredictionDataFahrenheit = InterpolatedWaterPredictionData.map(([time, celsius]) => [
-    time,
-    (celsius * 9) / 5 + 32, // Convert Celsius to Fahrenheit
-  ]);
+    const WaterMeasurementDataFahrenheit = WaterMeasurementData.map(([time, celsius]) => [
+      time,
+      (celsius * 9) / 5 + 32,
+    ]);
 
-  
-  const InterpolatedAirPredictionDataFahrenheit = InterpolatedAirPredictionData.map(([time, celsius]) => [
-    time,
-    (celsius * 9) / 5 + 32, // Convert Celsius to Fahrenheit
-  ]);
+    const InterpolatedWaterPredictionDataFahrenheit = InterpolatedWaterPredictionData.map(
+      ([time, celsius]) => [time, (celsius * 9) / 5 + 32]
+    );
 
-  
-   const AirPredictionDataFahrenheit = AirPredictionData.map(([time, celsius]) => [
-    time,
-    (celsius * 9) / 5 + 32, // Convert Celsius to Fahrenheit
-  ]);
+    const InterpolatedAirPredictionDataFahrenheit = InterpolatedAirPredictionData.map(
+      ([time, celsius]) => [time, (celsius * 9) / 5 + 32]
+    );
 
-  const WaterPredictionDataFahrenheit = WaterPredictionData.map(([time, celsius]) => [
-    time,
-    (celsius * 9) / 5 + 32, // Convert Celsius to Fahrenheit
-  ]);
+    const AirPredictionDataFahrenheit = AirPredictionData.map(([time, celsius]) => [
+      time,
+      (celsius * 9) / 5 + 32,
+    ]);
 
+    const WaterPredictionDataFahrenheit = WaterPredictionData.map(([time, celsius]) => [
+      time,
+      (celsius * 9) / 5 + 32,
+    ]);
 
     // Update chart series with filtered data
     chartOptions.value.series = [
@@ -481,14 +483,14 @@ const fetchAndFilterData = async () => {
         data: InterpolatedWaterPredictionDataFahrenheit,
         color: "black",
         dashStyle: "Dash",
-        lineWidth:  isSmallScreen ? 2 : 5,
+        lineWidth: isSmallScreen ? 2 : 5,
         marker: { enabled: false },
       },
       {
         name: "Air Temperature Measurements",
         data: AirMeasurementDataFahrenheit,
         color: "#73c5da",
-        lineWidth:  isSmallScreen ? 2 : 4,
+        lineWidth: isSmallScreen ? 2 : 4,
         marker: { enabled: false },
       },
       {
@@ -496,7 +498,7 @@ const fetchAndFilterData = async () => {
         data: InterpolatedAirPredictionDataFahrenheit,
         color: "orange",
         dashStyle: "Dash",
-        lineWidth:  isSmallScreen ? 2 : 5,
+        lineWidth: isSmallScreen ? 2 : 5,
         marker: { enabled: false },
       },
       {
@@ -505,10 +507,10 @@ const fetchAndFilterData = async () => {
         color: "green",
         dashStyle: "Dash",
         lineWidth: 0,
-        marker:{
-           enabled: true,
-           radius: isSmallScreen ? 2 : 4
-         }
+        marker: {
+          enabled: false,
+          radius: isSmallScreen ? 2 : 4,
+        },
       },
       {
         name: "Water Temperature Predictions",
@@ -517,15 +519,16 @@ const fetchAndFilterData = async () => {
         dashStyle: "Dash",
         lineWidth: 0,
         marker: {
-           enabled: true,
-           radius: isSmallScreen ? 2 : 4
-         }
+          enabled: true,
+          radius: isSmallScreen ? 2 : 4,
+        },
       },
     ];
   } catch (error) {
     console.error("Error fetching or processing data:", error);
   }
 };
+
 
 // CSV parsing function
 const parseCSV = (csvText) => {
@@ -541,8 +544,9 @@ const parseCSV = (csvText) => {
 
     const [timestamp, waterMeasurement, waterPrediction, airMeasurement, airPrediction] = row;
 
-    // Parse timestamp
-    const parsedTimestamp = new Date(timestamp).getTime(); // Convert to milliseconds
+    // Parse timestamp as UTC
+    const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
+    const parsedTimestamp = Date.UTC(year, month - 1, day, hour, minute, second); // Parse as UTC (subtract 1 from month as Date.UTC expects 0-based months)
 
     if (!isNaN(parsedTimestamp)) {
 
@@ -624,8 +628,8 @@ onUnmounted(() => {
       <ul v-if="isExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
         <li>
           <a 
-            href="http://localhost:8080//flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv" 
-            download="chart_data.csv" 
+            href="csvURL"
+            download="Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv"
             class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
             Download CSV
           </a>
