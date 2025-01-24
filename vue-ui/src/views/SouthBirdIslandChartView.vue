@@ -431,18 +431,54 @@ const fetchAndFilterData = async () => {
       const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
       return hoursToFilter.includes(hoursDifference);
     });
+
+  
+  const AirMeasurementDataFahrenheit = AirMeasurementData.map(([time, celsius]) => [
+    time,
+    (celsius * 9) / 5 + 32, // Convert Celsius to Fahrenheit
+  ]);
+ 
+  const WaterMeasurementDataFahrenheit = WaterMeasurementData.map(([time, celsius]) => [
+    time,
+    (celsius * 9) / 5 + 32, // Convert Celsius to Fahrenheit
+  ]);
+
+  
+  const InterpolatedWaterPredictionDataFahrenheit = InterpolatedWaterPredictionData.map(([time, celsius]) => [
+    time,
+    (celsius * 9) / 5 + 32, // Convert Celsius to Fahrenheit
+  ]);
+
+  
+  const InterpolatedAirPredictionDataFahrenheit = InterpolatedAirPredictionData.map(([time, celsius]) => [
+    time,
+    (celsius * 9) / 5 + 32, // Convert Celsius to Fahrenheit
+  ]);
+
+  
+   const AirPredictionDataFahrenheit = AirPredictionData.map(([time, celsius]) => [
+    time,
+    (celsius * 9) / 5 + 32, // Convert Celsius to Fahrenheit
+  ]);
+
+  const WaterPredictionDataFahrenheit = WaterPredictionData.map(([time, celsius]) => [
+    time,
+    (celsius * 9) / 5 + 32, // Convert Celsius to Fahrenheit
+  ]);
+
+
     // Update chart series with filtered data
     chartOptions.value.series = [
       {
         name: "Water Temperature Measurements",
-        data: WaterMeasurementData,
+        data: WaterMeasurementDataFahrenheit,
         color: "black",
         lineWidth: isSmallScreen ? 2 : 4,
         marker: { enabled: false },
       },
       {
         name: "Interpolated Predicted Water Temperature",
-        data: InterpolatedWaterPredictionData,
+        data: InterpolatedWaterPredictionDataFahrenheit,
         color: "black",
         dashStyle: "Dash",
         lineWidth:  isSmallScreen ? 2 : 5,
@@ -450,14 +486,14 @@ const fetchAndFilterData = async () => {
       },
       {
         name: "Air Temperature Measurements",
-        data: AirMeasurementData,
+        data: AirMeasurementDataFahrenheit,
         color: "#73c5da",
         lineWidth:  isSmallScreen ? 2 : 4,
         marker: { enabled: false },
       },
       {
         name: "Interpolated Predicted Air Temperature",
-        data: InterpolatedAirPredictionData,
+        data: InterpolatedAirPredictionDataFahrenheit,
         color: "orange",
         dashStyle: "Dash",
         lineWidth:  isSmallScreen ? 2 : 5,
@@ -465,7 +501,7 @@ const fetchAndFilterData = async () => {
       },
       {
         name: "Air Temperature Predictions",
-        data: AirPredictionData,
+        data: AirPredictionDataFahrenheit,
         color: "green",
         dashStyle: "Dash",
         lineWidth: 0,
@@ -476,7 +512,7 @@ const fetchAndFilterData = async () => {
       },
       {
         name: "Water Temperature Predictions",
-        data: WaterPredictionData,
+        data: WaterPredictionDataFahrenheit,
         color: "purple",
         dashStyle: "Dash",
         lineWidth: 0,
@@ -559,7 +595,7 @@ onUnmounted(() => {
       <img
         src="@/assets/images/LagunaMadreBay.jpg"
         alt="Map Overlay"
-        class="lg:w-full h-full object-cover absolute opacity-30"
+        class="w-full h-full object-crop flex opacity-30"
       />
       <!-- Text content overlay -->
       <div class="absolute  inset-0 flex items-center justify-end pr-10">
