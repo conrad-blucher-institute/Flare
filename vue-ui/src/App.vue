@@ -24,73 +24,24 @@
 <script setup>import DropDownMenu from './components/DropDownMenu.vue';</script>
 
 <template>
-
-    <header>
+  <!-- Header Section -->
+  <header class="fixed top-0 left-0 w-full bg-navy-blue shadow-lg z-50 flex items-center justify-between px-4 py-3 sm:px-8 sm:py-4">
+    <!-- Logo -->
+    <img 
+      class="h-12 sm:h-16 transition-all duration-300 ease-in-out" 
+      src="@/assets/images/Flare-Logo.png" 
+      alt="Flare Logo"
+    />
     
-   <!-- DropDown Menu and header that appears on all pages -->
-    <div class="dropdown-section">
-      <img class="flare-logo" src="@/assets/images/Flare-Logo.png" alt="Flare Logo">
-
-      <DropDownMenu/> 
-    </div>
+    <!-- Dropdown Menu -->
+    <DropDownMenu />
   </header>
 
-  <!-- Displays page based on route-->
-   <section class="router-section">
-      <div>
-        <RouterView/>
-      </div>
-   </section>
-
+  <!-- Main Content Section -->
+  <main class="pt-16 sm:pt-20">
+    <RouterView />
+  </main>
 </template>
 
-<style scoped>
-  
 
-/* Styles for screens wider than 768px (tablets and desktops) */
-@media (min-width: 768px) {
-  .page-container{
-    overflow: hidden;
-  }
-    .dropdown-section{
-    position: fixed; 
-    top: 0;          /* Aligns it to the top of the viewport */
-    left: 0;         /* Aligns it to the left of the viewport */
-    width: 100%;     /* Full width across the screen */
-    z-index: 1000;   /* Ensures it displays above other content */
-    background-color: var(--navy-blue); 
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Adds a dropdown shadow */
-    }
 
-    /* Flare logo styling */
-  .flare-logo {
-    height: 90px; /* Adjust height as needed */
-    margin-right: 20px; /* Adds spacing from the right edge of the header */
-  }
-}
-
-  
-/* Styles for screens narrower than 480px ( mobile phones) */
-@media (max-width: 480px) {
-
-  .dropdown-section {
-    position: fixed; 
-    top: 0;          /* Aligns it to the top of the viewport */
-    left: 0;         
-    width: 100%;     
-    flex-direction: column; /* Stack items vertically */
-    z-index: 1000;
-    align-items: center;
-    height: 70px;
-    background-color: var(--navy-blue); 
-  }
-
-  .flare-logo {
-    height: 60px; /* Reduce logo size */
-    margin-bottom: 5px; /* Add spacing below the logo */
-  }
-
-  
-  }
-
-</style>

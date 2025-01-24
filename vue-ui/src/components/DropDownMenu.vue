@@ -38,144 +38,35 @@
   </script>
 
 <template>
-  <!-- The button that displays 3 bars-->
-    <div class="dropdown">
-      <button class="dropbtn" @click="toggleDropdown">
-        <div class="bar"></div>
-        <div class="bar"></div>
-        <div class="bar"></div>
-      </button>
-      <!-- If the dropdown menu is open, show the different options passed from App.vue
-         and when one is clicked, the selectOption function is triggered -->
-      <div class="dropdown-content" v-if="isOpen">
-        <div v-for="option in menuStore.dropDownMenuOptions" :key="option.link.name">
-            <RouterLink :to="option.link">{{ option.label }}</RouterLink> <!-- Display each option -->
-        </div>
+  <div class="relative inline-block float-right z-10">
+    <!-- Hamburger Button -->
+    <button
+      @click="toggleDropdown"
+      class="flex flex-col items-center justify-center p-2 bg-transparent border-none cursor-pointer"
+    >
+      <!-- Hamburger Bars -->
+      <span class="block w-8 h-1 bg-white rounded mb-1 transition-transform duration-300"></span>
+      <span class="block w-8 h-1 bg-white rounded mb-1 transition-transform duration-300"></span>
+      <span class="block w-8 h-1 bg-white rounded transition-transform duration-300"></span>
+    </button>
+
+    <!-- Dropdown Content -->
+    <div
+      v-if="isOpen"
+      class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-20"
+    >
+      <div
+        v-for="option in menuStore.dropDownMenuOptions"
+        :key="option.link.name"
+        class="px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100 cursor-pointer"
+      >
+        <RouterLink :to="option.link" class="block text-inherit no-underline">
+          {{ option.label }}
+        </RouterLink>
       </div>
     </div>
-  </template>
-  
- 
-  
-  <style scoped>
-
-/* Hamburger Button */
-.dropbtn {
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.bar {
-  display: block;
-  width: 30px; 
-  height: 4px;
-  background-color: var(--primary-text-dark-background); 
-  margin: 4px 0;
-  border-radius: 2px; /* Rounded corners*/
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-
-/* Dropdown Container */
-.dropdown {
-  position: relative;
-  display: inline-block;
-  float: right; /* Align to the right */
-  margin: 10px;
-  z-index: 10;
-}
-
-
-/* Dropdown Content */
-.dropdown-content {
-  position: absolute;
-  right: 0;
-  top: 100%; /* Position the dropdown below the button */
-  background-color: var(--secondary-background);
-  border-radius: 8px;
-  overflow: hidden; 
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
-  z-index: 20;
-  min-width: 200px; 
-  animation: fadeIn 0.3s ease-out; /* Referencing the animation in main.css */
-}
-
-/* Dropdown Options */
-.dropdown-content div {
-  color: var(--primary-text-light-background);
-  padding: 12px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background-color 0.2s ease, color 0.2s ease;  
-}
-
-.dropdown-content div:hover {
-  background-color: var(--secondary-background); 
-  color: var(--primary-text-light-background);
-}
-
-
-.dropdown-content a {
-  text-decoration: none; /* Remove underline */
-  color: inherit; /* Inherit the color from the parent */
-}
-
-.dropdown-content a:hover {
-  color:var(--primary-text-light-background);
-}
-/* Media Query for Mobile Screens */
-@media (max-width: 480px) {
-
-  .dropbtn {
-  position: fixed; /* Keeps the button in a fixed position on the screen */
-  top: 5px; 
-  right: 10px; /* Keeps it near the right edge */
-  padding: 10px; 
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000; /* Ensures the button is above other elements */
-}
-  .dropdown {
-    float: none; 
-    width: 50%; 
-    height: 10px;
-    text-align: center;
-  }
-
-  .dropdown-content {
-    min-width: 10%;
-    border-radius: 0.8; 
-    position: fixed; 
-    top: 50px; 
-    right: 10px; /* Keeps it near the right edge */
-    padding: 10px;
-  }
-
-  .dropdown-content div {
-    font-size: 16px; 
-    padding: 14px 20px; 
-  }
-
-  .bar {
-    width: 25px; /* Slightly smaller hamburger icon for mobile */
-    height: 3px;
-  }
-}
+  </div>
+</template>
 
 
 
-</style>
-
-  

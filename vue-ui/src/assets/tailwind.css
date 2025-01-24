@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Reset */
+@layer base {
+  * {
+    @apply p-0 m-0; /* Reset padding and margin */
+  }
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .section-divider {
+    @apply bg-gradient-to-br from-[#1899a7] to-[#0f4c5c] py-8; /* Gradient background and padding */
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeInSlideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes vibrate {
+    0% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-5px);
+    }
+    50% {
+      transform: translateX(5px);
+    }
+    75% {
+      transform: translateX(-5px);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  .fade-in {
+    animation: fadeIn 0.5s ease-out;
+  }
+
+  .fade-in-slide-down {
+    animation: fadeInSlideDown 0.5s ease-out;
+  }
+
+  .vibrate {
+    animation: vibrate 0.6s ease-in-out;
+  }
+}
