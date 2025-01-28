@@ -628,7 +628,7 @@ onUnmounted(() => {
       <ul v-if="isExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
         <li>
           <a 
-            href="csvURL"
+            :href="csvURL"
             download="Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv"
             class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
             Download CSV

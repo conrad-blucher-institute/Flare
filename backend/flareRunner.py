@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# flareRunner.py.py
+# flareRunner.py
 #----------------------------------
 # Created By : Matthew Kastl
 #----------------------------------
@@ -31,7 +31,8 @@ def generate_csv(cspec_file_path: str, verbose: bool = False) -> None:
     df = DataFrame()
 
     # Run Ingestion
-    print('Init Ingestion Calls...')
+    print('')
+    print(f'------------{reference_time} : Init Ingestion Calls-------------')
     for ingestion_call in CSPEC.data_requests:
         print(f'\tIngestion Call: {ingestion_call.call_key}')
         print(f'\t\tkwargs: {ingestion_call.kwargs}')
@@ -39,25 +40,37 @@ def generate_csv(cspec_file_path: str, verbose: bool = False) -> None:
         if verbose: print(df)
     print(f'Ingestion data columns: {df.columns}')
 
-    # Run PostProcessing
-    print('Init Post Process Calls...')
-    for post_processing_call in CSPEC.post_processing:
-        print(f'\tPost Processing Call: {post_processing_call.call_key}')
-        print(f'\t\tkwargs: {post_processing_call.kwargs}')
-        df = post_process_factory(data=df, key=post_processing_call.call_key, **post_processing_call.kwargs)
-        if verbose: print(df)
-    print(f'IPost Processing data columns: {df.columns}')
+    if df.empty:
+        print("DF is empty. Exiting....")
+        return
+    
+    try:
+        # Run PostProcessing
+        print('Init Post Process Calls...')
+        for post_processing_call in CSPEC.post_processing:
+            print(f'\tPost Processing Call: {post_processing_call.call_key}')
+            print(f'\t\tkwargs: {post_processing_call.kwargs}')
+            df = post_process_factory(data=df, key=post_processing_call.call_key, **post_processing_call.kwargs)
+            if verbose: print(df)
+        print(f'IPost Processing data columns: {df.columns}')
 
-    # Rename the index to "Date"
-    df.index.name = "Date" 
-    # Export CSV
-    print('Init csv export...')
-    export_path = f'./data/csv/{CSPEC.csv_name}'
-    print(f'Exporting to {export_path}...')
+        # Rename the index to "Date"
+        df.index.name = "Date" 
+        # Export CSV
+        print('Init csv export...')
+        export_path = f'./data/csv/{CSPEC.csv_name}'
+        print(f'Exporting to {export_path}...')
 
-    for col in CSPEC.included_columns:
-        print('\t' + col) 
-    df[CSPEC.included_columns].to_csv(export_path)
+        for col in CSPEC.included_columns:
+            print('\t' + col) 
+        df[CSPEC.included_columns].to_csv(export_path)
+    except IndexError as e:
+        print(f"IndexError during post processing: {e}. DataFrame column may be empty.")
+    except ValueError as e:
+        print(f"ValueError: {e}.")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+    
 
 
 def main():
