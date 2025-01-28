@@ -111,7 +111,7 @@ const smallScreenChartOptions = ref({
     events: {
       afterSetExtremes: function () {
         const xAxis = this;
-        const min = Math.ceil(xAxis.min / (48 * 3600 * 1000)) * (48 * 3600 * 1000); // Start of the next day
+        const min = Math.ceil(xAxis.min / (24 * 3600 * 1000)) * (24 * 3600 * 1000); // Start of the next day
         const max = xAxis.max;
         const plotLines = [];
 
@@ -126,6 +126,7 @@ const smallScreenChartOptions = ref({
               text: Highcharts.dateFormat("%a %b %e", time),
               align: "left",
               rotation: 0,
+              y: 15,
               style: {
                 color: "#0f4f66",
                 fontSize: "12px",
@@ -229,7 +230,6 @@ const largeScreenChartOptions = ref({
     backgroundColor: "white",
     style: { fontFamily: "Arial" },
     marginRight: 30
-
   },
   title: {
     text: "Temperatures of the Upper Laguna Madre",
@@ -266,7 +266,6 @@ const largeScreenChartOptions = ref({
         fontFamily: "Arial",
         color: "#0f4f66"
       },
-
     },
     labelsOverflow: "justify", // Prevent truncation
     maxPadding: 0.1, // Reduce extra space around labels
@@ -281,7 +280,7 @@ const largeScreenChartOptions = ref({
       style: {
         fontSize: "20px",
         fontFamily: "Arial",
-        color: "#0f4f66",
+        color: "#0f4f66"
       },
     },
     plotLines: [
@@ -304,7 +303,7 @@ const largeScreenChartOptions = ref({
     events: {
       afterSetExtremes: function () {
         const xAxis = this;
-        const min = Math.ceil(xAxis.min / (48 * 3600 * 1000)) * (48 * 3600 * 1000); // Start of the next day
+        const min = Math.ceil(xAxis.min / (24 * 3600 * 1000)) * (24 * 3600 * 1000); // Start of the next day
         const max = xAxis.max;
         const plotLines = [];
 
@@ -319,6 +318,7 @@ const largeScreenChartOptions = ref({
               text: Highcharts.dateFormat("%a %b %e", time),
               align: "left",
               rotation: 0,
+              y: 15, // Lower the dynamic plotline labels
               style: {
                 color: "#0f4f66",
                 fontSize: "14px",
@@ -741,7 +741,7 @@ onUnmounted(() => {
           This AI model was developed by the Cool Turtles team from the Coastal Dynamics Lab. The Cool Turtles team is led by PhD student 
           <a href="https://www.linkedin.com/in/miranda-white-859b2414a/" target="_blank" class="text-blue-500 hover:underline">Miranda White</a>, 
           alongside her talented teammates 
-          <a href="https://www.linkedin.com/in/jarett-woodall-mba-8a3696224/" target="_blank" class="text-blue-500 hover:underline">Jarrett Woodall</a>, 
+          <a href="https://www.linkedin.com/in/jarett-woodall-mba-8a3696224/" target="_blank" class="text-blue-500 hover:underline">Jarett Woodall</a>, 
           <a href="https://www.linkedin.com/in/christian-duff-898103211/" target="_blank" class="text-blue-500 hover:underline">Christian Duff</a>, 
           <a href="https://www.facebook.com/watch/?v=740721718150868" target="_blank" class="text-blue-500 hover:underline">Hector Marrero-Colominas</a>,
           <a href="https://www.linkedin.com/in/andrew-desimone-00170b24b/" target="_blank" class="text-blue-500 hover:underline">Andrew DeSimone</a>, 
