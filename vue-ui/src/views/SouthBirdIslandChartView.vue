@@ -18,19 +18,17 @@ import { ref, onMounted, onUnmounted } from "vue";
 
 const isSmallScreen = window.innerWidth <= 600;
 const csvURL = ref(`${window.location.origin}/flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv`);
+
+
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
+const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+console.log("User's Time Zone:", userTimeZone);
 
 
 // Define the current date and time
 const nowDate = new Date();// Current timestamp
-const nowTime = Date.UTC(
-  nowDate.getUTCFullYear(),
-  nowDate.getUTCMonth(),
-  nowDate.getUTCDate(),
-  nowDate.getUTCHours(),
-  nowDate.getUTCMinutes()
-);
+const nowTime = nowDate.getTime();
 
 const chartOptions = ref({});
 // Small screen chart options
@@ -61,9 +59,10 @@ const smallScreenChartOptions = ref({
     },
     labels: {
       formatter: function () {
-        const day = Highcharts.dateFormat("%a", this.value);
-        const date = Highcharts.dateFormat("%b %e", this.value);
-        const time = Highcharts.dateFormat("%l:%M %p", this.value);
+        const localDate = new Date(this.value);
+        const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
+        const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        const time = localDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }); 
         return `<span style="display: block; text-align: center; font-family: Arial;">
                   <b>${day}</b><br>${date}<br><i>${time}</i>
                 </span>`;
@@ -115,7 +114,7 @@ const smallScreenChartOptions = ref({
         const max = xAxis.max;
         const plotLines = [];
 
-        // Iterate over every 2 days in the range
+        
         for (let time = min; time <= max; time += 2 * 24 * 3600 * 1000) {
           plotLines.push({
             color: "gray",
@@ -123,7 +122,11 @@ const smallScreenChartOptions = ref({
             width: 1,
             value: time,
             label: {
-              text: Highcharts.dateFormat("%a %b %e", time),
+              text: (() => {
+                  const localDate = new Date(time); // Convert timestamp to local time
+                  const options = { weekday: "short", month: "short", day: "numeric" }; // Format options
+                  return localDate.toLocaleDateString("en-US", options); // Format as "Mon Jan 27"
+                })(),
               align: "left",
               rotation: 0,
               y: 15,
@@ -189,27 +192,22 @@ const smallScreenChartOptions = ref({
   ],
 },
 
-  series: [], // Placeholder for dynamically updated data
-  tooltip: {
-    shared: false,
-    crosshairs: true,
-    formatter: function () {
-      return `<b>Date: ${Highcharts.dateFormat("%A, %b %e, %Y", this.x)}</b><br>
-              Temperature: ${this.y}°F`;
-    },
-    style: {
-      fontSize: "14px",
-      padding: "8px",
-      color: "#0f4f66",
-      fontFamily: "Arial",
-    },
-  },
   series: [], // Placeholder for data, dynamically updated
   tooltip: {
     shared: false,
     crosshairs: true,
     formatter: function () {
-      return `<b>Date: ${Highcharts.dateFormat("%A, %b %e, %Y", this.x)}</b><br>
+      const localDate = new Date(this.x); 
+      return `<b>Date: ${localDate.toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+              })}</b><br>
+              <b>Time: ${localDate.toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+              })}</b><br>
               Temperature: ${this.y}°F`;
     },
     style: {
@@ -253,9 +251,10 @@ const largeScreenChartOptions = ref({
     },
     labels: {
       formatter: function () {
-        const day = Highcharts.dateFormat("%a", this.value);
-        const date = Highcharts.dateFormat("%b %e", this.value);
-        const time = Highcharts.dateFormat("%l:%M %p", this.value);
+        const localDate = new Date(this.value);
+        const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
+        const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        const time = localDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }); 
         return `<span style="display: block; text-align: center; font-family: Arial;">
                   <b>${day}</b><br>${date}<br><i>${time}</i>
                 </span>`;
@@ -307,7 +306,7 @@ const largeScreenChartOptions = ref({
         const max = xAxis.max;
         const plotLines = [];
 
-        // Iterate over every 2 days in the range
+        
         for (let time = min; time <= max; time += 2 * 24 * 3600 * 1000) {
           plotLines.push({
             color: "gray",
@@ -315,7 +314,11 @@ const largeScreenChartOptions = ref({
             width: 1,
             value: time,
             label: {
-              text: Highcharts.dateFormat("%a %b %e", time),
+              text: (() => {
+              const localDate = new Date(time);
+              const options = { weekday: "short", month: "short", day: "numeric" }; 
+              return localDate.toLocaleDateString("en-US", options); 
+            })(),
               align: "left",
               rotation: 0,
               y: 15, // Lower the dynamic plotline labels
@@ -385,8 +388,17 @@ const largeScreenChartOptions = ref({
     shared: false,
     crosshairs: true,
     formatter: function () {
-      return `<b>Date: ${Highcharts.dateFormat("%A, %b %e, %Y", this.x)}</b><br>
-              <b>Time: ${Highcharts.dateFormat("%H:%M", this.x)}</b><br>
+      const localDate = new Date(this.x); 
+      return `<b>Date: ${localDate.toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+              })}</b><br>
+              <b>Time: ${localDate.toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+              })}</b><br>
               Temperature: ${this.y}°F`;
     },
     style: {
@@ -416,9 +428,6 @@ const fetchAndFilterData = async () => {
 
     const parsedData = parseCSV(csvText);
     console.log("Parsed CSV Data:", parsedData);
-
-    console.log("---------NOW TIME---------");
-    console.log(nowTime);
 
     // Ensure parsed arrays are initialized
     const WaterMeasurementData = parsedData.waterMeasurements || [];
@@ -546,21 +555,28 @@ const parseCSV = (csvText) => {
 
     // Parse timestamp as UTC
     const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
-    const parsedTimestamp = Date.UTC(year, month - 1, day, hour, minute, second); // Parse as UTC (subtract 1 from month as Date.UTC expects 0-based months)
+    const utcTimestamp = Date.UTC(year, month - 1, day, hour, minute, second); // Parse as UTC (subtract 1 from month as Date.UTC expects 0-based months)
 
-    if (!isNaN(parsedTimestamp)) {
+    const localTimestamp = new Date(utcTimestamp).toLocaleString("en-US", {
+      timeZone: userTimeZone,
+    });
+
+    const localDate = new Date(localTimestamp);
+
+
+    if (!isNaN(localDate)) {
 
       if (waterMeasurement && !isNaN(+waterMeasurement)) {
-        waterMeasurements.push([parsedTimestamp, +waterMeasurement]);
+        waterMeasurements.push([localDate.getTime(), +waterMeasurement]);
       }
       if (waterPrediction && !isNaN(+waterPrediction)) {
-        waterPredictions.push([parsedTimestamp, +waterPrediction]);
+        waterPredictions.push([localDate.getTime(), +waterPrediction]);
       }
       if (airMeasurement && !isNaN(+airMeasurement)) {
-        airMeasurements.push([parsedTimestamp, +airMeasurement]);
+        airMeasurements.push([localDate.getTime(), +airMeasurement]);
       }
       if (airPrediction && !isNaN(+airPrediction)) {
-        airPredictions.push([parsedTimestamp, +airPrediction]);
+        airPredictions.push([localDate.getTime(), +airPrediction]);
       }
     }
   });
