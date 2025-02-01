@@ -71,6 +71,7 @@ const smallScreenChartOptions = ref({
         fontSize: "12px", // Adjusted for small screens
         fontFamily: "Arial",
         color: "#0f4f66",
+        whiteSpace: "nowrap",
       },
     },
     labelsOverflow: "justify", // Prevent truncation
@@ -81,6 +82,19 @@ const smallScreenChartOptions = ref({
     minorTickWidth: 1, // Width of the minor tick lines
     minorTickLength: 5, // Length of the minor tick lines
     minorTickColor: "#888", // Color of the minor ticks
+    // Ensure ticks align to 12 AM
+    tickPositioner: function () {
+      let positions = [];
+      let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+      let start = Math.floor((this.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset;
+      let end = this.max;
+      
+      while (start <= end) {
+        positions.push(start);
+        start += 2 * 24 * 3600 * 1000; // Increment by 2 days
+      }
+      return positions;
+    },
     title: {
       text: "Time",
       style: {
@@ -109,7 +123,8 @@ const smallScreenChartOptions = ref({
     events: {
       afterSetExtremes: function () {
         const xAxis = this;
-        const min = Math.ceil(xAxis.min / (24 * 3600 * 1000)) * (24 * 3600 * 1000); // Start of the next day
+        const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000; // Ensure local time alignment
+        const min = Math.floor((xAxis.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset + (24 * 3600 * 1000);
         const max = xAxis.max;
         const plotLines = [];
 
@@ -131,7 +146,7 @@ const smallScreenChartOptions = ref({
               y: 15,
               style: {
                 color: "#0f4f66",
-                fontSize: "12px",
+                fontSize: "10px",
                 fontFamily: "Arial",
               },
             },
@@ -262,7 +277,8 @@ const largeScreenChartOptions = ref({
       style: {
         fontSize: "16px",
         fontFamily: "Arial",
-        color: "#0f4f66"
+        color: "#0f4f66",
+        whiteSpace: "nowrap",
       },
     },
     labelsOverflow: "justify", // Prevent truncation
@@ -273,6 +289,19 @@ const largeScreenChartOptions = ref({
     minorTickWidth: 1, // Width of the minor tick lines
     minorTickLength: 5, // Length of the minor tick lines
     minorTickColor: "#888", // Color of the minor ticks
+    // Ensure ticks align to 12 AM
+    tickPositioner: function () {
+      let positions = [];
+      let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+      let start = Math.floor((this.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset;
+      let end = this.max;
+      
+      while (start <= end) {
+        positions.push(start);
+        start += 2 * 24 * 3600 * 1000; // Increment by 2 days
+      }
+      return positions;
+    },
     title: {
       text: "Time",
       style: {
@@ -301,7 +330,8 @@ const largeScreenChartOptions = ref({
     events: {
       afterSetExtremes: function () {
         const xAxis = this;
-        const min = Math.ceil(xAxis.min / (24 * 3600 * 1000)) * (24 * 3600 * 1000); // Start of the next day
+        const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000; // Ensure local time alignment
+        const min = Math.floor((xAxis.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset + (24 * 3600 * 1000);
         const max = xAxis.max;
         const plotLines = [];
 
@@ -323,7 +353,7 @@ const largeScreenChartOptions = ref({
               y: 15, // Lower the dynamic plotline labels
               style: {
                 color: "#0f4f66",
-                fontSize: "14px",
+                fontSize: "12px",
                 fontFamily: "Arial",
               },
             },
@@ -434,14 +464,15 @@ const fetchAndFilterData = async () => {
     const InterpolatedAirPredictionData = parsedData.airPredictions || [];
     const InterpolatedWaterPredictionData = parsedData.waterPredictions || [];
 
-    // Filter `InterpolatedAirPrediction` to only include hourly data
+     // Filter `InterpolatedAirPrediction` to only include hourly data
+     const hoursToFilter = [3, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 102, 114, 120];
     const AirPredictionData = InterpolatedAirPredictionData.filter((point) => {
       const pointTime = new Date(point[0]);
-      return pointTime >= nowTime && pointTime.getMinutes() === 0; // Include only hourly points
+      const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
+      return hoursToFilter.includes(hoursDifference);
     });
 
     // Filter `InterpolatedWaterPrediction` for specific intervals
-    const hoursToFilter = [3, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 102, 114, 120];
     const WaterPredictionData = InterpolatedWaterPredictionData.filter((point) => {
       const pointTime = new Date(point[0]);
       const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
@@ -490,7 +521,7 @@ const fetchAndFilterData = async () => {
         name: "Interpolated Predicted Water Temperature",
         data: InterpolatedWaterPredictionDataFahrenheit,
         color: "black",
-        dashStyle: "Dash",
+        dashStyle: "2.5, 2.5", // Shorter dashes
         lineWidth: isSmallScreen ? 2 : 5,
         marker: { enabled: false },
       },
@@ -505,7 +536,7 @@ const fetchAndFilterData = async () => {
         name: "Interpolated Predicted Air Temperature",
         data: InterpolatedAirPredictionDataFahrenheit,
         color: "orange",
-        dashStyle: "Dash",
+        dashStyle: "2.5, 2.5", // Shorter dashes
         lineWidth: isSmallScreen ? 2 : 5,
         marker: { enabled: false },
       },
@@ -516,7 +547,7 @@ const fetchAndFilterData = async () => {
         dashStyle: "Dash",
         lineWidth: 0,
         marker: {
-          enabled: false,
+          enabled: true,
           radius: isSmallScreen ? 2 : 4,
         },
       },
