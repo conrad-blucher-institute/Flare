@@ -19,7 +19,6 @@ import { ref, onMounted, onUnmounted } from "vue";
 const isSmallScreen = window.innerWidth <= 600;
 const csvURL = ref(`${window.location.origin}/flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv`);
 
-
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -618,8 +617,8 @@ onUnmounted(() => {
         class="w-full h-full object-crop flex opacity-30"
       />
       <!-- Text content overlay -->
-      <div class="absolute  inset-0 flex items-center justify-end pr-10">
-        <h1 class=" w-[150px] lg:w-[550px] text-lg lg:pt-10 md:text-3xl lg:text-5xl font-bold text-center ">
+      <div class="absolute  inset-0 flex items-center justify-center">
+        <h1 class=" max-w-[1500px] text-lg md:text-3xl lg:text-5xl font-bold text-center pr-5 pl-5">
           Water and Air Temperature Trends and Forecasts for the Texas Upper Laguna Madre
         </h1>
       </div>
@@ -659,19 +658,19 @@ onUnmounted(() => {
     <h2 class="text-lg text-xl  lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
       How to Use the Interactive Chart
     </h2>
-    <ul class="pt-5 space-y-4 list-none text-md lg:text-lg">
-      <h3 class="text-dark-text text-lg lg:text-xl font-bold text-center">See Temperature Details:</h3>
+    <ul class="pt-5 space-y-4 list-none text-md lg:text-lg text-dark-text">
+      <h3 class="text-lg lg:text-xl font-bold text-center">See Temperature Details:</h3>
       <li class="flex items-start space-x-2">
         <span class="text-blue-secondary">📊</span>
         <p>Move your mouse pointer over any dot or line on the chart to display the exact temperature value and the corresponding date or time.</p>
       </li>
-      <h3 class="text-dark-text text-lg lg:text-xl font-bold text-center">Reset the View:</h3>
+      <h3 class="text-lg lg:text-xl font-bold text-center">Reset the View:</h3>
       <li class="flex items-start space-x-2">
         <span class="text-blue-secondary">🔄</span>
         <p>If you zoom in and want to go back to the original chart view, click the Reset View button in the top-right corner.
           Show or Hide Chart Lines</p>
       </li>
-      <h3 class="text-dark-text text-lg lg:text-xl font-bold text-center">Show or Hide Chart Lines:</h3>
+      <h3 class="text-lg lg:text-xl font-bold text-center">Show or Hide Chart Lines:</h3>
       <li class="flex items-start space-x-2">
         <span class="text-blue-secondary">👆</span>
         <p>Click on a label in the legend below the chart to turn a specific data series line or category on or off</p>
@@ -689,39 +688,64 @@ onUnmounted(() => {
       <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
         Data on this Graph:
       </h3>
-      <ul class="list-disc list-inside space-y-4 text-base md:text-lg text-gray-700">
+      <ul class="list-disc list-inside space-y-2 text-md lg:text-l text-dark-text">
         <li>
           Past six-day air/water temperature from
           <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8776139" 
-            class="underline text-blue-600 hover:text-blue-800" target="_blank">NOAA's South Bird Island Station</a>.
+            class="underline text-blue-600 hover:text-blue-800" target="_blank">NOAA's South Bird Island Station</a>
         </li>
         <li>
           Backup water temperature data from
           <a href="https://lighthouse.tamucc.edu/overview/171" 
-            class="underline text-blue-600 hover:text-blue-800" target="_blank">National Park Service</a>.
+            class="underline text-blue-600 hover:text-blue-800" target="_blank">National Park Service</a>
         </li>
-        <li>Air temperature predictions from the National Digital Forecast Database (points).</li>
-        <li>Cubic interpolation of predicted air temperature (dashed line).</li>
-        <li>Water temperature predictions from Semaphore (dashed line).</li>
+        <li>Air temperature predictions from the National Digital Forecast Database (points)</li>
+        <li>Cubic interpolation of predicted air temperature (dashed line)</li>
+        <li>Water temperature predictions from Semaphore (dashed line)</li>
       </ul>
     </div>
 
     <!-- Right Column -->
     <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
-      <h3 class=" text-xl lg:text-2xl font-extrabold  text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
+      <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
         Additional Information
       </h3>
-      <p class="text-base md:text-lg text-gray-700 mb-4">
-        Wind speed graph available 
-        <a href="https://example.com/wind-speed" target="_blank" 
-          class="underline text-blue-600 hover:text-blue-800">here</a>. 
-      </p>
-      <p class="text-base md:text-lg text-gray-700">
-        Ensemble air temperature predictions from The Weather Company available 
-        <a href="https://example.com/temperature-predictions" target="_blank" 
-          class="underline text-blue-600 hover:text-blue-800">here</a>. 
-      </p>
+      <ul class="list-disc space-y-2 pl-5 text-dark-text">
+        <li>
+          Wind speed graph available 
+          <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">here</a>
+        </li>
+        <li>
+          Ensemble air temperature predictions from The Weather Company available 
+          <a href="https://cbigrid.tamucc.edu/tpw/ibm-charts.html?location=sbirdisland" target="_blank" class="underline text-blue-600 hover:text-blue-800">here</a>
+        </li>
+        <li>
+          Wind predictions for the Laguna Madre available
+          <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">
+            here
+          </a>
+        </li>
+        <li>
+          Ensemble air temperature predictions for Bird Island Basin available 
+          <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">
+            here
+          </a>
+        </li>
+        <li>
+          AI water temperature prediction models performance available
+          <a href="https://lighthouse.tamucc.edu/supertool.php?stnid=013&elev=mwl&mode=nnwtp" target="_blank" class="underline text-blue-600 hover:text-blue-800">
+            here
+          </a>
+        </li>
+        <li>
+          NOAA Sea Turtle Stranding and Salvage Network water temperature measurements
+          <a href="https://connect.fisheries.noaa.gov/content/c0773132-9590-4e21-bb42-676e2140fbaa/" target="_blank" class="underline text-blue-600 hover:text-blue-800">
+            here
+          </a>
+        </li>
+      </ul>
     </div>
+
 </section>
 
 <!-- Section Divider -->
@@ -730,31 +754,37 @@ onUnmounted(() => {
   <!-- About Section -->
   <section class="grid grid-cols-1 lg:grid-cols-2 bg-white py-10 px-6 md:px-20 gap-10 items-center">
       <!-- Image Section -->
-      <div class="flex justify-center">
-        <img 
-          src="@/assets/images/SouthBirdIslandMap.jpg" 
-          alt="Map of South Bird Island, Texas" 
-          class="w-[70%] h-auto rounded-lg shadow-lg"
-        >
+      <div class="flex flex-col items-center">
+        <div class="flex justify-center">
+          <img 
+            src="@/assets/images/LagunaMadreMap.png" 
+            alt="Map of Laguna Madre, Texas" 
+            class="w-[90%] h-auto rounded-lg shadow-lg"
+          >
+        </div>
+        <p class="text-xs text-center text-gray-600 mt-2">
+          Map imagery © 2024 Google Earth, Data © Google, Maxar Technologies, U.S. Geological Survey, USDA Farm Service Agency.
+        </p>
       </div>
+
 
       <!-- Text Content Section -->
       <div class="text-center lg:text-left">
         <h2 class="text-lg lg:text-3xl font-extrabold text-center text-dark-text mb-6">
           Laguna Madre AI Model
         </h2>
-        <p class="text-md lg:text-xl text-gray-700 mb-4">
+        <p class="text-md lg:text-xl text-dark-text mb-4">
           In the Laguna Madre, the longest hypersaline lagoon in the United States, the passage of cold fronts can lower air temperature by more than 
-          <strong class="font-semibold text-dark-text">10°C</strong> in less than 24 hours. This rapid drop can lead to significant decreases in water temperature. Some of these cold-water events have caused large-scale fish kills and cold-stunning of sea turtles.
+          10°C in less than 24 hours. This rapid drop can lead to significant decreases in water temperature. Some of these cold-water events have caused large-scale fish kills and cold-stunning of sea turtles.
         </p>
-        <p class="text-md lg:text-xl text-gray-700 mb-4">
-          To mitigate the impact of these cold events, members of the Texas Marine Coldwater Response Collaboration (TCRC) — including local agencies, private-sector companies, and other stakeholders (logos below) — voluntarily interrupt activities such as fishing and navigation in the Laguna Madre. These proactive measures help protect marine life and mobilize resources during critical times.
+        <p class="text-md lg:text-xl text-dark-text mb-4">
+          To mitigate the impact of these cold events, members of the Texas Marine Coldwater Response Collaboration (TCRC) — including local agencies, private-sector companies, and other stakeholders (logos below) — voluntarily interrupt activities such as fishing, navigation, and dredging in the Laguna Madre. Dredging, which involves the removal of sediments to maintain navigational channels, can contribute to changes in water circulation and temperature distribution. During extreme cold events, suspending dredging operations helps minimize further disturbances to the ecosystem and allows marine life to seek refuge in deeper, more stable waters. These proactive measures help protect marine life and mobilize resources during critical times.
         </p>
-        <p class="text-md lg:text-xl text-gray-700 mb-4">
+        <p class="text-md lg:text-xl text-dark-text mb-4">
           Accurate temperature predictions are essential for managing these interruptions effectively. The live-updating graph above displays the latest air and water temperature measurements, along with predicted air and water temperatures for the Laguna Madre. Research and development of improved model predictions are ongoing for improved collaborative decision-making during cold weather and cold-stunning events.
         </p>
-        <p class="text-md lg:text-xl text-gray-700 mb-4">
-          This AI model was developed by the Cool Turtles team from the Coastal Dynamics Lab. The Cool Turtles team is led by PhD student 
+        <p class="text-md lg:text-xl text-dark-text mb-4">
+          This AI model was originally developed by Dr. Robyn Ball during her master's studies at Texas A&M University–Corpus Christi. Responsibility for the model has since been entrusted to the Cool Turtles team at the Coastal Dynamics Lab. The Cool Turtles team is led by PhD student 
           <a href="https://www.linkedin.com/in/miranda-white-859b2414a/" target="_blank" class="text-blue-500 hover:underline">Miranda White</a>, 
           alongside her talented teammates 
           <a href="https://www.linkedin.com/in/jarett-woodall-mba-8a3696224/" target="_blank" class="text-blue-500 hover:underline">Jarett Woodall</a>, 
@@ -770,7 +800,21 @@ onUnmounted(() => {
 
 
     <!-- Footer -->
-    <footer class="bg-navy-blue py-10 text-dark-text">
+    <footer class="bg-navy-blue py-10 text-dark-text space-y-2">
+      <div class="flex flex-col justify-center items-center text-white text-sm lg:text-lg">
+        <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
+          <p>Texas Parks & Wildlife</p>
+        </a>
+        <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
+          <p>NPS Sea Turtle Science and Recovery</p>
+        </a>
+        <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0173920" target="_blank" class="hover:scale-110 transition-transform">
+          <p>PLOS One: Publication Defining Cold Stunning Threshold</p>
+        </a>
+        <a href="https://www.coastaldynamicslab.org/water-temperature-predictionse" target="_blank" class="hover:scale-110 transition-transform">
+          <p>TAMUCC CBI Water Temperature Predictions Reports</p>
+        </a>
+      </div>
       <div class="flex flex-wrap justify-center items-center gap-8 lg:gap-16 mx-auto p-1 lg:p-4">
         <a href="https://www.conradblucherinstitute.org/" target="_blank" class="hover:scale-110 transition-transform">
           <img src="@/assets/images/CBI-Logo.png" alt="CBI Logo" class="max-w-[165px] lg:max-w-[250px] ">
@@ -793,11 +837,20 @@ onUnmounted(() => {
         <a href="https://www.coastaldynamicslab.org/" target="_blank" class="hover:scale-110 transition-transform">
           <img src="@/assets/images/CDL-Logo.png" alt="Coastal Dynamics Lab Logo" class="max-w-[80px] lg:max-w-[150px]">
         </a>
+        <a href="https://www.nps.gov/index.htm" target="_blank">
+          <img class="footer-logo" src="@/assets/images/NPS-Logo.png" alt="National Park Service Logo">
+        </a>
+        <a href="https://www.weather.gov/" target="_blank">
+          <img src="@/assets/images/NWS-Logo.png" alt="National Weather Service Logo" class="max-w-[80px] lg:max-w-[150px]">
+        </a>
+        <a href="https://www.uscg.mil/" target="_blank">
+          <img  src="@/assets/images/CG-Logo.png" alt="USA Coast Guard Logo" class="max-w-[80px] lg:max-w-[150px]">
+        </a>
+        <a href="https://www.joincca.org/" target="_blank">
+          <img src="@/assets/images/CCA-Logo.png" alt="Coastal Conservation Association Logo" class="max-w-[80px] lg:max-w-[150px]">
+        </a>
       </div>
-      <p class="text-center mt-6 text-sm text-light-text">
-        Photos courtesy of the National Park Service. 
-      </p>
-      <p class="text-center text-sm text-light-text">(Click logos to visit.)</p>
+      <p class="text-center text-sm text-light-text">(Click on the logos to visit each contributor's website)</p>
     </footer>
   </div>
 </template>
