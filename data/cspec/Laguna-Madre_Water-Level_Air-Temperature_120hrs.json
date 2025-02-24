@@ -27,7 +27,7 @@
         {  "key": "SemaphoreInputs",
          "args": {
             "column_name": "Air Temperature Prediction",
-            "location": "lagunamadre", 
+            "location": "SBirdIsland", 
             "source": "NDFD_EXP",
             "series": "pAirTemp",
             "interval": 3600,
