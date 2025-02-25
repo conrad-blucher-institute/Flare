@@ -67,20 +67,6 @@
     ],
     "post_processing" : [
       {
-        "key": "AddMostRecentMeasurement",
-        "args": {
-              "measurement_col_key": "Air Temperature Measurement",
-              "prediction_col_key": "Air Temperature Prediction"
-        }
-      },
-      {
-        "key": "AddMostRecentMeasurement",
-        "args": {
-              "measurement_col_key": "Water Temperature Measurement",
-              "prediction_col_key": "Water Temperature Prediction"
-        }
-      },
-      {
         "key": "LinearInterpolation",
         "args": {
             "col_name": "Air Temperature Prediction",
