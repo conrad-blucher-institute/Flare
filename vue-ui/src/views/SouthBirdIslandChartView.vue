@@ -222,7 +222,7 @@ const smallScreenChartOptions = ref({
                   hour: "2-digit",
                   minute: "2-digit",
               })}</b><br>
-              Temperature: ${this.y}°F`;
+              Temperature: ${this.y.toFixed(2)}°F`;
     },
     style: {
       fontSize: "12px",
