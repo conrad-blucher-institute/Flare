@@ -3,7 +3,7 @@
 # A script that deploys flare and initializes its cron file.
 
 # Lower active containers
-docker-compose down
+docker compose down
 
 # Fetch origin            vvvvvv - This will delete any tags that origin has deleted
 git fetch origin --tags --prune --prune-tags
