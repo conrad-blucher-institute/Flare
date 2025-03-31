@@ -463,21 +463,8 @@ const fetchAndFilterData = async () => {
     const AirMeasurementData = parsedData.airMeasurements || [];
     const InterpolatedAirPredictionData = parsedData.airPredictions || [];
     const InterpolatedWaterPredictionData = parsedData.waterPredictions || [];
-
-     // Filter `InterpolatedAirPrediction` to only include hourly data
-     const hoursToFilter = [3, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 102, 114, 120];
-    const AirPredictionData = InterpolatedAirPredictionData.filter((point) => {
-      const pointTime = new Date(point[0]);
-      const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
-      return hoursToFilter.includes(hoursDifference);
-    });
-
-    // Filter `InterpolatedWaterPrediction` for specific intervals
-    const WaterPredictionData = InterpolatedWaterPredictionData.filter((point) => {
-      const pointTime = new Date(point[0]);
-      const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
-      return hoursToFilter.includes(hoursDifference);
-    });
+    const AirPredictionData = parsedData.airPredictions || [];
+    const WaterPredictionData = parsedData.waterPredictions || [];
 
     // Convert all data to Fahrenheit
     const AirMeasurementDataFahrenheit = AirMeasurementData.map(([time, celsius]) => [
