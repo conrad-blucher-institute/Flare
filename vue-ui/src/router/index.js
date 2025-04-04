@@ -32,7 +32,13 @@ const router = createRouter({
       path: '/south-bird-island',
       name: 'southBirdIsland',
       component: () => import('../views/SouthBirdIslandChartView.vue'), // Lazy-loaded component
+    },
+    {
+      path: '/air-temperature-ensemble',
+      name: 'airTemperatureEnsemble',
+      component: () => import('../views/AirTemperatureEnsembleView.vue'), // Lazy-loaded component
     }
+    
   ],
 })
 

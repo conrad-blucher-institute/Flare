@@ -748,7 +748,11 @@ onUnmounted(() => {
         </li>
         <li>
           Ensemble air temperature predictions from The Weather Company available 
-          <a href="https://cbigrid.tamucc.edu/tpw/ibm-charts.html?location=sbirdisland" target="_blank" class="underline text-blue-600 hover:text-blue-800">here</a>
+          <router-link 
+            to="/air-temperature-ensemble" 
+            class="underline text-blue-600 hover:text-blue-800">
+            here
+          </router-link>
         </li>
         <li>
           Wind predictions for the Laguna Madre available
