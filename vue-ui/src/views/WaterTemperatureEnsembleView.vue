@@ -1,14 +1,14 @@
 <!-- ===================================================
-     View: AirTemperatureEnsembleView.vue
+     View: WaterTemperatureEnsembleView.vue
 
-     Description: This view displays the air temperature ensemble trends and predictions for South Bird Island.
+     Description: This view displays the water temperature ensemble trends and predictions for South Bird Island.
 
                   Features include:
                   - A dynamically updating Highcharts spaghetti chart using live CSV data.
                   - Instructions for interacting with the chart.
                   - Information on the data of the chart.
                   - Additional links
-     Author: Anointiyae Beasley and Matthew Kastl
+     Author: Anointiyae Beasley and Savannah Stephenson
 
      Date: 04/03/2025
 
@@ -653,7 +653,7 @@ onUnmounted(() => {
         <!-- Text content overlay -->
         <div class="absolute  inset-0 flex items-center justify-center">
           <h1 class=" max-w-[1500px] text-lg md:text-3xl lg:text-5xl font-bold text-center pr-5 pl-5">
-            Ensemble Air Temperature Trends and Forecasts for the Texas Upper Laguna Madre
+           Ensemble Water Temperature Trends and Forecasts for the Texas Upper Laguna Madre
           </h1>
         </div>
       </div>
