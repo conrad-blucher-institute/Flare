@@ -37,6 +37,11 @@ const router = createRouter({
       path: '/air-temperature-ensemble',
       name: 'airTemperatureEnsemble',
       component: () => import('../views/AirTemperatureEnsembleView.vue'), // Lazy-loaded component
+    },
+    {
+      path: '/water-temperature-ensemble',
+      name: 'waterTemperatureEnsemble',
+      component: () => import('../views/WaterTemperatureEnsembleView.vue'), // Lazy-loaded component
     }
     
   ],
