@@ -4,23 +4,26 @@
      Description: This view displays the water temperature ensemble trends and predictions for South Bird Island.
 
                   Features include:
-                  - A dynamically updating Highcharts spaghetti chart using live CSV data.
+                  - A dynamically updating Highcharts Ribbon chart using live CSV data.
                   - Instructions for interacting with the chart.
                   - Information on the data of the chart.
                   - Additional links
-     Author: Anointiyae Beasley and Savannah Stephenson
+     Author: Anointiyae Beasley and Matthew Kastl
 
      Date: 04/03/2025
 
 ======================================================= -->
 <script setup>
 import Highcharts from "highcharts";
+import HighchartsMore from "highcharts/highcharts-more";
 import { Chart } from "highcharts-vue";
 
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, reactive } from "vue";
 
 const isSmallScreen = window.innerWidth <= 600;
-const csvURL = ref(`${window.location.origin}/flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv`);
+// const csvURL = ref(`${window.location.origin}/flare/csv-data/test_ensemble.csv`);
+const csvURL = ref(`http://localhost:8080/flare/csv-data/test_ensemble.csv`);
+
 
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
@@ -33,421 +36,221 @@ const nowDate = new Date();// Current timestamp
 const nowTime = nowDate.getTime();
 
 const chartOptions = ref({});
-// Small screen chart options
-const smallScreenChartOptions = ref({
-  chart: {
-    type: "line",
-    zoomType: "x",
-    backgroundColor: "white",
-    style: { fontFamily: "Arial" },
-    marginRight: 30, // Adjust right margin'
-  },
-  title: {
-    text: "Temperatures of the Upper Laguna Madre",
-    style: { fontSize: "20px", fontWeight: "bold", color: "#0f4f66" }, // Adjusted for small screens
-  },
-  legend: {
-    itemStyle: {
-      fontSize: "12px", // Adjusted for small screens
-      fontWeight: "bold",
-      fontFamily: "Arial",
-      color: "#0f4f66",
-    },
-  },
-  xAxis: {
-    type: "datetime",
-    dateTimeLabelFormats: {
-      day: "%a %b %e",
-    },
-    labels: {
-      formatter: function () {
-        const localDate = new Date(this.value);
-        const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
-        const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-        const time = localDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }); 
-        return `<span style="display: block; text-align: center; font-family: Arial;">
-                  <b>${day}</b><br>${date}<br><i>${time}</i>
-                </span>`;
-      },
-      useHTML: true,
-      style: {
-        fontSize: "12px", // Adjusted for small screens
-        fontFamily: "Arial",
-        color: "#0f4f66",
-        whiteSpace: "nowrap",
-      },
-    },
-    labelsOverflow: "justify", // Prevent truncation
-    maxPadding: 0.1, // Reduce extra space around labels
-    minPadding: 0.1,
-    tickInterval: 2 * 24 * 3600 * 1000, // Main ticks every 2 days
-    minorTickInterval: 24 * 3600 * 1000, // Minor ticks every day
-    minorTickWidth: 1, // Width of the minor tick lines
-    minorTickLength: 5, // Length of the minor tick lines
-    minorTickColor: "#888", // Color of the minor ticks
-    // Ensure ticks align to 12 AM
-    tickPositioner: function () {
-      let positions = [];
-      let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
-      let start = Math.floor((this.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset;
-      let end = this.max;
-      
-      while (start <= end) {
-        positions.push(start);
-        start += 2 * 24 * 3600 * 1000; // Increment by 2 days
-      }
-      return positions;
+
+
+const buildChart = (isSmallScreen) => {
+  return {
+    chart: {
+      type: "line",
+      zoomType: "x",
+      backgroundColor: "white",
+      style: { fontFamily: "Arial" },
+      marginRight: 30
     },
     title: {
-      text: "Time",
-      style: {
-        fontSize: "14px", // Adjusted for small screens
+      text: "Ensemble Water Temperature",
+      style: { 
+        fontSize: isSmallScreen ? "20px" : "28px", 
+        fontWeight: "bold", 
+        color: "#0f4f66" 
+      },
+    },
+    exporting: {
+    enabled: true, // Enables the export menu
+  },
+    legend: {
+      itemStyle: {
+        fontSize: isSmallScreen ? "12px" : "19px",
+        fontWeight: "bold",
         fontFamily: "Arial",
         color: "#0f4f66",
       },
     },
-    plotLines: [
-      {
-        color: "red",
-        width: 2, // Line width
-        value: nowTime, // Use timestamp for correct placement
-        dashStyle: "Solid",
-        label: {
-          text: "Now",
-          y:20,
-          style: {
-            color: "#0f4f66",
-            fontSize: "12px",
-            fontFamily: "Arial",
-          },
+    xAxis: {
+      type: "datetime",
+      dateTimeLabelFormats: {
+        day: "%a %b %e",
+      },
+      labels: {
+        formatter: function () {
+          const localDate = new Date(this.value);
+          const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
+          const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+          const time = localDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }); 
+          return `<span style="display: block; text-align: center; font-family: Arial;">
+                    <b>${day}</b><br>${date}<br><i>${time}</i>
+                  </span>`;
         },
-      },
-    ],
-    events: {
-      afterSetExtremes: function () {
-        const xAxis = this;
-        const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000; // Ensure local time alignment
-        const min = Math.floor((xAxis.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset + (24 * 3600 * 1000);
-        const max = xAxis.max;
-        const plotLines = [];
-
-        
-        for (let time = min; time <= max; time += 2 * 24 * 3600 * 1000) {
-          plotLines.push({
-            color: "gray",
-            dashStyle: "Dot",
-            width: 1,
-            value: time,
-            label: {
-              text: (() => {
-                  const localDate = new Date(time); // Convert timestamp to local time
-                  const options = { weekday: "short", month: "short", day: "numeric" }; // Format options
-                  return localDate.toLocaleDateString("en-US", options); // Format as "Mon Jan 27"
-                })(),
-              align: "left",
-              rotation: 0,
-              y: 15,
-              style: {
-                color: "#0f4f66",
-                fontSize: "10px",
-                fontFamily: "Arial",
-              },
-            },
-          });
-        }
-
-        // Add the new plotlines dynamically
-        plotLines.forEach((line) => xAxis.addPlotLine(line));
-      },
-    },
-  },
-  yAxis: {
-  labels: {
-    style: {
-      fontSize: '12px',
-      color: '#0f4f66',
-      fontFamily: 'Arial',
-    },
-  },
-  title: {
-    text: "Temperature (°F)",
-    style: { color: "#0f4f66", fontSize: "12px" },
-  },
-  max: 90,
-  min: 20,
-  tickInterval: 10, // Major ticks every 10 units
-  plotLines: [
-    {
-      color: "red",
-      width: 2,
-      value: 46.4,
-      dashStyle: "Dash",
-      label: {
-        text: "Sea Turtle Water Temperature Threshold",
+        useHTML: true,
         style: {
-          color: "#0f4f66",
-          fontSize: "12px",
-          fontWeight: "bold",
-        },
-      },
-    },
-    {
-      color: "#720000",
-      width: 2,
-      value: 40,
-      dashStyle: "Dash",
-      label: {
-        text: "Fisheries Water Temperature Threshold",
-        style: {
-          color: "#0f4f66",
-          fontSize: "12px",
+          fontSize: isSmallScreen ? "12px" : "16px", 
           fontFamily: "Arial",
-          fontWeight: "bold",
+          color: "#0f4f66",
+          whiteSpace: "nowrap",
         },
       },
-    },
-  ],
-},
-
-  series: [], // Placeholder for data, dynamically updated
-  tooltip: {
-    shared: false,
-    crosshairs: true,
-    formatter: function () {
-      const localDate = new Date(this.x); 
-      return `<b>Date: ${localDate.toLocaleDateString("en-US", {
-                  weekday: "long",
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-              })}</b><br>
-              <b>Time: ${localDate.toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-              })}</b><br>
-              Temperature: ${this.y.toFixed(2)}°F`;
-    },
-    style: {
-      fontSize: "12px",
-      padding: "5px",
-      color: "#0f4f66",
-      fontFamily: "Arial",
-    },
-  },
-});
-
-
-// Reactive variables for chart options
-const largeScreenChartOptions = ref({
-  chart: {
-    type: "line",
-    zoomType: "x",
-    backgroundColor: "white",
-    style: { fontFamily: "Arial" },
-    marginRight: 30
-  },
-  title: {
-    text: "Temperatures of the Upper Laguna Madre",
-    style: { fontSize: "28px", fontWeight: "bold", color: "#0f4f66" },
-  },
-  exporting: {
-  enabled: true, // Enables the export menu
-},
-  legend: {
-    itemStyle: {
-      fontSize: "19px",
-      fontWeight: "bold",
-      fontFamily: "Arial",
-      color: "#0f4f66",
-    },
-  },
-  xAxis: {
-    type: "datetime",
-    dateTimeLabelFormats: {
-      day: "%a %b %e",
-    },
-    labels: {
-      formatter: function () {
-        const localDate = new Date(this.value);
-        const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
-        const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-        const time = localDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }); 
-        return `<span style="display: block; text-align: center; font-family: Arial;">
-                  <b>${day}</b><br>${date}<br><i>${time}</i>
-                </span>`;
-      },
-      useHTML: true,
-      style: {
-        fontSize: "16px",
-        fontFamily: "Arial",
-        color: "#0f4f66",
-        whiteSpace: "nowrap",
-      },
-    },
-    labelsOverflow: "justify", // Prevent truncation
-    maxPadding: 0.1, // Reduce extra space around labels
-    minPadding: 0.1,
-    tickInterval: 2 * 24 * 3600 * 1000, // Main ticks every 2 days
-    minorTickInterval: 24 * 3600 * 1000, // Minor ticks every day
-    minorTickWidth: 1, // Width of the minor tick lines
-    minorTickLength: 5, // Length of the minor tick lines
-    minorTickColor: "#888", // Color of the minor ticks
-    // Ensure ticks align to 12 AM
-    tickPositioner: function () {
-      let positions = [];
-      let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
-      let start = Math.floor((this.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset;
-      let end = this.max;
-      
-      while (start <= end) {
-        positions.push(start);
-        start += 2 * 24 * 3600 * 1000; // Increment by 2 days
-      }
-      return positions;
-    },
-    title: {
-      text: "Time",
-      style: {
-        fontSize: "20px",
-        fontFamily: "Arial",
-        color: "#0f4f66"
-      },
-    },
-    plotLines: [
-      {
-        color: "red",
-        width: 2,
-        value: nowTime,
-        dashStyle: "Solid",
-        label: {
-          text: "Now",
-          y:20,
-          style: {
-            color: "#0f4f66",
-            fontSize: "14px",
-            fontFamily: "Arial"
-          },
-        },
-      },
-    ],
-    events: {
-      afterSetExtremes: function () {
-        const xAxis = this;
-        const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000; // Ensure local time alignment
-        const min = Math.floor((xAxis.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset + (24 * 3600 * 1000);
-        const max = xAxis.max;
-        const plotLines = [];
-
+      labelsOverflow: "justify", // Prevent truncation
+      maxPadding: 0.1, // Reduce extra space around labels
+      minPadding: 0.1,
+      tickInterval: 2 * 24 * 3600 * 1000, // Main ticks every 2 days
+      minorTickInterval: 24 * 3600 * 1000, // Minor ticks every day
+      minorTickWidth: 1, // Width of the minor tick lines
+      minorTickLength: 5, // Length of the minor tick lines
+      minorTickColor: "#888", // Color of the minor ticks
+      // Ensure ticks align to 12 AM
+      tickPositioner: function () {
+        let positions = [];
+        let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+        let start = Math.floor((this.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset;
+        let end = this.max;
         
-        for (let time = min; time <= max; time += 2 * 24 * 3600 * 1000) {
-          plotLines.push({
-            color: "gray",
-            dashStyle: "Dot",
-            width: 1,
-            value: time,
-            label: {
-              text: (() => {
-              const localDate = new Date(time);
-              const options = { weekday: "short", month: "short", day: "numeric" }; 
-              return localDate.toLocaleDateString("en-US", options); 
-            })(),
-              align: "left",
-              rotation: 0,
-              y: 15, // Lower the dynamic plotline labels
-              style: {
-                color: "#0f4f66",
-                fontSize: "12px",
-                fontFamily: "Arial",
-              },
-            },
-          });
+        while (start <= end) {
+          positions.push(start);
+          start += 2 * 24 * 3600 * 1000; // Increment by 2 days
         }
-
-        // Add the new plotlines dynamically
-        plotLines.forEach((line) => xAxis.addPlotLine(line));
+        return positions;
       },
-    },
-  },
-  yAxis: {
-    labels: {
+      title: {
+        text: "Time",
         style: {
-          fontSize: '26px', 
-          color: '#0f4f66',
-          fontFamily: 'Arial', 
+          fontSize: isSmallScreen ? "14px" : "20px",
+          fontFamily: "Arial",
+          color: "#0f4f66",
         },
       },
-    title: {
-      text: "Temperature (°F)",
-      style: { color: "#0f4f66", fontSize: "20px" },
-    },
-    max: 90,
-    min: 20,
-    tickInterval: 10, // Add ticks every 10 units
-    plotLines: [
-      {
-        color: "red",
-        width: 2,
-        value: 46.4,
-        dashStyle: "Dash",
-        label: {
-          text: "Sea Turtle Water Temperature Threshold",
-          style: {
-            color: "#0f4f66",
-            fontSize: "16px",
-            fontWeight: "bold",
+      plotLines: [
+        {
+          color: "red",
+          width: 2,
+          value: nowTime,
+          dashStyle: "Solid",
+          label: {
+            text: "Now",
+            y:20,
+            style: {
+              color: "#0f4f66",
+              fontSize: isSmallScreen ? "12px" : "14px", 
+              fontFamily: "Arial",
+            },
           },
         },
-      },
-      {
-        color: "#720000",
-        width: 2,
-        value: 40,
-        dashStyle: "Dash",
-        label: {
-          text: "Fisheries Water Temperature Threshold",
-          style: {
-            color: "#0f4f66",
-            fontSize: "16px",
-            fontFamily: "Arial",
-            fontWeight: "bold",
-          },
+      ],
+      events: {
+        afterSetExtremes: function () {
+          const xAxis = this;
+          const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000; // Ensure local time alignment
+          const min = Math.floor((xAxis.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset + (24 * 3600 * 1000);
+          const max = xAxis.max;
+          const plotLines = [];
+
+          
+          for (let time = min; time <= max; time += 2 * 24 * 3600 * 1000) {
+            plotLines.push({
+              color: "gray",
+              dashStyle: "Dot",
+              width: 1,
+              value: time,
+              label: {
+                text: (() => {
+                const localDate = new Date(time);
+                const options = { weekday: "short", month: "short", day: "numeric" }; 
+                return localDate.toLocaleDateString("en-US", options); 
+              })(),
+                align: "left",
+                rotation: 0,
+                y: 15, 
+                style: {
+                  color: "#0f4f66",
+                  fontSize: isSmallScreen ? "10px" : "12px", 
+                  fontFamily: "Arial",
+                },
+              },
+            });
+          }
+
+          // Add the new plotlines dynamically
+          plotLines.forEach((line) => xAxis.addPlotLine(line));
         },
       },
-    ],
-  },
-  series: [], // Placeholder for dynamically updated data
-  tooltip: {
-    shared: false,
-    crosshairs: true,
-    formatter: function () {
-      const localDate = new Date(this.x); 
-      return `<b>Date: ${localDate.toLocaleDateString("en-US", {
-                  weekday: "long",
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-              })}</b><br>
-              <b>Time: ${localDate.toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-              })}</b><br>
-              Temperature: ${this.y.toFixed(2)}°F`;
     },
-    style: {
-      fontSize: "14px",
-      padding: "8px",
-      color: "#0f4f66",
-      fontFamily: "Arial",
+    yAxis: {
+      labels: {
+          style: {
+            fontSize: isSmallScreen ? "12px" : "26px",
+            color: '#0f4f66',
+            fontFamily: 'Arial', 
+          },
+        },
+      title: {
+        text: "Temperature (°F)",
+        style: { 
+          color: "#0f4f66", 
+          fontSize: isSmallScreen ? "12px" : "20px", 
+        },
+      },
+      max: 90,
+      min: 20,
+      tickInterval: 10, // Add ticks every 10 units
+      plotLines: [
+        {
+          color: "red",
+          width: 2,
+          value: 46.4,
+          dashStyle: "Dash",
+          label: {
+            text: "Sea Turtle Water Temperature Threshold",
+            style: {
+              color: "#0f4f66",
+              fontSize: isSmallScreen ? "12px" : "16px",
+              fontWeight: "bold",
+            },
+          },
+        },
+        {
+          color: "#720000",
+          width: 2,
+          value: 40,
+          dashStyle: "Dash",
+          label: {
+            text: "Fisheries Water Temperature Threshold",
+            style: {
+              color: "#0f4f66",
+              fontSize: isSmallScreen ? "12px" : "16px",
+              fontFamily: "Arial",
+              fontWeight: "bold",
+            },
+          },
+        },
+      ],
     },
-  },
-});
+    series: [], // Placeholder for dynamically updated data
+    tooltip: {
+      shared: false,
+      crosshairs: true,
+      formatter: function () {
+        const localDate = new Date(this.x); 
+        return `<b>Date: ${localDate.toLocaleDateString("en-US", {
+                    weekday: "long",
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                })}</b><br>
+                <b>Time: ${localDate.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                })}</b><br>
+                Temperature: ${this.y.toFixed(2)}°F`;
+      },
+      style: {
+        fontSize: isSmallScreen ? "12px" : "14px", 
+        padding: isSmallScreen ? "5px" : "8px", 
+        color: "#0f4f66",
+        fontFamily: "Arial",
+      },
+    },
+  };
+};
 
-
-if (isSmallScreen) {
-  chartOptions.value = smallScreenChartOptions.value;
-} else {
-  chartOptions.value = largeScreenChartOptions.value;
-}
 
 // Function to fetch and process CSV data
 const fetchAndFilterData = async () => {
@@ -462,109 +265,62 @@ const fetchAndFilterData = async () => {
     console.log("Parsed CSV Data:", parsedData);
 
     // Ensure parsed arrays are initialized
-    const WaterMeasurementData = parsedData.waterMeasurements || [];
-    const AirMeasurementData = parsedData.airMeasurements || [];
-    const InterpolatedAirPredictionData = parsedData.airPredictions || [];
-    const InterpolatedWaterPredictionData = parsedData.waterPredictions || [];
+    const mean = parsedData.means || [];
+    const lowerBounds = parsedData.lowerBounds || [];
+    const upperBounds = parsedData.upperBounds || [];;
 
-     // Filter `InterpolatedAirPrediction` to only include hourly data
-     const hoursToFilter = [3, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 102, 114, 120];
-    const AirPredictionData = InterpolatedAirPredictionData.filter((point) => {
-      const pointTime = new Date(point[0]);
-      const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
-      return hoursToFilter.includes(hoursDifference);
-    });
+    //  // Filter `InterpolatedAirPrediction` to only include hourly data
+    // const hoursToFilter = [3, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 102, 114, 120];
+    // const AirPredictionData = InterpolatedAirPredictionData.filter((point) => {
+    //   const pointTime = new Date(point[0]);
+    //   const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
+    //   return hoursToFilter.includes(hoursDifference);
+    // });
 
-    // Filter `InterpolatedWaterPrediction` for specific intervals
-    const WaterPredictionData = InterpolatedWaterPredictionData.filter((point) => {
-      const pointTime = new Date(point[0]);
-      const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
-      return hoursToFilter.includes(hoursDifference);
-    });
+    // // Filter `InterpolatedWaterPrediction` for specific intervals
+    // const WaterPredictionData = InterpolatedWaterPredictionData.filter((point) => {
+    //   const pointTime = new Date(point[0]);
+    //   const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
+    //   return hoursToFilter.includes(hoursDifference);
+    // });
 
     // Convert all data to Fahrenheit
-    const AirMeasurementDataFahrenheit = AirMeasurementData.map(([time, celsius]) => [
-      time,
-      (celsius * 9) / 5 + 32,
-    ]);
+    const toFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
+    const meanFahrenheit = mean.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const upperBoundsFahrenheit = upperBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
 
-    const WaterMeasurementDataFahrenheit = WaterMeasurementData.map(([time, celsius]) => [
-      time,
-      (celsius * 9) / 5 + 32,
-    ]);
+    // For highcharts to do a shaded range, it wants the rage in the format of [date_index, lower_bound, upper_bound]
+    // This just combines the lower and upper bound into one series of the above format
+    const boundsFahrenheit = lowerBoundsFahrenheit.map((point, index) => {
+      const upperBound = upperBoundsFahrenheit[index][1];
+      const lowerBound = point[1];
+      return [point[0], lowerBound, upperBound];
+    });
 
-    const InterpolatedWaterPredictionDataFahrenheit = InterpolatedWaterPredictionData.map(
-      ([time, celsius]) => [time, (celsius * 9) / 5 + 32]
-    );
-
-    const InterpolatedAirPredictionDataFahrenheit = InterpolatedAirPredictionData.map(
-      ([time, celsius]) => [time, (celsius * 9) / 5 + 32]
-    );
-
-    const AirPredictionDataFahrenheit = AirPredictionData.map(([time, celsius]) => [
-      time,
-      (celsius * 9) / 5 + 32,
-    ]);
-
-    const WaterPredictionDataFahrenheit = WaterPredictionData.map(([time, celsius]) => [
-      time,
-      (celsius * 9) / 5 + 32,
-    ]);
 
     // Update chart series with filtered data
     chartOptions.value.series = [
       {
-        name: "Water Temperature Measurements",
-        data: WaterMeasurementDataFahrenheit,
+        name: "Mean",
+        data: meanFahrenheit,
         color: "black",
         lineWidth: isSmallScreen ? 2 : 4,
+        zIndex: 1, // Ensure this is above the bounds
         marker: { enabled: false },
       },
       {
-        name: "Interpolated Predicted Water Temperature",
-        data: InterpolatedWaterPredictionDataFahrenheit,
-        color: "black",
-        dashStyle: "2.5, 2.5", // Shorter dashes
-        lineWidth: isSmallScreen ? 2 : 5,
+        name: "Bounds",
+        data: boundsFahrenheit,
+        type: 'arearange',
+        linkedTo: "Mean",
+        lineWidth: 0, // No line for bounds
+        color: Highcharts.getOptions().colors[0],
+        fillOpacity: 0.3,
+        zIndex: 0, // Ensure this is below the mean line
         marker: { enabled: false },
       },
-      {
-        name: "Air Temperature Measurements",
-        data: AirMeasurementDataFahrenheit,
-        color: "#73c5da",
-        lineWidth: isSmallScreen ? 2 : 4,
-        marker: { enabled: false },
-      },
-      {
-        name: "Interpolated Predicted Air Temperature",
-        data: InterpolatedAirPredictionDataFahrenheit,
-        color: "orange",
-        dashStyle: "2.5, 2.5", // Shorter dashes
-        lineWidth: isSmallScreen ? 2 : 5,
-        marker: { enabled: false },
-      },
-      {
-        name: "Air Temperature Predictions",
-        data: AirPredictionDataFahrenheit,
-        color: "green",
-        dashStyle: "Dash",
-        lineWidth: 0,
-        marker: {
-          enabled: true,
-          radius: isSmallScreen ? 2 : 4,
-        },
-      },
-      {
-        name: "Water Temperature Predictions",
-        data: WaterPredictionDataFahrenheit,
-        color: "purple",
-        dashStyle: "Dash",
-        lineWidth: 0,
-        marker: {
-          enabled: true,
-          radius: isSmallScreen ? 2 : 4,
-        },
-      },
+
     ];
   } catch (error) {
     console.error("Error fetching or processing data:", error);
@@ -575,16 +331,15 @@ const fetchAndFilterData = async () => {
 // CSV parsing function
 const parseCSV = (csvText) => {
   const rows = csvText.split("\n").map((row) => row.split(","));
-  const airMeasurements = [];
-  const airPredictions = [];
-  const waterMeasurements = [];
-  const waterPredictions = [];
+  const means = [];
+  const lowerBounds = [];
+  const upperBounds = [];
 
   rows.forEach((row, index) => {
     // Skip the header row
     if (index === 0) return;
 
-    const [timestamp, waterMeasurement, waterPrediction, airMeasurement, airPrediction] = row;
+    const [timestamp, mean, lowerBound, upperBound] = row;
 
     // Parse timestamp as UTC
     const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
@@ -599,22 +354,19 @@ const parseCSV = (csvText) => {
 
     if (!isNaN(localDate)) {
 
-      if (waterMeasurement && !isNaN(+waterMeasurement)) {
-        waterMeasurements.push([localDate.getTime(), +waterMeasurement]);
+      if (mean && !isNaN(+mean)) {
+        means.push([localDate.getTime(), +mean]);
       }
-      if (waterPrediction && !isNaN(+waterPrediction)) {
-        waterPredictions.push([localDate.getTime(), +waterPrediction]);
+      if (lowerBound && !isNaN(+lowerBound)) {
+        lowerBounds.push([localDate.getTime(), +lowerBound]);
       }
-      if (airMeasurement && !isNaN(+airMeasurement)) {
-        airMeasurements.push([localDate.getTime(), +airMeasurement]);
-      }
-      if (airPrediction && !isNaN(+airPrediction)) {
-        airPredictions.push([localDate.getTime(), +airPrediction]);
+      if (upperBound && !isNaN(+upperBound)) {
+        upperBounds.push([localDate.getTime(), +upperBound]);
       }
     }
   });
 
-  return { airMeasurements, airPredictions, waterMeasurements, waterPredictions };
+  return { means, lowerBounds, upperBounds };
 };
 
 // Function to toggle the dropdown menu
@@ -636,6 +388,10 @@ onMounted(() => {
 onUnmounted(() => {
   clearInterval(updateInterval);
 });
+
+
+// Compile the correct chart options based on screen size
+chartOptions.value = reactive(buildChart(false));
 </script>
 
 <template>
