@@ -8,7 +8,7 @@
                   - Instructions for interacting with the chart.
                   - Information on the data of the chart.
                   - Additional links
-     Author: Anointiyae Beasley and Matthew Kastl
+     Author: Anointiyae Beasley and Savannah Stephenson
 
      Date: 04/03/2025
 
