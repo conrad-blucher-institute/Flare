@@ -21,7 +21,7 @@ import { ref, onMounted, onUnmounted } from "vue";
 
 const isSmallScreen = window.innerWidth <= 600;
 //const csvURL = ref(`${window.location.origin}/flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv`);
-const csvURL = ref(`https://cbigrid.tamucc.edu/tpw/ibm/ibm-predictions-sbirdisland.csv`);
+const csvURL = ref(`https://cbigrid.tamucc.edu/tpw/ibm/ibm-predictions-sbirdisland.csv`); 
 
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
@@ -401,27 +401,34 @@ const fetchAndFilterData = async () => {
     console.log("Fetched CSV Data:", csvText);
 
     // Parse the CSV data
-    const ensembleModels = parseCSV(csvText);
-    console.log("Parsed Ensemble Models Data:", ensembleModels);
+    const { airPredictionMembers } = parseCSV(csvText);
+    console.log("Parsed Ensemble Models Data:", airPredictionMembers);
 
-    // Now that we have the ensemble models data (array of arrays), we can process it further
-    // For example, convert temperature to Fahrenheit
-    const ensembleModelsFahrenheit = ensembleModels.map((ensemble) =>
-      ensemble.map(([time, temp]) => [time, (temp * 9) / 5 + 32]) // Convert temperature to Fahrenheit
-    );
+    const series = [];
 
-    // Prepare the chart options (or any further processing you need)
-    chartOptions.value = {
-    series: ensembleModelsFahrenheit.map((ensembleData, index) => ({
-      name: `Ensemble Model ${index + 1}`,
-      data: ensembleData,
-      color: Highcharts.getOptions().colors[index % 100], // Assign a color from the Highcharts color palette
-      lineWidth: 1,
-      marker: { enabled: false },
-    })),
-    legend: {enabled: false},
-    };
+    // Loop through each ensemble member
+    airPredictionMembers.forEach((memberData, i) => 
+    {
+      // Convert to Fahrenheit
+      const converted = memberData.map(([timestamp, tempC]) => [
+        Number(timestamp), //convert timestamp to date
+        tempC,
+      ]);
 
+      // Push series
+      series.push({
+        name: `Ensemble Member ${i + 1}`,
+        data: converted,
+        color: Highcharts.getOptions().colors[i % 100], 
+        lineWidth: 1,
+        marker: { enabled: false },
+      });
+    });
+
+    // Assign to chart
+    console.log("Final series:", series);
+    chartOptions.value.series = series;
+    chartOptions.value.legend = {enabled: false};
     console.log("Updated Chart Options:", chartOptions.value);
 
   } catch (error) {
@@ -429,50 +436,36 @@ const fetchAndFilterData = async () => {
   }
 };
 
-
 // CSV parsing function
-const parseCSV = (csvText) => {
+const parseCSV = (csvText) => 
+{
   const rows = csvText.split("\n").map((row) => row.split(","));
-  const ensembleModels = [];
-  const timestamps = [];
+  
+  //Create arrays for ensembles
+  const airPredictionMembers = Array.from({length:100}, () => []);
 
-  // Iterate through each row and extract timestamp and model data
-  rows.forEach((row, index) => {
+  rows.forEach((row, rowIndex) => 
+  {
     // Skip the header row
-    if (index === 0) return;
+    if (rowIndex === 0) return;
 
-    // Parse the row: First column is timestamp, the rest are ensemble model outputs (1–99)
-    const [timestamp, ...modelData] = row;
+    const [timestamp,] = row
 
-    // Convert timestamp to UTC and then to the local time zone
-    const utcTimestamp = Number(timestamp);
-    const localTimestamp = new Date(utcTimestamp).toLocaleString("en-US", {
-      timeZone: userTimeZone,
-    });
-
-    const localDate = new Date(localTimestamp);
-
-    if (!isNaN(localDate)) {
-      // Store the timestamp in the timestamps array
-      timestamps.push(localDate.getTime());
-
-      // Store ensemble model data for each member (1-99)
-      modelData.slice(0, 99).forEach((value, idx) => {
-        const ensembleValue = parseFloat(value);
-        if (!isNaN(ensembleValue)) {
-          // Ensure there are enough arrays for each ensemble model
-          if (!ensembleModels[idx]) {
-            ensembleModels[idx] = [];
-          }
-          // Push the [timestamp, value] pair for each ensemble model
-          ensembleModels[idx].push([localDate.getTime(), ensembleValue]);
+    row.forEach((cell, colIndex) => 
+    {
+      console.log(`Row ${rowIndex}, Column ${colIndex}: ${cell}`);
+      if (!(colIndex === 0) && !(colIndex === 101) &&cell && !isNaN(+cell)) 
+        {
+          // offset of colIndex because the first column of the data is timestamps
+          // and skip the last column because it's the average
+          airPredictionMembers[colIndex - 1].push([timestamp, +cell]);
         }
-      });
-    }
-  });
-
-  return ensembleModels; // Return the array of arrays where each array contains timestamp-value pairs for an ensemble model
+      
+    }); //End of iterating columns 
+  }); //End of iterating Rows
+  return {airPredictionMembers};
 };
+
 
 // Function to toggle the dropdown menu
 const toggleExportMenu = () => {
