@@ -20,7 +20,8 @@ import { Chart } from "highcharts-vue";
 import { ref, onMounted, onUnmounted } from "vue";
 
 const isSmallScreen = window.innerWidth <= 600;
-const csvURL = ref(`${window.location.origin}/flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv`);
+//const csvURL = ref(`${window.location.origin}/flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv`);
+const csvURL = ref(`https://cbigrid.tamucc.edu/tpw/ibm/ibm-predictions-sbirdisland.csv`);
 
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
@@ -43,7 +44,7 @@ const smallScreenChartOptions = ref({
     marginRight: 30, // Adjust right margin'
   },
   title: {
-    text: "Temperatures of the Upper Laguna Madre",
+    text: "Ensemble Air Temperature Predictions from The Weather Company",
     style: { fontSize: "20px", fontWeight: "bold", color: "#0f4f66" }, // Adjusted for small screens
   },
   legend: {
@@ -247,7 +248,7 @@ const largeScreenChartOptions = ref({
     marginRight: 30
   },
   title: {
-    text: "Temperatures of the Upper Laguna Madre",
+    text: "Ensemble Air Temperature Predictions from The Weather Company",
     style: { fontSize: "28px", fontWeight: "bold", color: "#0f4f66" },
   },
   exporting: {
@@ -715,8 +716,3 @@ onUnmounted(() => {
       </section>
     </div>
 </template>
-
-
-
-
-
