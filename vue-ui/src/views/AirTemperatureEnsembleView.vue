@@ -175,8 +175,8 @@ const smallScreenChartOptions = ref({
     text: "Temperature (°F)",
     style: { color: "#0f4f66", fontSize: "12px" },
   },
-  max: 90,
-  min: 20,
+  max: 85,
+  min: 55,
   tickInterval: 10, // Major ticks every 10 units
   },
 
@@ -351,8 +351,8 @@ const largeScreenChartOptions = ref({
       text: "Temperature (°F)",
       style: { color: "#0f4f66", fontSize: "20px" },
     },
-    max: 90,
-    min: 20,
+    max: 85,
+    min: 55,
     tickInterval: 10, // Add ticks every 10 units
   },
 
