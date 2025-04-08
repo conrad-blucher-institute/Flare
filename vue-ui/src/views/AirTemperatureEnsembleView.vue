@@ -34,6 +34,7 @@ const nowDate = new Date();// Current timestamp
 const nowTime = nowDate.getTime();
 
 const chartOptions = ref({});
+
 // Small screen chart options
 const smallScreenChartOptions = ref({
   chart: {
@@ -177,38 +178,7 @@ const smallScreenChartOptions = ref({
   max: 90,
   min: 20,
   tickInterval: 10, // Major ticks every 10 units
-  plotLines: [
-    {
-      color: "red",
-      width: 2,
-      value: 46.4,
-      dashStyle: "Dash",
-      label: {
-        text: "Sea Turtle Water Temperature Threshold",
-        style: {
-          color: "#0f4f66",
-          fontSize: "12px",
-          fontWeight: "bold",
-        },
-      },
-    },
-    {
-      color: "#720000",
-      width: 2,
-      value: 40,
-      dashStyle: "Dash",
-      label: {
-        text: "Fisheries Water Temperature Threshold",
-        style: {
-          color: "#0f4f66",
-          fontSize: "12px",
-          fontFamily: "Arial",
-          fontWeight: "bold",
-        },
-      },
-    },
-  ],
-},
+  },
 
   series: [], // Placeholder for data, dynamically updated
   tooltip: {
@@ -384,38 +354,8 @@ const largeScreenChartOptions = ref({
     max: 90,
     min: 20,
     tickInterval: 10, // Add ticks every 10 units
-    plotLines: [
-      {
-        color: "red",
-        width: 2,
-        value: 46.4,
-        dashStyle: "Dash",
-        label: {
-          text: "Sea Turtle Water Temperature Threshold",
-          style: {
-            color: "#0f4f66",
-            fontSize: "16px",
-            fontWeight: "bold",
-          },
-        },
-      },
-      {
-        color: "#720000",
-        width: 2,
-        value: 40,
-        dashStyle: "Dash",
-        label: {
-          text: "Fisheries Water Temperature Threshold",
-          style: {
-            color: "#0f4f66",
-            fontSize: "16px",
-            fontFamily: "Arial",
-            fontWeight: "bold",
-          },
-        },
-      },
-    ],
   },
+
   series: [], // Placeholder for dynamically updated data
   tooltip: {
     shared: false,
