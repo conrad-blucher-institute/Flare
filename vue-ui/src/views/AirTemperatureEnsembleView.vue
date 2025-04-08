@@ -393,120 +393,37 @@ if (isSmallScreen) {
 // Function to fetch and process CSV data
 const fetchAndFilterData = async () => {
   try {
+    // Fetch CSV data
     const response = await fetch(csvURL.value);
     if (!response.ok) throw new Error("Failed to fetch CSV data");
 
     const csvText = await response.text();
-    console.log("UPDATED CSV Data:", csvText);
+    console.log("Fetched CSV Data:", csvText);
 
-    const parsedData = parseCSV(csvText);
-    console.log("Parsed CSV Data:", parsedData);
+    // Parse the CSV data
+    const ensembleModels = parseCSV(csvText);
+    console.log("Parsed Ensemble Models Data:", ensembleModels);
 
-    // Ensure parsed arrays are initialized
-    const WaterMeasurementData = parsedData.waterMeasurements || [];
-    const AirMeasurementData = parsedData.airMeasurements || [];
-    const InterpolatedAirPredictionData = parsedData.airPredictions || [];
-    const InterpolatedWaterPredictionData = parsedData.waterPredictions || [];
-
-     // Filter `InterpolatedAirPrediction` to only include hourly data
-     const hoursToFilter = [3, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 102, 114, 120];
-    const AirPredictionData = InterpolatedAirPredictionData.filter((point) => {
-      const pointTime = new Date(point[0]);
-      const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
-      return hoursToFilter.includes(hoursDifference);
-    });
-
-    // Filter `InterpolatedWaterPrediction` for specific intervals
-    const WaterPredictionData = InterpolatedWaterPredictionData.filter((point) => {
-      const pointTime = new Date(point[0]);
-      const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
-      return hoursToFilter.includes(hoursDifference);
-    });
-
-    // Convert all data to Fahrenheit
-    const AirMeasurementDataFahrenheit = AirMeasurementData.map(([time, celsius]) => [
-      time,
-      (celsius * 9) / 5 + 32,
-    ]);
-
-    const WaterMeasurementDataFahrenheit = WaterMeasurementData.map(([time, celsius]) => [
-      time,
-      (celsius * 9) / 5 + 32,
-    ]);
-
-    const InterpolatedWaterPredictionDataFahrenheit = InterpolatedWaterPredictionData.map(
-      ([time, celsius]) => [time, (celsius * 9) / 5 + 32]
+    // Now that we have the ensemble models data (array of arrays), we can process it further
+    // For example, convert temperature to Fahrenheit
+    const ensembleModelsFahrenheit = ensembleModels.map((ensemble) =>
+      ensemble.map(([time, temp]) => [time, (temp * 9) / 5 + 32]) // Convert temperature to Fahrenheit
     );
 
-    const InterpolatedAirPredictionDataFahrenheit = InterpolatedAirPredictionData.map(
-      ([time, celsius]) => [time, (celsius * 9) / 5 + 32]
-    );
+    // Prepare the chart options (or any further processing you need)
+    chartOptions.value = {
+    series: ensembleModelsFahrenheit.map((ensembleData, index) => ({
+      name: `Ensemble Model ${index + 1}`,
+      data: ensembleData,
+      color: Highcharts.getOptions().colors[index % 100], // Assign a color from the Highcharts color palette
+      lineWidth: 1,
+      marker: { enabled: false },
+    })),
+    legend: {enabled: false},
+    };
 
-    const AirPredictionDataFahrenheit = AirPredictionData.map(([time, celsius]) => [
-      time,
-      (celsius * 9) / 5 + 32,
-    ]);
+    console.log("Updated Chart Options:", chartOptions.value);
 
-    const WaterPredictionDataFahrenheit = WaterPredictionData.map(([time, celsius]) => [
-      time,
-      (celsius * 9) / 5 + 32,
-    ]);
-
-    // Update chart series with filtered data
-    chartOptions.value.series = [
-      {
-        name: "Water Temperature Measurements",
-        data: WaterMeasurementDataFahrenheit,
-        color: "black",
-        lineWidth: isSmallScreen ? 2 : 4,
-        marker: { enabled: false },
-      },
-      {
-        name: "Interpolated Predicted Water Temperature",
-        data: InterpolatedWaterPredictionDataFahrenheit,
-        color: "black",
-        dashStyle: "2.5, 2.5", // Shorter dashes
-        lineWidth: isSmallScreen ? 2 : 5,
-        marker: { enabled: false },
-      },
-      {
-        name: "Air Temperature Measurements",
-        data: AirMeasurementDataFahrenheit,
-        color: "#73c5da",
-        lineWidth: isSmallScreen ? 2 : 4,
-        marker: { enabled: false },
-      },
-      {
-        name: "Interpolated Predicted Air Temperature",
-        data: InterpolatedAirPredictionDataFahrenheit,
-        color: "orange",
-        dashStyle: "2.5, 2.5", // Shorter dashes
-        lineWidth: isSmallScreen ? 2 : 5,
-        marker: { enabled: false },
-      },
-      {
-        name: "Air Temperature Predictions",
-        data: AirPredictionDataFahrenheit,
-        color: "green",
-        dashStyle: "Dash",
-        lineWidth: 0,
-        marker: {
-          enabled: true,
-          radius: isSmallScreen ? 2 : 4,
-        },
-      },
-      {
-        name: "Water Temperature Predictions",
-        data: WaterPredictionDataFahrenheit,
-        color: "purple",
-        dashStyle: "Dash",
-        lineWidth: 0,
-        marker: {
-          enabled: true,
-          radius: isSmallScreen ? 2 : 4,
-        },
-      },
-    ];
   } catch (error) {
     console.error("Error fetching or processing data:", error);
   }
@@ -516,46 +433,45 @@ const fetchAndFilterData = async () => {
 // CSV parsing function
 const parseCSV = (csvText) => {
   const rows = csvText.split("\n").map((row) => row.split(","));
-  const airMeasurements = [];
-  const airPredictions = [];
-  const waterMeasurements = [];
-  const waterPredictions = [];
+  const ensembleModels = [];
+  const timestamps = [];
 
+  // Iterate through each row and extract timestamp and model data
   rows.forEach((row, index) => {
     // Skip the header row
     if (index === 0) return;
 
-    const [timestamp, waterMeasurement, waterPrediction, airMeasurement, airPrediction] = row;
+    // Parse the row: First column is timestamp, the rest are ensemble model outputs (1–99)
+    const [timestamp, ...modelData] = row;
 
-    // Parse timestamp as UTC
-    const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
-    const utcTimestamp = Date.UTC(year, month - 1, day, hour, minute, second); // Parse as UTC (subtract 1 from month as Date.UTC expects 0-based months)
-
+    // Convert timestamp to UTC and then to the local time zone
+    const utcTimestamp = Number(timestamp);
     const localTimestamp = new Date(utcTimestamp).toLocaleString("en-US", {
       timeZone: userTimeZone,
     });
 
     const localDate = new Date(localTimestamp);
 
-
     if (!isNaN(localDate)) {
+      // Store the timestamp in the timestamps array
+      timestamps.push(localDate.getTime());
 
-      if (waterMeasurement && !isNaN(+waterMeasurement)) {
-        waterMeasurements.push([localDate.getTime(), +waterMeasurement]);
-      }
-      if (waterPrediction && !isNaN(+waterPrediction)) {
-        waterPredictions.push([localDate.getTime(), +waterPrediction]);
-      }
-      if (airMeasurement && !isNaN(+airMeasurement)) {
-        airMeasurements.push([localDate.getTime(), +airMeasurement]);
-      }
-      if (airPrediction && !isNaN(+airPrediction)) {
-        airPredictions.push([localDate.getTime(), +airPrediction]);
-      }
+      // Store ensemble model data for each member (1-99)
+      modelData.slice(0, 99).forEach((value, idx) => {
+        const ensembleValue = parseFloat(value);
+        if (!isNaN(ensembleValue)) {
+          // Ensure there are enough arrays for each ensemble model
+          if (!ensembleModels[idx]) {
+            ensembleModels[idx] = [];
+          }
+          // Push the [timestamp, value] pair for each ensemble model
+          ensembleModels[idx].push([localDate.getTime(), ensembleValue]);
+        }
+      });
     }
   });
 
-  return { airMeasurements, airPredictions, waterMeasurements, waterPredictions };
+  return ensembleModels; // Return the array of arrays where each array contains timestamp-value pairs for an ensemble model
 };
 
 // Function to toggle the dropdown menu
