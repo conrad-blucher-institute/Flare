@@ -80,8 +80,8 @@ const smallScreenChartOptions = ref({
       },
     },
     labelsOverflow: "justify", // Prevent truncation
-    maxPadding: 0.1, // Reduce extra space around labels
-    minPadding: 0.1,
+    maxPadding: 0, // Fitting lines exactly to graph size
+    minPadding: 0,
     tickInterval: 2 * 24 * 3600 * 1000, // Main ticks every 2 days
     minorTickInterval: 24 * 3600 * 1000, // Minor ticks every day
     minorTickWidth: 1, // Width of the minor tick lines
@@ -108,6 +108,7 @@ const smallScreenChartOptions = ref({
         color: "#0f4f66",
       },
     },
+
     plotLines: [],
     events: {
       afterSetExtremes: function () {
@@ -240,8 +241,8 @@ const largeScreenChartOptions = ref({
       },
     },
     labelsOverflow: "justify", // Prevent truncation
-    maxPadding: 0.1, // Reduce extra space around labels
-    minPadding: 0.1,
+    maxPadding: 0, // Fitting lines exactly to graph x axis
+    minPadding: 0,
     tickInterval: 2 * 24 * 3600 * 1000, // Main ticks every 2 days
     minorTickInterval: 24 * 3600 * 1000, // Minor ticks every day
     minorTickWidth: 1, // Width of the minor tick lines
