@@ -496,7 +496,7 @@ onUnmounted(() => {
           <li>
             <a 
               :href="csvURL"
-              download="Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv"
+              download="ibm-predictions-sbirdisland.csv"
               class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
               Download CSV
             </a>
