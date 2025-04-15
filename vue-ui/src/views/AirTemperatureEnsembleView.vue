@@ -108,23 +108,7 @@ const smallScreenChartOptions = ref({
         color: "#0f4f66",
       },
     },
-    plotLines: [
-      {
-        color: "red",
-        width: 2, // Line width
-        value: nowTime, // Use timestamp for correct placement
-        dashStyle: "Solid",
-        label: {
-          text: "Now",
-          y:20,
-          style: {
-            color: "#0f4f66",
-            fontSize: "12px",
-            fontFamily: "Arial",
-          },
-        },
-      },
-    ],
+    plotLines: [],
     events: {
       afterSetExtremes: function () {
         const xAxis = this;
@@ -284,23 +268,7 @@ const largeScreenChartOptions = ref({
         color: "#0f4f66"
       },
     },
-    plotLines: [
-      {
-        color: "red",
-        width: 2,
-        value: nowTime,
-        dashStyle: "Solid",
-        label: {
-          text: "Now",
-          y:20,
-          style: {
-            color: "#0f4f66",
-            fontSize: "14px",
-            fontFamily: "Arial"
-          },
-        },
-      },
-    ],
+    plotLines: [],
     events: {
       afterSetExtremes: function () {
         const xAxis = this;
