@@ -225,7 +225,7 @@ const buildChart = (isSmallScreen) => {
     },
     series: [], // Placeholder for dynamically updated data
     tooltip: {
-      shared: false,
+      shared: true,
       crosshairs: true,
       formatter: function () {
         const localDate = new Date(this.x); 
@@ -239,7 +239,9 @@ const buildChart = (isSmallScreen) => {
                     hour: "2-digit",
                     minute: "2-digit",
                 })}</b><br>
-                Temperature: ${this.y.toFixed(2)}°F`;
+                Upper Bound: ${this.points[1].high.toFixed(2)}°F<br>
+                Mean Temperature: ${this.points[0].y.toFixed(2)}°F<br>
+                Lower Bound: ${this.points[1].low.toFixed(2)}°F<br>`;
       },
       style: {
         fontSize: isSmallScreen ? "12px" : "14px", 
@@ -269,21 +271,6 @@ const fetchAndFilterData = async () => {
     const lowerBounds = parsedData.lowerBounds || [];
     const upperBounds = parsedData.upperBounds || [];;
 
-    //  // Filter `InterpolatedAirPrediction` to only include hourly data
-    // const hoursToFilter = [3, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 102, 114, 120];
-    // const AirPredictionData = InterpolatedAirPredictionData.filter((point) => {
-    //   const pointTime = new Date(point[0]);
-    //   const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
-    //   return hoursToFilter.includes(hoursDifference);
-    // });
-
-    // // Filter `InterpolatedWaterPrediction` for specific intervals
-    // const WaterPredictionData = InterpolatedWaterPredictionData.filter((point) => {
-    //   const pointTime = new Date(point[0]);
-    //   const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
-    //   return hoursToFilter.includes(hoursDifference);
-    // });
-
     // Convert all data to Fahrenheit
     const toFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
     const meanFahrenheit = mean.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
@@ -293,16 +280,16 @@ const fetchAndFilterData = async () => {
     // For highcharts to do a shaded range, it wants the rage in the format of [date_index, lower_bound, upper_bound]
     // This just combines the lower and upper bound into one series of the above format
     const boundsFahrenheit = lowerBoundsFahrenheit.map((point, index) => {
+      const dateIndex = point[0];
+      const lowerBound = lowerBoundsFahrenheit[index][1];
       const upperBound = upperBoundsFahrenheit[index][1];
-      const lowerBound = point[1];
-      return [point[0], lowerBound, upperBound];
+      return [dateIndex, lowerBound, upperBound];
     });
-
 
     // Update chart series with filtered data
     chartOptions.value.series = [
       {
-        name: "Mean",
+        name: "Mean Temperature",
         data: meanFahrenheit,
         color: "black",
         lineWidth: isSmallScreen ? 2 : 4,
@@ -391,7 +378,7 @@ onUnmounted(() => {
 
 
 // Compile the correct chart options based on screen size
-chartOptions.value = reactive(buildChart(false));
+chartOptions.value = reactive(buildChart(isSmallScreen));
 </script>
 
 <template>
