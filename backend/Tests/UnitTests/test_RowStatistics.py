@@ -90,3 +90,16 @@ def test_row_statistics_min_only():
     expected_df["min"] = expected_min
 
     assert_frame_equal(result_df.reset_index(drop=True), expected_df.reset_index(drop=True), atol=1e-5)
+
+# ---------- MULTIPLES ----------
+def test_row_statistics_min_and_max_only():
+    call = "RowStatistics"
+    kwargs = { "metrics": ["min", "max"] }
+
+    result_df = post_process_factory(base_df.copy(), call, kwargs)
+
+    expected_df = base_df.copy()
+    expected_df["min"] = expected_min
+    expected_df["max"] = expected_max
+
+    assert_frame_equal(result_df.sort_index(axis=1).reset_index(drop=True),expected_df.sort_index(axis=1).reset_index(drop=True),atol=1e-5)
