@@ -1,0 +1,47 @@
+{
+    "chart_name": "TWC_Laguna-Madre_Air-Temperature-Predictions",
+    "CSPEC_version": "1.0.0",
+    "data_requests" : 
+    [
+      {  "key": "SemaphoreInputs",
+         "args": {
+            "column_name": "Air Temperature Predictions",
+            "location": "SBirdIsland", 
+            "source": "TWC",
+            "series": "pAirTemp",
+            "interval": 3600,
+            "range": [-144, 0]
+         }
+            
+      }
+    ],
+    "post_processing" : [
+      {
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Air Temperature Prediction",
+            "interpolation_interval": 3600,
+            "limit": 10800
+        }
+      },
+      {
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction",
+            "interpolation_interval": 3600,
+            "limit": 144000
+        }
+      }
+
+    ],
+    "csv_config": {
+      "csv_name": "TWC-Laguna-Madre_Air-Temperature-Predictions_120hrs.csv",
+      "included_columns": [
+        "Water Temperature Measurement",
+        "Water Temperature Prediction",
+        "Air Temperature Measurement",
+        "Air Temperature Prediction"
+      ]
+    }
+  }
+  
