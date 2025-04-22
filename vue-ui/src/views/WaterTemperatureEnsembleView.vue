@@ -33,421 +33,223 @@ const nowDate = new Date();// Current timestamp
 const nowTime = nowDate.getTime();
 
 const chartOptions = ref({});
-// Small screen chart options
-const smallScreenChartOptions = ref({
-  chart: {
-    type: "line",
-    zoomType: "x",
-    backgroundColor: "white",
-    style: { fontFamily: "Arial" },
-    marginRight: 30, // Adjust right margin'
-  },
-  title: {
-    text: "Temperatures of the Upper Laguna Madre",
-    style: { fontSize: "20px", fontWeight: "bold", color: "#0f4f66" }, // Adjusted for small screens
-  },
-  legend: {
-    itemStyle: {
-      fontSize: "12px", // Adjusted for small screens
-      fontWeight: "bold",
-      fontFamily: "Arial",
-      color: "#0f4f66",
-    },
-  },
-  xAxis: {
-    type: "datetime",
-    dateTimeLabelFormats: {
-      day: "%a %b %e",
-    },
-    labels: {
-      formatter: function () {
-        const localDate = new Date(this.value);
-        const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
-        const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-        const time = localDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }); 
-        return `<span style="display: block; text-align: center; font-family: Arial;">
-                  <b>${day}</b><br>${date}<br><i>${time}</i>
-                </span>`;
-      },
-      useHTML: true,
-      style: {
-        fontSize: "12px", // Adjusted for small screens
-        fontFamily: "Arial",
-        color: "#0f4f66",
-        whiteSpace: "nowrap",
-      },
-    },
-    labelsOverflow: "justify", // Prevent truncation
-    maxPadding: 0.1, // Reduce extra space around labels
-    minPadding: 0.1,
-    tickInterval: 2 * 24 * 3600 * 1000, // Main ticks every 2 days
-    minorTickInterval: 24 * 3600 * 1000, // Minor ticks every day
-    minorTickWidth: 1, // Width of the minor tick lines
-    minorTickLength: 5, // Length of the minor tick lines
-    minorTickColor: "#888", // Color of the minor ticks
-    // Ensure ticks align to 12 AM
-    tickPositioner: function () {
-      let positions = [];
-      let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
-      let start = Math.floor((this.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset;
-      let end = this.max;
-      
-      while (start <= end) {
-        positions.push(start);
-        start += 2 * 24 * 3600 * 1000; // Increment by 2 days
-      }
-      return positions;
+
+// Creating a chart function that handles both screen sizes
+const buildChart = (isSmallScreen) => {
+  return {
+    chart: {
+      type: "line",
+      zoomType: "x",
+      backgroundColor: "white",
+      style: { fontFamily: "Arial" },
+      marginRight: 30
     },
     title: {
-      text: "Time",
-      style: {
-        fontSize: "14px", // Adjusted for small screens
+      text: "Temperatures of the Upper Laguna Madre",
+      style: { 
+        fontSize: isSmallScreen ? "20px" : "28px", 
+        fontWeight: "bold", 
+        color: "#0f4f66" 
+      },
+    },
+    exporting: {
+      enabled: true, // Enables the export menu
+    },
+    legend: {
+      itemStyle: {
+        fontSize: isSmallScreen ? "12px" : "19px",
+        fontWeight: "bold",
         fontFamily: "Arial",
         color: "#0f4f66",
       },
     },
-    plotLines: [
-      {
-        color: "red",
-        width: 2, // Line width
-        value: nowTime, // Use timestamp for correct placement
-        dashStyle: "Solid",
-        label: {
-          text: "Now",
-          y:20,
-          style: {
-            color: "#0f4f66",
-            fontSize: "12px",
-            fontFamily: "Arial",
-          },
+    xAxis: {
+      type: "datetime",
+      dateTimeLabelFormats: {
+        day: "%a %b %e",
+      },
+      labels: {
+        formatter: function () {
+          const localDate = new Date(this.value);
+          const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
+          const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+          const time = localDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }); 
+          return `<span style="display: block; text-align: center; font-family: Arial;">
+                    <b>${day}</b><br>${date}<br><i>${time}</i>
+                  </span>`;
         },
-      },
-    ],
-    events: {
-      afterSetExtremes: function () {
-        const xAxis = this;
-        const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000; // Ensure local time alignment
-        const min = Math.floor((xAxis.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset + (24 * 3600 * 1000);
-        const max = xAxis.max;
-        const plotLines = [];
-
-        
-        for (let time = min; time <= max; time += 2 * 24 * 3600 * 1000) {
-          plotLines.push({
-            color: "gray",
-            dashStyle: "Dot",
-            width: 1,
-            value: time,
-            label: {
-              text: (() => {
-                  const localDate = new Date(time); // Convert timestamp to local time
-                  const options = { weekday: "short", month: "short", day: "numeric" }; // Format options
-                  return localDate.toLocaleDateString("en-US", options); // Format as "Mon Jan 27"
-                })(),
-              align: "left",
-              rotation: 0,
-              y: 15,
-              style: {
-                color: "#0f4f66",
-                fontSize: "10px",
-                fontFamily: "Arial",
-              },
-            },
-          });
-        }
-
-        // Add the new plotlines dynamically
-        plotLines.forEach((line) => xAxis.addPlotLine(line));
-      },
-    },
-  },
-  yAxis: {
-  labels: {
-    style: {
-      fontSize: '12px',
-      color: '#0f4f66',
-      fontFamily: 'Arial',
-    },
-  },
-  title: {
-    text: "Temperature (°F)",
-    style: { color: "#0f4f66", fontSize: "12px" },
-  },
-  max: 90,
-  min: 20,
-  tickInterval: 10, // Major ticks every 10 units
-  plotLines: [
-    {
-      color: "red",
-      width: 2,
-      value: 46.4,
-      dashStyle: "Dash",
-      label: {
-        text: "Sea Turtle Water Temperature Threshold",
+        useHTML: true,
         style: {
-          color: "#0f4f66",
-          fontSize: "12px",
-          fontWeight: "bold",
-        },
-      },
-    },
-    {
-      color: "#720000",
-      width: 2,
-      value: 40,
-      dashStyle: "Dash",
-      label: {
-        text: "Fisheries Water Temperature Threshold",
-        style: {
-          color: "#0f4f66",
-          fontSize: "12px",
+          fontSize: isSmallScreen ? "12px" : "16px", 
           fontFamily: "Arial",
-          fontWeight: "bold",
+          color: "#0f4f66",
+          whiteSpace: "nowrap",
         },
       },
-    },
-  ],
-},
-
-  series: [], // Placeholder for data, dynamically updated
-  tooltip: {
-    shared: false,
-    crosshairs: true,
-    formatter: function () {
-      const localDate = new Date(this.x); 
-      return `<b>Date: ${localDate.toLocaleDateString("en-US", {
-                  weekday: "long",
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-              })}</b><br>
-              <b>Time: ${localDate.toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-              })}</b><br>
-              Temperature: ${this.y.toFixed(2)}°F`;
-    },
-    style: {
-      fontSize: "12px",
-      padding: "5px",
-      color: "#0f4f66",
-      fontFamily: "Arial",
-    },
-  },
-});
-
-
-// Reactive variables for chart options
-const largeScreenChartOptions = ref({
-  chart: {
-    type: "line",
-    zoomType: "x",
-    backgroundColor: "white",
-    style: { fontFamily: "Arial" },
-    marginRight: 30
-  },
-  title: {
-    text: "Temperatures of the Upper Laguna Madre",
-    style: { fontSize: "28px", fontWeight: "bold", color: "#0f4f66" },
-  },
-  exporting: {
-  enabled: true, // Enables the export menu
-},
-  legend: {
-    itemStyle: {
-      fontSize: "19px",
-      fontWeight: "bold",
-      fontFamily: "Arial",
-      color: "#0f4f66",
-    },
-  },
-  xAxis: {
-    type: "datetime",
-    dateTimeLabelFormats: {
-      day: "%a %b %e",
-    },
-    labels: {
-      formatter: function () {
-        const localDate = new Date(this.value);
-        const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
-        const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-        const time = localDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }); 
-        return `<span style="display: block; text-align: center; font-family: Arial;">
-                  <b>${day}</b><br>${date}<br><i>${time}</i>
-                </span>`;
+      labelsOverflow: "justify", // Prevent truncation
+      maxPadding: 0.1, // Reduce extra space around labels
+      minPadding: 0.1,
+      tickInterval: 2 * 24 * 3600 * 1000, // Main ticks every 2 days
+      minorTickInterval: 24 * 3600 * 1000, // Minor ticks every day
+      minorTickWidth: 1, // Width of the minor tick lines
+      minorTickLength: 5, // Length of the minor tick lines
+      minorTickColor: "#888", // Color of the minor ticks
+      // Ensure ticks align to 12 AM
+      tickPositioner: function () {
+        let positions = [];
+        let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+        let start = Math.floor((this.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset;
+        let end = this.max;
+        
+        while (start <= end) {
+          positions.push(start);
+          start += 2 * 24 * 3600 * 1000; // Increment by 2 days
+        }
+        return positions;
       },
-      useHTML: true,
-      style: {
-        fontSize: "16px",
-        fontFamily: "Arial",
-        color: "#0f4f66",
-        whiteSpace: "nowrap",
+      title: {
+        text: "Time",
+        style: {
+          fontSize: isSmallScreen ? "14px" : "20px",
+          fontFamily: "Arial",
+          color: "#0f4f66",
+        },
       },
-    },
-    labelsOverflow: "justify", // Prevent truncation
-    maxPadding: 0.1, // Reduce extra space around labels
-    minPadding: 0.1,
-    tickInterval: 2 * 24 * 3600 * 1000, // Main ticks every 2 days
-    minorTickInterval: 24 * 3600 * 1000, // Minor ticks every day
-    minorTickWidth: 1, // Width of the minor tick lines
-    minorTickLength: 5, // Length of the minor tick lines
-    minorTickColor: "#888", // Color of the minor ticks
-    // Ensure ticks align to 12 AM
-    tickPositioner: function () {
-      let positions = [];
-      let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
-      let start = Math.floor((this.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset;
-      let end = this.max;
-      
-      while (start <= end) {
-        positions.push(start);
-        start += 2 * 24 * 3600 * 1000; // Increment by 2 days
-      }
-      return positions;
-    },
-    title: {
-      text: "Time",
-      style: {
-        fontSize: "20px",
-        fontFamily: "Arial",
-        color: "#0f4f66"
-      },
-    },
-    plotLines: [
-      {
-        color: "red",
-        width: 2,
-        value: nowTime,
-        dashStyle: "Solid",
-        label: {
-          text: "Now",
-          y:20,
-          style: {
-            color: "#0f4f66",
-            fontSize: "14px",
-            fontFamily: "Arial"
+      plotLines: [
+        {
+          color: "red",
+          width: 2,
+          value: nowTime,
+          dashStyle: "Solid",
+          label: {
+            text: "Now",
+            y: 20,
+            style: {
+              color: "#0f4f66",
+              fontSize: isSmallScreen ? "12px" : "14px", 
+              fontFamily: "Arial",
+            },
           },
         },
-      },
-    ],
-    events: {
-      afterSetExtremes: function () {
-        const xAxis = this;
-        const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000; // Ensure local time alignment
-        const min = Math.floor((xAxis.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset + (24 * 3600 * 1000);
-        const max = xAxis.max;
-        const plotLines = [];
+      ],
+      events: {
+        afterSetExtremes: function () {
+          const xAxis = this;
+          const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000; // Ensure local time alignment
+          const min = Math.floor((xAxis.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset + (24 * 3600 * 1000);
+          const max = xAxis.max;
+          const plotLines = [];
 
-        
-        for (let time = min; time <= max; time += 2 * 24 * 3600 * 1000) {
-          plotLines.push({
-            color: "gray",
-            dashStyle: "Dot",
-            width: 1,
-            value: time,
-            label: {
-              text: (() => {
-              const localDate = new Date(time);
-              const options = { weekday: "short", month: "short", day: "numeric" }; 
-              return localDate.toLocaleDateString("en-US", options); 
-            })(),
-              align: "left",
-              rotation: 0,
-              y: 15, // Lower the dynamic plotline labels
-              style: {
-                color: "#0f4f66",
-                fontSize: "12px",
-                fontFamily: "Arial",
+          
+          for (let time = min; time <= max; time += 2 * 24 * 3600 * 1000) {
+            plotLines.push({
+              color: "gray",
+              dashStyle: "Dot",
+              width: 1,
+              value: time,
+              label: {
+                text: (() => {
+                  const localDate = new Date(time);
+                  const options = { weekday: "short", month: "short", day: "numeric" }; 
+                  return localDate.toLocaleDateString("en-US", options); 
+                })(),
+                align: "left",
+                rotation: 0,
+                y: 15, 
+                style: {
+                  color: "#0f4f66",
+                  fontSize: isSmallScreen ? "10px" : "12px", 
+                  fontFamily: "Arial",
+                },
               },
-            },
-          });
-        }
+            });
+          }
 
-        // Add the new plotlines dynamically
-        plotLines.forEach((line) => xAxis.addPlotLine(line));
+          // Add the new plotlines dynamically
+          plotLines.forEach((line) => xAxis.addPlotLine(line));
+        },
       },
     },
-  },
-  yAxis: {
-    labels: {
+    yAxis: {
+      labels: {
         style: {
-          fontSize: '26px', 
+          fontSize: isSmallScreen ? "12px" : "26px",
           color: '#0f4f66',
           fontFamily: 'Arial', 
         },
       },
-    title: {
-      text: "Temperature (°F)",
-      style: { color: "#0f4f66", fontSize: "20px" },
-    },
-    max: 90,
-    min: 20,
-    tickInterval: 10, // Add ticks every 10 units
-    plotLines: [
-      {
-        color: "red",
-        width: 2,
-        value: 46.4,
-        dashStyle: "Dash",
-        label: {
-          text: "Sea Turtle Water Temperature Threshold",
-          style: {
-            color: "#0f4f66",
-            fontSize: "16px",
-            fontWeight: "bold",
-          },
+      title: {
+        text: "Temperature (°F)",
+        style: { 
+          color: "#0f4f66", 
+          fontSize: isSmallScreen ? "12px" : "20px", 
         },
       },
-      {
-        color: "#720000",
-        width: 2,
-        value: 40,
-        dashStyle: "Dash",
-        label: {
-          text: "Fisheries Water Temperature Threshold",
-          style: {
-            color: "#0f4f66",
-            fontSize: "16px",
-            fontFamily: "Arial",
-            fontWeight: "bold",
+      max: 90,
+      min: 20,
+      tickInterval: 10, // Add ticks every 10 units
+      plotLines: [
+        {
+          color: "red",
+          width: 2,
+          value: 46.4,
+          dashStyle: "Dash",
+          label: {
+            text: "Sea Turtle Water Temperature Threshold",
+            style: {
+              color: "#0f4f66",
+              fontSize: isSmallScreen ? "12px" : "16px",
+              fontWeight: "bold",
+            },
           },
         },
+        {
+          color: "#720000",
+          width: 2,
+          value: 40,
+          dashStyle: "Dash",
+          label: {
+            text: "Fisheries Water Temperature Threshold",
+            style: {
+              color: "#0f4f66",
+              fontSize: isSmallScreen ? "12px" : "16px",
+              fontFamily: "Arial",
+              fontWeight: "bold",
+            },
+          },
+        },
+      ],
+    },
+    series: [], // Placeholder for dynamically updated data
+    tooltip: {
+      shared: false,
+      crosshairs: true,
+      formatter: function () {
+        const localDate = new Date(this.x); 
+        return `<b>Date: ${localDate.toLocaleDateString("en-US", {
+                    weekday: "long",
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                })}</b><br>
+                <b>Time: ${localDate.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                })}</b><br>
+                Temperature: ${this.y.toFixed(2)}°F`;
       },
-    ],
-  },
-  series: [], // Placeholder for dynamically updated data
-  tooltip: {
-    shared: false,
-    crosshairs: true,
-    formatter: function () {
-      const localDate = new Date(this.x); 
-      return `<b>Date: ${localDate.toLocaleDateString("en-US", {
-                  weekday: "long",
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-              })}</b><br>
-              <b>Time: ${localDate.toLocaleTimeString("en-US", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-              })}</b><br>
-              Temperature: ${this.y.toFixed(2)}°F`;
+      style: {
+        fontSize: isSmallScreen ? "12px" : "14px", 
+        padding: isSmallScreen ? "5px" : "8px", 
+        color: "#0f4f66",
+        fontFamily: "Arial",
+      },
     },
-    style: {
-      fontSize: "14px",
-      padding: "8px",
-      color: "#0f4f66",
-      fontFamily: "Arial",
-    },
-  },
-});
+  };
+};
 
-
-if (isSmallScreen) {
-  chartOptions.value = smallScreenChartOptions.value;
-} else {
-  chartOptions.value = largeScreenChartOptions.value;
-}
+// Initializing chart options with the buildChart function return value 
+chartOptions.value = buildChart(isSmallScreen);
 
 // Function to fetch and process CSV data
 const fetchAndFilterData = async () => {
