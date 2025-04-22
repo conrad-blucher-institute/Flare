@@ -1,0 +1,126 @@
+{
+    "chart_name": "Laguna_Madre",
+    "CSPEC_version": "1.0.0",
+    "data_requests" : [
+      {  "key": "SemaphoreInputs",
+         "args": {
+            "column_name": "Water Temperature Measurement",
+            "location": "SBI", 
+            "source": "NOAATANDC",
+            "series": "dWaterTmp",
+            "interval": 3600,
+            "range": [-144, 0]
+         }
+            
+        },
+        {  "key": "SemaphoreInputs",
+         "args": {
+            "column_name": "Air Temperature Measurement",
+            "location": "SBI",
+            "source": "NOAATANDC",
+            "series": "dAirTmp",
+            "interval": 3600,
+            "range": [-144, 0]
+         }
+            
+        },
+        {  "key": "SemaphoreInputs",
+         "args": {
+            "column_name": "Air Temperature Prediction",
+            "location": "SBirdIsland", 
+            "source": "NDFD_EXP",
+            "series": "pAirTemp",
+            "interval": 3600,
+            "range": [0, 120]
+         }
+            
+        },
+        {  "key": "SemaphoreOutputLatest",
+         "args": {
+            "column_name": "Water Temperature Prediction",
+            "model_names": [
+              "MRE_Bird-Island_Water-Temperature_3hr",
+              "MRE_Bird-Island_Water-Temperature_6hr",
+              "MRE_Bird-Island_Water-Temperature_12hr",
+              "MRE_Bird-Island_Water-Temperature_18hr",
+              "MRE_Bird-Island_Water-Temperature_24hr",
+              "MRE_Bird-Island_Water-Temperature_30hr",
+              "MRE_Bird-Island_Water-Temperature_36hr",
+              "MRE_Bird-Island_Water-Temperature_42hr",
+              "MRE_Bird-Island_Water-Temperature_48hr",
+              "MRE_Bird-Island_Water-Temperature_54hr",
+              "MRE_Bird-Island_Water-Temperature_60hr",
+              "MRE_Bird-Island_Water-Temperature_66hr",
+              "MRE_Bird-Island_Water-Temperature_72hr",
+              "MRE_Bird-Island_Water-Temperature_78hr",
+              "MRE_Bird-Island_Water-Temperature_84hr",
+              "MRE_Bird-Island_Water-Temperature_90hr",
+              "MRE_Bird-Island_Water-Temperature_96hr",
+              "MRE_Bird-Island_Water-Temperature_102hr",
+              "MRE_Bird-Island_Water-Temperature_108hr",
+              "MRE_Bird-Island_Water-Temperature_114hr",
+              "MRE_Bird-Island_Water-Temperature_120hr"
+            ] 
+          }
+            
+        }
+    ],
+    "post_processing" : [
+      {
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Air Temperature Prediction",
+            "interpolation_interval": 3600,
+            "limit": 10800
+        }
+      },
+      {
+        "key": "RowStatistics",
+        "args": { 
+            "metrics": "median" 
+        }
+      },
+      {
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction",
+            "interpolation_interval": 3600,
+            "limit": 144000
+        }
+      },
+      {
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction",
+            "interpolation_interval": 3600,
+            "limit": 144000
+        }
+      },
+      {
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction",
+            "interpolation_interval": 3600,
+            "limit": 144000
+        }
+      },
+      {
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction",
+            "interpolation_interval": 3600,
+            "limit": 144000
+        }
+      }
+
+    ],
+    "csv_config": {
+      "csv_name": "Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv",
+      "included_columns": [
+        "Water Temperature Measurement",
+        "Water Temperature Prediction",
+        "Air Temperature Measurement",
+        "Air Temperature Prediction"
+      ]
+    }
+  }
