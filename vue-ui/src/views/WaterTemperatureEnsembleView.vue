@@ -240,7 +240,7 @@ const buildChart = (isSmallScreen) => {
                     minute: "2-digit",
                 })}</b><br>
                 Upper Bound: ${this.points[1].high.toFixed(2)}°F<br>
-                Mean Temperature: ${this.points[0].y.toFixed(2)}°F<br>
+                Median Temperature: ${this.points[0].y.toFixed(2)}°F<br>
                 Lower Bound: ${this.points[1].low.toFixed(2)}°F<br>`;
       },
       style: {
@@ -289,7 +289,7 @@ const fetchAndFilterData = async () => {
     // Update chart series with filtered data
     chartOptions.value.series = [
       {
-        name: "Mean Temperature",
+        name: "Median  Temperature",
         data: meanFahrenheit,
         color: "black",
         lineWidth: isSmallScreen ? 2 : 4,
@@ -300,7 +300,7 @@ const fetchAndFilterData = async () => {
         name: "Bounds",
         data: boundsFahrenheit,
         type: 'arearange',
-        linkedTo: "Mean",
+        linkedTo: "Median  Temperature",
         lineWidth: 0, // No line for bounds
         color: Highcharts.getOptions().colors[0],
         fillOpacity: 0.3,
