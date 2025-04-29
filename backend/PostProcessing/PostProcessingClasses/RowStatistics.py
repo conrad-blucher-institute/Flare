@@ -5,7 +5,7 @@
 # -------------------------------
 """
 This file is a postprocessing class under the IPostProcessing interface.
-It calculates the min, max, and/or median for each row in the DataFrame depending on user input.
+It calculates the min, max, and/or median for each row in the DataFrame containing a list of values.
 
 JSON Call:
     {
