@@ -71,6 +71,11 @@ class SemaphoreOutputLatest(IDataIngestion):
 
             value = data_point['dataValue']
             if value == 'None': value = nan
+            
+            elif isinstance(value, list):
+                # Convert all elements to float
+                value = [float(v) for v in value]
+            
             else: value = float(value)
             data.append(value)
 

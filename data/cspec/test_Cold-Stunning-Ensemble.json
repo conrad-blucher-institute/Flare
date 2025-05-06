@@ -1,0 +1,76 @@
+{
+    "chart_name": "Test_Cold_Stunning_Ensemble ",
+    "CSPEC_version": "1.0.0",
+    "data_requests" : [
+      {  "key": "SemaphoreInputs",
+         "args": {
+            "column_name": "Air Temperature Prediction",
+            "location": "SBirdIsland", 
+            "source": "NDFD_EXP",
+            "series": "pAirTemp",
+            "interval": 3600,
+            "range": [0, 120]
+         }
+            
+        },
+      {  "key": "SemaphoreOutputLatest",
+         "args": {
+            "column_name": "Water Temperature Prediction",
+            "model_names": [
+              "MRE_Bird-Island_Water-Temperature_3hr",
+              "MRE_Bird-Island_Water-Temperature_6hr",
+              "MRE_Bird-Island_Water-Temperature_12hr",
+              "MRE_Bird-Island_Water-Temperature_18hr",
+              "MRE_Bird-Island_Water-Temperature_24hr",
+              "MRE_Bird-Island_Water-Temperature_30hr",
+              "MRE_Bird-Island_Water-Temperature_36hr",
+              "MRE_Bird-Island_Water-Temperature_42hr",
+              "MRE_Bird-Island_Water-Temperature_48hr",
+              "MRE_Bird-Island_Water-Temperature_54hr",
+              "MRE_Bird-Island_Water-Temperature_60hr",
+              "MRE_Bird-Island_Water-Temperature_66hr",
+              "MRE_Bird-Island_Water-Temperature_72hr",
+              "MRE_Bird-Island_Water-Temperature_78hr",
+              "MRE_Bird-Island_Water-Temperature_84hr",
+              "MRE_Bird-Island_Water-Temperature_90hr",
+              "MRE_Bird-Island_Water-Temperature_96hr",
+              "MRE_Bird-Island_Water-Temperature_102hr",
+              "MRE_Bird-Island_Water-Temperature_108hr",
+              "MRE_Bird-Island_Water-Temperature_114hr",
+              "MRE_Bird-Island_Water-Temperature_120hr"
+            ] 
+          }
+            
+        }
+    ],
+    "post_processing" : [
+      {
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Air Temperature Prediction",
+            "interpolation_interval": 3600,
+            "limit": 10800
+        }
+      },
+      {
+        "key": "RowStatistics",
+        "args": {
+            "col_name": "Water Temperature Prediction",
+            "metrics": "all"
+        }
+      }
+
+    ],
+    "csv_config": {
+      "csv_name": "ensemble_test.csv",
+      "included_columns": [
+        "Air Temperature Prediction",
+        "Water Temperature Prediction Median",
+        "Water Temperature Prediction Max",
+        "Water Temperature Prediction Min"
+      ]
+    }
+  }
+  
+
+  
