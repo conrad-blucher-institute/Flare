@@ -65,7 +65,6 @@ class SemaphoreInputs(IDataIngestion):
         index = []
         data = []
         for datapoint in data_points:
-
             # Convert the string datetime into a proper datetime
             index.append(datetime.strptime(datapoint['timeVerified'], '%Y-%m-%dT%H:%M:%S'))
 
@@ -73,10 +72,18 @@ class SemaphoreInputs(IDataIngestion):
             value = datapoint['dataValue']
             if value == 'None' or value is None:
                 data.append([nan])  # Append NaN for missing data
+            elif isinstance(value, float):  # Handle float values directly
+                data.append([value])
+            elif isinstance(value, str):  # Handle string values (e.g., JSON-like arrays)
+                try:
+                    value_array = [float(v) for v in eval(value)]
+                    data.append(value_array)
+                except Exception as e:
+                    print(f"Error parsing value: {value}, Error: {e}")
+                    data.append([nan])  # Append NaN if parsing fails
             else:
-                # Convert the string array to a list of floats
-                value_array = [float(v) for v in eval(value)]
-                data.append(value_array)
+                print(f"Unexpected data type for value: {type(value)}")
+                data.append([nan])  # Append NaN for unexpected types
 
         # Add this to the collation df with an outer join to ensure all data is preserved
         return df.join(DataFrame({col_name: data}, index=index), how='outer')
