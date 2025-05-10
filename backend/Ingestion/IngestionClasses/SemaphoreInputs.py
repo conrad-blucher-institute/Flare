@@ -69,12 +69,14 @@ class SemaphoreInputs(IDataIngestion):
             # Convert the string datetime into a proper datetime
             index.append(datetime.strptime(datapoint['timeVerified'], '%Y-%m-%dT%H:%M:%S'))
 
-            # Check its not a null datapoint
+            # Parse the array of data values
             value = datapoint['dataValue']
-            if (value == 'None') or (value is None): value = nan
-            else: 
-                value = float(value)
-            data.append(value)
+            if value == 'None' or value is None:
+                data.append([nan])  # Append NaN for missing data
+            else:
+                # Convert the string array to a list of floats
+                value_array = [float(v) for v in eval(value)]
+                data.append(value_array)
 
         # Add this to the collation df with an outer join to ensure all data is preserved
         return df.join(DataFrame({col_name: data}, index=index), how='outer')

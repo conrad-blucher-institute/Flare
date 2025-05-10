@@ -1,0 +1,26 @@
+{
+    "chart_name": "TWC_Laguna-Madre_Air-Temperature-Predictions",
+    "CSPEC_version": "1.0.0",
+    "data_requests" : 
+    [
+      {  "key": "SemaphoreInputs",
+         "args": {
+            "column_name": "Air Temperature Predictions",
+            "location": "SBirdIsland", 
+            "source": "TWC",
+            "series": "pAirTemp",
+            "interval": 3600,
+            "range": [-144, 0]
+         }
+            
+      }
+    ],
+    "post_processing" : [],
+    "csv_config": {
+      "csv_name": "TWC-Laguna-Madre_Air-Temperature-Predictions_144hrs.csv",
+      "included_columns": [
+        "Air Temperature Predictions"
+      ]
+    }
+  }
+  

@@ -20,8 +20,8 @@ import { Chart } from "highcharts-vue";
 import { ref, onMounted, onUnmounted } from "vue";
 
 const isSmallScreen = window.innerWidth <= 600;
-//const csvURL = ref(`${window.location.origin}/flare/csv-data/TWC-Laguna-Madre_Air-Temperature-Predictions_120hrs.csv`);
-const csvURL = ref(`https://cbigrid.tamucc.edu/tpw/ibm/ibm-predictions-sbirdisland.csv`); 
+const csvURL = ref(`${window.location.origin}/flare/csv-data/TWC-Laguna-Madre_Air-Temperature-Predictions_144hrs.csv`);
+//const csvURL = ref(`https://cbigrid.tamucc.edu/tpw/ibm/ibm-predictions-sbirdisland.csv`); 
 
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
