@@ -10,14 +10,14 @@
             "source": "TWC",
             "series": "pAirTemp",
             "interval": 3600,
-            "range": [0, 144]
+            "range": [0, 240]
          }
             
       }
     ],
     "post_processing" : [],
     "csv_config": {
-      "csv_name": "TWC-Laguna-Madre_Air-Temperature-Predictions_144hrs.csv",
+      "csv_name": "TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv",
       "included_columns": [
         "Air Temperature Predictions"
       ]

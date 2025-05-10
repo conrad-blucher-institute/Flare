@@ -24,7 +24,7 @@ const state = reactive({
   isSmallScreen: window.innerWidth <= 600
 });
 
-const csvURL = ref(`${window.location.origin}/flare/csv-data/TWC-Laguna-Madre_Air-Temperature-Predictions_144hrs.csv`);
+const csvURL = ref(`${window.location.origin}/flare/csv-data/TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
 //const csvURL = ref(`https://cbigrid.tamucc.edu/tpw/ibm/ibm-predictions-sbirdisland.csv`); 
 
 // Add reactive state for dropdown visibility
@@ -262,6 +262,12 @@ const parseCSV = (csvText) => {
 
     const [timestamp, jsonArray] = row;
 
+      // Skip rows with missing or invalid data
+    if (!timestamp || !jsonArray) {
+      console.warn(`Skipping invalid row at index ${rowIndex}:`, row);
+      return;
+    }
+
     // Parse timestamp as UTC
     const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
     const utcTimestamp = Date.UTC(year, month - 1, day, hour, minute, second); // Parse as UTC (subtract 1 from month as Date.UTC expects 0-based months)
@@ -272,27 +278,29 @@ const parseCSV = (csvText) => {
 
     const localDate = new Date(localTimestamp);
 
-    if (localDate && jsonArray) {
-      try {
-        // Remove surrounding quotes from the JSON array
-        const cleanedJsonArray = jsonArray.replace(/^"|"$/g, "");
+    if (!isNaN(localDate)) {
+      if (localDate && jsonArray) {
+        try {
+          // Remove surrounding quotes from the JSON array
+          const cleanedJsonArray = jsonArray.replace(/^"|"$/g, "");
 
-        // Validate and parse the JSON array
-        const parsedArray = JSON.parse(cleanedJsonArray);
+          // Validate and parse the JSON array
+          const parsedArray = JSON.parse(cleanedJsonArray);
 
-        if (Array.isArray(parsedArray)) {
-          parsedArray.forEach((tempCelsius, index) => {
-            const tempFahrenheit = (tempCelsius * 9) / 5 + 32; // Convert Celsius to Fahrenheit
-            if (!airPredictionMembers[index]) airPredictionMembers[index] = [];
-            airPredictionMembers[index].push([localDate.getTime(), tempFahrenheit]);
-          });
-        } else {
-          console.warn(`Parsed value is not an array: ${cleanedJsonArray}`);
+          if (Array.isArray(parsedArray)) {
+            parsedArray.forEach((tempCelsius, index) => {
+              const tempFahrenheit = (tempCelsius * 9) / 5 + 32; // Convert Celsius to Fahrenheit
+              if (!airPredictionMembers[index]) airPredictionMembers[index] = [];
+              airPredictionMembers[index].push([localDate.getTime(), tempFahrenheit]);
+            });
+          } else {
+            console.warn(`Parsed value is not an array: ${cleanedJsonArray}`);
+          }
+        } catch (error) {
+          console.error(`Error parsing JSON array: ${jsonArray} -> ${error.message}`);
         }
-      } catch (error) {
-        console.error(`Error parsing JSON array: ${jsonArray} -> ${error.message}`);
       }
-    }
+  }
   });
 
   return { airPredictionMembers };
@@ -359,7 +367,7 @@ onUnmounted(() => {
           <li>
             <a 
               :href="csvURL"
-              download="TWC-Laguna-Madre_Air-Temperature-Predictions_144hrs.csv"
+              download="TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
               class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
               Download CSV
             </a>
