@@ -216,13 +216,14 @@ const fetchAndFilterData = async () => {
     // Fetch CSV data
     const response = await fetch(csvURL.value);
     if (!response.ok) throw new Error("Failed to fetch CSV data");
+    console.log(`Fetched URL: ${response.url}`);
 
     const csvText = await response.text();
-    console.log("UPDATED CSV Data:", csvText);
+    console.log("Fetched CSV Data:", csvText);
 
     // Parse the CSV data
     const { airPredictionMembers } = parseCSV(csvText);
-    console.log("Parsed CSV Data:", airPredictionMembers);
+    console.log("Parsed Ensemble Models Data:", airPredictionMembers);
 
     const series = [];
 
@@ -247,8 +248,13 @@ const fetchAndFilterData = async () => {
 
 // CSV parsing function
 const parseCSV = (csvText) => {
+  
+  const rows = csvText.split("\n").map((row) => {
+    // Split the row into two parts: timestamp and JSON array
+    const match = row.match(/^([^,]+),(.+)$/);
+    return match ? [match[1].trim(), match[2].trim()] : [];
+  });
 
-  const rows = csvText.split("\n").map((row) => row.split(","));
   const airPredictionMembers = [];
 
   rows.forEach((row, rowIndex) => {
