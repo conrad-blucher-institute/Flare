@@ -22,7 +22,7 @@ import { ref, onMounted, onUnmounted, reactive } from "vue";
 
 const isSmallScreen = window.innerWidth <= 600;
 // const csvURL = ref(`${window.location.origin}/flare/csv-data/test_ensemble.csv`);
-const csvURL = ref(`http://localhost:8080/flare/csv-data/test_ensemble.csv`);
+const csvURL = ref(`http://localhost:8080/flare/csv-data/MRE_Bird-Island_Water-Temperature.csv`);
 
 
 // Add reactive state for dropdown visibility
@@ -229,6 +229,20 @@ const buildChart = (isSmallScreen) => {
       crosshairs: true,
       formatter: function () {
         const localDate = new Date(this.x); 
+        // Dynamically creating the tooltip based on what series are present
+        // Bounds are a special case since they are a range
+        var displayInfo = ``;
+        this.points.forEach(line => {
+          if (line.series.name === "Bounds") {
+            displayInfo += `
+              <span style="color:${line.color}">\u25CF</span> Upper Bounds: <b>${line.high.toFixed(2)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Lower Bounds: <b>${line.low.toFixed(2)}°F</b><br>`;
+          }
+          else
+          displayInfo += `
+            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(2)}°F</b><br>`;
+          
+        });
         return `<b>Date: ${localDate.toLocaleDateString("en-US", {
                     weekday: "long",
                     month: "short",
@@ -239,9 +253,9 @@ const buildChart = (isSmallScreen) => {
                     hour: "2-digit",
                     minute: "2-digit",
                 })}</b><br>
-                Upper Bound: ${this.points[1].high.toFixed(2)}°F<br>
-                Median Temperature: ${this.points[0].y.toFixed(2)}°F<br>
-                Lower Bound: ${this.points[1].low.toFixed(2)}°F<br>`;
+                ${displayInfo}`;
+                
+                
       },
       style: {
         fontSize: isSmallScreen ? "12px" : "14px", 
@@ -269,13 +283,32 @@ const fetchAndFilterData = async () => {
     // Ensure parsed arrays are initialized
     const mean = parsedData.means || [];
     const lowerBounds = parsedData.lowerBounds || [];
-    const upperBounds = parsedData.upperBounds || [];;
+    const upperBounds = parsedData.upperBounds || [];
+    const pastWaterTemps = parsedData.pastWaterTemps || [];
+    const pastAirTemps = parsedData.pastAirTemps || [];
+    const forecastAirTemps = parsedData.forecastAirTemps || [];
 
     // Convert all data to Fahrenheit
     const toFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
     const meanFahrenheit = mean.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
     const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
     const upperBoundsFahrenheit = upperBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const pastWaterTempsFahrenheit = pastWaterTemps.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const pastAirTempsFahrenheit = pastAirTemps.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const forecastAirTempsFahrenheit = forecastAirTemps.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+
+    
+    const filterNonInterpolated = (data, hourFilter) => {
+      return data.filter((point) => {
+        const pointTime = new Date(point[0]);
+        const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
+        return hourFilter.includes(hoursDifference);
+      });
+    };
+    const hoursToFilter = [3, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 102, 114, 120];
+    const AirPredictionMarkers = filterNonInterpolated(forecastAirTempsFahrenheit, hoursToFilter);
+    const WaterTemperatureMarkers = filterNonInterpolated(meanFahrenheit, hoursToFilter);
+
 
     // For highcharts to do a shaded range, it wants the rage in the format of [date_index, lower_bound, upper_bound]
     // This just combines the lower and upper bound into one series of the above format
@@ -283,15 +316,16 @@ const fetchAndFilterData = async () => {
       const dateIndex = point[0];
       const lowerBound = lowerBoundsFahrenheit[index][1];
       const upperBound = upperBoundsFahrenheit[index][1];
-      return [dateIndex, lowerBound, upperBound];
+      return [dateIndex, upperBound, lowerBound];
     });
 
     // Update chart series with filtered data
     chartOptions.value.series = [
       {
-        name: "Median  Temperature",
+        name: "Interpolated Median Water Temperature Predictions",
         data: meanFahrenheit,
         color: "black",
+        dashStyle: "Dash",
         lineWidth: isSmallScreen ? 2 : 4,
         zIndex: 1, // Ensure this is above the bounds
         marker: { enabled: false },
@@ -300,14 +334,55 @@ const fetchAndFilterData = async () => {
         name: "Bounds",
         data: boundsFahrenheit,
         type: 'arearange',
-        linkedTo: "Median  Temperature",
+        linkedTo: "Water Temperature Predictions",
         lineWidth: 0, // No line for bounds
         color: Highcharts.getOptions().colors[0],
         fillOpacity: 0.3,
         zIndex: 0, // Ensure this is below the mean line
         marker: { enabled: false },
       },
-
+      {
+        name: "Water Temperature Measurements",
+        data: pastWaterTempsFahrenheit,
+        color: "black",
+        lineWidth: isSmallScreen ? 2 : 4,
+        marker: { enabled: false },
+      },
+      {
+        name: "Air Temperature Measurements",
+        data: pastAirTempsFahrenheit,
+        color: "#73c5da",
+        lineWidth: isSmallScreen ? 2 : 4,
+        marker: { enabled: false },
+      },
+      {
+        name: "Interpolated Predicted Air Temperature",
+        data: forecastAirTempsFahrenheit,
+        color: "orange",
+        dashStyle: "2.5, 2.5", // Shorter dashes
+        lineWidth: isSmallScreen ? 2 : 5,
+        marker: { enabled: false },
+      },
+      {
+        name: "Air Temperature Predictions",
+        data: AirPredictionMarkers,
+        color: "green",
+        type: "scatter",
+        marker: {
+          enabled: true,
+          radius: isSmallScreen ? 2 : 4,
+        },
+      },
+      {
+        name: "Water Temperature Predictions",
+        data: WaterTemperatureMarkers,
+        color: "purple",
+        type: "scatter",
+        marker: {
+          enabled: true,
+          radius: isSmallScreen ? 2 : 4,
+        },
+      },
     ];
   } catch (error) {
     console.error("Error fetching or processing data:", error);
@@ -321,12 +396,15 @@ const parseCSV = (csvText) => {
   const means = [];
   const lowerBounds = [];
   const upperBounds = [];
+  const pastWaterTemps = [];
+  const pastAirTemps = [];
+  const forecastAirTemps = [];
 
   rows.forEach((row, index) => {
     // Skip the header row
     if (index === 0) return;
 
-    const [timestamp, mean, lowerBound, upperBound] = row;
+    const [timestamp, mean, lowerBound, upperBound, pastWaterTemp, pastAirTemp, forecastAirTemp] = row;
 
     // Parse timestamp as UTC
     const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
@@ -350,10 +428,19 @@ const parseCSV = (csvText) => {
       if (upperBound && !isNaN(+upperBound)) {
         upperBounds.push([localDate.getTime(), +upperBound]);
       }
+      if (pastWaterTemp && !isNaN(+pastWaterTemp)) {
+        pastWaterTemps.push([localDate.getTime(), +pastWaterTemp]);
+      }
+      if (pastAirTemp && !isNaN(+pastAirTemp)) {
+        pastAirTemps.push([localDate.getTime(), +pastAirTemp]);
+      }
+      if (forecastAirTemp && !isNaN(+forecastAirTemp)) {
+        forecastAirTemps.push([localDate.getTime(), +forecastAirTemp]);
+      }
     }
   });
 
-  return { means, lowerBounds, upperBounds };
+  return { means, lowerBounds, upperBounds, pastWaterTemps, pastAirTemps, forecastAirTemps };
 };
 
 // Function to toggle the dropdown menu
