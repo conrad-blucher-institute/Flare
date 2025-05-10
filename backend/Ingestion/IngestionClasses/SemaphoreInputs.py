@@ -70,7 +70,7 @@ class SemaphoreInputs(IDataIngestion):
             # Convert the string datetime into a proper datetime
             index.append(datetime.strptime(datapoint['timeVerified'], '%Y-%m-%dT%H:%M:%S'))
 
-             # Check its not a null datapoint
+            # Check its not a null datapoint
             value = datapoint['dataValue']
             if (value == 'None') or (value is None): value = nan
             elif isinstance(value, str) and value.strip().startswith("[") and value.strip().endswith("]"):
