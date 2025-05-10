@@ -21,8 +21,7 @@ import { Chart } from "highcharts-vue";
 import { ref, onMounted, onUnmounted, reactive } from "vue";
 
 const isSmallScreen = window.innerWidth <= 600;
-// const csvURL = ref(`${window.location.origin}/flare/csv-data/test_ensemble.csv`);
-const csvURL = ref(`http://localhost:8080/flare/csv-data/MRE_Bird-Island_Water-Temperature.csv`);
+const csvURL = ref(`${window.location.origin}/flare/csv-data/MRE_Bird-Island_Water-Temperature.csv`);
 
 
 // Add reactive state for dropdown visibility
