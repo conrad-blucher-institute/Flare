@@ -1,5 +1,5 @@
 {
-    "chart_name": "Laguna_Madre",
+    "chart_name": "MRE_Bird-Island_Water-Temperature",
     "CSPEC_version": "1.0.0",
     "data_requests" : [
       {  "key": "SemaphoreInputs",
@@ -66,6 +66,57 @@
         }
     ],
     "post_processing" : [
+      { 
+        "_comment": "Median line on graph",
+        "key": "RowStatistics",
+        "args": { 
+            "metrics": "median",
+            "col_name": "Water Temperature Prediction"
+        }
+      },
+      {
+        "_comment": "Interpolate from 21 points (on the lead times) to hourly",
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction Median",
+            "interpolation_interval": 3600,
+            "limit": 10800
+        }
+      },
+      {
+        "_comment": "Upper bound on graph",
+        "key": "RowStatistics",
+        "args": { 
+            "metrics": "max",
+            "col_name": "Water Temperature Prediction"
+        }
+      },
+      {
+        "_comment": "Interpolate from 21 points (on the lead times) to hourly",
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction Max",
+            "interpolation_interval": 3600,
+            "limit": 10800
+        }
+      },
+      {
+        "_comment": "Lower bound on graph",
+        "key": "RowStatistics",
+        "args": { 
+            "metrics": "min",
+            "col_name": "Water Temperature Prediction"
+        }
+      },
+      {
+        "_comment": "Interpolate from 21 points (on the lead times) to hourly",
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction Min",
+            "interpolation_interval": 3600,
+            "limit": 10800
+        }
+      },
       {
         "key": "LinearInterpolation",
         "args": {
@@ -73,52 +124,15 @@
             "interpolation_interval": 3600,
             "limit": 10800
         }
-      },
-      {
-        "key": "RowStatistics",
-        "args": { 
-            "metrics": "median" 
-        }
-      },
-      {
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction",
-            "interpolation_interval": 3600,
-            "limit": 144000
-        }
-      },
-      {
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction",
-            "interpolation_interval": 3600,
-            "limit": 144000
-        }
-      },
-      {
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction",
-            "interpolation_interval": 3600,
-            "limit": 144000
-        }
-      },
-      {
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction",
-            "interpolation_interval": 3600,
-            "limit": 144000
-        }
       }
-
     ],
     "csv_config": {
-      "csv_name": "Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv",
+      "csv_name": "MRE_Bird-Island_Water-Temperature.csv",
       "included_columns": [
+        "Water Temperature Prediction Median",
+        "Water Temperature Prediction Max",
+        "Water Temperature Prediction Min",
         "Water Temperature Measurement",
-        "Water Temperature Prediction",
         "Air Temperature Measurement",
         "Air Temperature Prediction"
       ]
