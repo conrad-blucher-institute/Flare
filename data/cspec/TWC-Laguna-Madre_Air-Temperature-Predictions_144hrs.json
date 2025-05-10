@@ -10,7 +10,7 @@
             "source": "TWC",
             "series": "pAirTemp",
             "interval": 3600,
-            "range": [-144, 0]
+            "range": [0, 144]
          }
             
       }

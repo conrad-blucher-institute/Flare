@@ -60,13 +60,7 @@ const buildChart = (isSmallScreen) => {
     exporting: {
       enabled: true, // Enables the export menu
     },
-    legend: {
-      itemStyle: {
-        fontSize: isSmallScreen ? "12px" : "19px",
-        fontWeight: "bold",
-        fontFamily: "Arial",
-        color: "#0f4f66",
-      },
+    legend: {enabled: false,
     },
     xAxis: {
       type: "datetime",
@@ -175,7 +169,7 @@ const buildChart = (isSmallScreen) => {
           fontSize: isSmallScreen ? "12px" : "20px", 
         },
     },
-    max: 90,
+    max: 100,
     min: 65,
     tickInterval: 10, // Major ticks every 10 units
     },
@@ -224,51 +218,37 @@ const fetchAndFilterData = async () => {
     if (!response.ok) throw new Error("Failed to fetch CSV data");
 
     const csvText = await response.text();
-    console.log("Fetched CSV Data:", csvText);
+    console.log("UPDATED CSV Data:", csvText);
 
     // Parse the CSV data
     const { airPredictionMembers } = parseCSV(csvText);
-    console.log("Parsed Ensemble Models Data:", airPredictionMembers);
+    console.log("Parsed CSV Data:", airPredictionMembers);
 
     const series = [];
 
     // Loop through each ensemble member
-    airPredictionMembers.forEach((memberData, i) => 
-    {
-
-// Convert to Fahrenheit
-      const converted = memberData.map(([timestamp, tempC]) => [
-        Number(timestamp), // Convert timestamp to date
-        (tempC * 9) / 5 + 32, // Convert Celsius to Fahrenheit
-      ]);
-
-      // Push series
+    airPredictionMembers.forEach((memberData, i) => {
       series.push({
         name: `Ensemble Member ${i + 1}`,
-        data: converted,
-        color: Highcharts.getOptions().colors[i % 100], 
+        data: memberData,
+        color: Highcharts.getOptions().colors[i % 10], // Use Highcharts colors
         lineWidth: 1,
         marker: { enabled: false },
       });
     });
 
-    // Assign to chart
-    console.log("Final series:", series);
+    // Update chart options
     chartOptions.value.series = series;
-    chartOptions.value.legend = {enabled: false};
     console.log("Updated Chart Options:", chartOptions.value);
-
   } catch (error) {
     console.error("Error fetching or processing data:", error);
   }
 };
 
 // CSV parsing function
-const parseCSV = (csvText) => 
-{
+const parseCSV = (csvText) => {
+
   const rows = csvText.split("\n").map((row) => row.split(","));
-  
-  // Create arrays for ensembles
   const airPredictionMembers = [];
 
   rows.forEach((row, rowIndex) => {
@@ -277,13 +257,34 @@ const parseCSV = (csvText) =>
 
     const [timestamp, jsonArray] = row;
 
-    if (timestamp && jsonArray) {
-      const parsedArray = JSON.parse(jsonArray); // Parse the JSON array in the second column
-      parsedArray.forEach((tempCelsius, index) => {
-        const tempFahrenheit = (tempCelsius * 9) / 5 + 32; // Convert Celsius to Fahrenheit
-        if (!airPredictionMembers[index]) airPredictionMembers[index] = [];
-        airPredictionMembers[index].push([new Date(timestamp).getTime(), tempFahrenheit]);
-      });
+    // Parse timestamp as UTC
+    const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
+    const utcTimestamp = Date.UTC(year, month - 1, day, hour, minute, second); // Parse as UTC (subtract 1 from month as Date.UTC expects 0-based months)
+
+    const localTimestamp = new Date(utcTimestamp).toLocaleString("en-US", {
+      timeZone: userTimeZone,
+    });
+
+    const localDate = new Date(localTimestamp);
+
+    if (jsonArray) {
+      try {
+        // Remove surrounding quotes from the JSON array
+        const cleanedJsonArray = jsonArray.replace(/^"|"$/g, "");
+        // Validate and parse the JSON array
+        const parsedArray = JSON.parse(cleanedJsonArray);
+        if (Array.isArray(parsedArray)) {
+          parsedArray.forEach((tempCelsius, index) => {
+            const tempFahrenheit = (tempCelsius * 9) / 5 + 32; // Convert Celsius to Fahrenheit
+            if (!airPredictionMembers[index]) airPredictionMembers[index] = [];
+            airPredictionMembers[index].push([localDate.getTime(), tempFahrenheit]);
+          });
+        } else {
+          console.warn(`Parsed value is not an array: ${cleanedJsonArray}`);
+        }
+      } catch (error) {
+        console.error(`Error parsing JSON array: ${jsonArray} -> ${error.message}`);
+      }
     }
   });
 

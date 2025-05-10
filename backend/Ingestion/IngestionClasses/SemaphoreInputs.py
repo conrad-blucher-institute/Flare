@@ -16,6 +16,7 @@ from Ingestion.Ingestion_Utility import api_request, add_empty_column
 from pandas import DataFrame
 from numpy import nan
 from os import getenv
+import ast
 
 
 class SemaphoreInputs(IDataIngestion):
@@ -65,25 +66,31 @@ class SemaphoreInputs(IDataIngestion):
         index = []
         data = []
         for datapoint in data_points:
+            
             # Convert the string datetime into a proper datetime
             index.append(datetime.strptime(datapoint['timeVerified'], '%Y-%m-%dT%H:%M:%S'))
 
-            # Parse the array of data values
+             # Check its not a null datapoint
             value = datapoint['dataValue']
-            if value == 'None' or value is None:
-                data.append([nan])  # Append NaN for missing data
-            elif isinstance(value, float):  # Handle float values directly
-                data.append([value])
-            elif isinstance(value, str):  # Handle string values (e.g., JSON-like arrays)
+            if (value == 'None') or (value is None): value = nan
+            elif isinstance(value, str) and value.strip().startswith("[") and value.strip().endswith("]"):
                 try:
-                    value_array = [float(v) for v in eval(value)]
-                    data.append(value_array)
-                except Exception as e:
-                    print(f"Error parsing value: {value}, Error: {e}")
-                    data.append([nan])  # Append NaN if parsing fails
-            else:
-                print(f"Unexpected data type for value: {type(value)}")
-                data.append([nan])  # Append NaN for unexpected types
+                    value_array = ast.literal_eval(value)
+                    if isinstance(value_array, list):
+                        data.append([float(v) for v in value_array])  # Convert elements to float
+                    else:
+                        print(f"Parsed value is not a list: {value_array}")
+                        data.append(nan)  # Append NaN if it's not a list
+                except (ValueError, SyntaxError) as e:
+                    print(f"Error decoding array: {value} -> {e}")
+                    data.append(nan)  # Append NaN if parsing fails
+            else: 
+                try:
+                    value = float(value)
+                    data.append(value)
+                except ValueError:
+                    print(f"Error converting value to float: {value}")
+                    data.append(nan)  # Append NaN if conversion fails
 
         # Add this to the collation df with an outer join to ensure all data is preserved
         return df.join(DataFrame({col_name: data}, index=index), how='outer')
