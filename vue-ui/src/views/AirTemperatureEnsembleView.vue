@@ -248,7 +248,6 @@ const fetchAndFilterData = async () => {
 
 // CSV parsing function
 const parseCSV = (csvText) => {
-  
   const rows = csvText.split("\n").map((row) => {
     // Split the row into two parts: timestamp and JSON array
     const match = row.match(/^([^,]+),(.+)$/);
@@ -273,12 +272,14 @@ const parseCSV = (csvText) => {
 
     const localDate = new Date(localTimestamp);
 
-    if (jsonArray) {
+    if (localDate && jsonArray) {
       try {
         // Remove surrounding quotes from the JSON array
         const cleanedJsonArray = jsonArray.replace(/^"|"$/g, "");
+
         // Validate and parse the JSON array
         const parsedArray = JSON.parse(cleanedJsonArray);
+
         if (Array.isArray(parsedArray)) {
           parsedArray.forEach((tempCelsius, index) => {
             const tempFahrenheit = (tempCelsius * 9) / 5 + 32; // Convert Celsius to Fahrenheit
