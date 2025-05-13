@@ -26,11 +26,21 @@
             
       }
     ],
-    "post_processing" : [],
+    "post_processing" : [
+        {
+            "key": "RowStatistics",
+            "args": { 
+                "metrics": "all",
+                "col_name": "TWC Air Temperature Predictions"
+            }
+        }
+    ],
     "csv_config": {
       "csv_name": "TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv",
       "included_columns": [
-        "TWC Air Temperature Predictions",
+        "TWC Air Temperature Predictions Median",
+        "TWC Air Temperature Predictions Max",
+        "TWC Air Temperature Predictions Min",
         "NDFD Air Temperature Predictions"
       ]
     }
