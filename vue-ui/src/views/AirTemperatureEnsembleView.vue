@@ -215,7 +215,7 @@ const buildSecondChart = (isSmallScreen) => {
       marginRight: 30
     },
     title: {
-      text: "Ensemble Air Temperature Predictions from The Weather Company And The National Digital Forecast Database",
+      text: "Air Temperature Predictions from The Weather Company and The National Digital Forecast Database",
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
@@ -594,7 +594,7 @@ onUnmounted(() => {
           <li>
             <a 
               :href="csvURL"
-              download="TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
+              download="TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
               class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
               Download CSV
             </a>
@@ -642,7 +642,7 @@ onUnmounted(() => {
           <!-- Custom Export Dropdown -->
           <div class="hidden lg:block absolute top-5 right-4">
             <button @click="toggleSecondExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
-              Download Water Temp Data
+              Download CSV
             </button>
             <ul v-if="isSecondExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
               <li>
