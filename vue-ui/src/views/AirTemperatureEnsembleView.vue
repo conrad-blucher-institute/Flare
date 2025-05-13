@@ -284,8 +284,8 @@ const buildSecondChart = (isSmallScreen) => {
             fontSize: isSmallScreen ? "12px" : "20px", 
         },
       },
-      max: 90,
-      min: 60,
+      max: 110,
+      min: 70,
       tickInterval: 5, // Major ticks every 5 units
     },
     plotOptions: {
@@ -424,8 +424,8 @@ const fetchAndFilterSecondData = async () => {
       {
         name: "Median Air Temperature Predictions",
         data: medianFahrenheit,
-        color: "black",
-        dashStyle: "Dash",
+        type: "line",
+        color: "blue",
         lineWidth: state.isSmallScreen ? 2 : 4,
         zIndex: 1, // Ensure this is above the bounds
         marker: { enabled: false },
@@ -444,8 +444,8 @@ const fetchAndFilterSecondData = async () => {
       {
         name: "NDFD Air Temperature Predictions",
         data: NDFPredictionsFahrenheit,
+        type: "line",
         color: "purple",
-        dashStyle: "2.5, 2.5", // Shorter dashes
         lineWidth: state.isSmallScreen ? 2 : 5,
         lineWidth: state.isSmallScreen ? 2 : 4,
         marker: {
