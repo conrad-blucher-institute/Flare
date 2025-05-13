@@ -15,6 +15,7 @@
 ======================================================= -->
 <script setup>
 import Highcharts from "highcharts";
+import HighchartsMore from "highcharts/highcharts-more";
 import { Chart } from "highcharts-vue";
 
 import { ref, onMounted, onUnmounted, reactive } from "vue";
@@ -385,7 +386,7 @@ const fetchAndFilterData = async () => {
 const fetchAndFilterSecondData = async () => {
   try {
     // Fetch CSV data
-    const response = await fetch(secondCsvURL.value);
+    const response = await fetch(csvURL2.value);
     if (!response.ok) throw new Error("Failed to fetch second CSV data");
     console.log(`Fetched second URL: ${response.url}`);
 
@@ -393,18 +394,18 @@ const fetchAndFilterSecondData = async () => {
     console.log("Fetched Second CSV Data:", csvText);
 
     // Parse the CSV data for the second chart
-    const { TemperatureData } = parseSecondCSV(csvText);
-    console.log("Parsed Temperature Data:", TemperatureData);
+    const parsedData = parseSecondCSV(csvText);
+    console.log("Parsed Temperature Data:", parsedData);
 
     // Ensure parsed arrays are initialized
-    const mean = parsedData.means || [];
+    const median = parsedData.medians || [];
     const lowerBounds = parsedData.lowerBounds || [];
     const upperBounds = parsedData.upperBounds || [];
     const NDFPredictions = parsedData.NDFPredictions || [];
 
     //Change to Fahrenheit 
     const toFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
-    const meanFahrenheit = mean.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const medianFahrenheit = median.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
     const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
     const upperBoundsFahrenheit = upperBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
     const NDFPredictionsFahrenheit = NDFPredictions.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
@@ -419,16 +420,13 @@ const fetchAndFilterSecondData = async () => {
     });
 
     // Update chart series with filtered data
-
-    // Update second chart options
-    // Update chart series with filtered data
-    chartOptions.value.series = [
+    secondChartOptions.value.series = [
       {
-        name: "Median Water Temperature Predictions",
-        data: meanFahrenheit,
+        name: "Median Air Temperature Predictions",
+        data: medianFahrenheit,
         color: "black",
         dashStyle: "Dash",
-        lineWidth: isSmallScreen ? 2 : 4,
+        lineWidth: state.isSmallScreen ? 2 : 4,
         zIndex: 1, // Ensure this is above the bounds
         marker: { enabled: false },
       },
@@ -436,7 +434,7 @@ const fetchAndFilterSecondData = async () => {
         name: "Bounds",
         data: boundsFahrenheit,
         type: 'arearange',
-        linkedTo: "Air Temperature Predictions",
+        linkedTo: "Air Temperature Prediction Bounds",
         lineWidth: 0, // No line for bounds
         color: Highcharts.getOptions().colors[0],
         fillOpacity: 0.3,
@@ -448,11 +446,11 @@ const fetchAndFilterSecondData = async () => {
         data: NDFPredictionsFahrenheit,
         color: "purple",
         dashStyle: "2.5, 2.5", // Shorter dashes
-        lineWidth: isSmallScreen ? 2 : 5,
-        lineWidth: isSmallScreen ? 2 : 4,
+        lineWidth: state.isSmallScreen ? 2 : 5,
+        lineWidth: state.isSmallScreen ? 2 : 4,
         marker: {
           enabled: true,
-          radius: isSmallScreen ? 2 : 4,
+          radius: state.isSmallScreen ? 2 : 4,
         },
       }
     ];
@@ -521,10 +519,152 @@ const parseCSV = (csvText) => {
   return { airPredictionMembers };
 };
 
-// CSV parsing function for second chart - different parsing approach
+// CSV parsing function for second chart
 const parseSecondCSV = (csvText) => {
-  //stuff goes here
-  pass
+  // Split into lines
+  const lines = csvText.trim().split("\n");
+  
+  // Extract headers from first line
+  const headers = lines[0].split(",");
+  
+  // Find column indices
+  const dateIndex = headers.indexOf("Date");
+  const twcIndex = headers.indexOf("TWC Air Temperature Predictions");
+  const ndfdIndex = headers.indexOf("NDFD Air Temperature Predictions");
+
+  if (dateIndex === -1 || twcIndex === -1 || ndfdIndex === -1) {
+    throw new Error("Missing required columns in the CSV file.");
+  }
+  
+  const data = [];
+  
+  // Process each data row
+  for (let i = 1; i < lines.length; i++) {
+    // Special handling for lines with array data
+    let currentLine = lines[i];
+    let columns = [];
+    
+    // Track if we're inside brackets
+    let insideBrackets = false;
+    let currentValue = "";
+    
+    // Parse each character to handle the brackets correctly
+    for (let j = 0; j < currentLine.length; j++) {
+      const char = currentLine[j];
+      
+      if (char === '[') {
+        insideBrackets = true;
+        currentValue += char;
+      } else if (char === ']') {
+        insideBrackets = false;
+        currentValue += char;
+      } else if (char === ',' && !insideBrackets) {
+        // This comma is a column separator
+        columns.push(currentValue);
+        currentValue = "";
+      } else {
+        currentValue += char;
+      }
+    }
+    
+    // Add the last column
+    if (currentValue) {
+      columns.push(currentValue);
+    }
+    
+    const row = {};
+    
+    // Assign values to the appropriate headers
+    for (let j = 0; j < headers.length; j++) {
+      const value = columns[j];
+      
+      // Parse array strings and numbers
+      if (value && value.startsWith('[') && value.endsWith(']')) {
+        try {
+          row[headers[j]] = JSON.parse(value);
+        } catch (e) {
+          row[headers[j]] = value; // Keep as string if parsing fails
+        }
+      } else if (value && !isNaN(value) && value.trim() !== '') {
+        row[headers[j]] = parseFloat(value);
+      } else {
+        row[headers[j]] = value;
+      }
+    }
+    
+    data.push(row);
+  }
+
+  const medians = [];
+  const lowerBounds = [];
+  const upperBounds = [];
+  const NDFPredictions = [];
+
+  // Process each row in the parsed data
+  data.forEach((row) => {
+    const date = row["Date"]?.trim();
+    const twcData = row["TWC Air Temperature Predictions"];
+    const ndfdData = row["NDFD Air Temperature Predictions"];
+
+    if (!date) {
+      console.warn("Skipping invalid row:", row);
+      return;
+    }
+
+    // Parse timestamp as UTC
+    const [year, month, day, hour, minute, second] = date.split(/[- :]/).map(Number);
+    const utcTimestamp = Date.UTC(year, month - 1, day, hour, minute, second); // Parse as UTC (subtract 1 from month as Date.UTC expects 0-based months)
+
+    const localTimestamp = new Date(utcTimestamp).toLocaleString("en-US", {
+      timeZone: userTimeZone,
+    });
+
+    const localDate = new Date(localTimestamp);
+
+    // Handle TWC Air Temperature Predictions (already parsed as array)
+    let twcArray = twcData;
+    
+    // If it's still a string (parsing failed), try to clean and parse it
+    if (typeof twcArray === 'string') {
+      try {
+        const cleanedTWCData = twcArray.replace(/^"|"$/g, ""); // Remove surrounding quotes
+        twcArray = JSON.parse(cleanedTWCData); // Parse the cleaned string as JSON
+      } catch (error) {
+        console.error("Error parsing TWC Air Temperature Predictions:", twcData, error.message);
+        return;
+      }
+    }
+
+    if (!Array.isArray(twcArray)) {
+      console.warn("TWC Air Temperature Predictions is not an array:", twcArray);
+      return;
+    }
+
+    // Calculate median, lower bound, and upper bound for TWC data
+    twcArray.sort((a, b) => a - b); // Sort the array in ascending order
+    const mid = Math.floor(twcArray.length / 2);
+    const median = twcArray.length % 2 !== 0
+      ? twcArray[mid] // Odd length: take the middle value
+      : (twcArray[mid - 1] + twcArray[mid]) / 2; // Even length: average the two middle values
+    const lowerBound = Math.min(...twcArray);
+    const upperBound = Math.max(...twcArray);
+
+    // NDFD Air Temperature Predictions (already parsed as number)
+    const ndfdValue = ndfdData || []; // Use null if not available
+
+    // Push the processed data into the respective arrays
+    medians.push([localDate, median]);
+    lowerBounds.push([localDate, lowerBound]);
+    upperBounds.push([localDate, upperBound]);
+    NDFPredictions.push([localDate, ndfdValue]);
+  });
+
+  return {
+    medians,
+    lowerBounds,
+    upperBounds,
+    NDFPredictions,
+  };
 };
 
 // Function to toggle the dropdown menu

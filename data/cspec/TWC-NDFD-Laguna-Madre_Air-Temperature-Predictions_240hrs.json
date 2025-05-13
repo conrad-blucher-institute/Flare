@@ -18,28 +18,20 @@
          "args": {
             "column_name": "NDFD Air Temperature Predictions",
             "location": "SBirdIsland", 
-            "source": "NDFD_API",
+            "source": "NDFD_EXP",
             "series": "pAirTemp",
             "interval": 3600,
-            "range": [0, 144]
+            "range": [0, 240]
          }
             
       }
     ],
-    "post_processing" : [
-        {
-            "key": "LinearInterpolation",
-            "args": {
-                "col_name": "NDFD Air Temperature Prediction",
-                "interpolation_interval": 3600,
-                "limit": 10800
-            }
-        }
-    ],
+    "post_processing" : [],
     "csv_config": {
       "csv_name": "TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv",
       "included_columns": [
-        "Air Temperature Predictions"
+        "TWC Air Temperature Predictions",
+        "NDFD Air Temperature Predictions"
       ]
     }
   }
