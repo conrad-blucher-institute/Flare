@@ -285,7 +285,7 @@ const buildSecondChart = (isSmallScreen) => {
         },
       },
       max: 100,
-      min: 75,
+      min: 65,
       tickInterval: 5, // Major ticks every 5 units
     },
     plotOptions: {
@@ -540,18 +540,10 @@ const parseSecondCSV = (csvText) => {
     const localDate = new Date(localTimestamp);
 
     if (!isNaN(localDate)) {
-      if (median && !isNaN(+median)) {
-        medians.push([localDate.getTime(), +median]);
-      }
-      if (lowerBound && !isNaN(+lowerBound)) {
-        lowerBounds.push([localDate.getTime(), +lowerBound]);
-      }
-      if (upperBound && !isNaN(+upperBound)) {
-        upperBounds.push([localDate.getTime(), +upperBound]);
-      }
-      if (ndfdPrediction && !isNaN(+ndfdPrediction)) {
-        NDFPredictions.push([localDate.getTime(), +ndfdPrediction]);
-      }
+      medians.push([localDate.getTime(), +median]);
+      lowerBounds.push([localDate.getTime(), +lowerBound]);
+      upperBounds.push([localDate.getTime(), +upperBound]);
+      NDFPredictions.push([localDate.getTime(), +ndfdPrediction]);
     }
   });
 
