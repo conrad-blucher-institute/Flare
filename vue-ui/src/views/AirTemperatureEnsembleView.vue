@@ -337,7 +337,7 @@ onUnmounted(() => {
         <img
           src="@/assets/images/clouds.jpg"
           alt="Map Overlay"
-          class="w-full h-full object-crop flex opacity-30"
+          class="w-full h-full object-cover flex opacity-30"
         />
         <!-- Text content overlay -->
         <div class="absolute  inset-0 flex items-center justify-center">
@@ -403,4 +403,45 @@ onUnmounted(() => {
 
       </section>
     </div>
+
+    <!-- Section Divider -->
+    <div class="h-[50px] bg-section-gradient"></div>
+
+    <!-- Ensemble Reasoning Section -->
+    <section class="bg-white py-10 px-6 md:px-20 text-center lg:text-left">
+      <div class="max-w-5xl mx-auto">
+        <h2 class="text-lg lg:text-3xl font-extrabold text-dark-text mb-6 text-center">
+          Why Use an Ensemble AI Model?
+        </h2>
+        <p class="text-md lg:text-xl text-dark-text mb-4">
+          Weather and environmental conditions in coastal regions like the Laguna Madre are influenced by a complex interplay of atmospheric, oceanic, and terrestrial factors. Relying on a single predictive model can lead to inaccuracies, especially when that model is sensitive to specific data inputs or underlying assumptions.
+        </p>
+        <p class="text-md lg:text-xl text-dark-text mb-4">
+          Ensemble models combine the predictions of multiple individual models — each with different strengths — to generate a more accurate, stable, and resilient forecast. By averaging or intelligently weighting the outputs, the ensemble reduces the impact of outlier predictions and adapts more robustly to noisy or incomplete data.
+        </p>
+        <p class="text-md lg:text-xl text-dark-text mb-4">
+          This approach not only enhances forecast reliability but also provides a better representation of uncertainty, which is critical for decision-making during rapidly evolving weather events. For stakeholders managing cold-stunning response efforts, dredging suspensions, or public communication, ensemble predictions offer a more confident foundation for action.
+        </p>
+        <p class="text-md lg:text-xl text-dark-text mb-4">
+          The use of an ensemble framework reflects best practices in modern climate and forecasting science and helps ensure that the Laguna Madre community is equipped with high-quality, actionable data — even when conditions are unpredictable.
+        </p>
+      </div>
+</section>
+
+
+    <!-- Footer -->
+    <footer class="bg-navy-blue py-6 text-center">
+      <div class="flex justify-center gap-2 lg:gap-10">
+        <a href="https://github.com/conrad-blucher-institute/semaphore" target="_blank" class="hover:scale-110 transition-transform">
+          <img src="@/assets/images/Semaphore-Logo.png" alt="Semaphore Logo" class="pt-4 lg:pt-5 w-[100px] lg:w-[200px] lg:h-[200px]">
+        </a>
+        <a href="https://www.conradblucherinstitute.org/" target="_blank" class="hover:scale-110 transition-transform">
+          <img src="@/assets/images/CBI-Logo.png" alt="Conrad Blutcher Institute Logo" class="w-[230px] h-[75px] pt-5 lg:pt-10 lg:w-[550px] lg:h-[150px]">
+        </a>
+        <a href="https://www.weathercompany.com/" target="_blank" class="hover:scale-110 transition-transform">
+          <img src="@/assets/images/TWC-Logo.png" alt="The Weather Company Logo" class="w-[100px] h-[100px] lg:w-[200px] lg:h-[200px]">
+        </a>
+      </div>
+      <p class="mt-4 text-sm text-gray-300">&copy; 2024 Flare. All rights reserved.</p>
+    </footer>
 </template>
