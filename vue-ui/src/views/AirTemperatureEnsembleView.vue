@@ -25,8 +25,11 @@ const state = reactive({
   isSmallScreen: window.innerWidth <= 600
 });
 
-const csvURL = ref(`${window.location.origin}/flare/csv-data/TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
-const csvURL2 = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
+// const csvURL = ref(`${window.location.origin}/flare/csv-data/TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
+// const csvURL2 = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
+
+const csvURL = ref(`http://localhost:8080/flare/csv-data/TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
+const csvURL2 = ref(`http://localhost:8080/flare/csv-data/TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
 
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
@@ -312,19 +315,34 @@ const buildSecondChart = (isSmallScreen) => {
       shared: true,
       crosshairs: true,
       formatter: function () {
-        const localDate = new Date(this.x);
-        let tooltipText = `<b>Date: ${localDate.toLocaleDateString("en-US", {
-          weekday: "long",
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        })}</b><br>`;
-        
-        this.points.forEach(point => {
-          tooltipText += `<span style="color:${point.color}">\u25CF</span> ${point.series.name}: <b>${point.y.toFixed(2)}°F</b><br>`;
+        const localDate = new Date(this.x); 
+        // Dynamically creating the tooltip based on what series are present
+        // Bounds are a special case since they are a range
+        var displayInfo = ``;
+        this.points.forEach(line => {
+          if (line.series.name === "Bounds") {
+            displayInfo += `
+              <span style="color:${line.color}">\u25CF</span> Upper Bounds: <b>${line.high.toFixed(2)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Lower Bounds: <b>${line.low.toFixed(2)}°F</b><br>`;
+          }
+          else
+          displayInfo += `
+            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(2)}°F</b><br>`;
+          
         });
-        
-        return tooltipText;
+        return `<b>Date: ${localDate.toLocaleDateString("en-US", {
+                    weekday: "long",
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                })}</b><br>
+                <b>Time: ${localDate.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                })}</b><br>
+                ${displayInfo}`;
+                
+                
       },
       style: {
         fontSize: isSmallScreen ? "12px" : "14px", 
@@ -446,8 +464,8 @@ const fetchAndFilterSecondData = async () => {
         color: "purple",
         lineWidth: state.isSmallScreen ? 2 : 4,
         marker: {
-          enabled: true,
-          radius: state.isSmallScreen ? 2 : 4,
+          enabled: false,
+          radius: state.isSmallScreen ? 1 : 2,
         },
       },
     ];
@@ -543,7 +561,7 @@ const parseSecondCSV = (csvText) => {
       medians.push([localDate.getTime(), +median]);
       lowerBounds.push([localDate.getTime(), +lowerBound]);
       upperBounds.push([localDate.getTime(), +upperBound]);
-      NDFPredictions.push([localDate.getTime(), +ndfdPrediction]);
+      NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
     }
   });
 

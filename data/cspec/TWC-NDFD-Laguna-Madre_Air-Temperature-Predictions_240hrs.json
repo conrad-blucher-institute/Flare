@@ -27,13 +27,21 @@
       }
     ],
     "post_processing" : [
-        {
-            "key": "RowStatistics",
-            "args": { 
-                "metrics": "all",
-                "col_name": "TWC Air Temperature Predictions"
-            }
+      {
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "NDFD Air Temperature Predictions",
+            "interpolation_interval": 3600,
+            "limit": 10800
         }
+      },
+      {
+         "key": "RowStatistics",
+         "args": { 
+               "metrics": "all",
+               "col_name": "TWC Air Temperature Predictions"
+         }
+      }
     ],
     "csv_config": {
       "csv_name": "TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv",
