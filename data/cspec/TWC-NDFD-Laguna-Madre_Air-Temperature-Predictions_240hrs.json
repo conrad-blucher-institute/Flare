@@ -1,0 +1,56 @@
+{
+    "chart_name": "TWC_Laguna-Madre_Air-Temperature-Predictions",
+    "CSPEC_version": "1.0.0",
+    "data_requests" : 
+    [
+      {  "key": "SemaphoreInputs",
+         "args": {
+            "column_name": "TWC Air Temperature Predictions",
+            "location": "SBirdIsland", 
+            "source": "TWC",
+            "series": "pAirTemp",
+            "interval": 3600,
+            "range": [0, 240]
+         }
+            
+      },
+      {  "key": "SemaphoreInputs",
+         "args": {
+            "column_name": "NDFD Air Temperature Predictions",
+            "location": "SBirdIsland", 
+            "source": "NDFD_EXP",
+            "series": "pAirTemp",
+            "interval": 3600,
+            "range": [0, 240]
+         }
+            
+      }
+    ],
+    "post_processing" : [
+      {
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "NDFD Air Temperature Predictions",
+            "interpolation_interval": 3600,
+            "limit": 10800
+        }
+      },
+      {
+         "key": "RowStatistics",
+         "args": { 
+               "metrics": "all",
+               "col_name": "TWC Air Temperature Predictions"
+         }
+      }
+    ],
+    "csv_config": {
+      "csv_name": "TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv",
+      "included_columns": [
+        "TWC Air Temperature Predictions Median",
+        "TWC Air Temperature Predictions Max",
+        "TWC Air Temperature Predictions Min",
+        "NDFD Air Temperature Predictions"
+      ]
+    }
+  }
+  
