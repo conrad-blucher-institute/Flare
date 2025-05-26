@@ -50,7 +50,7 @@ const buildChart = (isSmallScreen) => {
       marginRight: 30
     },
     title: {
-      text: "Ensemble Air Temperature Predictions from The Weather Company",
+      text: "Ensemble Air Temperature Forecasts for the Upper Laguna Madre",
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 

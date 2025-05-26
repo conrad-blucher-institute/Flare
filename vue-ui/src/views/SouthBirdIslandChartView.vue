@@ -569,7 +569,7 @@ onUnmounted(() => {
           </router-link>
         </li>
         <li>
-          Ensemble water temperature predictions from The Weather Company available 
+          Ensemble water temperature predictions from Semaphore available 
           <router-link 
             to="/water-temperature-ensemble" 
             class="underline text-blue-600 hover:text-blue-800">

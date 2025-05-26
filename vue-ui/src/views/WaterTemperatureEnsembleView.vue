@@ -47,7 +47,7 @@ const buildChart = (isSmallScreen) => {
       marginRight: 30
     },
     title: {
-      text: "Ensemble Water Temperature",
+      text: "Ensemble Water Temperature Forecasts for the Upper Laguna Madre",
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
