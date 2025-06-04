@@ -42,27 +42,29 @@ class Percentile(IPostProcessing):
         {
             "key": "Percentile",
             "args": {
-                "col_name": "",          # name of the column 
+                "col_key": "",           # name of the column 
                 "percentile": "",        # the percentile to compute
                 "output_col_key": ""     # the base name for the output columns
             }
         },  
         """
-        
+
+        # make a copy of the data to prevent changing the original data frame 
+        df = df.copy()
+
         # validate the input column 
         if col_key not in df.columns:
             raise KeyError(f"Column '{col_key}' not found. Available columns: {df.columns.tolist()}")
         
-        # try to cast the input to an integer         
+        # try to cast the input into an integer
         try:
             percentile = int(percentile)
-            
-            # validate that the casted int is between 0-100
-            if not 0 <= percentile <= 100:
-                raise ValueError(f"Percentile '{percentile}' is not in a valid range. The percentile must be an integer between 0-100.")
-            
         except (ValueError, TypeError):
             raise ValueError(f"Percentile '{percentile}' must be an integer between 0 and 100.")
+
+        # validate the range 
+        if not 0 <= percentile <= 100:
+            raise ValueError(f"Percentile '{percentile}' is not in a valid range. Must be between 0 and 100.")
 
         # calculate the percentile
         calculated_percentile_value = df[col_key].quantile(percentile/100)
