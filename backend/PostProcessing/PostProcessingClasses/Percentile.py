@@ -59,7 +59,7 @@ class Percentile(IPostProcessing):
             
             # validate that the casted int is between 0-100
             if not 0 <= percentile <= 100:
-                raise ValueError(f"{percentile} is not in a valid range. The percentile must be between 0-100.")
+                raise ValueError(f"Percentile '{percentile}' is not in a valid range. The percentile must be an integer between 0-100.")
             
         except (ValueError, TypeError):
             raise ValueError(f"Percentile '{percentile}' must be an integer between 0 and 100.")
