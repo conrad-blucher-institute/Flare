@@ -2,30 +2,34 @@
 # Percentile.py
 # -------------------------------
 # Created By : Christian Quintero, Jeremiah Sosa
-# Last Updated : 06/04/2025
+# Last Updated : 06/05/2025
 # -------------------------------
 """
 This file is a postprocessing class under the IPostProcessing interface.
 
-This file calculates the value at a given percentile and creates 2 new columns: One for the VALUE at the given percentile, 
-and one for a TAG that says if the input value is above or below the computed percentile value.
+This class calculates a specified percentile for a column where each cell contains a list of values.
+It then creates two new columns: one showing the computed percentile value per row,
+and another tagging each value in the original list as "Above" or "Below" the computed percentile.
 """
 # -------------------------------
 
 # imports
 from PostProcessing.IPostProcessing import IPostProcessing  # for post processing interface
 from pandas import DataFrame                                # for DataFrame object
+import numpy as np                                          # for percentile() method
 
 
 class Percentile(IPostProcessing):
 
-    def post_process(self, df: DataFrame, col_key: str, percentile: int, output_col_key: str, **kwargs) -> DataFrame:
+    def post_process(self, df: DataFrame, col_key: str, percentile: int, output_col_key: str) -> DataFrame:
         """
         This method creates 2 new columns: One for the VALUE at the given percentile, 
         and one for a TAG that says if the input value is above or below the computed percentile value.
 
         The tag is considered BELOW if the value is less than or equal to the computed percentile value,
         and ABOVE otherwise.
+
+        This assumes that 'df[col_key]' is a column of lists such as a list of floats or ints
 
 
         Args:
@@ -43,7 +47,7 @@ class Percentile(IPostProcessing):
             "key": "Percentile",
             "args": {
                 "col_key": "",           # name of the column 
-                "percentile": "",        # the percentile to compute
+                "percentile": 5,         # the percentile to compute
                 "output_col_key": ""     # the base name for the output columns
             }
         },  
@@ -66,23 +70,23 @@ class Percentile(IPostProcessing):
         if not 0 <= percentile <= 100:
             raise ValueError(f"Percentile '{percentile}' is not in a valid range. Must be between 0 and 100.")
 
-        # calculate the percentile
-        calculated_percentile_value = df[col_key].quantile(percentile/100)
+        # calculate the percentile value for each list in the column
+        #
+        # 'values' is a list of numbers from each row in the specified column
+        def calc_percentile(values):
+            return np.percentile(values, percentile)
 
-        # store the percentile value in each row. The value here will be repeated
-        # for each row in this output column.
-        df[f"{output_col_key} Value"] = calculated_percentile_value
+        # add the percentile value column using .apply on each list of values
+        df[f"{output_col_key} Value"] = df[col_key].apply(calc_percentile)
 
-        # assign a tag to each row that says if the input value is above or below
-        # the calculated value.
-        df[f"{output_col_key} Tag"] = df[col_key].apply(lambda x: "Below" if x <= calculated_percentile_value else "Above")
+        # for each row, compare each value in the list to the calculated percentile value
+        # and tag it as "Below" if it's <= the percentile value, "Above" otherwise
+        def tag_values(row):
+            return ["Below" if val <= row[f"{output_col_key} Value"] else "Above" for val in row[col_key]]
 
-        # return the data frame object with the added columns 
+        # add the percentile tag column using .apply across rows
+        df[f"{output_col_key} Tag"] = df.apply(tag_values, axis=1)
+
+        # return the data frame with the added columns
         return df
-
-        
-
-        
-
-
     
