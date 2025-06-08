@@ -64,7 +64,7 @@
         "args": {
            "col_key": "Water Temperature Prediction",            
             "percentile": 0,        
-            "output_col_key": "Water Temperature Prediction 5th Percentile"    
+            "output_col_key": "Water Temperature Prediction 0th Percentile"    
           }
       },
       {
@@ -80,7 +80,7 @@
         "args": {
            "col_key": "Water Temperature Prediction",            
             "percentile": 25,        
-            "output_col_key": "Water Temperature Prediction 5th Percentile"    
+            "output_col_key": "Water Temperature Prediction 25th Percentile"    
           }
       },
       {
@@ -88,7 +88,7 @@
         "args": {
            "col_key": "Water Temperature Prediction",            
             "percentile": 50,        
-            "output_col_key": "Water Temperature Prediction 5th Percentile"    
+            "output_col_key": "Water Temperature Prediction 50th Percentile"    
           }
       },
       {
@@ -96,7 +96,7 @@
         "args": {
            "col_key": "Water Temperature Prediction",            
             "percentile": 75,        
-            "output_col_key": "Water Temperature Prediction 5th Percentile"    
+            "output_col_key": "Water Temperature Prediction 75th Percentile"    
           }
       },
       {
@@ -104,7 +104,7 @@
         "args": {
            "col_key": "Water Temperature Prediction",            
             "percentile": 95,        
-            "output_col_key": "Water Temperature Prediction 5th Percentile"    
+            "output_col_key": "Water Temperature Prediction 95th Percentile"    
           }
       },
       {
@@ -112,7 +112,7 @@
         "args": {
            "col_key": "Water Temperature Prediction",            
             "percentile": 100,        
-            "output_col_key": "Water Temperature Prediction 95th Percentile"    
+            "output_col_key": "Water Temperature Prediction 100th Percentile"    
           }
       }    
     ],
