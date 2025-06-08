@@ -120,16 +120,16 @@
       "csv_name": "ensemble_test.csv",
       "included_columns": [
         "Air Temperature Prediction",
-        "Water Temperature Prediction Median",
-        "Water Temperature Prediction Max",
         "Water Temperature Prediction Min",
         "Water Temperature Prediction 0th Percentile Value",
+        "Water Temperature Prediction Median",
+        "Water Temperature Prediction 50th Percentile Value",
+        "Water Temperature Prediction Max",
+        "Water Temperature Prediction 100th Percentile Value",
         "Water Temperature Prediction 5th Percentile Value",
         "Water Temperature Prediction 25th Percentile Value",
-        "Water Temperature Prediction 50th Percentile Value",
         "Water Temperature Prediction 75th Percentile Value",
-        "Water Temperature Prediction 95th Percentile Value",
-        "Water Temperature Prediction 100th Percentile Value"
+        "Water Temperature Prediction 95th Percentile Value"
       ]
     }
   }
