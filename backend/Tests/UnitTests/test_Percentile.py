@@ -5,8 +5,8 @@
 # Last Updated: 06/08/2025
 #----------------------------------
 """
-This file tests the Percentile PPC by comparing the 5th and 95th
-percentile values and tags to the expected values and tags. 
+This file tests the Percentile PPC by comparing computed
+percentile values to the expected values.
 """
 #----------------------------------
 
@@ -15,72 +15,70 @@ sys.path.append('/app/backend')
 
 import pytest
 import pandas as pd
+import numpy as np
 from pandas.testing import assert_frame_equal
 from PostProcessing.IPostProcessing import post_process_factory
 
 # ---------- Mock array of values----------
+# 3 normal rows
+# ------------------------------------------
 test_data = [
     [ [11.9, 13.2, 14.2, 15.6, 16.8], ],
     [ [13.5, 14.1, 15.3, 17.7, 18.2], ],
-    [ [14.7, 15.3, 16.4, 17.3, 17.7], ],
-    [ [15.8, 16.1, 17.3, 17.7, 18.4], ],
-    [ [16.8, 17.3, 18.1, 18.3, 19.5], ],
-    [ [18.0, 18.3, 19.2, 19.5, 20.4], ],
-    [ [19.1, 19.3, 19.4, 20.4, 20.9], ],
-    [ [20.0, 21.2, 20.6, 20.9, 21.4], ],
-    [ [21.0, 22.3, 22.4, 23.4, 23.5], ],
-    [ [21.9, 22.4, 22.5, 23.7, 23.9], ],
+    [ [14.7, 15.3, 16.4, 17.3, 17.7], ]
 ]
 
 test_df = pd.DataFrame(test_data, columns=["Temperature Prediction"])
 base_df = test_df.copy()
 
-# the 5th percentile for each array in test_data
-expected_5th_percentile = [12.16, 13.62, 14.82, 15.86, 16.90, 18.06, 19.14, 20.12, 21.26, 22.00]
+# the 0th percentile value for each array in test_data
+# which is the MINIMUM value in each array
+expected_0th_percentiles = [11.9, 13.5, 14.7]
 
-# as expected, only the first array value is below the 5th percentile, and 
-# all other values are above the 5th percentile.
-expected_5th_percentile_tag = [
-    ["Below", "Above", "Above", "Above", "Above"],
-    ["Below", "Above", "Above", "Above", "Above"],
-    ["Below", "Above", "Above", "Above", "Above"],
-    ["Below", "Above", "Above", "Above", "Above"],  
-    ["Below", "Above", "Above", "Above", "Above"],
-    ["Below", "Above", "Above", "Above", "Above"],
-    ["Below", "Above", "Above", "Above", "Above"],
-    ["Below", "Above", "Above", "Above", "Above"],
-    ["Below", "Above", "Above", "Above", "Above"],
-    ["Below", "Above", "Above", "Above", "Above"],     
-]
+# the 5th percentile value for each array in test_data
+# this value is interpolated from the data
+expected_5th_percentiles = [12.16, 13.62, 14.82]
 
-# the 95th percentile for each array in test_data
-expected_95th_percentile = [16.56, 18.10, 17.62, 18.26, 19.26, 20.22, 20.80, 21.36, 23.48, 23.86]
+# the 25th percentile value for each array in test_data
+# this is the median of the lower half of the data
+expected_25th_percentiles = [13.2, 14.1, 15.3]
 
-# as expected, only the largest value in the set is above the 95th percentile
-# and all other values are below the 95th percentile
-expected_95th_percentile_tag = [
-    ["Below", "Below", "Below", "Below", "Above"],
-    ["Below", "Below", "Below", "Below", "Above"],
-    ["Below", "Below", "Below", "Below", "Above"],
-    ["Below", "Below", "Below", "Below", "Above"],
-    ["Below", "Below", "Below", "Below", "Above"],
-    ["Below", "Below", "Below", "Below", "Above"],
-    ["Below", "Below", "Below", "Below", "Above"],
-    ["Below", "Below", "Below", "Below", "Above"],
-    ["Below", "Below", "Below", "Below", "Above"],
-    ["Below", "Below", "Below", "Below", "Above"]
-]
+# the 50th percentile value for each array in test_data
+# which is the MEDIAN value in each array
+expected_50th_percentiles = [14.2, 15.3, 16.4]
 
-# this runs test_percentile_values_and_tags for each list of parameters here.
-# in this case, it runs the method to compute the 5th and 95th percentiles and tags
-# instead of having to write many methods that do very similar things 
-@pytest.mark.parametrize("percentile, expected_values, expected_tags, output_key", [
-    (5, expected_5th_percentile, expected_5th_percentile_tag, "5th percentile"),
-    (95, expected_95th_percentile, expected_95th_percentile_tag, "95th percentile")
+# the 75th percentile value for each array in test_data
+# this is the median of the upper half of the data
+expected_75th_percentiles = [15.6, 17.7, 17.3]
+
+# the 95th percentile value for each array in test_data
+# this value is interpolated from the data
+expected_95th_percentiles = [16.56, 18.10, 17.62]
+
+# the 100th percentile value for each array in test_data
+# which is the MAXIMUM value in each array
+expected_100th_percentiles = [16.8, 18.2, 17.7]
+
+# this runs test_percentile_values for each list of parameters here
+@pytest.mark.parametrize("percentile, expected_percentile_values, output_key", [
+    (0, expected_0th_percentiles, "0th percentile"),
+    (5, expected_5th_percentiles,"5th percentile"),
+    (25, expected_25th_percentiles, "25th percentile"),
+    (50, expected_50th_percentiles, "50th percentile"),
+    (75, expected_75th_percentiles, "75th percentile"),
+    (95, expected_95th_percentiles, "95th percentile"),
+    (100, expected_100th_percentiles, "100th percentile")
 ])
 
 # compare the expected to the results
-def test_percentile_values_and_tags(percentile, expected_values, expected_tags, output_key):
+def test_percentile_values(percentile, expected_percentile_values, output_key):
+    """
+    This function tests normal percentile values within the range of 0-100.
+    It checks that the computed percentile values match the expected values
+    """
+
+    # assigns the call type and the arguments for the Percentile PPC
+    # this is the call that will be made to the post_process_factory
     call = "Percentile"
     kwargs = {
         "col_key": "Temperature Prediction",
@@ -93,15 +91,53 @@ def test_percentile_values_and_tags(percentile, expected_values, expected_tags, 
 
     # assign the expected values to the expected data frame
     expected_df = base_df.copy()
-    expected_df[f"{output_key} Value"] = expected_values
-    expected_df[f"{output_key} Tag"] = expected_tags
+    expected_df[f"{output_key} Value"] = expected_percentile_values
 
-    # ensure that the 2 new columns were made correctly 
+    # ensure that the new column was made correctly 
     assert f"{output_key} Value" in result_df.columns
-    assert f"{output_key} Tag" in result_df.columns
 
-    # compare the result to the expected values
+    # compare the result to the expected value
     assert_frame_equal(result_df.reset_index(drop=True), expected_df.reset_index(drop=True), atol=1e-5)
 
 
+# ------------------------------------------
+# this runs test_invalid_percentile_bounds to check the bounds 
+# of the percentile values
+# ------------------------------------------
+@pytest.mark.parametrize("percentile", [-1, 101])
 
+def test_invalid_percentile_bounds(percentile):
+    """
+    This function tests invalid percentile values outside the range of 0-100.
+    It checks that a ValueError is raised for invalid percentiles.
+    """
+    call = "Percentile"
+    kwargs = {
+        "col_key": "Temperature Prediction",
+        "percentile": percentile,
+        "output_col_key": "Invalid Percentile Bounds"
+    }
+
+    with pytest.raises(ValueError, match=f"Percentile '{percentile}' is not in a valid range. Must be between 0 and 100."):
+        post_process_factory(test_df.copy(), call, kwargs)
+
+
+# ------------------------------------------
+# this runs test_invalid_percentile_type to check the type of the percentile value
+# ------------------------------------------
+@pytest.mark.parametrize("percentile", ["Hello World", None, np.nan])
+
+def test_invalid_percentile_type(percentile):
+    """
+    This function tests invalid percentile types that are not integers.
+    It checks that a ValueError is raised for invalid percentile types.
+    """
+    call = "Percentile"
+    kwargs = {
+        "col_key": "Temperature Prediction",
+        "percentile": percentile,
+        "output_col_key": "Invalid Percentile Type"
+    }
+
+    with pytest.raises(ValueError, match=f"Percentile '{percentile}' must be an integer."):
+        post_process_factory(test_df.copy(), call, kwargs)
