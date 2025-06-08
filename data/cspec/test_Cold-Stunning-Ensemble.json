@@ -57,9 +57,24 @@
         "args": {
             "col_name": "Water Temperature Prediction",
             "metrics": "all"
-        }
-      }
-
+          }
+      },
+      {
+        "key": "Percentile",
+        "args": {
+           "col_key": "Water Temperature Prediction",            
+            "percentile": 5,        
+            "output_col_key": "Water Temperature Prediction 5th Percentile"    
+          }
+      },
+      {
+        "key": "Percentile",
+        "args": {
+           "col_key": "Water Temperature Prediction",            
+            "percentile": 95,        
+            "output_col_key": "Water Temperature Prediction 95th Percentile"    
+          }
+      }    
     ],
     "csv_config": {
       "csv_name": "ensemble_test.csv",
@@ -67,7 +82,11 @@
         "Air Temperature Prediction",
         "Water Temperature Prediction Median",
         "Water Temperature Prediction Max",
-        "Water Temperature Prediction Min"
+        "Water Temperature Prediction Min",
+        "Water Temperature Prediction 5th Percentile Value",
+        "Water Temperature Prediction 95th Percentile Value",
+        "Water Temperature Prediction 5th Percentile Tag",
+        "Water Temperature Prediction 95th Percentile Tag"
       ]
     }
   }
