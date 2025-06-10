@@ -613,61 +613,61 @@ onUnmounted(() => {
       </div>
       </section>
 
-      <!-- First Chart Section -->
+      <!-- First Chart Section: Spaghetti Graph -->
       <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 py-8 px-4 bg-white items-stretch">
-      <!-- Chart -->
-      <div class="lg:col-span-4 relative">
-      <div class="w-full overflow-x-auto">
-        <div class="min-w-[1000px] h-[500px] lg:h-[700px] lg:min-h-[650px]">
-          <Chart class="w-full h-full p-4" :options="chartOptions" />
+        <!-- Chart -->
+        <div class="lg:col-span-4 relative">
+          <div class="w-full overflow-x-auto">
+            <div class="min-w-[1000px] h-[500px] lg:h-[700px] lg:min-h-[650px]">
+              <Chart class="w-full h-full p-4" :options="chartOptions" />
+            </div>
+          </div>
+
+          <!-- Custom Export Dropdown -->
+          <div class="hidden lg:block absolute top-5 right-4">
+            <button @click="toggleExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
+              Download CSV Data
+            </button>
+            <ul v-if="isExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
+              <li>
+                <a 
+                  :href="csvURL2"
+                  download="TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
+                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
+                  Download CSV
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
 
-      <!-- Custom Export Dropdown -->
-      <div class="hidden lg:block absolute top-5 right-4">
-        <button @click="toggleExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
-          Download CSV Data
-        </button>
-        <ul v-if="isExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
-          <li>
-            <a 
-              :href="csvURL2"
-              download="TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
-              class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
-              Download CSV
-            </a>
-          </li>
-        </ul>
-      </div>
-      </div>
-
-      <!-- Instructions -->
-      <div class="bg-accent-bg p-6 rounded-lg shadow-md">
-      <h2 class="text-lg text-xl  lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
-        How to Use the Interactive Chart
-      </h2>
-      <ul class="pt-5 space-y-4 list-none text-md lg:text-lg text-dark-text">
-        <h3 class="text-lg lg:text-xl font-bold text-center">See Temperature Details:</h3>
-        <li class="flex items-start space-x-2">
-          <span class="text-blue-secondary">📊</span>
-          <p>Move your mouse pointer over any dot or line on the chart to display the exact temperature value and the corresponding date or time.</p>
-        </li>
-        <h3 class="text-lg lg:text-xl font-bold text-center">Reset the View:</h3>
-        <li class="flex items-start space-x-2">
-          <span class="text-blue-secondary">🔄</span>
-          <p>If you zoom in and want to go back to the original chart view, click the Reset View button in the top-right corner.
-            Show or Hide Chart Lines</p>
-        </li>
-        <h3 class="text-lg lg:text-xl font-bold text-center">Show or Hide Chart Lines:</h3>
-        <li class="flex items-start space-x-2">
-          <span class="text-blue-secondary">👆</span>
-          <p>Click on a label in the legend below the chart to turn a specific data series line or category on or off</p>
-        </li>
-      </ul>
-      </div>
+        <!-- Instructions -->
+        <div class="bg-accent-bg p-6 rounded-lg shadow-md">
+          <h2 class="text-lg text-xl  lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
+            ow to Use the Interactive Chart
+          </h2>
+          <ul class="pt-5 space-y-4 list-none text-md lg:text-lg text-dark-text">
+            <h3 class="text-lg lg:text-xl font-bold text-center">See Temperature Details:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">📊</span>
+              <p>Move your mouse pointer over any dot or line on the chart to display the exact temperature value and the corresponding date or time.</p>
+            </li>
+            <h3 class="text-lg lg:text-xl font-bold text-center">Reset the View:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">🔄</span>
+              <p>If you zoom in and want to go back to the original chart view, click the Reset View button in the top-right corner.
+              Show or Hide Chart Lines</p>
+            </li>
+            <h3 class="text-lg lg:text-xl font-bold text-center">Show or Hide Chart Lines:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">👆</span>
+              <p>Click on a label in the legend below the chart to turn a specific data series line or category on or off</p>
+            </li>
+          </ul>
+        </div>
       </section>
 
-      <!-- Second Chart Section -->
+      <!-- Second Chart Section: Ribbon Graph -->
       <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 py-8 px-4 bg-white items-stretch">
         <!-- Chart -->
         <div class="lg:col-span-4 relative">
@@ -718,7 +718,63 @@ onUnmounted(() => {
         </li>
       </ul>
       </div>
-      </section> <!-- End of Second Chart Section -->
+      </section> <!-- End of Second Chart Section: Ribbon Graph -->
+
+
+      <!-- Third Chart Section: Box Plot Graph -->
+      <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 py-8 px-4 bg-white items-stretch">
+        <!-- Chart -->
+        <div class="lg:col-span-4 relative">
+          <div class="w-full overflow-x-auto">
+            <div class="min-w-[1000px] h-[500px] lg:h-[700px] lg:min-h-[650px]">
+              <Chart class="w-full h-full p-4" :options="secondChartOptions" />
+            </div>
+          </div>
+
+          <!-- Custom Export Dropdown -->
+          <div class="hidden lg:block absolute top-5 right-4">
+            <button @click="toggleSecondExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
+              Download CSV
+            </button>
+            <ul v-if="isSecondExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
+              <li>
+                <a 
+                  :href="secondCsvURL"
+                  download="Water-Temperature-Forecasts.csv"
+                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
+                  Download CSV
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <!-- Instructions -->
+      <div class="bg-accent-bg p-6 rounded-lg shadow-md">
+      <h2 class="text-lg text-xl  lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
+        How to Use the Interactive Chart
+      </h2>
+      <ul class="pt-5 space-y-4 list-none text-md lg:text-lg text-dark-text">
+        <h3 class="text-lg lg:text-xl font-bold text-center">See Temperature Details:</h3>
+        <li class="flex items-start space-x-2">
+          <span class="text-blue-secondary">📊</span>
+          <p>Move your mouse pointer over any dot or line on the chart to display the exact temperature value and the corresponding date or time.</p>
+        </li>
+        <h3 class="text-lg lg:text-xl font-bold text-center">Reset the View:</h3>
+        <li class="flex items-start space-x-2">
+          <span class="text-blue-secondary">🔄</span>
+          <p>If you zoom in and want to go back to the original chart view, click the Reset View button in the top-right corner.
+            Show or Hide Chart Lines</p>
+        </li>
+        <h3 class="text-lg lg:text-xl font-bold text-center">Show or Hide Chart Lines:</h3>
+        <li class="flex items-start space-x-2">
+          <span class="text-blue-secondary">👆</span>
+          <p>Click on a label in the legend below the chart to turn a specific data series line or category on or off</p>
+        </li>
+      </ul>
+      </div>
+      </section> <!-- End of Third Chart Section: Box Plot Graph -->
+
+
     </div>
 
     <!-- Section Divider -->
