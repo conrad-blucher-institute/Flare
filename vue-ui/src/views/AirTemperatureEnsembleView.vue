@@ -444,11 +444,13 @@ const handleResize = () => {
   state.isSmallScreen = window.innerWidth <= 600;
   chartOptions.value = buildChart(state.isSmallScreen);
   secondChartOptions.value = buildSecondChart(state.isSmallScreen);
+  thirdChartOptions.value = buildThirdChart(state.isSmallScreen);
 }
 
 // Setting chartOptions based on the returned screen size
 chartOptions.value = buildChart(state.isSmallScreen);
 secondChartOptions.value = buildSecondChart(state.isSmallScreen);
+thirdChartOptions.value = buildThirdChart(state.isSmallScreen);
 
 // Function to fetch and process CSV data for first chart
 const fetchAndFilterData = async () => {
