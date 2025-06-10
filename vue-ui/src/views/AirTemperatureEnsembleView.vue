@@ -25,8 +25,12 @@ const state = reactive({
   isSmallScreen: window.innerWidth <= 600
 });
 
+// spaghetti graph
+// ribbon graph
+// box plot graph
 const csvURL = ref(`${window.location.origin}/flare/csv-data/TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
 const csvURL2 = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
+const csvURL3 = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs.csv`);
 
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
@@ -43,6 +47,7 @@ const chartOptions = ref({});
 const secondChartOptions = ref({});
 
 // Chart function for first chart that changes based on screen size
+// spaghetti graph
 const buildChart = (isSmallScreen) => {
   return {
     chart: {
@@ -203,9 +208,10 @@ const buildChart = (isSmallScreen) => {
       },
     },
   };
-};
+}; // end buildChart (spaghetti graph)
 
 // Chart function for second chart that changes based on screen size
+// ribbon graph
 const buildSecondChart = (isSmallScreen) => {
   return {
     chart: {
@@ -349,7 +355,7 @@ const buildSecondChart = (isSmallScreen) => {
       },
     },
   };
-};
+}; // end buildSecondChart (ribbon graph)
 
 const handleResize = () => {
   state.isSmallScreen = window.innerWidth <= 600;
@@ -693,30 +699,30 @@ onUnmounted(() => {
             </ul>
           </div>
         </div>
+
         <!-- Instructions -->
-      <div class="bg-accent-bg p-6 rounded-lg shadow-md">
-      <h2 class="text-lg text-xl  lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
-        How to Use the Interactive Chart
-      </h2>
-      <ul class="pt-5 space-y-4 list-none text-md lg:text-lg text-dark-text">
-        <h3 class="text-lg lg:text-xl font-bold text-center">See Temperature Details:</h3>
-        <li class="flex items-start space-x-2">
-          <span class="text-blue-secondary">📊</span>
-          <p>Move your mouse pointer over any dot or line on the chart to display the exact temperature value and the corresponding date or time.</p>
-        </li>
-        <h3 class="text-lg lg:text-xl font-bold text-center">Reset the View:</h3>
-        <li class="flex items-start space-x-2">
-          <span class="text-blue-secondary">🔄</span>
-          <p>If you zoom in and want to go back to the original chart view, click the Reset View button in the top-right corner.
-            Show or Hide Chart Lines</p>
-        </li>
-        <h3 class="text-lg lg:text-xl font-bold text-center">Show or Hide Chart Lines:</h3>
-        <li class="flex items-start space-x-2">
-          <span class="text-blue-secondary">👆</span>
-          <p>Click on a label in the legend below the chart to turn a specific data series line or category on or off</p>
-        </li>
-      </ul>
-      </div>
+        <div class="bg-accent-bg p-6 rounded-lg shadow-md">
+          <h2 class="text-lg text-xl  lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
+            How to Use the Interactive Chart
+          </h2>
+          <ul class="pt-5 space-y-4 list-none text-md lg:text-lg text-dark-text">
+            <h3 class="text-lg lg:text-xl font-bold text-center">See Temperature Details:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">📊</span>
+              <p>Move your mouse pointer over any dot or line on the chart to display the exact temperature value and the corresponding date or time.</p>
+            </li>
+            <h3 class="text-lg lg:text-xl font-bold text-center">Reset the View:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">🔄</span>
+              <p>If you zoom in and want to go back to the original chart view, click the Reset View button in the top-right corner.</p>
+            </li>
+            <h3 class="text-lg lg:text-xl font-bold text-center">Show or Hide Chart Lines:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">👆</span>
+              <p>Click on a label in the legend below the chart to turn a specific data series line or category on or off.</p>
+            </li>
+          </ul>
+        </div>
       </section> <!-- End of Second Chart Section: Ribbon Graph -->
 
 
@@ -747,33 +753,31 @@ onUnmounted(() => {
             </ul>
           </div>
         </div>
+        
         <!-- Instructions -->
-      <div class="bg-accent-bg p-6 rounded-lg shadow-md">
-      <h2 class="text-lg text-xl  lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
-        How to Use the Interactive Chart
-      </h2>
-      <ul class="pt-5 space-y-4 list-none text-md lg:text-lg text-dark-text">
-        <h3 class="text-lg lg:text-xl font-bold text-center">See Temperature Details:</h3>
-        <li class="flex items-start space-x-2">
-          <span class="text-blue-secondary">📊</span>
-          <p>Move your mouse pointer over any dot or line on the chart to display the exact temperature value and the corresponding date or time.</p>
-        </li>
-        <h3 class="text-lg lg:text-xl font-bold text-center">Reset the View:</h3>
-        <li class="flex items-start space-x-2">
-          <span class="text-blue-secondary">🔄</span>
-          <p>If you zoom in and want to go back to the original chart view, click the Reset View button in the top-right corner.
-            Show or Hide Chart Lines</p>
-        </li>
-        <h3 class="text-lg lg:text-xl font-bold text-center">Show or Hide Chart Lines:</h3>
-        <li class="flex items-start space-x-2">
-          <span class="text-blue-secondary">👆</span>
-          <p>Click on a label in the legend below the chart to turn a specific data series line or category on or off</p>
-        </li>
-      </ul>
-      </div>
+        <div class="bg-accent-bg p-6 rounded-lg shadow-md">
+          <h2 class="text-lg text-xl  lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
+            How to Use the Interactive Chart
+          </h2>
+          <ul class="pt-5 space-y-4 list-none text-md lg:text-lg text-dark-text">
+            <h3 class="text-lg lg:text-xl font-bold text-center">See Temperature Details:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">📊</span>
+              <p>Move your mouse pointer over any dot or line on the chart to display the exact temperature value and the corresponding date or time.</p>
+            </li>
+            <h3 class="text-lg lg:text-xl font-bold text-center">Reset the View:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">🔄</span>
+              <p>If you zoom in and want to go back to the original chart view, click the Reset View button in the top-right corner.</p>
+            </li>
+            <h3 class="text-lg lg:text-xl font-bold text-center">Show or Hide Chart Lines:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">👆</span>
+              <p>Click on a label in the legend below the chart to turn a specific data series line or category on or off.</p>
+            </li>
+          </ul>
+        </div>
       </section> <!-- End of Third Chart Section: Box Plot Graph -->
-
-
     </div>
 
     <!-- Section Divider -->
