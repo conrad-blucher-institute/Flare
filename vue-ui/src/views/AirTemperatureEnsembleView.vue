@@ -562,6 +562,26 @@ const fetchAndFilterSecondData = async () => {
   }
 };
 
+// Function to fetch and process third CSV data
+const fetchAndFilterThirdData = async () => {
+  try {
+    // Fetch CSV data
+    const response = await fetch(csvURL3.value);
+    if (!response.ok) throw new Error("Failed to fetch third CSV data");
+    console.log(`Fetched third URL: ${response.url}`);
+
+    const csvText = await response.text();
+    console.log("Fetched third CSV Data:", csvText);
+
+    // Parse the CSV data for the third chart
+    //const parsedData = parseThirdCSV(csvText);
+    //console.log("Parsed Temperature Data:", parsedData);
+  }
+  catch (error) {
+    console.error("Error fetching or processing third data:", error);
+  }
+}
+
 // CSV parsing function first chart
 const parseCSV = (csvText) => {
   const rows = csvText.split("\n").map((row) => {
@@ -670,10 +690,12 @@ let updateInterval;
 onMounted(() => {
   fetchAndFilterData(); 
   fetchAndFilterSecondData();
+  fetchAndFilterThirdData();
   updateInterval = setInterval(() => {
     console.log("Fetching and updating chart data...");
     fetchAndFilterData();
     fetchAndFilterSecondData();
+    fetchAndFilterThirdData();
   }, 900000); 
 });
 
