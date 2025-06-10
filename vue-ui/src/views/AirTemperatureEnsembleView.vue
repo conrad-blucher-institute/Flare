@@ -35,6 +35,7 @@ const csvURL3 = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD-Laguna-Ma
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
 const isSecondExportMenuVisible = ref(false);
+const isThirdExportMenuVisible = ref(false);
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 console.log("User's Time Zone:", userTimeZone);
 
@@ -45,6 +46,7 @@ const nowTime = nowDate.getTime();
 
 const chartOptions = ref({});
 const secondChartOptions = ref({});
+const thirdChartOptions = ref({});
 
 // Chart function for first chart that changes based on screen size
 // spaghetti graph
