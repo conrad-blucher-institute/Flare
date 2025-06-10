@@ -359,6 +359,87 @@ const buildSecondChart = (isSmallScreen) => {
   };
 }; // end buildSecondChart (ribbon graph)
 
+// Chart function for third chart that changes based on screen size
+// box plot graph
+const buildThirdChart = (isSmallScreen) => {
+  return {
+    chart: {
+      type: "boxplot",
+      zoomType: "x",
+      backgroundColor: "white",
+      style: { fontFamily: "Arial" },
+      marginRight: 30
+    },
+    title: {
+      text: "Box Plot for Air Temperature Predictions from The Weather Company and The National Digital Forecast Database",
+      style: { 
+        fontSize: isSmallScreen ? "20px" : "28px", 
+        fontWeight: "bold", 
+        color: "#0f4f66" 
+      },
+    },
+    exporting: {
+      enabled: true,
+    },
+    legend: {
+      enabled: false
+    },
+    xAxis: {
+      type: "datetime",
+      dateTimeLabelFormats: {
+        day: "%a %b %e",
+      },
+      labels: {
+        formatter: function () {
+          const localDate = new Date(this.value);
+          const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
+          const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+          return `<span style="display: block; text-align: center; font-family: Arial;">
+                    <b>${day}</b><br>${date}
+                  </span>`;
+        },
+        useHTML: true,
+        style: {
+          fontSize: isSmallScreen ? "12px" : "16px", 
+          fontFamily: "Arial",
+          color: "#0f4f66",
+          whiteSpace: "nowrap",
+        },
+      },
+      tickInterval: 24 * 3600 * 1000, // Main ticks every day
+      title: {
+        text: "Time",
+        style: {
+          fontSize: isSmallScreen ? "14px" : "20px",
+          fontFamily: "Arial",
+          color: "#0f4f66",
+        },
+      },
+    },
+    yAxis: {
+      labels: {
+        style: {
+          fontSize: isSmallScreen ? "12px" : "26px",
+          color: '#0f4f66',
+          fontFamily: 'Arial',
+        },
+      },
+      title: {
+        text: "Temperature (°F)",
+        style: { 
+            color: "#0f4f66", 
+            fontSize: isSmallScreen ? "12px" : "20px", 
+        },
+      },
+      max: 100,
+      min: 65,
+      tickInterval: 5, // Major ticks every 5 units
+    },
+    series: [], // Placeholder for data, dynamically updated
+  }
+} // end buildThirdChart (box plot graph)
+
+
 const handleResize = () => {
   state.isSmallScreen = window.innerWidth <= 600;
   chartOptions.value = buildChart(state.isSmallScreen);
