@@ -644,7 +644,7 @@ onUnmounted(() => {
         <!-- Instructions -->
         <div class="bg-accent-bg p-6 rounded-lg shadow-md">
           <h2 class="text-lg text-xl  lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
-            ow to Use the Interactive Chart
+            How to Use the Interactive Chart
           </h2>
           <ul class="pt-5 space-y-4 list-none text-md lg:text-lg text-dark-text">
             <h3 class="text-lg lg:text-xl font-bold text-center">See Temperature Details:</h3>
@@ -655,13 +655,12 @@ onUnmounted(() => {
             <h3 class="text-lg lg:text-xl font-bold text-center">Reset the View:</h3>
             <li class="flex items-start space-x-2">
               <span class="text-blue-secondary">🔄</span>
-              <p>If you zoom in and want to go back to the original chart view, click the Reset View button in the top-right corner.
-              Show or Hide Chart Lines</p>
+              <p>If you zoom in and want to go back to the original chart view, click the Reset View button in the top-right corner.</p>
             </li>
             <h3 class="text-lg lg:text-xl font-bold text-center">Show or Hide Chart Lines:</h3>
             <li class="flex items-start space-x-2">
               <span class="text-blue-secondary">👆</span>
-              <p>Click on a label in the legend below the chart to turn a specific data series line or category on or off</p>
+              <p>Click on a label in the legend below the chart to turn a specific data series line or category on or off.</p>
             </li>
           </ul>
         </div>
