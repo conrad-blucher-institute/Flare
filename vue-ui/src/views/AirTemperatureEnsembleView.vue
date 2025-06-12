@@ -662,13 +662,13 @@ const fetchAndFilterThirdData = async () => {
         name: "Box Plot Air Temperature Predictions",
         data: boxplotData,
         type: "boxplot",
-        color: "blue",
+        color: Highcharts.getOptions().colors[0]
       },
       {
         name: "Median Air Temperature Predictions",
         data: mediansFahrenheit,
         type: "line",
-        color: "red",
+        color: "blue",
         zIndex: 1,                                    // Ensure this line is above the box plot 
         marker: { enabled: false },
       },
