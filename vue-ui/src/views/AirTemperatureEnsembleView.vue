@@ -665,6 +665,14 @@ const fetchAndFilterThirdData = async () => {
         color: "blue",
       },
       {
+        name: "Median Air Temperature Predictions",
+        data: mediansFahrenheit,
+        type: "line",
+        color: "red",
+        zIndex: 1,                                    // Ensure this line is above the box plot 
+        marker: { enabled: false },
+      },
+      {
         name: "NDFD Air Temperature Predictions",
         data: NDFPredictionsFahrenheit,
         type: "line",
@@ -676,9 +684,6 @@ const fetchAndFilterThirdData = async () => {
         },
       }
     ]
-
-    
-
   }
   catch (error) {
     console.error("Error fetching or processing third data:", error);
