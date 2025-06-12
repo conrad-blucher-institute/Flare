@@ -371,7 +371,7 @@ const buildThirdChart = (isSmallScreen) => {
       marginRight: 30
     },
     title: {
-      text: "Box Plot for Air Temperature Predictions from The Weather Company and The National Digital Forecast Database",
+      text: "Box Plots for Air Temperature Predictions from The Weather Company and The National Digital Forecast Database",
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
@@ -382,7 +382,15 @@ const buildThirdChart = (isSmallScreen) => {
       enabled: true,
     },
     legend: {
-      enabled: false
+      enabled: true,
+      align: 'center',
+      verticalAlign: 'bottom',
+      layout: 'horizontal',
+      itemStyle: {
+        color: "#0f4f66",
+        fontWeight: 'normal',
+        fontSize: isSmallScreen ? "12px" : "14px"
+      }
     },
     xAxis: {
       type: "datetime",
