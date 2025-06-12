@@ -444,6 +444,49 @@ const buildThirdChart = (isSmallScreen) => {
       tickInterval: 5, // Major ticks every 5 units
     },
     series: [], // Placeholder for data, dynamically updated
+    tooltip: {
+      shared: true,
+      crosshairs: true,
+      formatter: function () {
+        const localDate = new Date(this.x); 
+        // Dynamically creating the tooltip based on what series are present
+        // Bounds are a special case since they are a range
+        var displayInfo = ``;
+        this.points.forEach(line => {
+          if (line.series.name === "Box Plot Air Temperature Predictions") {
+            displayInfo += `
+              <span style="color:${line.color}">\u25CF</span> Maximum: <b>${line.high.toFixed(2)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Upper Quartile: <b>${line.q3.toFixed(2)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Median: <b>${line.median.toFixed(2)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Lower Quartile: <b>${line.q1.toFixed(2)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Minimum: <b>${line.low.toFixed(2)}°F</b><br>`;
+          }
+          else
+          displayInfo += `
+            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(2)}°F</b><br>`;
+          
+        });
+        return `<b>Date: ${localDate.toLocaleDateString("en-US", {
+                    weekday: "long",
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                })}</b><br>
+                <b>Time: ${localDate.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                })}</b><br>
+                ${displayInfo}`;
+                
+                
+      },
+      style: {
+        fontSize: isSmallScreen ? "12px" : "14px", 
+        padding: isSmallScreen ? "5px" : "8px", 
+        color: "#0f4f66",
+        fontFamily: "Arial",
+      },
+    },
   }
 } // end buildThirdChart (box plot graph)
 
