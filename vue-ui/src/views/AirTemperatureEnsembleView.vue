@@ -620,6 +620,17 @@ const fetchAndFilterThirdData = async () => {
         data: boxplotData,
         type: "boxplot",
         color: "blue",
+      },
+      {
+        name: "NDFD Air Temperature Predictions",
+        data: NDFPredictionsFahrenheit,
+        type: "line",
+        color: "purple",
+        lineWidth: state.isSmallScreen ? 2 : 4,
+        marker: {
+          enabled: false,
+          radius: state.isSmallScreen ? 1 : 2,
+        },
       }
     ]
 
