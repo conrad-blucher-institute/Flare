@@ -662,7 +662,7 @@ const fetchAndFilterThirdData = async () => {
         name: "Box Plot Air Temperature Predictions",
         data: boxplotData,
         type: "boxplot",
-        color: Highcharts.getOptions().colors[0]
+        color: Highcharts.getOptions().colors[0],
       },
       {
         name: "Median Air Temperature Predictions",
@@ -904,8 +904,8 @@ onUnmounted(() => {
             <ul v-if="isExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
               <li>
                 <a 
-                  :href="csvURL2"
-                  download="TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
+                  :href="csvURL"
+                  download="TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
                   class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
                   Download CSV
                 </a>
@@ -957,8 +957,8 @@ onUnmounted(() => {
             <ul v-if="isSecondExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
               <li>
                 <a 
-                  :href="secondCsvURL"
-                  download="Water-Temperature-Forecasts.csv"
+                  :href="csvURL2"
+                  download="TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
                   class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
                   Download CSV
                 </a>
@@ -1012,7 +1012,7 @@ onUnmounted(() => {
               <li>
                 <a 
                   :href="csvURL3"
-                  download="Water-Temperature-Forecasts.csv"
+                  download="TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs.csv"
                   class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
                   Download CSV
                 </a>
