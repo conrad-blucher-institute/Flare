@@ -62,11 +62,11 @@
     "csv_config": {
       "csv_name": "TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs.csv",
       "included_columns": [
-        "TWC Air Temperature Predictions Median",
-        "TWC Air Temperature Predictions Max",
         "TWC Air Temperature Predictions Min",
         "TWC Air Temperature Predictions 25th Percentile Value",
+        "TWC Air Temperature Predictions Median",
         "TWC Air Temperature Predictions 75th Percentile Value",
+        "TWC Air Temperature Predictions Max",
         "NDFD Air Temperature Predictions"
       ]
     }

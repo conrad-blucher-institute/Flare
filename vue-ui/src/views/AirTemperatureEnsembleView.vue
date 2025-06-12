@@ -560,7 +560,8 @@ const fetchAndFilterSecondData = async () => {
   } catch (error) {
     console.error("Error fetching or processing data:", error);
   }
-};
+}; // end fetchAndFilterSecondData
+
 
 // Function to fetch and process third CSV data
 const fetchAndFilterThirdData = async () => {
@@ -574,8 +575,48 @@ const fetchAndFilterThirdData = async () => {
     console.log("Fetched third CSV Data:", csvText);
 
     // Parse the CSV data for the third chart
-    //const parsedData = parseThirdCSV(csvText);
-    //console.log("Parsed Temperature Data:", parsedData);
+    const parsedData = parseThirdCSV(csvText);
+    console.log("Parsed Temperature Data:", parsedData);
+
+    // Ensure parsed arrays are initialized
+    const lowerBounds = parsedData.lowerBounds || [];
+    const twentyfifthPercentiles = parsedData.twentyfifthPercentiles || [];
+    const medians = parsedData.medians || [];
+    const seventyfifthPercentiles = parsedData.seventyfifthPercentiles || [];
+    const upperBounds = parsedData.upperBounds || [];
+    const NDFPredictions = parsedData.NDFPredictions || [];
+
+    // Convert to Fahrenheit
+    const toFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
+    const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const twentyfifthPercentilesFahrenheit = twentyfifthPercentiles.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const mediansFahrenheit = medians.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const seventyfifthPercentilesFahrenheit = seventyfifthPercentiles.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const upperBoundsFahrenheit = upperBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const NDFPredictionsFahrenheit = NDFPredictions.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+
+    // combine data into a single series for highcharts
+    const boxplotData = lowerBoundsFahrenheit.map((point, index) => {
+      const dateIndex = point[0];
+      const lowerBound = lowerBoundsFahrenheit[index][1];
+      const twentyfifthPercentile = twentyfifthPercentilesFahrenheit[index][1];
+      const median = mediansFahrenheit[index][1];
+      const seventyfifthPercentile = seventyfifthPercentilesFahrenheit[index][1];
+      const upperBound = upperBoundsFahrenheit[index][1];
+      return [dateIndex, lowerBound, twentyfifthPercentile, median, seventyfifthPercentile, upperBound];
+    });
+
+    thirdChartOptions.value.series = [
+      {
+        name: "Box Plot Air Temperature Predictions",
+        data: boxplotData,
+        type: "boxplot",
+        color: "blue",
+      }
+    ]
+
+    
+
   }
   catch (error) {
     console.error("Error fetching or processing third data:", error);
@@ -674,7 +715,55 @@ const parseSecondCSV = (csvText) => {
   });
 
   return {medians, lowerBounds, upperBounds, NDFPredictions};
-};
+}; // end parseSecondCSV
+
+const parseThirdCSV = (csvText) => {
+  const rows = csvText.split("\n").map((row) => row.split(","));
+
+  // keep the order of the columns consistent with how they are 
+  // saved in a CSV file
+  const lowerBounds = [];                   // minimums 
+  const twentyfifthPercentiles = [];        // 25th percentiles
+  const medians = [];                       // medians
+  const seventyfifthPercentiles = [];       // 75th percentiles
+  const upperBounds = [];                   // maximums
+  const NDFPredictions = [];
+
+  rows.forEach((row, index) => {
+    // Skip the header row
+    if (index === 0) return;
+
+    // each row in the CSV is expected to follow this order from the CSV config 
+    const [timestamp, lowerBound, twentyfifthPercentile, median, seventyfifthPercentile, upperBound, ndfdPrediction] = row;
+
+    // Parse timestamp as UTC
+    const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
+    const utcTimestamp = Date.UTC(year, month - 1, day, hour, minute, second); // Parse as UTC (subtract 1 from month as Date.UTC expects 0-based months)
+    const localTimestamp = new Date(utcTimestamp).toLocaleString("en-US", {
+      timeZone: userTimeZone,
+    });
+    const localDate = new Date(localTimestamp);
+
+    if (!isNaN(localDate)) {
+      lowerBounds.push([localDate.getTime(), +lowerBound]);
+      twentyfifthPercentiles.push([localDate.getTime(), +twentyfifthPercentile]);
+      medians.push([localDate.getTime(), +median]);
+      seventyfifthPercentiles.push([localDate.getTime(), +seventyfifthPercentile]);
+      upperBounds.push([localDate.getTime(), +upperBound]);
+      NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
+    }
+  });
+
+  // return the arrays of data
+  return {
+    lowerBounds,
+    twentyfifthPercentiles,
+    medians,
+    seventyfifthPercentiles,
+    upperBounds,
+    NDFPredictions
+  };
+}; // end parseThirdCSV
 
 // Function to toggle the dropdown menu
 const toggleExportMenu = () => {
@@ -684,6 +773,10 @@ const toggleExportMenu = () => {
 const toggleSecondExportMenu = () => {
   isSecondExportMenuVisible.value = !isSecondExportMenuVisible.value;
 }
+
+const toggleThirdExportMenu = () => {
+  isThirdExportMenuVisible.value = !isThirdExportMenuVisible.value;
+};
 
 ///Fetch and update chart data every 15 minutes
 let updateInterval;
@@ -839,19 +932,19 @@ onUnmounted(() => {
         <div class="lg:col-span-4 relative">
           <div class="w-full overflow-x-auto">
             <div class="min-w-[1000px] h-[500px] lg:h-[700px] lg:min-h-[650px]">
-              <Chart class="w-full h-full p-4" :options="secondChartOptions" />
+              <Chart class="w-full h-full p-4" :options="thirdChartOptions" />
             </div>
           </div>
 
           <!-- Custom Export Dropdown -->
           <div class="hidden lg:block absolute top-5 right-4">
-            <button @click="toggleSecondExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
+            <button @click="toggleThirdExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
               Download CSV
             </button>
-            <ul v-if="isSecondExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
+            <ul v-if="isThirdExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
               <li>
                 <a 
-                  :href="secondCsvURL"
+                  :href="csvURL3"
                   download="Water-Temperature-Forecasts.csv"
                   class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
                   Download CSV
