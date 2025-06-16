@@ -40,11 +40,11 @@ def generate_csv(cspec_file_path: str, verbose: bool = False) -> None:
         log_info(f'\tIngestion Call: {ingestion_call.call_key}')
         log_info(f'\t\tkwargs: {ingestion_call.kwargs}')
         df = data_ingestion_factory(data=df, ref_time=reference_time, key=ingestion_call.call_key, **ingestion_call.kwargs)
-        if verbose: log_info(df)
-    log_info(f'Ingestion data columns: {df.columns}')
+        if verbose: log_info(f'\n{df}')
+    log_info(f'Ingestion data columns:\n {df.columns}')
 
     if df.empty:
-        log_error(message="DF is empty. Exiting....",chart_name=CSPEC.chart_name)
+        log_error(message="DF is empty. Exiting....",chart_name=get_current_chart_name())
         return
     
     try:
@@ -55,7 +55,7 @@ def generate_csv(cspec_file_path: str, verbose: bool = False) -> None:
             log_info(f'\t\tkwargs: {post_processing_call.kwargs}')
             df = post_process_factory(data=df, key=post_processing_call.call_key, **post_processing_call.kwargs)
             if verbose: log_info(f'\n{df}')
-        log_info(f'IPost Processing data columns: {df.columns}')
+        log_info(f'IPost Processing data columns:\n {df.columns}')
 
         # Rename the index to "Date"
         df.index.name = "Date" 
@@ -68,7 +68,7 @@ def generate_csv(cspec_file_path: str, verbose: bool = False) -> None:
             log_info('\t' + col) 
         
         if df.empty:
-            log_error(message="DF is empty after PostProcessing. Exiting....",chart_name=CSPEC.chart_name)
+            log_error(message="DF is empty after PostProcessing. Exiting....",chart_name=get_current_chart_name())
             return
         
         df[CSPEC.included_columns].to_csv(export_path)

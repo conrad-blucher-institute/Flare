@@ -21,6 +21,7 @@ JSON Call:
 from PostProcessing.IPostProcessing import IPostProcessing
 from pandas import DataFrame
 from statistics import median  
+from utility import log_error,get_current_chart_name
 
 class RowStatistics(IPostProcessing):
 
@@ -39,7 +40,8 @@ class RowStatistics(IPostProcessing):
         df = data.copy()
         
         if col_name not in df.columns:
-            raise KeyError(f"Column '{col_name}' not found. Available columns: {df.columns.tolist()}")
+            log_error(message=f"Column '{col_name}' not found. Available columns: {df.columns.tolist()}", chart_name=get_current_chart_name,error_type="KeyError")
+            raise KeyError
 
         # Normalize input
         if isinstance(metrics, str):
@@ -52,7 +54,8 @@ class RowStatistics(IPostProcessing):
         allowed_metrics = {"min", "max", "median"}
         invalid = set(metrics) - allowed_metrics
         if invalid:
-            raise ValueError(f"Invalid metric(s): {invalid}. Allowed: {allowed_metrics}")
+            log_error(message=f"Invalid metric(s): {invalid}. Allowed: {allowed_metrics}", chart_name=get_current_chart_name,error_type="ValueError")
+            raise ValueError
         
         def is_valid_list(val):
             return isinstance(val, list) and len(val) > 0

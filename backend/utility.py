@@ -1,3 +1,14 @@
+# -*- coding: utf-8 -*-
+#utility.py
+#----------------------------------
+# Created By : Anointiyae Beasley
+#----------------------------------
+""" This file contains a collection of functions for logging and more used throughout the backend.
+ """ 
+#----------------------------------
+# 
+#
+#Imports
 from datetime import datetime
 import sys
 import inspect
@@ -20,7 +31,8 @@ def log_info(message: str) -> None:
     print(f"[{timestamp}] {message}", file=sys.stdout)
 
 def log_error(message: str,chart_name: str,error_type: str = "ERROR",include_traceback: bool = False ) -> None:
-    """Logs an error-level message to stderr with timestamp."""
+    """Logs an error-level message to stderr with timestamp.
+       Note: Only use "include_traceback=True" if the error message is inside a catch block"""
     timestamp = datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
 
     # Get the caller's location

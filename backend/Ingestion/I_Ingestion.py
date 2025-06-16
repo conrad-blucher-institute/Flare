@@ -39,8 +39,8 @@ def data_ingestion_factory(data: DataFrame, ref_time: datetime,  key: str, kwarg
         return ingestion_class.ingest_data(data, ref_time, **kwargs)
     except ModuleNotFoundError:
         log_error(message=f'No module named {key} in IngestionClasses!',chart_name=get_current_chart_name(),error_type='ModuleNotFoundError')
-        raise ModuleNotFoundError(f'[Error]:: No module named {key} in IngestionClasses!')
+        raise ModuleNotFoundError
     except TypeError as e:
         log_error(message=f'kwargs mismatch for key: {key} and kwargs: {kwargs}\n{e}',chart_name=get_current_chart_name(),error_type='TypeError')
-        raise TypeError(f'[Error]:: kwargs mismatch for key: {key} and kwargs: {kwargs}\n{e}')
+        raise TypeError
     

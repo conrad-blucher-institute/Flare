@@ -22,7 +22,7 @@ class CSPEC_Parser:
 
         if not exists(file_path):
             log_error(message=f'{file_path} not found!',chart_name="Name Has Not Been Set Yet",error_type="FileNotFoundError")
-            raise FileNotFoundError(f"{file_path} not found!")
+            raise FileNotFoundError
 
         with open(file_path) as CSPEC_file:
             
@@ -38,7 +38,7 @@ class CSPEC_Parser:
                 sub_parser = CSPEC_sub_Parser_1_0_0(self.__CSPEC_json)
             case _:
                 log_error(message=f'No parser for CSPEC version {self.__CSPEC_json} found!',chart_name="Name Has Not Been Set Yet",error_type='NotImplementedError')
-                raise NotImplementedError(f'No parser for CSPEC version {self.__CSPEC_json} found!')
+                raise NotImplementedError
             
         return sub_parser.parse_CSPEC() 
 

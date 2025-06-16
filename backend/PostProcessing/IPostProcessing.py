@@ -38,8 +38,8 @@ def post_process_factory(data: DataFrame, key: str, kwargs) -> DataFrame:
         return post_processing_class.post_process(data, **kwargs)
     except ModuleNotFoundError:
         log_error(message=f'No module named {key} in PostProcessingClasses!',chart_name=get_current_chart_name(),error_type='ModuleNotFoundError')
-        raise ModuleNotFoundError(f'[Error]:: No module named {key} in PostProcessingClasses!')
+        raise ModuleNotFoundError
     except TypeError as e:
         log_error(message=f'{e}.kwargs mismatch for key: {key} and kwargs: {kwargs}',chart_name=get_current_chart_name(),error_type='TypeError')
-        raise TypeError(f'[Error]:: kwargs mismatch for key: {key} and kwargs: {kwargs}')
+        raise TypeError
     
