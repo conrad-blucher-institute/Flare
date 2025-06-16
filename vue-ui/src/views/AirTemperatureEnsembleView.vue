@@ -638,13 +638,14 @@ const fetchAndFilterThirdData = async () => {
     const NDFPredictions = parsedData.NDFPredictions || [];
 
     // Convert to Fahrenheit
+    // and round to 1 decimal place
     const toFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
-    const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const twentyfifthPercentilesFahrenheit = twentyfifthPercentiles.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const mediansFahrenheit = medians.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const seventyfifthPercentilesFahrenheit = seventyfifthPercentiles.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const upperBoundsFahrenheit = upperBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const NDFPredictionsFahrenheit = NDFPredictions.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const twentyfifthPercentilesFahrenheit = twentyfifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const mediansFahrenheit = medians.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const seventyfifthPercentilesFahrenheit = seventyfifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const upperBoundsFahrenheit = upperBounds.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const NDFPredictionsFahrenheit = NDFPredictions.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
 
     // combine data into a single series for highcharts
     const boxplotData = lowerBoundsFahrenheit.map((point, index) => {
@@ -656,6 +657,9 @@ const fetchAndFilterThirdData = async () => {
       const upperBound = upperBoundsFahrenheit[index][1];
       return [dateIndex, lowerBound, twentyfifthPercentile, median, seventyfifthPercentile, upperBound];
     });
+
+    // log the data to the console after converting to Fahrenheit and 1 decimal place
+    console.log("Box Plot Data converted to Fahrenheit rounded to 1 decimal:", boxplotData);
 
     thirdChartOptions.value.series = [
       {
