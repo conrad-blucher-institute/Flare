@@ -455,15 +455,15 @@ const buildThirdChart = (isSmallScreen) => {
         this.points.forEach(line => {
           if (line.series.name === "Box Plot Air Temperature Predictions") {
             displayInfo += `
-              <span style="color:${line.color}">\u25CF</span> Maximum: <b>${line.high.toFixed(2)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Upper Quartile: <b>${line.q3.toFixed(2)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Median: <b>${line.median.toFixed(2)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Lower Quartile: <b>${line.q1.toFixed(2)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Minimum: <b>${line.low.toFixed(2)}°F</b><br>`;
+              <span style="color:${line.color}">\u25CF</span> Maximum: <b>${line.high.toFixed(1)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Upper Quartile: <b>${line.q3.toFixed(1)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Median: <b>${line.median.toFixed(1)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Lower Quartile: <b>${line.q1.toFixed(1)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Minimum: <b>${line.low.toFixed(1)}°F</b><br>`;
           }
           else
           displayInfo += `
-            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(2)}°F</b><br>`;
+            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(1)}°F</b><br>`;
           
         });
         return `<b>Date: ${localDate.toLocaleDateString("en-US", {
