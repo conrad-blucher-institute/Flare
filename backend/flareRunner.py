@@ -17,14 +17,14 @@ import argparse
 
 from Ingestion.I_Ingestion import data_ingestion_factory
 from PostProcessing.IPostProcessing import post_process_factory
-from utility import log_info,log_error,get_current_chart_name
+from utility import log_info,log_error,set_current_chart_name,get_current_chart_name
 
 
 def generate_csv(cspec_file_path: str, verbose: bool = False) -> None:
     
     # Parse CSPEC
     CSPEC = CSPEC_Parser(cspec_file_path).parse_CSPEC()
-
+    set_current_chart_name(CSPEC.chart_name)
 
     # Initialize reference data and data structures
     reference_time = datetime.now()
