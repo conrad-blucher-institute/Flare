@@ -40,7 +40,7 @@ class RowStatistics(IPostProcessing):
         df = data.copy()
         
         if col_name not in df.columns:
-            log_error(message=f"Column '{col_name}' not found. Available columns: {df.columns.tolist()}", chart_name=get_current_chart_name,error_type="KeyError")
+            log_error(message=f"Column '{col_name}' not found. Available columns: {df.columns.tolist()}", chart_name=get_current_chart_name(),error_type="KeyError")
             raise KeyError
 
         # Normalize input
@@ -54,7 +54,7 @@ class RowStatistics(IPostProcessing):
         allowed_metrics = {"min", "max", "median"}
         invalid = set(metrics) - allowed_metrics
         if invalid:
-            log_error(message=f"Invalid metric(s): {invalid}. Allowed: {allowed_metrics}", chart_name=get_current_chart_name,error_type="ValueError")
+            log_error(message=f"Invalid metric(s): {invalid}. Allowed: {allowed_metrics}", chart_name=get_current_chart_name(),error_type="ValueError")
             raise ValueError
         
         def is_valid_list(val):
