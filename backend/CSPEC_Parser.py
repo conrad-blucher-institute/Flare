@@ -15,12 +15,15 @@ from os.path import exists
 from json import load
 from DataClasses import *
 
+from utility import log_error,set_current_chart_name,get_current_chart_name
+
 class CSPEC_Parser:
     def __init__(self, file_path: str) -> None:
 
         if not exists(file_path):
-            print(f'{file_path} not found!')
-            raise FileNotFoundError
+            log_error(message=f'{file_path} not found!',chart_name="Name Has Not Been Set Yet",error_type="FileNotFoundError")
+            raise FileNotFoundError(f"{file_path} not found!")
+
         with open(file_path) as CSPEC_file:
             
             # Read CSPEC from file and grab version
@@ -34,6 +37,7 @@ class CSPEC_Parser:
             case '1.0.0':
                 sub_parser = CSPEC_sub_Parser_1_0_0(self.__CSPEC_json)
             case _:
+                log_error(message=f'No parser for CSPEC version {self.__CSPEC_json} found!',chart_name=get_current_chart_name(),error_type='NotImplementedError')
                 raise NotImplementedError(f'No parser for CSPEC version {self.__CSPEC_json} found!')
             
         return sub_parser.parse_CSPEC() 
@@ -50,6 +54,7 @@ class CSPEC_sub_Parser_1_0_0:
             :return CSPEC
         """
         chart_name = self.__CSPEC_json["chart_name"]
+        set_current_chart_name(chart_name) #Set the global chart name for logging
         data_requests = self.__parse_call_group("data_requests")
         post_processing = self.__parse_call_group("post_processing")
         csv_name, included_columns = self.__parse_csv_config(self.__CSPEC_json["csv_config"])

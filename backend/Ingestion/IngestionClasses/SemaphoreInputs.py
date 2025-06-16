@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 from Ingestion.Ingestion_Utility import api_request, add_empty_column
 from pandas import DataFrame
 from numpy import nan
+from utility import log_info,log_error,get_current_chart_name
 from os import getenv
 import ast
 
@@ -55,7 +56,7 @@ class SemaphoreInputs(IDataIngestion):
         '''Checks for things like no data, empty response or non complete warnings.'''
         
         if response is None: return False
-        if not response['isComplete']: print(f'Warning:: Api response warns its not complete -> {response["nonCompleteReason"]}')
+        if not response['isComplete']: log_info(f'Warning:: Api response warns its not complete -> {response["nonCompleteReason"]}')
         if len(response['_Series__data']) <= 0: return False
         return True
     
@@ -79,17 +80,17 @@ class SemaphoreInputs(IDataIngestion):
                     if isinstance(value_array, list):
                         data.append([float(v) for v in value_array])  # Convert elements to float
                     else:
-                        print(f"Parsed value is not a list: {value_array}")
+                        log_info(f"Parsed value is not a list: {value_array}")
                         data.append(nan)  # Append NaN if it's not a list
                 except (ValueError, SyntaxError) as e:
-                    print(f"Error decoding array: {value} -> {e}")
+                    log_error(message=f"Error decoding array: {value} -> {e}",chart_name=get_current_chart_name(),error_type="ValueError, SyntaxError",include_traceback=True)
                     data.append(nan)  # Append NaN if parsing fails
             else: 
                 try:
                     value = float(value)
                     data.append(value)
                 except ValueError:
-                    print(f"Error converting value to float: {value}")
+                    log_error(message=f"Error converting value to float: {value}",chart_name=get_current_chart_name(),error_type="ValueError",include_traceback=True)
                     data.append(nan)  # Append NaN if conversion fails
 
         # Add this to the collation df with an outer join to ensure all data is preserved

@@ -16,6 +16,7 @@ from abc import ABC, abstractmethod
 from importlib import import_module
 from pandas import DataFrame
 from datetime import datetime
+from utility import log_error
 
 
 class IDataIngestion(ABC):
@@ -37,7 +38,9 @@ def data_ingestion_factory(data: DataFrame, ref_time: datetime,  key: str, kwarg
         ingestion_class: IDataIngestion = getattr(import_module(f'.IngestionClasses.{key}', 'Ingestion'), key)()
         return ingestion_class.ingest_data(data, ref_time, **kwargs)
     except ModuleNotFoundError:
+        log_error(message=f'No module named {key} in IngestionClasses!',chart_name=chart_name,error_type='ModuleNotFoundError')
         raise ModuleNotFoundError(f'[Error]:: No module named {key} in IngestionClasses!')
     except TypeError as e:
+        log_error(message=f'kwargs mismatch for key: {key} and kwargs: {kwargs}\n{e}',chart_name=chart_name,error_type='TypeError')
         raise TypeError(f'[Error]:: kwargs mismatch for key: {key} and kwargs: {kwargs}\n{e}')
     

@@ -13,6 +13,7 @@ NOTE:: reads the env "SEMAPHORE_API_URL" for the base url to hit.
 from Ingestion.I_Ingestion import IDataIngestion
 from datetime import datetime, timedelta
 from Ingestion.Ingestion_Utility import api_request, add_empty_column
+from utility import log_info
 from pandas import DataFrame
 from numpy import nan
 from os import getenv
@@ -47,11 +48,11 @@ class SemaphoreOutputLatest(IDataIngestion):
         for name in model_names:
             model_response = response.get(name)
             if model_response is None: 
-                print(f'Warning:: Model {name} missing in returned data!')
+                log_info(f'Warning:: Model {name} missing in returned data!')
                 continue
 
             if not model_response['isComplete']: print(f'Warning:: Api response warns its not complete -> {model_response["nonCompleteReason"]}')
-            if len(model_response['_Series__data']) <= 0: print(f'Warning:: Model {name} returned no data!')
+            if len(model_response['_Series__data']) <= 0: log_info(f'Warning:: Model {name} returned no data!')
         return True
     
     
