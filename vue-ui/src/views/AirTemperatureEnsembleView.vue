@@ -327,8 +327,8 @@ const buildSecondChart = (isSmallScreen) => {
         this.points.forEach(line => {
           if (line.series.name === "Bounds") {
             displayInfo += `
-              <span style="color:${line.color}">\u25CF</span> Upper Bounds: <b>${line.high.toFixed(2)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Lower Bounds: <b>${line.low.toFixed(2)}°F</b><br>`;
+              <span style="color:${line.color}">\u25CF</span> 95th Percentile: <b>${line.high.toFixed(2)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> 5th Percentile: <b>${line.low.toFixed(2)}°F</b><br>`;
           }
           else
           displayInfo += `
@@ -555,25 +555,33 @@ const fetchAndFilterSecondData = async () => {
     console.log("Parsed Temperature Data:", parsedData);
 
     // Ensure parsed arrays are initialized
+    const fifthPercentiles = parsedData.fifthPercentiles || [];
     const medians = parsedData.medians || [];
-    const lowerBounds = parsedData.lowerBounds || [];
-    const upperBounds = parsedData.upperBounds || [];
+    const ninetyfifthPercentiles = parsedData.ninetyfifthPercentiles || [];
     const NDFPredictions = parsedData.NDFPredictions || [];
 
     // Convert to Fahrenheit
+    // and round to 1 decimal
     const toFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
-    const mediansFahrenheit = medians.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const upperBoundsFahrenheit = upperBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const NDFPredictionsFahrenheit = NDFPredictions.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const fifthPercentilesFahrenheit = fifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const mediansFahrenheit = medians.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const ninetyfifthPercentilesFahrenheit = ninetyfifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const NDFPredictionsFahrenheit = NDFPredictions.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
 
+  
     // Combine lower and upper bounds into a single series for Highcharts
-    const boundsFahrenheit = lowerBoundsFahrenheit.map((point, index) => {
+    // boundsFahrenheit now shows 5th and 95th percentiles rather than min and max
+    const boundsFahrenheit = fifthPercentilesFahrenheit.map((point, index) => {
       const dateIndex = point[0];
-      const lowerBound = lowerBoundsFahrenheit[index][1];
-      const upperBound = upperBoundsFahrenheit[index][1];
-      return [dateIndex, upperBound, lowerBound];
+      const fifthPercentile = fifthPercentilesFahrenheit[index][1];
+      const ninetyfifthPercentile = ninetyfifthPercentilesFahrenheit[index][1];
+      return [dateIndex, fifthPercentile, ninetyfifthPercentile];
     });
+
+    // log to console after rounding to 1 decimal
+    // this logs the date, 5th Percentile, and 95th Percentile
+    console.log("Bounds Data converted to Fahrenheit rounded to 1 decimal:", boundsFahrenheit);
+
 
     // Update chart series with filtered data
     secondChartOptions.value.series = [
@@ -660,6 +668,7 @@ const fetchAndFilterThirdData = async () => {
 
     // log the data to the console after converting to Fahrenheit and 1 decimal place
     console.log("Box Plot Data converted to Fahrenheit rounded to 1 decimal:", boxplotData);
+
     thirdChartOptions.value.series = [
       {
         name: "Box Plot Air Temperature Predictions",
@@ -757,16 +766,16 @@ const parseCSV = (csvText) => {
 const parseSecondCSV = (csvText) => {
   const rows = csvText.split("\n").map((row) => row.split(","));
 
+  const fifthPercentiles = [];
   const medians = [];
-  const lowerBounds = [];
-  const upperBounds = [];
+  const ninetyfifthPercentiles = [];
   const NDFPredictions = [];
 
   rows.forEach((row, index) => {
     // Skip the header row
     if (index === 0) return;
 
-    const [timestamp, median, lowerBound, upperBound, ndfdPrediction] = row;
+    const [timestamp, fifthPercentile, median, ninetyfifthPercentile, ndfdPrediction] = row;
 
     // Parse timestamp as UTC
     const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
@@ -777,14 +786,14 @@ const parseSecondCSV = (csvText) => {
     const localDate = new Date(localTimestamp);
 
     if (!isNaN(localDate)) {
+      fifthPercentiles.push([localDate.getTime(), +fifthPercentile]);
       medians.push([localDate.getTime(), +median]);
-      lowerBounds.push([localDate.getTime(), +lowerBound]);
-      upperBounds.push([localDate.getTime(), +upperBound]);
+      ninetyfifthPercentiles.push([localDate.getTime(), +ninetyfifthPercentile]);
       NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
     }
   });
 
-  return {medians, lowerBounds, upperBounds, NDFPredictions};
+  return {fifthPercentiles, medians, ninetyfifthPercentiles, NDFPredictions};
 }; // end parseSecondCSV
 
 const parseThirdCSV = (csvText) => {
