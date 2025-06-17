@@ -327,12 +327,12 @@ const buildSecondChart = (isSmallScreen) => {
         this.points.forEach(line => {
           if (line.series.name === "Bounds") {
             displayInfo += `
-              <span style="color:${line.color}">\u25CF</span> 95th Percentile: <b>${line.high.toFixed(2)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> 5th Percentile: <b>${line.low.toFixed(2)}°F</b><br>`;
+              <span style="color:${line.color}">\u25CF</span> 95th Percentile: <b>${line.high.toFixed(1)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> 5th Percentile: <b>${line.low.toFixed(1)}°F</b><br>`;
           }
           else
           displayInfo += `
-            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(2)}°F</b><br>`;
+            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(1)}°F</b><br>`;
           
         });
         return `<b>Date: ${localDate.toLocaleDateString("en-US", {
