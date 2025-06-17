@@ -25,12 +25,17 @@ const state = reactive({
   isSmallScreen: window.innerWidth <= 600
 });
 
+// spaghetti graph
+// ribbon graph
+// box plot graph
 const csvURL = ref(`${window.location.origin}/flare/csv-data/TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
 const csvURL2 = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
+const csvURL3 = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs.csv`);
 
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
 const isSecondExportMenuVisible = ref(false);
+const isThirdExportMenuVisible = ref(false);
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 console.log("User's Time Zone:", userTimeZone);
 
@@ -41,8 +46,10 @@ const nowTime = nowDate.getTime();
 
 const chartOptions = ref({});
 const secondChartOptions = ref({});
+const thirdChartOptions = ref({});
 
 // Chart function for first chart that changes based on screen size
+// spaghetti graph
 const buildChart = (isSmallScreen) => {
   return {
     chart: {
@@ -203,9 +210,10 @@ const buildChart = (isSmallScreen) => {
       },
     },
   };
-};
+}; // end buildChart (spaghetti graph)
 
 // Chart function for second chart that changes based on screen size
+// ribbon graph
 const buildSecondChart = (isSmallScreen) => {
   return {
     chart: {
@@ -349,17 +357,100 @@ const buildSecondChart = (isSmallScreen) => {
       },
     },
   };
-};
+}; // end buildSecondChart (ribbon graph)
+
+// Chart function for third chart that changes based on screen size
+// box plot graph
+const buildThirdChart = (isSmallScreen) => {
+  return {
+    chart: {
+      type: "boxplot",
+      zoomType: "x",
+      backgroundColor: "white",
+      style: { fontFamily: "Arial" },
+      marginRight: 30
+    },
+    title: {
+      text: "Box Plot for Air Temperature Predictions from The Weather Company and The National Digital Forecast Database",
+      style: { 
+        fontSize: isSmallScreen ? "20px" : "28px", 
+        fontWeight: "bold", 
+        color: "#0f4f66" 
+      },
+    },
+    exporting: {
+      enabled: true,
+    },
+    legend: {
+      enabled: false
+    },
+    xAxis: {
+      type: "datetime",
+      dateTimeLabelFormats: {
+        day: "%a %b %e",
+      },
+      labels: {
+        formatter: function () {
+          const localDate = new Date(this.value);
+          const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
+          const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+          return `<span style="display: block; text-align: center; font-family: Arial;">
+                    <b>${day}</b><br>${date}
+                  </span>`;
+        },
+        useHTML: true,
+        style: {
+          fontSize: isSmallScreen ? "12px" : "16px", 
+          fontFamily: "Arial",
+          color: "#0f4f66",
+          whiteSpace: "nowrap",
+        },
+      },
+      tickInterval: 24 * 3600 * 1000, // Main ticks every day
+      title: {
+        text: "Time",
+        style: {
+          fontSize: isSmallScreen ? "14px" : "20px",
+          fontFamily: "Arial",
+          color: "#0f4f66",
+        },
+      },
+    },
+    yAxis: {
+      labels: {
+        style: {
+          fontSize: isSmallScreen ? "12px" : "26px",
+          color: '#0f4f66',
+          fontFamily: 'Arial',
+        },
+      },
+      title: {
+        text: "Temperature (°F)",
+        style: { 
+            color: "#0f4f66", 
+            fontSize: isSmallScreen ? "12px" : "20px", 
+        },
+      },
+      max: 100,
+      min: 65,
+      tickInterval: 5, // Major ticks every 5 units
+    },
+    series: [], // Placeholder for data, dynamically updated
+  }
+} // end buildThirdChart (box plot graph)
+
 
 const handleResize = () => {
   state.isSmallScreen = window.innerWidth <= 600;
   chartOptions.value = buildChart(state.isSmallScreen);
   secondChartOptions.value = buildSecondChart(state.isSmallScreen);
+  thirdChartOptions.value = buildThirdChart(state.isSmallScreen);
 }
 
 // Setting chartOptions based on the returned screen size
 chartOptions.value = buildChart(state.isSmallScreen);
 secondChartOptions.value = buildSecondChart(state.isSmallScreen);
+thirdChartOptions.value = buildThirdChart(state.isSmallScreen);
 
 // Function to fetch and process CSV data for first chart
 const fetchAndFilterData = async () => {
@@ -469,7 +560,68 @@ const fetchAndFilterSecondData = async () => {
   } catch (error) {
     console.error("Error fetching or processing data:", error);
   }
-};
+}; // end fetchAndFilterSecondData
+
+
+// Function to fetch and process third CSV data
+const fetchAndFilterThirdData = async () => {
+  try {
+    // Fetch CSV data
+    const response = await fetch(csvURL3.value);
+    if (!response.ok) throw new Error("Failed to fetch third CSV data");
+    console.log(`Fetched third URL: ${response.url}`);
+
+    const csvText = await response.text();
+    console.log("Fetched third CSV Data:", csvText);
+
+    // Parse the CSV data for the third chart
+    const parsedData = parseThirdCSV(csvText);
+    console.log("Parsed Temperature Data:", parsedData);
+
+    // Ensure parsed arrays are initialized
+    const lowerBounds = parsedData.lowerBounds || [];
+    const twentyfifthPercentiles = parsedData.twentyfifthPercentiles || [];
+    const medians = parsedData.medians || [];
+    const seventyfifthPercentiles = parsedData.seventyfifthPercentiles || [];
+    const upperBounds = parsedData.upperBounds || [];
+    const NDFPredictions = parsedData.NDFPredictions || [];
+
+    // Convert to Fahrenheit
+    const toFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
+    const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const twentyfifthPercentilesFahrenheit = twentyfifthPercentiles.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const mediansFahrenheit = medians.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const seventyfifthPercentilesFahrenheit = seventyfifthPercentiles.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const upperBoundsFahrenheit = upperBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const NDFPredictionsFahrenheit = NDFPredictions.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+
+    // combine data into a single series for highcharts
+    const boxplotData = lowerBoundsFahrenheit.map((point, index) => {
+      const dateIndex = point[0];
+      const lowerBound = lowerBoundsFahrenheit[index][1];
+      const twentyfifthPercentile = twentyfifthPercentilesFahrenheit[index][1];
+      const median = mediansFahrenheit[index][1];
+      const seventyfifthPercentile = seventyfifthPercentilesFahrenheit[index][1];
+      const upperBound = upperBoundsFahrenheit[index][1];
+      return [dateIndex, lowerBound, twentyfifthPercentile, median, seventyfifthPercentile, upperBound];
+    });
+
+    thirdChartOptions.value.series = [
+      {
+        name: "Box Plot Air Temperature Predictions",
+        data: boxplotData,
+        type: "boxplot",
+        color: "blue",
+      }
+    ]
+
+    
+
+  }
+  catch (error) {
+    console.error("Error fetching or processing third data:", error);
+  }
+}
 
 // CSV parsing function first chart
 const parseCSV = (csvText) => {
@@ -563,7 +715,55 @@ const parseSecondCSV = (csvText) => {
   });
 
   return {medians, lowerBounds, upperBounds, NDFPredictions};
-};
+}; // end parseSecondCSV
+
+const parseThirdCSV = (csvText) => {
+  const rows = csvText.split("\n").map((row) => row.split(","));
+
+  // keep the order of the columns consistent with how they are 
+  // saved in a CSV file
+  const lowerBounds = [];                   // minimums 
+  const twentyfifthPercentiles = [];        // 25th percentiles
+  const medians = [];                       // medians
+  const seventyfifthPercentiles = [];       // 75th percentiles
+  const upperBounds = [];                   // maximums
+  const NDFPredictions = [];
+
+  rows.forEach((row, index) => {
+    // Skip the header row
+    if (index === 0) return;
+
+    // each row in the CSV is expected to follow this order from the CSV config 
+    const [timestamp, lowerBound, twentyfifthPercentile, median, seventyfifthPercentile, upperBound, ndfdPrediction] = row;
+
+    // Parse timestamp as UTC
+    const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
+    const utcTimestamp = Date.UTC(year, month - 1, day, hour, minute, second); // Parse as UTC (subtract 1 from month as Date.UTC expects 0-based months)
+    const localTimestamp = new Date(utcTimestamp).toLocaleString("en-US", {
+      timeZone: userTimeZone,
+    });
+    const localDate = new Date(localTimestamp);
+
+    if (!isNaN(localDate)) {
+      lowerBounds.push([localDate.getTime(), +lowerBound]);
+      twentyfifthPercentiles.push([localDate.getTime(), +twentyfifthPercentile]);
+      medians.push([localDate.getTime(), +median]);
+      seventyfifthPercentiles.push([localDate.getTime(), +seventyfifthPercentile]);
+      upperBounds.push([localDate.getTime(), +upperBound]);
+      NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
+    }
+  });
+
+  // return the arrays of data
+  return {
+    lowerBounds,
+    twentyfifthPercentiles,
+    medians,
+    seventyfifthPercentiles,
+    upperBounds,
+    NDFPredictions
+  };
+}; // end parseThirdCSV
 
 // Function to toggle the dropdown menu
 const toggleExportMenu = () => {
@@ -574,15 +774,21 @@ const toggleSecondExportMenu = () => {
   isSecondExportMenuVisible.value = !isSecondExportMenuVisible.value;
 }
 
+const toggleThirdExportMenu = () => {
+  isThirdExportMenuVisible.value = !isThirdExportMenuVisible.value;
+};
+
 ///Fetch and update chart data every 15 minutes
 let updateInterval;
 onMounted(() => {
   fetchAndFilterData(); 
   fetchAndFilterSecondData();
+  fetchAndFilterThirdData();
   updateInterval = setInterval(() => {
     console.log("Fetching and updating chart data...");
     fetchAndFilterData();
     fetchAndFilterSecondData();
+    fetchAndFilterThirdData();
   }, 900000); 
 });
 
@@ -613,61 +819,60 @@ onUnmounted(() => {
       </div>
       </section>
 
-      <!-- First Chart Section -->
+      <!-- First Chart Section: Spaghetti Graph -->
       <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 py-8 px-4 bg-white items-stretch">
-      <!-- Chart -->
-      <div class="lg:col-span-4 relative">
-      <div class="w-full overflow-x-auto">
-        <div class="min-w-[1000px] h-[500px] lg:h-[700px] lg:min-h-[650px]">
-          <Chart class="w-full h-full p-4" :options="chartOptions" />
+        <!-- Chart -->
+        <div class="lg:col-span-4 relative">
+          <div class="w-full overflow-x-auto">
+            <div class="min-w-[1000px] h-[500px] lg:h-[700px] lg:min-h-[650px]">
+              <Chart class="w-full h-full p-4" :options="chartOptions" />
+            </div>
+          </div>
+
+          <!-- Custom Export Dropdown -->
+          <div class="hidden lg:block absolute top-5 right-4">
+            <button @click="toggleExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
+              Download CSV Data
+            </button>
+            <ul v-if="isExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
+              <li>
+                <a 
+                  :href="csvURL2"
+                  download="TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
+                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
+                  Download CSV
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
 
-      <!-- Custom Export Dropdown -->
-      <div class="hidden lg:block absolute top-5 right-4">
-        <button @click="toggleExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
-          Download CSV Data
-        </button>
-        <ul v-if="isExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
-          <li>
-            <a 
-              :href="csvURL2"
-              download="TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
-              class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
-              Download CSV
-            </a>
-          </li>
-        </ul>
-      </div>
-      </div>
-
-      <!-- Instructions -->
-      <div class="bg-accent-bg p-6 rounded-lg shadow-md">
-      <h2 class="text-lg text-xl  lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
-        How to Use the Interactive Chart
-      </h2>
-      <ul class="pt-5 space-y-4 list-none text-md lg:text-lg text-dark-text">
-        <h3 class="text-lg lg:text-xl font-bold text-center">See Temperature Details:</h3>
-        <li class="flex items-start space-x-2">
-          <span class="text-blue-secondary">📊</span>
-          <p>Move your mouse pointer over any dot or line on the chart to display the exact temperature value and the corresponding date or time.</p>
-        </li>
-        <h3 class="text-lg lg:text-xl font-bold text-center">Reset the View:</h3>
-        <li class="flex items-start space-x-2">
-          <span class="text-blue-secondary">🔄</span>
-          <p>If you zoom in and want to go back to the original chart view, click the Reset View button in the top-right corner.
-            Show or Hide Chart Lines</p>
-        </li>
-        <h3 class="text-lg lg:text-xl font-bold text-center">Show or Hide Chart Lines:</h3>
-        <li class="flex items-start space-x-2">
-          <span class="text-blue-secondary">👆</span>
-          <p>Click on a label in the legend below the chart to turn a specific data series line or category on or off</p>
-        </li>
-      </ul>
-      </div>
+        <!-- Instructions -->
+        <div class="bg-accent-bg p-6 rounded-lg shadow-md">
+          <h2 class="text-lg text-xl  lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
+            How to Use the Interactive Chart
+          </h2>
+          <ul class="pt-5 space-y-4 list-none text-md lg:text-lg text-dark-text">
+            <h3 class="text-lg lg:text-xl font-bold text-center">See Temperature Details:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">📊</span>
+              <p>Move your mouse pointer over any dot or line on the chart to display the exact temperature value and the corresponding date or time.</p>
+            </li>
+            <h3 class="text-lg lg:text-xl font-bold text-center">Reset the View:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">🔄</span>
+              <p>If you zoom in and want to go back to the original chart view, click the Reset View button in the top-right corner.</p>
+            </li>
+            <h3 class="text-lg lg:text-xl font-bold text-center">Show or Hide Chart Lines:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">👆</span>
+              <p>Click on a label in the legend below the chart to turn a specific data series line or category on or off.</p>
+            </li>
+          </ul>
+        </div>
       </section>
 
-      <!-- Second Chart Section -->
+      <!-- Second Chart Section: Ribbon Graph -->
       <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 py-8 px-4 bg-white items-stretch">
         <!-- Chart -->
         <div class="lg:col-span-4 relative">
@@ -694,31 +899,85 @@ onUnmounted(() => {
             </ul>
           </div>
         </div>
+
         <!-- Instructions -->
-      <div class="bg-accent-bg p-6 rounded-lg shadow-md">
-      <h2 class="text-lg text-xl  lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
-        How to Use the Interactive Chart
-      </h2>
-      <ul class="pt-5 space-y-4 list-none text-md lg:text-lg text-dark-text">
-        <h3 class="text-lg lg:text-xl font-bold text-center">See Temperature Details:</h3>
-        <li class="flex items-start space-x-2">
-          <span class="text-blue-secondary">📊</span>
-          <p>Move your mouse pointer over any dot or line on the chart to display the exact temperature value and the corresponding date or time.</p>
-        </li>
-        <h3 class="text-lg lg:text-xl font-bold text-center">Reset the View:</h3>
-        <li class="flex items-start space-x-2">
-          <span class="text-blue-secondary">🔄</span>
-          <p>If you zoom in and want to go back to the original chart view, click the Reset View button in the top-right corner.
-            Show or Hide Chart Lines</p>
-        </li>
-        <h3 class="text-lg lg:text-xl font-bold text-center">Show or Hide Chart Lines:</h3>
-        <li class="flex items-start space-x-2">
-          <span class="text-blue-secondary">👆</span>
-          <p>Click on a label in the legend below the chart to turn a specific data series line or category on or off</p>
-        </li>
-      </ul>
-      </div>
-      </section> <!-- End of Second Chart Section -->
+        <div class="bg-accent-bg p-6 rounded-lg shadow-md">
+          <h2 class="text-lg text-xl  lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
+            How to Use the Interactive Chart
+          </h2>
+          <ul class="pt-5 space-y-4 list-none text-md lg:text-lg text-dark-text">
+            <h3 class="text-lg lg:text-xl font-bold text-center">See Temperature Details:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">📊</span>
+              <p>Move your mouse pointer over any dot or line on the chart to display the exact temperature value and the corresponding date or time.</p>
+            </li>
+            <h3 class="text-lg lg:text-xl font-bold text-center">Reset the View:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">🔄</span>
+              <p>If you zoom in and want to go back to the original chart view, click the Reset View button in the top-right corner.</p>
+            </li>
+            <h3 class="text-lg lg:text-xl font-bold text-center">Show or Hide Chart Lines:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">👆</span>
+              <p>Click on a label in the legend below the chart to turn a specific data series line or category on or off.</p>
+            </li>
+          </ul>
+        </div>
+      </section> <!-- End of Second Chart Section: Ribbon Graph -->
+
+
+      <!-- Third Chart Section: Box Plot Graph -->
+      <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 py-8 px-4 bg-white items-stretch">
+        <!-- Chart -->
+        <div class="lg:col-span-4 relative">
+          <div class="w-full overflow-x-auto">
+            <div class="min-w-[1000px] h-[500px] lg:h-[700px] lg:min-h-[650px]">
+              <Chart class="w-full h-full p-4" :options="thirdChartOptions" />
+            </div>
+          </div>
+
+          <!-- Custom Export Dropdown -->
+          <div class="hidden lg:block absolute top-5 right-4">
+            <button @click="toggleThirdExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
+              Download CSV
+            </button>
+            <ul v-if="isThirdExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
+              <li>
+                <a 
+                  :href="csvURL3"
+                  download="Water-Temperature-Forecasts.csv"
+                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
+                  Download CSV
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Instructions -->
+        <div class="bg-accent-bg p-6 rounded-lg shadow-md">
+          <h2 class="text-lg text-xl  lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
+            How to Use the Interactive Chart
+          </h2>
+          <ul class="pt-5 space-y-4 list-none text-md lg:text-lg text-dark-text">
+            <h3 class="text-lg lg:text-xl font-bold text-center">See Temperature Details:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">📊</span>
+              <p>Move your mouse pointer over any dot or line on the chart to display the exact temperature value and the corresponding date or time.</p>
+            </li>
+            <h3 class="text-lg lg:text-xl font-bold text-center">Reset the View:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">🔄</span>
+              <p>If you zoom in and want to go back to the original chart view, click the Reset View button in the top-right corner.</p>
+            </li>
+            <h3 class="text-lg lg:text-xl font-bold text-center">Show or Hide Chart Lines:</h3>
+            <li class="flex items-start space-x-2">
+              <span class="text-blue-secondary">👆</span>
+              <p>Click on a label in the legend below the chart to turn a specific data series line or category on or off.</p>
+            </li>
+          </ul>
+        </div>
+      </section> <!-- End of Third Chart Section: Box Plot Graph -->
     </div>
 
     <!-- Section Divider -->
