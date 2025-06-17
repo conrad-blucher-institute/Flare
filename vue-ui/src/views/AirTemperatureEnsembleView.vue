@@ -585,15 +585,8 @@ const fetchAndFilterSecondData = async () => {
 
     // Update chart series with filtered data
     secondChartOptions.value.series = [
-      {
-        name: "Median Air Temperature Predictions",
-        data: mediansFahrenheit,
-        type: "line",
-        color: "blue",
-        lineWidth: state.isSmallScreen ? 2 : 4,
-        zIndex: 1, // Ensure this is above the bounds
-        marker: { enabled: false },
-      },
+      // show the 5th-95th percentiles first in the tooltip
+      // then the median, then NDFD predictions
       {
         name: "Bounds",
         data: boundsFahrenheit,
@@ -602,6 +595,15 @@ const fetchAndFilterSecondData = async () => {
         color: Highcharts.getOptions().colors[0],
         fillOpacity: 0.3,
         zIndex: 0, // Ensure this is below the mean line
+        marker: { enabled: false },
+      },
+      {
+        name: "Median Air Temperature Predictions",
+        data: mediansFahrenheit,
+        type: "line",
+        color: "blue",
+        lineWidth: state.isSmallScreen ? 2 : 4,
+        zIndex: 1, // Ensure this is above the bounds
         marker: { enabled: false },
       },
       {
