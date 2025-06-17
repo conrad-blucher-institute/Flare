@@ -371,11 +371,7 @@ const buildThirdChart = (isSmallScreen) => {
       marginRight: 30
     },
     title: {
-<<<<<<< HEAD
       text: "Box Plots for Air Temperature Predictions from The Weather Company and The National Digital Forecast Database",
-=======
-      text: "Box Plot for Air Temperature Predictions from The Weather Company and The National Digital Forecast Database",
->>>>>>> cf578de878ff980aba651f6a6b6c6f8ec5c2419a
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
@@ -386,7 +382,6 @@ const buildThirdChart = (isSmallScreen) => {
       enabled: true,
     },
     legend: {
-<<<<<<< HEAD
       enabled: true,
       align: 'center',
       verticalAlign: 'bottom',
@@ -396,9 +391,6 @@ const buildThirdChart = (isSmallScreen) => {
         fontWeight: 'normal',
         fontSize: isSmallScreen ? "12px" : "14px"
       }
-=======
-      enabled: false
->>>>>>> cf578de878ff980aba651f6a6b6c6f8ec5c2419a
     },
     xAxis: {
       type: "datetime",
@@ -452,7 +444,6 @@ const buildThirdChart = (isSmallScreen) => {
       tickInterval: 5, // Major ticks every 5 units
     },
     series: [], // Placeholder for data, dynamically updated
-<<<<<<< HEAD
     tooltip: {
       shared: true,
       crosshairs: true,
@@ -464,15 +455,15 @@ const buildThirdChart = (isSmallScreen) => {
         this.points.forEach(line => {
           if (line.series.name === "Box Plot Air Temperature Predictions") {
             displayInfo += `
-              <span style="color:${line.color}">\u25CF</span> Maximum: <b>${line.high.toFixed(2)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Upper Quartile: <b>${line.q3.toFixed(2)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Median: <b>${line.median.toFixed(2)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Lower Quartile: <b>${line.q1.toFixed(2)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Minimum: <b>${line.low.toFixed(2)}°F</b><br>`;
+              <span style="color:${line.color}">\u25CF</span> Maximum: <b>${line.high.toFixed(1)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Upper Quartile: <b>${line.q3.toFixed(1)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Median: <b>${line.median.toFixed(1)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Lower Quartile: <b>${line.q1.toFixed(1)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Minimum: <b>${line.low.toFixed(1)}°F</b><br>`;
           }
           else
           displayInfo += `
-            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(2)}°F</b><br>`;
+            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(1)}°F</b><br>`;
           
         });
         return `<b>Date: ${localDate.toLocaleDateString("en-US", {
@@ -496,8 +487,6 @@ const buildThirdChart = (isSmallScreen) => {
         fontFamily: "Arial",
       },
     },
-=======
->>>>>>> cf578de878ff980aba651f6a6b6c6f8ec5c2419a
   }
 } // end buildThirdChart (box plot graph)
 
@@ -649,7 +638,6 @@ const fetchAndFilterThirdData = async () => {
     const NDFPredictions = parsedData.NDFPredictions || [];
 
     // Convert to Fahrenheit
-<<<<<<< HEAD
     // and round to 1 decimal place
     const toFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
     const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
@@ -658,15 +646,6 @@ const fetchAndFilterThirdData = async () => {
     const seventyfifthPercentilesFahrenheit = seventyfifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const upperBoundsFahrenheit = upperBounds.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const NDFPredictionsFahrenheit = NDFPredictions.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
-=======
-    const toFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
-    const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const twentyfifthPercentilesFahrenheit = twentyfifthPercentiles.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const mediansFahrenheit = medians.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const seventyfifthPercentilesFahrenheit = seventyfifthPercentiles.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const upperBoundsFahrenheit = upperBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const NDFPredictionsFahrenheit = NDFPredictions.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
->>>>>>> cf578de878ff980aba651f6a6b6c6f8ec5c2419a
 
     // combine data into a single series for highcharts
     const boxplotData = lowerBoundsFahrenheit.map((point, index) => {
@@ -679,18 +658,13 @@ const fetchAndFilterThirdData = async () => {
       return [dateIndex, lowerBound, twentyfifthPercentile, median, seventyfifthPercentile, upperBound];
     });
 
-<<<<<<< HEAD
     // log the data to the console after converting to Fahrenheit and 1 decimal place
     console.log("Box Plot Data converted to Fahrenheit rounded to 1 decimal:", boxplotData);
-
-=======
->>>>>>> cf578de878ff980aba651f6a6b6c6f8ec5c2419a
     thirdChartOptions.value.series = [
       {
         name: "Box Plot Air Temperature Predictions",
         data: boxplotData,
         type: "boxplot",
-<<<<<<< HEAD
         color: Highcharts.getOptions().colors[0],
       },
       {
@@ -713,14 +687,6 @@ const fetchAndFilterThirdData = async () => {
         },
       }
     ]
-=======
-        color: "blue",
-      }
-    ]
-
-    
-
->>>>>>> cf578de878ff980aba651f6a6b6c6f8ec5c2419a
   }
   catch (error) {
     console.error("Error fetching or processing third data:", error);
@@ -941,13 +907,8 @@ onUnmounted(() => {
             <ul v-if="isExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
               <li>
                 <a 
-<<<<<<< HEAD
                   :href="csvURL"
                   download="TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
-=======
-                  :href="csvURL2"
-                  download="TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
->>>>>>> cf578de878ff980aba651f6a6b6c6f8ec5c2419a
                   class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
                   Download CSV
                 </a>
@@ -1054,11 +1015,7 @@ onUnmounted(() => {
               <li>
                 <a 
                   :href="csvURL3"
-<<<<<<< HEAD
                   download="TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs.csv"
-=======
-                  download="Water-Temperature-Forecasts.csv"
->>>>>>> cf578de878ff980aba651f6a6b6c6f8ec5c2419a
                   class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
                   Download CSV
                 </a>
