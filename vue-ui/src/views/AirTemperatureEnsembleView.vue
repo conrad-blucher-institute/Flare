@@ -660,7 +660,6 @@ const fetchAndFilterThirdData = async () => {
 
     // log the data to the console after converting to Fahrenheit and 1 decimal place
     console.log("Box Plot Data converted to Fahrenheit rounded to 1 decimal:", boxplotData);
-
     thirdChartOptions.value.series = [
       {
         name: "Box Plot Air Temperature Predictions",
