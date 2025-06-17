@@ -2,7 +2,7 @@
 #test_Percentile.py
 #-------------------------------
 # Created By: Christian Quintero, Jeremiah Sosa
-# Last Updated: 06/08/2025
+# Last Updated: 06/17/2025
 #----------------------------------
 """
 This file tests the Percentile PPC by comparing computed
@@ -91,10 +91,10 @@ def test_percentile_values(percentile, expected_percentile_values, output_key):
 
     # assign the expected values to the expected data frame
     expected_df = base_df.copy()
-    expected_df[f"{output_key} Value"] = expected_percentile_values
+    expected_df[f"{output_key}"] = expected_percentile_values
 
     # ensure that the new column was made correctly 
-    assert f"{output_key} Value" in result_df.columns
+    assert f"{output_key}" in result_df.columns
 
     # compare the result to the expected value
     assert_frame_equal(result_df.reset_index(drop=True), expected_df.reset_index(drop=True), atol=1e-5)
