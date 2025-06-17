@@ -94,7 +94,7 @@ class Percentile(IPostProcessing):
             
            
         # add the percentile value column using .apply on each list of values
-        df[f"{output_col_key} Value"] = df[col_key].apply(calc_percentile)
+        df[f"{output_col_key}"] = df[col_key].apply(calc_percentile)
 
         # return the data frame with the added column
         return df
