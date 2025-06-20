@@ -8,9 +8,9 @@
                   - Instructions for interacting with the chart.
                   - Information on the data of the chart.
                   - Additional links
-     Author: Anointiyae Beasley and Savannah Stephenson
+     Author: Anointiyae Beasley, Savannah Stephenson, Christian Quintero
 
-     Date: 04/03/2025
+     Last Updated: 06/17/2025
 
 ======================================================= -->
 <script setup>
@@ -327,12 +327,12 @@ const buildSecondChart = (isSmallScreen) => {
         this.points.forEach(line => {
           if (line.series.name === "Bounds") {
             displayInfo += `
-              <span style="color:${line.color}">\u25CF</span> Upper Bounds: <b>${line.high.toFixed(2)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Lower Bounds: <b>${line.low.toFixed(2)}°F</b><br>`;
+              <span style="color:${line.color}">\u25CF</span> 95th Percentile: <b>${line.high.toFixed(1)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> 5th Percentile: <b>${line.low.toFixed(1)}°F</b><br>`;
           }
           else
           displayInfo += `
-            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(2)}°F</b><br>`;
+            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(1)}°F</b><br>`;
           
         });
         return `<b>Date: ${localDate.toLocaleDateString("en-US", {
@@ -371,7 +371,7 @@ const buildThirdChart = (isSmallScreen) => {
       marginRight: 30
     },
     title: {
-      text: "Box Plot for Air Temperature Predictions from The Weather Company and The National Digital Forecast Database",
+      text: "Box Plots for Air Temperature Predictions from The Weather Company and The National Digital Forecast Database",
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
@@ -382,7 +382,15 @@ const buildThirdChart = (isSmallScreen) => {
       enabled: true,
     },
     legend: {
-      enabled: false
+      enabled: true,
+      align: 'center',
+      verticalAlign: 'bottom',
+      layout: 'horizontal',
+      itemStyle: {
+        color: "#0f4f66",
+        fontWeight: 'normal',
+        fontSize: isSmallScreen ? "12px" : "14px"
+      }
     },
     xAxis: {
       type: "datetime",
@@ -436,6 +444,49 @@ const buildThirdChart = (isSmallScreen) => {
       tickInterval: 5, // Major ticks every 5 units
     },
     series: [], // Placeholder for data, dynamically updated
+    tooltip: {
+      shared: true,
+      crosshairs: true,
+      formatter: function () {
+        const localDate = new Date(this.x); 
+        // Dynamically creating the tooltip based on what series are present
+        // Bounds are a special case since they are a range
+        var displayInfo = ``;
+        this.points.forEach(line => {
+          if (line.series.name === "Box Plot Air Temperature Predictions") {
+            displayInfo += `
+              <span style="color:${line.color}">\u25CF</span> Maximum: <b>${line.high.toFixed(1)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Upper Quartile: <b>${line.q3.toFixed(1)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Median: <b>${line.median.toFixed(1)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Lower Quartile: <b>${line.q1.toFixed(1)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> Minimum: <b>${line.low.toFixed(1)}°F</b><br>`;
+          }
+          else
+          displayInfo += `
+            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(1)}°F</b><br>`;
+          
+        });
+        return `<b>Date: ${localDate.toLocaleDateString("en-US", {
+                    weekday: "long",
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                })}</b><br>
+                <b>Time: ${localDate.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                })}</b><br>
+                ${displayInfo}`;
+                
+                
+      },
+      style: {
+        fontSize: isSmallScreen ? "12px" : "14px", 
+        padding: isSmallScreen ? "5px" : "8px", 
+        color: "#0f4f66",
+        fontFamily: "Arial",
+      },
+    },
   }
 } // end buildThirdChart (box plot graph)
 
@@ -504,37 +555,38 @@ const fetchAndFilterSecondData = async () => {
     console.log("Parsed Temperature Data:", parsedData);
 
     // Ensure parsed arrays are initialized
+    const fifthPercentiles = parsedData.fifthPercentiles || [];
     const medians = parsedData.medians || [];
-    const lowerBounds = parsedData.lowerBounds || [];
-    const upperBounds = parsedData.upperBounds || [];
+    const ninetyfifthPercentiles = parsedData.ninetyfifthPercentiles || [];
     const NDFPredictions = parsedData.NDFPredictions || [];
 
     // Convert to Fahrenheit
+    // and round to 1 decimal
     const toFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
-    const mediansFahrenheit = medians.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const upperBoundsFahrenheit = upperBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const NDFPredictionsFahrenheit = NDFPredictions.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const fifthPercentilesFahrenheit = fifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const mediansFahrenheit = medians.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const ninetyfifthPercentilesFahrenheit = ninetyfifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const NDFPredictionsFahrenheit = NDFPredictions.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
 
+  
     // Combine lower and upper bounds into a single series for Highcharts
-    const boundsFahrenheit = lowerBoundsFahrenheit.map((point, index) => {
+    // boundsFahrenheit now shows 5th and 95th percentiles rather than min and max
+    const boundsFahrenheit = fifthPercentilesFahrenheit.map((point, index) => {
       const dateIndex = point[0];
-      const lowerBound = lowerBoundsFahrenheit[index][1];
-      const upperBound = upperBoundsFahrenheit[index][1];
-      return [dateIndex, upperBound, lowerBound];
+      const fifthPercentile = fifthPercentilesFahrenheit[index][1];
+      const ninetyfifthPercentile = ninetyfifthPercentilesFahrenheit[index][1];
+      return [dateIndex, fifthPercentile, ninetyfifthPercentile];
     });
+
+    // log to console after rounding to 1 decimal
+    // this logs the date, 5th Percentile, and 95th Percentile
+    console.log("Bounds Data converted to Fahrenheit rounded to 1 decimal:", boundsFahrenheit);
+
 
     // Update chart series with filtered data
     secondChartOptions.value.series = [
-      {
-        name: "Median Air Temperature Predictions",
-        data: mediansFahrenheit,
-        type: "line",
-        color: "blue",
-        lineWidth: state.isSmallScreen ? 2 : 4,
-        zIndex: 1, // Ensure this is above the bounds
-        marker: { enabled: false },
-      },
+      // show the 5th-95th percentiles first in the tooltip
+      // then the median, then NDFD predictions
       {
         name: "Bounds",
         data: boundsFahrenheit,
@@ -543,6 +595,15 @@ const fetchAndFilterSecondData = async () => {
         color: Highcharts.getOptions().colors[0],
         fillOpacity: 0.3,
         zIndex: 0, // Ensure this is below the mean line
+        marker: { enabled: false },
+      },
+      {
+        name: "Median Air Temperature Predictions",
+        data: mediansFahrenheit,
+        type: "line",
+        color: "blue",
+        lineWidth: state.isSmallScreen ? 2 : 4,
+        zIndex: 1, // Ensure this is above the bounds
         marker: { enabled: false },
       },
       {
@@ -587,13 +648,14 @@ const fetchAndFilterThirdData = async () => {
     const NDFPredictions = parsedData.NDFPredictions || [];
 
     // Convert to Fahrenheit
+    // and round to 1 decimal place
     const toFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
-    const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const twentyfifthPercentilesFahrenheit = twentyfifthPercentiles.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const mediansFahrenheit = medians.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const seventyfifthPercentilesFahrenheit = seventyfifthPercentiles.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const upperBoundsFahrenheit = upperBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const NDFPredictionsFahrenheit = NDFPredictions.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const twentyfifthPercentilesFahrenheit = twentyfifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const mediansFahrenheit = medians.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const seventyfifthPercentilesFahrenheit = seventyfifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const upperBoundsFahrenheit = upperBounds.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const NDFPredictionsFahrenheit = NDFPredictions.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
 
     // combine data into a single series for highcharts
     const boxplotData = lowerBoundsFahrenheit.map((point, index) => {
@@ -606,17 +668,36 @@ const fetchAndFilterThirdData = async () => {
       return [dateIndex, lowerBound, twentyfifthPercentile, median, seventyfifthPercentile, upperBound];
     });
 
+    // log the data to the console after converting to Fahrenheit and 1 decimal place
+    console.log("Box Plot Data converted to Fahrenheit rounded to 1 decimal:", boxplotData);
+
     thirdChartOptions.value.series = [
       {
         name: "Box Plot Air Temperature Predictions",
         data: boxplotData,
         type: "boxplot",
+        color: Highcharts.getOptions().colors[0],
+      },
+      {
+        name: "Median Air Temperature Predictions",
+        data: mediansFahrenheit,
+        type: "line",
         color: "blue",
+        zIndex: 1,                                    // Ensure this line is above the box plot 
+        marker: { enabled: false },
+      },
+      {
+        name: "NDFD Air Temperature Predictions",
+        data: NDFPredictionsFahrenheit,
+        type: "line",
+        color: "purple",
+        lineWidth: state.isSmallScreen ? 2 : 4,
+        marker: {
+          enabled: false,
+          radius: state.isSmallScreen ? 1 : 2,
+        },
       }
     ]
-
-    
-
   }
   catch (error) {
     console.error("Error fetching or processing third data:", error);
@@ -687,16 +768,16 @@ const parseCSV = (csvText) => {
 const parseSecondCSV = (csvText) => {
   const rows = csvText.split("\n").map((row) => row.split(","));
 
+  const fifthPercentiles = [];
   const medians = [];
-  const lowerBounds = [];
-  const upperBounds = [];
+  const ninetyfifthPercentiles = [];
   const NDFPredictions = [];
 
   rows.forEach((row, index) => {
     // Skip the header row
     if (index === 0) return;
 
-    const [timestamp, median, lowerBound, upperBound, ndfdPrediction] = row;
+    const [timestamp, fifthPercentile, median, ninetyfifthPercentile, ndfdPrediction] = row;
 
     // Parse timestamp as UTC
     const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
@@ -707,14 +788,48 @@ const parseSecondCSV = (csvText) => {
     const localDate = new Date(localTimestamp);
 
     if (!isNaN(localDate)) {
+      fifthPercentiles.push([localDate.getTime(), +fifthPercentile]);
       medians.push([localDate.getTime(), +median]);
-      lowerBounds.push([localDate.getTime(), +lowerBound]);
-      upperBounds.push([localDate.getTime(), +upperBound]);
+      ninetyfifthPercentiles.push([localDate.getTime(), +ninetyfifthPercentile]);
       NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
     }
   });
 
-  return {medians, lowerBounds, upperBounds, NDFPredictions};
+  // trim repeated trailing values in NDFDPredictions
+  // begin by validating the length of the array
+  if (NDFPredictions.length > 2) {
+    
+    // start at the last value of the array
+    let end = NDFPredictions.length - 1;
+
+    // check if the last value is NaN, if it is, then we will skip until 
+    // we fine a final value that is not NaN
+    while (end > 0 && isNaN(NDFPredictions[end][1])) {
+      end--;
+    }
+    // now, "end" is pointing to the last valid value in the array
+
+    // Check how many identical values there are at the end
+    let duplicateValue = NDFPredictions[end][1];
+    let start = end;
+
+    // move "start" towards the middle of the array (moving right to left)
+    // until we find a value that is not equal to the duplicate value or until 
+    // we reach the beginning of the array when start == 0
+    while (start > 0 && NDFPredictions[start - 1][1] === duplicateValue) {
+      start--;
+    }
+    // now, "start" is somewhere in the middle of the array
+    // pointing to the first instance of the duplicate value
+
+    // Set all but the first of the trailing duplicates to NaN
+    for (let i = start + 1; i <= end; i++) {
+      NDFPredictions[i][1] = NaN;
+    }
+
+  } // end if (NDFPredictions.length > 2)
+
+  return {fifthPercentiles, medians, ninetyfifthPercentiles, NDFPredictions};
 }; // end parseSecondCSV
 
 const parseThirdCSV = (csvText) => {
@@ -837,8 +952,8 @@ onUnmounted(() => {
             <ul v-if="isExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
               <li>
                 <a 
-                  :href="csvURL2"
-                  download="TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
+                  :href="csvURL"
+                  download="TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
                   class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
                   Download CSV
                 </a>
@@ -890,8 +1005,8 @@ onUnmounted(() => {
             <ul v-if="isSecondExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
               <li>
                 <a 
-                  :href="secondCsvURL"
-                  download="Water-Temperature-Forecasts.csv"
+                  :href="csvURL2"
+                  download="TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
                   class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
                   Download CSV
                 </a>
@@ -945,7 +1060,7 @@ onUnmounted(() => {
               <li>
                 <a 
                   :href="csvURL3"
-                  download="Water-Temperature-Forecasts.csv"
+                  download="TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs.csv"
                   class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
                   Download CSV
                 </a>
