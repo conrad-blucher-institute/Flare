@@ -795,6 +795,40 @@ const parseSecondCSV = (csvText) => {
     }
   });
 
+  // trim repeated trailing values in NDFDPredictions
+  // begin by validating the length of the array
+  if (NDFPredictions.length > 2) {
+    
+    // start at the last value of the array
+    let end = NDFPredictions.length - 1;
+
+    // check if the last value is NaN, if it is, then we will skip until 
+    // we fine a final value that is not NaN
+    while (end > 0 && isNaN(NDFPredictions[end][1])) {
+      end--;
+    }
+    // now, "end" is pointing to the last valid value in the array
+
+    // Check how many identical values there are at the end
+    let duplicateValue = NDFPredictions[end][1];
+    let start = end;
+
+    // move "start" towards the middle of the array (moving right to left)
+    // until we find a value that is not equal to the duplicate value or until 
+    // we reach the beginning of the array when start == 0
+    while (start > 0 && NDFPredictions[start - 1][1] === duplicateValue) {
+      start--;
+    }
+    // now, "start" is somewhere in the middle of the array
+    // pointing to the first instance of the duplicate value
+
+    // Set all but the first of the trailing duplicates to NaN
+    for (let i = start + 1; i <= end; i++) {
+      NDFPredictions[i][1] = NaN;
+    }
+
+  } // end if (NDFPredictions.length > 2)
+
   return {fifthPercentiles, medians, ninetyfifthPercentiles, NDFPredictions};
 }; // end parseSecondCSV
 
