@@ -10,7 +10,7 @@
                   - Additional links
      Author: Anointiyae Beasley, Savannah Stephenson, Christian Quintero
 
-     Last Updated: 06/17/2025
+     Last Updated: 06/23/2025
 
 ======================================================= -->
 <script setup>
@@ -450,7 +450,7 @@ const buildThirdChart = (isSmallScreen) => {
       formatter: function () {
         const localDate = new Date(this.x); 
         // Dynamically creating the tooltip based on what series are present
-        // Bounds are a special case since they are a range
+        // Box Plot is a special case since they have multiple values
         var displayInfo = ``;
         this.points.forEach(line => {
           if (line.series.name === "Box Plot Air Temperature Predictions") {
@@ -585,8 +585,15 @@ const fetchAndFilterSecondData = async () => {
 
     // Update chart series with filtered data
     secondChartOptions.value.series = [
-      // show the 5th-95th percentiles first in the tooltip
-      // then the median, then NDFD predictions
+      {
+        name: "Median Air Temperature Predictions",
+        data: mediansFahrenheit,
+        type: "line",
+        color: "blue",
+        lineWidth: state.isSmallScreen ? 2 : 4,
+        zIndex: 1, // Ensure this is in front of the bounds
+        marker: { enabled: false },
+      },
       {
         name: "Bounds",
         data: boundsFahrenheit,
@@ -594,16 +601,7 @@ const fetchAndFilterSecondData = async () => {
         lineWidth: 0, // No line for bounds
         color: Highcharts.getOptions().colors[0],
         fillOpacity: 0.3,
-        zIndex: 0, // Ensure this is below the mean line
-        marker: { enabled: false },
-      },
-      {
-        name: "Median Air Temperature Predictions",
-        data: mediansFahrenheit,
-        type: "line",
-        color: "blue",
-        lineWidth: state.isSmallScreen ? 2 : 4,
-        zIndex: 1, // Ensure this is above the bounds
+        zIndex: 0, // Ensure this is behind the mean line
         marker: { enabled: false },
       },
       {
@@ -649,7 +647,7 @@ const fetchAndFilterThirdData = async () => {
 
     // Convert to Fahrenheit
     // and round to 1 decimal place
-    const toFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
+    const toFahrenheit = (celsius) => (celsius * 9/5) + 32;
     const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const twentyfifthPercentilesFahrenheit = twentyfifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const mediansFahrenheit = medians.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
@@ -668,9 +666,6 @@ const fetchAndFilterThirdData = async () => {
       return [dateIndex, lowerBound, twentyfifthPercentile, median, seventyfifthPercentile, upperBound];
     });
 
-    // log the data to the console after converting to Fahrenheit and 1 decimal place
-    console.log("Box Plot Data converted to Fahrenheit rounded to 1 decimal:", boxplotData);
-
     thirdChartOptions.value.series = [
       {
         name: "Box Plot Air Temperature Predictions",
@@ -683,7 +678,7 @@ const fetchAndFilterThirdData = async () => {
         data: mediansFahrenheit,
         type: "line",
         color: "blue",
-        zIndex: 1,                                    // Ensure this line is above the box plot 
+        zIndex: 1,                                    // Ensure this line is in front of the box plot
         marker: { enabled: false },
       },
       {
@@ -691,6 +686,7 @@ const fetchAndFilterThirdData = async () => {
         data: NDFPredictionsFahrenheit,
         type: "line",
         color: "purple",
+        zIndex: 1,                                    // Ensure this line is in front of the box plot   
         lineWidth: state.isSmallScreen ? 2 : 4,
         marker: {
           enabled: false,
