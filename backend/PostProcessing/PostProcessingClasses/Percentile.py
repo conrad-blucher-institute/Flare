@@ -2,7 +2,7 @@
 # Percentile.py
 # -------------------------------
 # Created By : Christian Quintero, Jeremiah Sosa
-# Last Updated : 06/08/2025
+# Last Updated : 06/17/2025
 # -------------------------------
 """
 This file is a postprocessing class under the IPostProcessing interface.
@@ -94,7 +94,7 @@ class Percentile(IPostProcessing):
             
            
         # add the percentile value column using .apply on each list of values
-        df[f"{output_col_key} Value"] = df[col_key].apply(calc_percentile)
+        df[f"{output_col_key}"] = df[col_key].apply(calc_percentile)
 
         # return the data frame with the added column
         return df
