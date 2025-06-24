@@ -28,9 +28,13 @@ const state = reactive({
 // spaghetti graph
 // ribbon graph
 // box plot graph
-const csvURL = ref(`${window.location.origin}/flare/csv-data/TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
-const csvURL2 = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
-const csvURL3 = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs.csv`);
+//const csvURL = ref(`${window.location.origin}/flare/csv-data/TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
+//const csvURL2 = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
+//const csvURL3 = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs.csv`);
+
+const csvURL = ref(`http://localhost:8080/flare/csv-data/TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
+const csvURL2 = ref(`http://localhost:8080/flare/csv-data/TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
+const csvURL3 = ref(`http://localhost:8080/flare/csv-data/TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs.csv`);
 
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
@@ -371,7 +375,7 @@ const buildThirdChart = (isSmallScreen) => {
       marginRight: 30
     },
     title: {
-      text: "Box Plots for Air Temperature Predictions from The Weather Company and The National Digital Forecast Database",
+      text: "Box Plot for Air Temperature Predictions from The Weather Company and The National Digital Forecast Database",
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
@@ -562,7 +566,7 @@ const fetchAndFilterSecondData = async () => {
 
     // Convert to Fahrenheit
     // and round to 1 decimal
-    const toFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
+    const toFahrenheit = (celsius) => (celsius * 9/5) + 32;
     const fifthPercentilesFahrenheit = fifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const mediansFahrenheit = medians.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const ninetyfifthPercentilesFahrenheit = ninetyfifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
@@ -577,11 +581,6 @@ const fetchAndFilterSecondData = async () => {
       const ninetyfifthPercentile = ninetyfifthPercentilesFahrenheit[index][1];
       return [dateIndex, fifthPercentile, ninetyfifthPercentile];
     });
-
-    // log to console after rounding to 1 decimal
-    // this logs the date, 5th Percentile, and 95th Percentile
-    console.log("Bounds Data converted to Fahrenheit rounded to 1 decimal:", boundsFahrenheit);
-
 
     // Update chart series with filtered data
     secondChartOptions.value.series = [
@@ -790,40 +789,6 @@ const parseSecondCSV = (csvText) => {
       NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
     }
   });
-
-  // trim repeated trailing values in NDFDPredictions
-  // begin by validating the length of the array
-  if (NDFPredictions.length > 2) {
-    
-    // start at the last value of the array
-    let end = NDFPredictions.length - 1;
-
-    // check if the last value is NaN, if it is, then we will skip until 
-    // we fine a final value that is not NaN
-    while (end > 0 && isNaN(NDFPredictions[end][1])) {
-      end--;
-    }
-    // now, "end" is pointing to the last valid value in the array
-
-    // Check how many identical values there are at the end
-    let duplicateValue = NDFPredictions[end][1];
-    let start = end;
-
-    // move "start" towards the middle of the array (moving right to left)
-    // until we find a value that is not equal to the duplicate value or until 
-    // we reach the beginning of the array when start == 0
-    while (start > 0 && NDFPredictions[start - 1][1] === duplicateValue) {
-      start--;
-    }
-    // now, "start" is somewhere in the middle of the array
-    // pointing to the first instance of the duplicate value
-
-    // Set all but the first of the trailing duplicates to NaN
-    for (let i = start + 1; i <= end; i++) {
-      NDFPredictions[i][1] = NaN;
-    }
-
-  } // end if (NDFPredictions.length > 2)
 
   return {fifthPercentiles, medians, ninetyfifthPercentiles, NDFPredictions};
 }; // end parseSecondCSV
