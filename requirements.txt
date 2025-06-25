@@ -1,2 +1,15 @@
-pandas >= 2.2.3
-pytest >= 8.3.3
+# Core dependencies
+pandas>=2.2.3
+numpy>=2.0.0
+python-dateutil>=2.9.0
+
+# Testing dependencies
+pytest>=8.3.3
+pytest-cov>=5.0.0
+
+# Additional dependencies that pandas requires
+pytz>=2024.2
+six>=1.16.0
+
+# For handling timezones properly
+tzdata>=2024.2

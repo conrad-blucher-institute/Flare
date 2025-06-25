@@ -234,12 +234,12 @@ const buildChart = (isSmallScreen) => {
         this.points.forEach(line => {
           if (line.series.name === "Bounds") {
             displayInfo += `
-              <span style="color:${line.color}">\u25CF</span> Upper Bounds: <b>${line.high.toFixed(2)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Lower Bounds: <b>${line.low.toFixed(2)}°F</b><br>`;
+              <span style="color:${line.color}">\u25CF</span> 95th Percentile: <b>${line.low.toFixed(1)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> 5th Percentile: <b>${line.high.toFixed(1)}°F</b><br>`;
           }
           else
           displayInfo += `
-            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(2)}°F</b><br>`;
+            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(1)}°F</b><br>`;
           
         });
         return `<b>Date: ${localDate.toLocaleDateString("en-US", {
@@ -289,12 +289,12 @@ const fetchAndFilterData = async () => {
 
     // Convert all data to Fahrenheit
     const toFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
-    const meanFahrenheit = mean.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const upperBoundsFahrenheit = upperBounds.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const pastWaterTempsFahrenheit = pastWaterTemps.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const pastAirTempsFahrenheit = pastAirTemps.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
-    const forecastAirTempsFahrenheit = forecastAirTemps.map(([time, celsius]) => [time, toFahrenheit(celsius)]);
+    const meanFahrenheit = mean.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const upperBoundsFahrenheit = upperBounds.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const pastWaterTempsFahrenheit = pastWaterTemps.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const pastAirTempsFahrenheit = pastAirTemps.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const forecastAirTempsFahrenheit = forecastAirTemps.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
 
     
     const filterNonInterpolated = (data, hourFilter) => {
@@ -325,7 +325,7 @@ const fetchAndFilterData = async () => {
         data: meanFahrenheit,
         color: "black",
         dashStyle: "Dash",
-        lineWidth: isSmallScreen ? 2 : 4,
+        lineWidth: isSmallScreen ? 1.9 : 2.5,
         zIndex: 1, // Ensure this is above the bounds
         marker: { enabled: false },
       },
@@ -334,8 +334,8 @@ const fetchAndFilterData = async () => {
         data: boundsFahrenheit,
         type: 'arearange',
         linkedTo: "Water Temperature Predictions",
-        lineWidth: 0, // No line for bounds
-        color: Highcharts.getOptions().colors[0],
+        lineWidth: 1.9, // No line for bounds
+        color: "#00a0ff",
         fillOpacity: 0.3,
         zIndex: 0, // Ensure this is below the mean line
         marker: { enabled: false },
@@ -344,14 +344,14 @@ const fetchAndFilterData = async () => {
         name: "Water Temperature Measurements",
         data: pastWaterTempsFahrenheit,
         color: "black",
-        lineWidth: isSmallScreen ? 2 : 4,
+        lineWidth: isSmallScreen ? 1.9 : 2.5,
         marker: { enabled: false },
       },
       {
         name: "Air Temperature Measurements",
         data: pastAirTempsFahrenheit,
         color: "#73c5da",
-        lineWidth: isSmallScreen ? 2 : 4,
+        lineWidth: isSmallScreen ? 1.9 : 2.5,
         marker: { enabled: false },
       },
       {
@@ -359,7 +359,7 @@ const fetchAndFilterData = async () => {
         data: forecastAirTempsFahrenheit,
         color: "orange",
         dashStyle: "2.5, 2.5", // Shorter dashes
-        lineWidth: isSmallScreen ? 2 : 5,
+        lineWidth: isSmallScreen ? 1.9 : 2.5,
         marker: { enabled: false },
       },
       {
@@ -369,7 +369,7 @@ const fetchAndFilterData = async () => {
         type: "scatter",
         marker: {
           enabled: true,
-          radius: isSmallScreen ? 2 : 4,
+          radius: isSmallScreen ? 1.9 : 2.5,
         },
       },
       {
@@ -379,7 +379,7 @@ const fetchAndFilterData = async () => {
         type: "scatter",
         marker: {
           enabled: true,
-          radius: isSmallScreen ? 2 : 4,
+          radius: isSmallScreen ? 1.9 : 2.5,
         },
       },
     ];
@@ -403,7 +403,17 @@ const parseCSV = (csvText) => {
     // Skip the header row
     if (index === 0) return;
 
-    const [timestamp, mean, lowerBound, upperBound, pastWaterTemp, pastAirTemp, forecastAirTemp] = row;
+    const [
+      timestamp, 
+      median,           // Water Temperature Prediction Median
+      max,              // Water Temperature Prediction Max
+      percentile95,     // Water Temperature Prediction 95th Percentile
+      min,              // Water Temperature Prediction Min
+      percentile5,      // Water Temperature Prediction 5th Percentile
+      pastWaterTemp,    // Water Temperature Measurement
+      pastAirTemp,      // Air Temperature Measurement
+      forecastAirTemp   // Air Temperature Prediction
+    ] = row;
 
     // Parse timestamp as UTC
     const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
@@ -418,14 +428,14 @@ const parseCSV = (csvText) => {
 
     if (!isNaN(localDate)) {
 
-      if (mean && !isNaN(+mean)) {
-        means.push([localDate.getTime(), +mean]);
+      if (median && !isNaN(+median)) {
+        means.push([localDate.getTime(), +median]);
       }
-      if (lowerBound && !isNaN(+lowerBound)) {
-        lowerBounds.push([localDate.getTime(), +lowerBound]);
+      if (percentile5 && !isNaN(+percentile5)) {
+        lowerBounds.push([localDate.getTime(), +percentile5]);
       }
-      if (upperBound && !isNaN(+upperBound)) {
-        upperBounds.push([localDate.getTime(), +upperBound]);
+      if (percentile95 && !isNaN(+percentile95)) {
+        upperBounds.push([localDate.getTime(), +percentile95]);
       }
       if (pastWaterTemp && !isNaN(+pastWaterTemp)) {
         pastWaterTemps.push([localDate.getTime(), +pastWaterTemp]);
@@ -585,8 +595,3 @@ chartOptions.value = reactive(buildChart(isSmallScreen));
       <p class="mt-4 text-sm text-gray-300">&copy; 2024 Flare. All rights reserved.</p>
     </footer>
 </template>
-
-
-
-
-

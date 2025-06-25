@@ -92,6 +92,15 @@
         }
       },
       {
+        "_comment": "Upper bound on graph (95th percentile)",
+        "key": "Percentile",
+        "args": {
+           "col_key": "Water Temperature Prediction",            
+            "percentile": 95,        
+            "output_col_key": "Water Temperature Prediction 95th Percentile"    
+          }
+      },
+      {
         "_comment": "Interpolate from 21 points (on the lead times) to hourly",
         "key": "LinearInterpolation",
         "args": {
@@ -109,6 +118,33 @@
         }
       },
       {
+        "_comment": "Lower bound on graph (5th percentile)",
+        "key": "Percentile",
+        "args": {
+           "col_key": "Water Temperature Prediction",            
+            "percentile": 5,        
+            "output_col_key": "Water Temperature Prediction 5th Percentile"    
+          }
+      },
+      {
+        "_comment": "Interpolate 95th percentile from 21 points (on the lead times) to hourly",
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction 95th Percentile",
+            "interpolation_interval": 3600,
+            "limit": 432000
+        }
+      },
+      {
+        "_comment": "Interpolate 5th percentile from 21 points (on the lead times) to hourly",
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction 5th Percentile",
+            "interpolation_interval": 3600,
+            "limit": 432000
+        }
+      },
+      {
         "_comment": "Interpolate from 21 points (on the lead times) to hourly",
         "key": "LinearInterpolation",
         "args": {
@@ -117,6 +153,7 @@
             "limit": 10800
         }
       },
+      
       {
         "key": "LinearInterpolation",
         "args": {
@@ -131,7 +168,9 @@
       "included_columns": [
         "Water Temperature Prediction Median",
         "Water Temperature Prediction Max",
+        "Water Temperature Prediction 95th Percentile",
         "Water Temperature Prediction Min",
+        "Water Temperature Prediction 5th Percentile",
         "Water Temperature Measurement",
         "Air Temperature Measurement",
         "Air Temperature Prediction"
