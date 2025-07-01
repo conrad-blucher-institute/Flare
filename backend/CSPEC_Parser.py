@@ -15,12 +15,15 @@ from os.path import exists
 from json import load
 from DataClasses import *
 
+from utility import log_error
+
 class CSPEC_Parser:
     def __init__(self, file_path: str) -> None:
 
         if not exists(file_path):
-            print(f'{file_path} not found!')
+            log_error(message=f'{file_path} not found!',chart_name="Name Has Not Been Set Yet",error_type="FileNotFoundError")
             raise FileNotFoundError
+
         with open(file_path) as CSPEC_file:
             
             # Read CSPEC from file and grab version
@@ -34,7 +37,8 @@ class CSPEC_Parser:
             case '1.0.0':
                 sub_parser = CSPEC_sub_Parser_1_0_0(self.__CSPEC_json)
             case _:
-                raise NotImplementedError(f'No parser for CSPEC version {self.__CSPEC_json} found!')
+                log_error(message=f'No parser for CSPEC version {self.__CSPEC_json} found!',chart_name="Name Has Not Been Set Yet",error_type='NotImplementedError')
+                raise NotImplementedError
             
         return sub_parser.parse_CSPEC() 
 

@@ -13,6 +13,7 @@ By the index of the data frame!
 #Imports
 from PostProcessing.IPostProcessing import IPostProcessing
 from pandas import DataFrame
+from utility import log_error, get_current_chart_name
 
 
 class ImmediateArithmeticOperation(IPostProcessing):
@@ -62,7 +63,8 @@ class ImmediateArithmeticOperation(IPostProcessing):
             case 'modulo':
                 data[out_col_key] = data[left_col_key] % value
             case _:
-                raise NotImplementedError(f'ERROR:: {op} not found in ImmediateArithmeticOperation class')
+                log_error(message=f'ERROR:: {op} not found in ImmediateArithmeticOperation class',chart_name=get_current_chart_name(),error_type="NotImplementedError")
+                raise NotImplementedError
 
         return data
 
