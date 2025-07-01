@@ -57,17 +57,79 @@
         "args": {
             "col_name": "Water Temperature Prediction",
             "metrics": "all"
-        }
-      }
-
+          }
+      },
+      {
+        "key": "Percentile",
+        "args": {
+           "col_key": "Water Temperature Prediction",            
+            "percentile": 0,        
+            "output_col_key": "Water Temperature Prediction 0th Percentile"    
+          }
+      },
+      {
+        "key": "Percentile",
+        "args": {
+           "col_key": "Water Temperature Prediction",            
+            "percentile": 5,        
+            "output_col_key": "Water Temperature Prediction 5th Percentile"    
+          }
+      },
+      {
+        "key": "Percentile",
+        "args": {
+           "col_key": "Water Temperature Prediction",            
+            "percentile": 25,        
+            "output_col_key": "Water Temperature Prediction 25th Percentile"    
+          }
+      },
+      {
+        "key": "Percentile",
+        "args": {
+           "col_key": "Water Temperature Prediction",            
+            "percentile": 50,        
+            "output_col_key": "Water Temperature Prediction 50th Percentile"    
+          }
+      },
+      {
+        "key": "Percentile",
+        "args": {
+           "col_key": "Water Temperature Prediction",            
+            "percentile": 75,        
+            "output_col_key": "Water Temperature Prediction 75th Percentile"    
+          }
+      },
+      {
+        "key": "Percentile",
+        "args": {
+           "col_key": "Water Temperature Prediction",            
+            "percentile": 95,        
+            "output_col_key": "Water Temperature Prediction 95th Percentile"    
+          }
+      },
+      {
+        "key": "Percentile",
+        "args": {
+           "col_key": "Water Temperature Prediction",            
+            "percentile": 100,        
+            "output_col_key": "Water Temperature Prediction 100th Percentile"    
+          }
+      }    
     ],
     "csv_config": {
       "csv_name": "ensemble_test.csv",
       "included_columns": [
         "Air Temperature Prediction",
+        "Water Temperature Prediction Min",
+        "Water Temperature Prediction 0th Percentile",
         "Water Temperature Prediction Median",
+        "Water Temperature Prediction 50th Percentile",
         "Water Temperature Prediction Max",
-        "Water Temperature Prediction Min"
+        "Water Temperature Prediction 100th Percentile",
+        "Water Temperature Prediction 5th Percentile",
+        "Water Temperature Prediction 25th Percentile",
+        "Water Temperature Prediction 75th Percentile",
+        "Water Temperature Prediction 95th Percentile"
       ]
     }
   }

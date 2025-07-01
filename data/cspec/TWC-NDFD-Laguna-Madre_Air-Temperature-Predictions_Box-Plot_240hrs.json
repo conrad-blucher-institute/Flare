@@ -1,5 +1,5 @@
 {
-    "chart_name": "TWC_Laguna-Madre_Air-Temperature-Predictions",
+    "chart_name": "TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs",
     "CSPEC_version": "1.0.0",
     "data_requests" : 
     [
@@ -11,7 +11,7 @@
             "series": "pAirTemp",
             "interval": 3600,
             "range": [0, 240]
-         }
+        }
             
       },
       {  "key": "SemaphoreInputs",
@@ -22,7 +22,7 @@
             "series": "pAirTemp",
             "interval": 3600,
             "range": [0, 240]
-         }
+        }
             
       }
     ],
@@ -38,33 +38,35 @@
       {
          "key": "RowStatistics",
          "args": { 
-               "metrics": "median",
+               "metrics": "all",
                "col_name": "TWC Air Temperature Predictions"
-         }
-      },
-      {
-        "key": "Percentile",
-        "args": {
-            "col_key": "TWC Air Temperature Predictions",
-            "percentile": 5,
-            "output_col_key": "TWC Air Temperature Predictions 5th Percentile"
         }
       },
       {
-        "key": "Percentile",
-        "args": {
-            "col_key": "TWC Air Temperature Predictions",
-            "percentile": 95,
-            "output_col_key": "TWC Air Temperature Predictions 95th Percentile"
+            "key": "Percentile",
+            "args": {
+                "col_key": "TWC Air Temperature Predictions",          
+                "percentile": 25,         
+                "output_col_key": "TWC Air Temperature Predictions 25th Percentile"     
+            }
+        },
+        {
+            "key": "Percentile",
+            "args": {
+                "col_key": "TWC Air Temperature Predictions",          
+                "percentile": 75,         
+                "output_col_key": "TWC Air Temperature Predictions 75th Percentile"     
+            }
         }
-      }
     ],
     "csv_config": {
-      "csv_name": "TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv",
+      "csv_name": "TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs.csv",
       "included_columns": [
-        "TWC Air Temperature Predictions 5th Percentile",
+        "TWC Air Temperature Predictions Min",
+        "TWC Air Temperature Predictions 25th Percentile",
         "TWC Air Temperature Predictions Median",
-        "TWC Air Temperature Predictions 95th Percentile",
+        "TWC Air Temperature Predictions 75th Percentile",
+        "TWC Air Temperature Predictions Max",
         "NDFD Air Temperature Predictions"
       ]
     }
