@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#ImmediateArithmeticOperation.py
+#LinearInterpolation.py
 #-------------------------------
 # Created By : Matthew Kastl
 #-------------------------------
