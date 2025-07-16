@@ -66,25 +66,26 @@
         }
     ],
     "post_processing" : [
-      { 
-        "_comment": "Median line on graph",
-        "key": "RowStatistics",
-        "args": { 
-            "metrics": "median",
-            "col_name": "Water Temperature Prediction"
-        }
-      },
       {
-        "_comment": "Interpolate from 21 points (on the lead times) to hourly",
-        "key": "LinearInterpolation",
+        "_comment": "Calculates 95th percentile for each of the 21 lead times",
+        "key": "Percentile",
         "args": {
-            "col_name": "Water Temperature Prediction Median",
-            "interpolation_interval": 3600,
-            "limit": 10800
+           "col_key": "Water Temperature Prediction",            
+           "percentile": 95,        
+           "output_col_key": "Water Temperature Prediction 95th Percentile"    
         }
       },
       {
-        "_comment": "Upper bound on graph",
+        "_comment": "Calculates 5th percentile for each of the 21 lead times",
+        "key": "Percentile",
+        "args": {
+           "col_key": "Water Temperature Prediction",            
+           "percentile": 5,        
+           "output_col_key": "Water Temperature Prediction 5th Percentile"    
+        }
+      },
+      {
+        "_comment": "Calculates max statistic",
         "key": "RowStatistics",
         "args": { 
             "metrics": "max",
@@ -92,16 +93,41 @@
         }
       },
       {
-        "_comment": "Upper bound on graph (95th percentile)",
-        "key": "Percentile",
-        "args": {
-           "col_key": "Water Temperature Prediction",            
-            "percentile": 95,        
-            "output_col_key": "Water Temperature Prediction 95th Percentile"    
-          }
+        "_comment": "Calculates min statistic",
+        "key": "RowStatistics",
+        "args": { 
+            "metrics": "min",
+            "col_name": "Water Temperature Prediction"
+        }
+      },
+      { 
+        "_comment": "Calculates median statistic - this is the main prediction line",
+        "key": "RowStatistics",
+        "args": { 
+            "metrics": "median",
+            "col_name": "Water Temperature Prediction"
+        }
       },
       {
-        "_comment": "Interpolate from 21 points (on the lead times) to hourly",
+        "_comment": "Interpolates 95th percentile - From the 21 percentile values (taken from lead times)",
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction 95th Percentile",
+            "interpolation_interval": 3600,
+            "limit": 10800
+        }
+      },
+      {
+        "_comment": "Interpolates 5th percentile - From the 21 percentile values (taken from lead times)",
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction 5th Percentile",
+            "interpolation_interval": 3600,
+            "limit": 10800
+        }
+      },
+      {
+        "_comment": "Interpolates max values",
         "key": "LinearInterpolation",
         "args": {
             "col_name": "Water Temperature Prediction Max",
@@ -110,42 +136,7 @@
         }
       },
       {
-        "_comment": "Lower bound on graph",
-        "key": "RowStatistics",
-        "args": { 
-            "metrics": "min",
-            "col_name": "Water Temperature Prediction"
-        }
-      },
-      {
-        "_comment": "Lower bound on graph (5th percentile)",
-        "key": "Percentile",
-        "args": {
-           "col_key": "Water Temperature Prediction",            
-            "percentile": 5,        
-            "output_col_key": "Water Temperature Prediction 5th Percentile"    
-          }
-      },
-      {
-        "_comment": "Interpolate 95th percentile from 21 points (on the lead times) to hourly",
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction 95th Percentile",
-            "interpolation_interval": 3600,
-            "limit": 432000
-        }
-      },
-      {
-        "_comment": "Interpolate 5th percentile from 21 points (on the lead times) to hourly",
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction 5th Percentile",
-            "interpolation_interval": 3600,
-            "limit": 432000
-        }
-      },
-      {
-        "_comment": "Interpolate from 21 points (on the lead times) to hourly",
+        "_comment": "Interpolates min values",
         "key": "LinearInterpolation",
         "args": {
             "col_name": "Water Temperature Prediction Min",
@@ -153,8 +144,17 @@
             "limit": 10800
         }
       },
-      
       {
+        "_comment": "Interpolates median values",
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction Median",
+            "interpolation_interval": 3600,
+            "limit": 10800
+        }
+      },
+      {
+        "_comment": "Interpolates air temperature",
         "key": "LinearInterpolation",
         "args": {
             "col_name": "Air Temperature Prediction",

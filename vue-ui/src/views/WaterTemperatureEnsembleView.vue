@@ -358,7 +358,7 @@ const fetchAndFilterData = async () => {
         name: "Interpolated Predicted Air Temperature",
         data: forecastAirTempsFahrenheit,
         color: "orange",
-        dashStyle: "2.5, 2.5", // Shorter dashes
+        dashStyle: "Dash", // Shorter dashes
         lineWidth: isSmallScreen ? 1.9 : 2.5,
         marker: { enabled: false },
       },
