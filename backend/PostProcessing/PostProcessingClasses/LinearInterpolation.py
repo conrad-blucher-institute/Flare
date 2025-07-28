@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 #ImmediateArithmeticOperation.py
 #-------------------------------
-# Created By : Matthew Kastl
+# Created By : Matthew Kastl, Christian Quintero
+#
+# Last Updated: 07/27/2025
 #-------------------------------
 """ The post processing in this file preforms an linear interpolation of a column.
  """ 
@@ -41,30 +43,35 @@ class LinearInterpolation(IPostProcessing):
             }
         },
         """
-        
-        # Isolate the data we are going to interpolate
-        data = df[col_name]
 
-        # The index of the data frame isn't necessarily the correct for the values we want to interpolate for this series. Thus we reindex
-        # the data to the specific interval we want to interpolate on.
+        # Isolate the data we are going to interpolate
+        data = df[col_name].copy()
+
+        # Reindex the data to the specific interval we want to interpolate on
         data = data.reindex(date_range(start=data.index[0], end=data.index[-1], freq=timedelta(seconds=interpolation_interval)))
 
-        # We want to not interpolate if there are too many Nans in a row. However the pandas limit parameter only stops interpolation once its
-        # counted a cumulative sum of Nans higher than limit. Thus it keeps the Nans in that group where the cumulative sum was still < limit.
-        # The forwards cumulative mask looks for where this mistake will happen thus used to overwrite the interpolated values with Nan.
+        # Find consecutive NaN streaks and mark those longer than limit
         nan_mask = data.isna()
-        cumulative_nan_streaks = nan_mask.groupby(~nan_mask).cumsum()
-        forward_cumulative_nan_mask = cumulative_nan_streaks.gt(limit)
-
-        # We do the interpolation backwards because a forwards cumulative mask was easier to write than a backwards one.
-        backwards_interpolation = data.interpolate(method= 'time', limit= limit, limit_area= 'inside', limit_direction= 'backward')
         
-        # Here we repair the mistake by looking at the forward cumulative mask and inserting Nan.
-        backwards_interpolation[forward_cumulative_nan_mask] = np.nan
+        # Create group labels that change each time we switch between NaN/non-NaN
+        group_labels = (nan_mask != nan_mask.shift(1)).cumsum()
+        
+        # Count consecutive NaNs in each group
+        consecutive_nan_counts = nan_mask.groupby(group_labels).transform('sum')
+        
+        # Identify NaN positions that are part of streaks longer than limit
+        long_nan_streak_mask = nan_mask & (consecutive_nan_counts > limit)
+
+        # Perform time-based interpolation on all NaNs
+        interpolated_data = data.interpolate(method='time', limit_area='inside')
+        
+        # Restore NaNs for consecutive streaks that were too long
+        interpolated_data.loc[long_nan_streak_mask] = np.nan
    
-        # Outer join to preserve all data in the dataframe.
-        df.drop(columns=[col_name], inplace=True)
-        df = df.join(backwards_interpolation, how='outer')
+        # Update the original dataframe
+        df = df.drop(columns=[col_name])
+        df = df.join(interpolated_data, how='outer')
+        
         return df
 
 
