@@ -76,10 +76,8 @@ class SemaphoreOutputLatest(IDataIngestion):
                 # Convert all elements to float
                 value = [float(v) for v in value]
             
-            else: 
-                if value is None:
-                    value = nan
-                value = float(value)
+            if value is None:
+                value = nan
             data.append(value)
 
         # Add this to the collation df with an outerjoin to ensure all data is preserved

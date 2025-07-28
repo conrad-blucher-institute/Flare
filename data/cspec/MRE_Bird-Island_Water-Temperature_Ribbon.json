@@ -85,27 +85,11 @@
         }
       },
       {
-        "_comment": "Calculates max statistic",
+        "_comment": "Calculates max, min, and median statistics in one call",
         "key": "RowStatistics",
         "args": { 
-            "metrics": "min",
-            "col_name": "Water Temperature Prediction"
-        }
-      },
-      {
-        "_comment": "Calculates min statistic",
-        "key": "RowStatistics",
-        "args": { 
-            "metrics": "min",
-            "col_name": "Water Temperature Prediction"
-        }
-      },
-      { 
-        "_comment": "Calculates median statistic - this is the main prediction line",
-        "key": "RowStatistics",
-        "args": { 
-            "metrics": "median",
-            "col_name": "Water Temperature Prediction"
+        "metrics": "all",
+        "col_name": "Water Temperature Prediction"
         }
       },
       {

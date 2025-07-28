@@ -234,8 +234,8 @@ const buildChart = (isSmallScreen) => {
         this.points.forEach(line => {
           if (line.series.name === "Bounds") {
             displayInfo += `
-              <span style="color:${line.color}">\u25CF</span> 95th Percentile: <b>${line.low.toFixed(1)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> 5th Percentile: <b>${line.high.toFixed(1)}°F</b><br>`;
+              <span style="color:${line.color}">\u25CF</span> 95th Percentile: <b>${line.high.toFixed(1)}°F</b><br>
+              <span style="color:${line.color}">\u25CF</span> 5th Percentile: <b>${line.low.toFixed(1)}°F</b><br>`;
           }
           else
           displayInfo += `
@@ -309,13 +309,13 @@ const fetchAndFilterData = async () => {
     const WaterTemperatureMarkers = filterNonInterpolated(meanFahrenheit, hoursToFilter);
 
 
-    // For highcharts to do a shaded range, it wants the rage in the format of [date_index, lower_bound, upper_bound]
+    // For highcharts to do a shaded range, it wants the range in the format of [date_index, lower_bound, upper_bound]
     // This just combines the lower and upper bound into one series of the above format
     const boundsFahrenheit = lowerBoundsFahrenheit.map((point, index) => {
       const dateIndex = point[0];
       const lowerBound = lowerBoundsFahrenheit[index][1];
       const upperBound = upperBoundsFahrenheit[index][1];
-      return [dateIndex, upperBound, lowerBound];
+      return [dateIndex, lowerBound, upperBound];
     });
 
     // Update chart series with filtered data
