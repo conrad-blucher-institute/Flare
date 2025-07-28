@@ -10,7 +10,7 @@
                   - Additional links
      Author: Anointiyae Beasley, Savannah Stephenson, Christian Quintero
 
-     Last Updated: 06/23/2025
+     Last Updated: 07/27/2025
 
 ======================================================= -->
 <script setup>
@@ -494,7 +494,7 @@ const buildThirdChart = (isSmallScreen) => {
         lineWidth: 3
       },
       spline: {
-      lineWidth: 3
+      lineWidth: 3,
       },
     },
   }
