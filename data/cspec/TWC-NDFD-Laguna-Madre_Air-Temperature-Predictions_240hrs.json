@@ -21,7 +21,7 @@
             "source": "NDFD_EXP",
             "series": "pAirTemp",
             "interval": 3600,
-            "range": [0, 144]
+            "range": [0, 168]
          }
             
       }
