@@ -7,8 +7,8 @@
                   - Information on the data of the chart.
                   - Additional links
                   - Informative sections about South Bird Island and its environmental significance.
-     Author: Anointiyae Beasley
-     Date: 01/05/2025
+     Author: Anointiyae Beasley, Christian Quintero
+     Last Updated: 08/10/2025
 ======================================================= -->
 <script setup>
 import Highcharts from "highcharts";
@@ -35,8 +35,8 @@ const nowTime = nowDate.getTime();
 
 const chartOptions = ref({});
 
-// Creating a single chart function that changes based on screen size
-const buildChart = (isSmallScreen) => {
+// Creating a single chart function that changes based on screen size, and max value of the data
+const buildChart = (isSmallScreen, overallMax) => {
   return {
     chart: {
       type: "line",
@@ -186,7 +186,7 @@ const buildChart = (isSmallScreen) => {
           fontSize: isSmallScreen ? "12px" : "20px", 
         },
       },
-      max: maxDataValue > 90 ? 100 : 90, // if the max data value is greater than 90, set max to 100, else set to 90
+      max: overallMax > 90 ? 100 : 90, // if the max data value is greater than 90, set max to 100, else set to 90
       min: 20,
       tickInterval: 10, // Add ticks every 10 units
       plotLines: [
@@ -331,7 +331,10 @@ const fetchAndFilterData = async () => {
     ];
 
     // then take the overall max of the max values
-    const overallMax = Math.max(...maxValuesArray)
+    const overallMax = Math.max(...maxValuesArray);
+
+    // Update chart options with the calculated max value
+    chartOptions.value = buildChart(state.isSmallScreen, overallMax);
 
     // Update chart series with filtered data
     chartOptions.value.series = [
