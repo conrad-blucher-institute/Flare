@@ -128,7 +128,7 @@ expected_df1, expected_df2, expected_df3, expected_df4, expected_df5 = create_ex
 
 ])
 def test_interpolation(test_df: DataFrame, expected_df: DataFrame, col_name: str, interpolation_interval: int, limit: int):
-    """Test Linear Interpolation PPC with the first test data frame"""
+    """Test Linear Interpolation PPC with the parametrized test data frames"""
 
     kwargs = {
         "col_name": col_name,                                # col to interpolate

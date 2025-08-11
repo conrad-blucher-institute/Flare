@@ -25,7 +25,7 @@ class LinearInterpolation(IPostProcessing):
             df DataFrame: The DataFrame containing this collation of the data that has been collected.
             col_name: str - The column in the DataFrame to interpolate.
             interpolation_interval: int - The interval to interpolate data on, in seconds.
-            limit: int - The amount of Nan's consecutive NaNs in a row to interpolate.
+            limit: int - The amount of consecutive NaNs in a row to interpolate.
 
         Returns:
             DataFrame : A new dataframe obj might have to be created, this will always be a reference to the most updated version.
