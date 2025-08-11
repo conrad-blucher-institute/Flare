@@ -186,7 +186,7 @@ const buildChart = (isSmallScreen) => {
           fontSize: isSmallScreen ? "12px" : "20px", 
         },
       },
-      max: 90,
+      max: maxDataValue > 90 ? 100 : 90, // if the max data value is greater than 90, set max to 100, else set to 90
       min: 20,
       tickInterval: 10, // Add ticks every 10 units
       plotLines: [
@@ -320,6 +320,19 @@ const fetchAndFilterData = async () => {
       (celsius * 9) / 5 + 32,
     ]);
 
+    // find the max of each data set
+    const maxValuesArray = [
+      Math.max(...WaterMeasurementDataFahrenheit.map(point => point[1])),
+      Math.max(...InterpolatedWaterPredictionDataFahrenheit.map(point => point[1])),
+      Math.max(...AirMeasurementDataFahrenheit.map(point => point[1])),
+      Math.max(...InterpolatedAirPredictionDataFahrenheit.map(point => point[1])),
+      Math.max(...AirPredictionDataFahrenheit.map(point => point[1])),
+      Math.max(...WaterPredictionDataFahrenheit.map(point => point[1]))
+    ];
+
+    // then take the overall max of the max values
+    const overallMax = Math.max(...maxValuesArray)
+
     // Update chart series with filtered data
     chartOptions.value.series = [
       {
@@ -447,6 +460,10 @@ onUnmounted(() => {
   clearInterval(updateInterval);
   window.removeEventListener('resize', handleResize);
 });
+
+
+
+
 </script>
 
 <template>
