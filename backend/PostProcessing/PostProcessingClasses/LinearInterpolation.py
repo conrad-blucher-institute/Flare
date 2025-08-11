@@ -4,7 +4,7 @@
 # Created By: Christian Quintero
 # Last Updated: 08/04/2025
 #-------------------------------
-""" The post processing in this file performs a linear interpolation of a column.
+""" The post processing in this file performs linear interpolation of a column.
  """ 
 #-------------------------------
 # 
