@@ -21,121 +21,145 @@ from numpy import nan
 from datetime import datetime
 from PostProcessing.IPostProcessing import post_process_factory
 
-# This method makes some dummy test data with various lengths and has various NaN streak lengths
-# to be used to test that the interpolation is working as expected.
-def create_test_data():
-    """Create test DataFrames with intentional NaN streaks of various lengths"""
-    
-    # Create a time index
-    index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='1min')
-    
-    # Test case 1: Mixed short and long streaks.
-    data1 = [1.0, nan, nan, nan, 5.0, nan, nan, nan, nan, nan, nan, 12.0, nan, nan, 15.0, 16.0, nan, nan, nan, nan]
+
+"""
+Group 1: This group of tests uses a constant interpolation interval with various limits.
+
+Various gap lenghts means that for that limit, some gaps will be larger than the limit, some will be smaller,
+and some will be exactly equal to the limit.
+
+"""
+
+def create_group1_test_data():
+    """Create test data for group 1."""
+
+    # the index to use for the data frames
+    index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='20s')
+
+    # various gaps, limit of 5
+    # 6 NaNs -> do not interpolate
+    data1 = [1.0, nan, nan, nan, 5.0, nan, nan, nan, nan, nan, nan, 12.0, nan, nan, 15.0, 16.0, 17.0, 18.0, nan, 20.0] 
     df1 = DataFrame({'test_col': data1}, index=index)
-    
-    # Test case 2: Exactly at the limit
-    data2 = [1.0, nan, nan, nan, nan, nan, 7.0, nan, nan, nan, nan, nan, 14.0]
-    index2 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=13, freq='1min')
-    df2 = DataFrame({'test_col': data2}, index=index2)
-    
-    # Test case 3: Single NaN values (should always interpolate)
-    data3 = [1.0, nan, 3.0, nan, 5.0, nan, 7.0]
-    index3 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=7, freq='1min')
-    df3 = DataFrame({'test_col': data3}, index=index3)
-    
-    # Test case 4: NaN streaks at beginning and end (edge cases)
-    data4 = [nan, nan, nan, 4.0, nan, nan, nan, nan, nan, 10.0, nan, nan, nan]
-    index4 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=13, freq='1min')
-    df4 = DataFrame({'test_col': data4}, index=index4)
 
-    # Test case 5: Clear long streak that definitely shouldn't interpolate
-    data5 = [1.0, nan, nan, nan, nan, nan, nan, nan, 9.0] 
-    index5 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=9, freq='1min')
-    df5 = DataFrame({'test_col': data5}, index=index5)
+    # various gaps, limit of 3
+    # 4 NaNs -> do not interpolate
+    data2 = [1.0, 2.0, nan, nan, nan, 6.0, 7.0, 8.0, nan, 10.0, nan, nan, 13.0, 14.0, 15.0, nan, nan, nan, nan, 20.0]
+    df2 = DataFrame({'test_col': data2}, index=index)
 
-    return df1, df2, df3, df4, df5
+    # various gaps, limit of 8
+    # 9 NaNs -> do not interpolate
+    data3 = [1.0, nan, nan, nan, nan, nan, nan, nan, nan, nan, 11.0, nan, nan, nan, nan, nan, nan, nan, nan, 20.0]
+    df3 = DataFrame({'test_col': data3}, index=index)
 
+    # starts with NaNs, limit of 10
+    # 1 NaN -> do not interpolate, no starting value
+    data4 = [nan, 2.0, nan, nan, nan, nan, nan, nan, 9.0, 10.0, nan, nan, 13.0, 14.0, nan, 16.0, 17.0, nan, nan, 20.0]
+    df4 = DataFrame({'test_col': data4}, index=index)
 
-def create_expected_data():
-    """Creates the expected data frames to be compared to the test data"""
+    # ends with NaNs, limit of 2
+    # 2 NaNs -> do not interpolate, no ending value
+    data5 = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, nan, nan, 17.0, 18.0, nan, nan]
+    df5 = DataFrame({'test_col': data5}, index=index)
+
+    # starts and ends with NaNs, limit of 5
+    # 1 NaN -> do not interpolate, no starting value
+    # 2 NaNs -> do not interpolate, no ending value
+    data6 = [nan, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, nan, nan, nan, nan, nan, 13.0, 14.0, 15.0, nan, nan, 18.0, nan, nan]
+    df6 = DataFrame({'test_col': data6}, index=index)
+
+    # no NaNs, limit of 5
+    data7 = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0]
+    df7 = DataFrame({'test_col': data7}, index=index)
+
+    # all NaN gaps > limt, limit of 4
+    # do not interpolate any NaNs
+    data8 = [1.0, nan, nan, nan, nan, nan, 7.0, nan, nan, nan, nan, nan, 13.0, nan, nan, nan, nan, nan, 19.0, 20.0]
+    df8 = DataFrame({'test_col': data8}, index=index)
+
+    return (df1, df2, df3, df4, df5, df6, df7, df8)
     
-    # Create the same time indices as the test data
-    index  = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='1min')
-    index2 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=13, freq='1min')
-    index3 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=7, freq='1min')
-    index4 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=13, freq='1min')
-    index5 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=9, freq='1min')
-    
-    # Expected case 1: Mixed short and long streaks
-    # Original: [1.0, nan, nan, nan, 5.0, nan, nan, nan, nan, nan, nan, 12.0, nan, nan, 15.0, 16.0, nan, nan, nan, nan]
-    # Gap 1: 3 NaNs between 1.0 and 5.0 → interpolate (2.0, 3.0, 4.0)
-    # Gap 2: 6 NaNs between 5.0 and 12.0 → DON'T interpolate (leave as NaN)
-    # Gap 3: 2 NaNs between 12.0 and 15.0 → interpolate (13.0, 14.0)
-    # Gap 4: 4 NaNs at end after 16.0 → leave as NaN (no endpoint to interpolate to)
-    expected_data1 = [1.0, 2.0, 3.0, 4.0, 5.0, nan, nan, nan, nan, nan, nan, 12.0, 13.0, 14.0, 15.0, 16.0, nan, nan, nan, nan]
+
+
+
+def create_group1_expected_data():
+    """Create expected data for group 1."""
+
+    # the index to use for the data frames
+    index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='20s')
+
+    # various gaps, limit of 5
+    # 6 NaNs -> do not interpolate
+    expected_data1 = [1.0, 2.0, 3.0, 4.0, 5.0, nan, nan, nan, nan, nan, nan, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0]
     expected_df1 = DataFrame({'test_col': expected_data1}, index=index)
-    
-    # Expected case 2: Exactly at the limit
-    # Original: [1.0, nan, nan, nan, nan, nan, 7.0, nan, nan, nan, nan, nan, 14.0]
-    # Gap 1: 5 NaNs between 1.0 and 7.0 → interpolate (2.0, 3.0, 4.0, 5.0, 6.0)
-    # Gap 2: 5 NaNs between 7.0 and 14.0 → interpolate 
-    # Step size for gap 2: (14.0 - 7.0) / 6 = 7.0 / 6 ≈ 1.1667
-    # Values: 7 + 1.1667 = 8.1667, 7 + 2*1.1667 = 9.3333, 7 + 3*1.1667 = 10.5, 7 + 4*1.1667 = 11.6667, 7 + 5*1.1667 = 12.8333
-    expected_data2 = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.166666666666666, 9.333333333333334, 10.5, 11.666666666666666, 12.833333333333334, 14.0]
-    expected_df2 = DataFrame({'test_col': expected_data2}, index=index2)
+
+    # various gaps, limit of 3
+    # 4 NaNs -> do not interpolate
+    expected_data2 = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, nan, nan, nan, nan, 20.0]
+    expected_df2 = DataFrame({'test_col': expected_data2}, index=index)
+
+    # various gaps, limit of 8
+    # 9 NaNs -> do not interpolate
+    expected_data3 = [1.0, nan, nan, nan, nan, nan, nan, nan, nan, nan, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0]
+    expected_df3 = DataFrame({'test_col': expected_data3}, index=index)
+
+    # starts with NaNs, limit of 10
+    # 1 NaN -> do not interpolate, no starting value
+    expected_data4 = [nan, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0]
+    expected_df4 = DataFrame({'test_col': expected_data4}, index=index)
+
+    # ends with NaNs, limit of 2
+    # 2 NaNs -> do not interpolate, no ending value
+    expected_data5 = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, nan, nan]
+    expected_df5 = DataFrame({'test_col': expected_data5}, index=index)
+
+    # starts and ends with NaNs, limit of 5
+    # 1 NaN -> do not interpolate, no starting value
+    # 2 NaNs -> do not interpolate, no ending value
+    expected_data6 = [nan, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, nan, nan]
+    expected_df6 = DataFrame({'test_col': expected_data6}, index=index)
+
+    # no NaNs, limit of 5
+    expected_data7 = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0]
+    expected_df7 = DataFrame({'test_col': expected_data7}, index=index)
+
+    # all NaN gaps > limt, limit of 4
+    # do not interpolate any NaNs
+    expected_data8 = [1.0, nan, nan, nan, nan, nan, 7.0, nan, nan, nan, nan, nan, 13.0, nan, nan, nan, nan, nan, 19.0, 20.0]
+    expected_df8 = DataFrame({'test_col': expected_data8}, index=index)
+
+    return (expected_df1, expected_df2, expected_df3, expected_df4,
+            expected_df5, expected_df6, expected_df7, expected_df8)
 
 
-    # Expected case 3: Single NaN values (should always interpolate)
-    # Original: [1.0, nan, 3.0, nan, 5.0, nan, 7.0]
-    # All gaps are 1 NaN → interpolate all
-    expected_data3 = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0]
-    expected_df3 = DataFrame({'test_col': expected_data3}, index=index3)
-    
-    # Expected case 4: NaN streaks at beginning and end (edge cases)
-    # Original: [nan, nan, nan, 4.0, nan, nan, nan, nan, nan, 10.0, nan, nan, nan]
-    # Gap 1: 3 NaNs at beginning → leave as NaN (no starting point)
-    # Gap 2: 5 NaNs between 4.0 and 10.0 → interpolate
-    # Step size: (10.0 - 4.0) / 6 = 6.0 / 6 = 1.0
-    # Values: 4 + 1 = 5.0, 4 + 2 = 6.0, 4 + 3 = 7.0, 4 + 4 = 8.0, 4 + 5 = 9.0
-    # Gap 3: 3 NaNs at end → leave as NaN (no endpoint)
-    expected_data4 = [nan, nan, nan, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, nan, nan, nan]
-    expected_df4 = DataFrame({'test_col': expected_data4}, index=index4)
-    
-    # Expected case 5: Clear long streak that definitely shouldn't interpolate
-    # Original: [1.0, nan, nan, nan, nan, nan, nan, nan, 9.0]
-    # Gap: 7 NaNs between 1.0 and 9.0 → DON'T interpolate (≥6 NaNs)
-    expected_data5 = [1.0, nan, nan, nan, nan, nan, nan, nan, 9.0]
-    expected_df5 = DataFrame({'test_col': expected_data5}, index=index5)
-
-    return expected_df1, expected_df2, expected_df3, expected_df4, expected_df5
-
-
-# Create the test data and expected data frames
-test_df1, test_df2, test_df3, test_df4, test_df5 = create_test_data()
-expected_df1, expected_df2, expected_df3, expected_df4, expected_df5 = create_expected_data()
-
+# Create test data and expected data
+test_df1, test_df2, test_df3, test_df4, test_df5, test_df6, test_df7, test_df8 = create_group1_test_data()
+expected_df1, expected_df2, expected_df3, expected_df4, expected_df5, expected_df6, expected_df7, expected_df8 = create_group1_expected_data()
 
 @pytest.mark.parametrize("test_df, expected_df, col_name, interpolation_interval, limit", [
-    (test_df1, expected_df1, "test_col", 60, 5),
-    (test_df2, expected_df2, "test_col", 60, 5),
-    (test_df3, expected_df3, "test_col", 60, 5),
-    (test_df4, expected_df4, "test_col", 60, 5),
-    (test_df5, expected_df5, "test_col", 60, 5)
-
+    (test_df1, expected_df1, 'test_col', 20, 5),            # various gaps, limit of 5
+    (test_df2, expected_df2, 'test_col', 20, 3),            # various gaps, limit of 3
+    (test_df3, expected_df3, 'test_col', 20, 8),            # various gaps, limit of 8
+    (test_df4, expected_df4, 'test_col', 20, 10),           # starts with NaNs, limit of 10
+    (test_df5, expected_df5, 'test_col', 20, 2),            # ends with NaNs, limit of 2
+    (test_df6, expected_df6, 'test_col', 20, 5),            # starts and ends with NaNs, limit of 5
+    (test_df7, expected_df7, 'test_col', 20, 5),            # no NaNs, limit of 5
+    (test_df8, expected_df8, 'test_col', 20, 4),            # all NaN gaps > limt, limit of 4
 ])
-def test_interpolation(test_df: DataFrame, expected_df: DataFrame, col_name: str, interpolation_interval: int, limit: int):
-    """Test Linear Interpolation PPC with the parametrized test data frames"""
+def test_different_limits(test_df: DataFrame, expected_df: DataFrame, col_name: str, interpolation_interval: int, limit: int):
+    """Test linear interpolation with different limits and various NaN cases."""
 
+    
     kwargs = {
         "col_name": col_name,                                # col to interpolate
-        "interpolation_interval": interpolation_interval,    #
-        "limit": limit                                       # how many consecutive NaNs to interpolate over
+        "interpolation_interval": interpolation_interval,    # difference in time between 2 periods, in seconds
+        "limit": limit                                       # max number of consecutive NaNs to interpolate
     }
 
-
-    # call the post processing factory with to interpolate the first test data frame
+    # call the post processing factory to do the work
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
-    
 
     # compare the data frames 
     pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+
+
+
