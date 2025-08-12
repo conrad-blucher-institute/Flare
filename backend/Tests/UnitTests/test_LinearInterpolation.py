@@ -22,16 +22,7 @@ from datetime import datetime
 from PostProcessing.IPostProcessing import post_process_factory
 
 
-"""
-Group 1: This group of tests uses a constant interpolation interval with various limits.
-
-Various gap lenghts means that for that limit, some gaps will be larger than the limit, some will be smaller,
-and some will be exactly equal to the limit.
-
-"""
-
-def create_group1_test_data():
-    """Create test data for group 1."""
+def create_test_data():
 
     # the index to use for the data frames
     index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='20s')
@@ -79,9 +70,7 @@ def create_group1_test_data():
     return (df1, df2, df3, df4, df5, df6, df7, df8)
     
 
-
-
-def create_group1_expected_data():
+def create_expected_data():
     """Create expected data for group 1."""
 
     # the index to use for the data frames
@@ -132,9 +121,11 @@ def create_group1_expected_data():
 
 
 # Create test data and expected data
-test_df1, test_df2, test_df3, test_df4, test_df5, test_df6, test_df7, test_df8 = create_group1_test_data()
-expected_df1, expected_df2, expected_df3, expected_df4, expected_df5, expected_df6, expected_df7, expected_df8 = create_group1_expected_data()
+test_df1, test_df2, test_df3, test_df4, test_df5, test_df6, test_df7, test_df8 = create_test_data()
+expected_df1, expected_df2, expected_df3, expected_df4, expected_df5, expected_df6, expected_df7, expected_df8 = create_expected_data()
 
+
+# test various limits with different NaN cases
 @pytest.mark.parametrize("test_df, expected_df, col_name, interpolation_interval, limit", [
     (test_df1, expected_df1, 'test_col', 20, 5),            # various gaps, limit of 5
     (test_df2, expected_df2, 'test_col', 20, 3),            # various gaps, limit of 3
@@ -160,6 +151,33 @@ def test_different_limits(test_df: DataFrame, expected_df: DataFrame, col_name: 
 
     # compare the data frames 
     pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+
+
+# test invalid column names
+# the actual column name would be 'test_col' since that is what the data frames are created with in the 
+# create_test_data and create_expected_data functions.
+@pytest.mark.parametrize("test_df, expected_df, col_name, interpolation_interval, limit", [
+    (test_df1, expected_df1, 'Welcome', 20, 5),            
+    (test_df2, expected_df2, 'to', 20, 3),           
+    (test_df3, expected_df3, 'the', 20, 8),            
+    (test_df4, expected_df4, 'python', 20, 10),         
+    (test_df5, expected_df5, 'tests', 20, 2),           
+    (test_df6, expected_df6, 'for', 20, 5),          
+    (test_df7, expected_df7, 'this', 20, 5),           
+    (test_df8, expected_df8, 'file', 20, 4),            
+])
+def test_invalid_column_name(test_df: DataFrame, expected_df: DataFrame, col_name: str, interpolation_interval: int, limit: int):
+    """Test linear interpolation with an invalid column name."""
+
+    kwargs = {
+        "col_name": col_name,                                # col to interpolate
+        "interpolation_interval": interpolation_interval,    # difference in time between 2 periods, in seconds
+        "limit": limit                                       # max number of consecutive NaNs to interpolate
+    }
+
+    # a KeyError should be raised since the column name does not exist in the data frame
+    with pytest.raises(KeyError):
+        result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
 
 
 
