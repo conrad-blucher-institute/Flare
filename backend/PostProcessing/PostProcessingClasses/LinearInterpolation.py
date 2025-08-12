@@ -2,10 +2,11 @@
 # LinearInterpolation.py
 #-------------------------------
 # Created By: Christian Quintero
-# Last Updated: 08/04/2025
+# Last Updated: 08/12/2025
 #-------------------------------
-""" The post processing in this file performs linear interpolation of a column.
- """ 
+"""
+The post processing in this file performs linear interpolation of a column.
+""" 
 #-------------------------------
 # 
 #
@@ -13,16 +14,17 @@
 from PostProcessing.IPostProcessing import IPostProcessing
 from pandas import DataFrame, date_range
 import numpy as np
+import pandas as pd
 from datetime import timedelta
 
 class LinearInterpolation(IPostProcessing):
 
 
     def post_process(self, df: DataFrame, col_name: str, interpolation_interval: int, limit: int) -> DataFrame:
-        """The post processing in this file preforms an linear interpolation of a column.
+        """The post processing in this file performs a linear interpolation of a column.
 
         Args:
-            df DataFrame: The DataFrame containing this collation of the data that has been collected.
+            df: DataFrame: The DataFrame containing the data we want to interpolate.
             col_name: str - The column in the DataFrame to interpolate.
             interpolation_interval: int - The interval to interpolate data on, in seconds.
             limit: int - The amount of consecutive NaNs in a row to interpolate.
@@ -38,41 +40,119 @@ class LinearInterpolation(IPostProcessing):
             "args": {
                 "col_name": "",
                 "interpolation_interval": -1,
-                "limit: -1
+                "limit": -1
             }
         },
         """
 
-        # Isolate the data we are going to interpolate
-        data = df[col_name]
+        # Isolate the data series we are going to interpolate
+        data_series = df[col_name].copy()
 
         # The index of the data frame isn't necessarily the correct for the values we want to interpolate for this series. Thus we reindex
         # the data to the specific interval we want to interpolate on.
-        data = data.reindex(date_range(start=data.index[0], end=data.index[-1], freq=timedelta(seconds=interpolation_interval)))
+        data_series = data_series.reindex(date_range(start=data_series.index[0], end=data_series.index[-1], freq=timedelta(seconds=interpolation_interval)))
 
-        # We want to 'mask' the data so that each value gets assigned TRUE if NaN and FALSE if it is a real value.
-        nan_mask = data.isna()
+        # make a copy of the data and find gaps larger than the limit
+        # gaps larger than the limit will be replaced with a dummy value (-9999)
+        # gaps smaller than the limit will be left as NaN
+        temp_data_series = self.find_gaps(data_series.copy(), limit)
 
-        # Create unique group IDs for consecutive NaN streaks.
-        group_ids = (~nan_mask).cumsum()
+        # interpolate over entire series and replace dummy values with NaN
+        interpolated_data_series = self.interpolate_series(temp_data_series) 
 
-        # Count the length of each NaN streak
-        # For each group ID, count how many NaN values (True values in nan_mask) are in that group
-        streak_lengths = nan_mask.groupby(group_ids).transform('sum')   
+        # convert the series to a DataFrame with the proper column name before joining
+        interpolated_df = interpolated_data_series.to_frame(col_name)
 
-        # Create a mask for NaN streaks longer than the limit
-        # We only want to mark actual NaN positions that are in long streaks
-        long_streak_mask = (streak_lengths > limit) & nan_mask
-
-        # Interpolate all NaN values using time-based interpolation, which is the same as linear interpolation
-        interpolated_data = data.interpolate(method='time', limit_area='inside')
-
-        # Put NaNs back where streaks were too long
-        # aka where the NaN streaks > limit
-        interpolated_data[long_streak_mask] = np.nan
-
-        # Replace the original column with our processed data
+        # drop original column and replace with the interpolated one
         df.drop(columns=[col_name], inplace=True)
-        df = df.join(interpolated_data, how='outer')
+        df = df.join(interpolated_df, how='outer')
         return df
+    
+
+    def find_gaps(self, temp_data_series: pd.Series, limit: int) -> pd.Series:
+        """ 
+        This method is used to find the gaps in the data that are larger than the limit.
+        A for loop is used to iterate over the entire series, with a nested while loop to count consecutive NaNs. 
+        If a gap > limit is found, it is replaced with a dummy value (-9999).
+        After all large gaps are replaced, the series is returned with dummy values in place of large NaN gaps,
+        keeping the small gaps as NaNs. 
+        
+        Args:
+            temp_data_series: pd.Series - The series of data to find gaps in.
+            limit: int - The amount of consecutive NaNs in a row to replace with a dummy value.
+
+        Returns:
+            pd.Series : A new series with dummy values in place of large NaN gaps, with small gaps left as NaN.
+        
+        """
+
+        # initialize variables 
+        nan_gap_start = None                 # to mark the beginning of a NaN gap aka NaN streak
+        nan_gap_end = None                   # to mark the end of a NaN gap aka NaN streak
+        nan_gap_size = None                  # to mark the size of a NaN gap. This is the difference between nan_gap_end - nan_gap_start 
+        dummy_value = -9999                  # the value to replace large gaps with
+        i = 0                                # index for iterating over the data series   
+
+
+        # iterate over the data series
+        while i < len(temp_data_series):
+            
+            # when a NaN is found, mark the start of a NaN gap
+            if pd.isna(temp_data_series.iloc[i]):
+
+                nan_gap_start = i
+
+                # from the first NaN, continue to iterate until a non-NaN value is found
+                # this will leave i pointing to the first non_NaN value after a NaN gap
+                while i < len(temp_data_series) and pd.isna(temp_data_series.iloc[i]):
+                    i = i + 1
+                
+                # mark the end of a NaN gap, again, i is left on a real value
+                nan_gap_end = i
+
+                # by subtracting the start from the end, we can find the size of the NaN gap
+                # for example, a nan_gap_size of 2 means 2 consecutive NaNs were found
+                nan_gap_size = nan_gap_end - nan_gap_start
+
+                # if the gap size is > limit, replace with dummy values, otherwise, leave the small gaps as NaN
+                if nan_gap_size > limit:
+
+                    # replace large gaps with dummy value
+                    # this does NOT include the position of nan_gap_end, so values from 
+                    # nan_gap_start to nan_gap_end - 1 are replaced with dummy_value
+                    # and nan_gap_end is left as a real value
+                    temp_data_series.iloc[nan_gap_start:nan_gap_end] = dummy_value
+            else:
+                i = i + 1
+        # end while loop
+        
+
+        # return the series with dummy values in place of large NaN gaps
+        return temp_data_series
+
+
+    def interpolate_series(self, temp_data_series: pd.Series) -> pd.Series:
+        """
+        This method is used to interpolate over the entire series of data, then goes back to fill the 
+        dummy values with NaN.
+
+        Args:
+            temp_data_series: pd.Series - The series of data to interpolate.
+            
+        Returns:
+            pd.Series : A new series with NaN values in place of dummy values, and small gaps filled with interpolated values.
+        """
+
+        # interpolate the entire series
+        # this will fill all the small NaN gaps and leave the dummy values in the large gaps
+        temp_data_series = temp_data_series.interpolate(limit_area='inside', method='time')
+
+        # find all dummy values and replace them with NaN
+        temp_data_series.loc[temp_data_series == -9999] = np.nan
+
+        # return the result 
+        return temp_data_series
+
+
+
 
