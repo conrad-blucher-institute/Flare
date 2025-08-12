@@ -79,7 +79,8 @@ class LinearInterpolation(IPostProcessing):
         
         Args:
             temp_data_series: pd.Series - The series of data to find gaps in.
-            limit: int - The amount of consecutive NaNs in a row to replace with a dummy value.
+            limit: int - The maximum number of consecutive NaN entries that will be interpolated.
+                Any group of consecutive NaNs that are larger than this value will stay as NaNs.
 
         Returns:
             pd.Series : A new series with dummy values in place of large NaN gaps, with small gaps left as NaN.

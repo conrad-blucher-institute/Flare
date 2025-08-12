@@ -2,15 +2,11 @@
 #test_LinearInterpolation.py
 #-------------------------------
 # Created By: Christian Quintero
-# Last Updated: 08/05/2025
+# Last Updated: 08/12/2025
 #----------------------------------
-"""This file tests the LinearInterpolation PPC 
-    
-    Important: It should be noted that at the time of writing this (08/05/2025), the linear interpolation
-    is expected to work by counting where gaps of 5 consecutive NaNs will occur, and interpolating over those gaps
-    between 2 real values. If the gap between 2 real values has 6+ NaNs, no linear interpolation should occur, and any gap 
-    <= 5 should be interpolated.
- """ 
+"""
+This file tests the LinearInterpolation PPC 
+""" 
 #----------------------------------
 # 
 #
