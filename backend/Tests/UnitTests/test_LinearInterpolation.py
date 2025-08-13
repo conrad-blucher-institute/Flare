@@ -211,10 +211,10 @@ def test_invalid_column_name(test_df: DataFrame, expected_df: DataFrame, col_nam
 
 
 """
-In this section, different interpolation intervals are tested with the previous NaN cases and limits.
+In this section, higher interpolation intervals are tested with the previous NaN cases and limits.
 
 The interval does not change the interpolation logic or affect the expected values.
-Only the spacing of the timestamps in the index changes. Therefore, the previous data is resued, but with different intervals.
+Only the spacing of the timestamps in the index changes. Therefore, the previous data is resued, but with higher intervals.
 
 """
 def create_higher_interval_test_data():
@@ -294,10 +294,7 @@ def create_higher_interval_test_data():
     return (df1, df2, df3, df4, df5, df6, df7, df8)
 
 
-
-    
-
-def create_interval_expected_data():    
+def create_higher_interval_expected_data():    
     """Create expected data for interval testing."""
 
     # the index to use for each data frame
@@ -366,7 +363,7 @@ def create_interval_expected_data():
 high_df1 , high_df2, high_df3, high_df4, high_df5, high_df6, high_df7, high_df8 = create_higher_interval_test_data()
 
 # make the expected data for intervals
-expected_high1, expected_high2, expected_high3, expected_high4, expected_high5, expected_high6, expected_high7, expected_high8 = create_interval_expected_data()
+expected_high1, expected_high2, expected_high3, expected_high4, expected_high5, expected_high6, expected_high7, expected_high8 = create_higher_interval_expected_data()
 
 @pytest.mark.parametrize("test_df, expected_df, col_name, interpolation_interval, limit", [
     (high_df1, expected_high1, 'test_col', 3600, 5),            # 1 hour interval, various gaps, limit of 5
@@ -378,7 +375,189 @@ expected_high1, expected_high2, expected_high3, expected_high4, expected_high5, 
     (high_df7, expected_high7, 'test_col', 21600, 5),           # 6 hour interval, no NaNs, limit of 5, 
     (high_df8, expected_high8, 'test_col', 14400, 4),           # 4 hour interval, all NaN gaps > limit, limit of 4, 
 ])
-def test_different_intervals(test_df: DataFrame, expected_df: DataFrame, col_name: str, interpolation_interval: int, limit: int):
+def test_higher_intervals(test_df: DataFrame, expected_df: DataFrame, col_name: str, interpolation_interval: int, limit: int):
+    """Test linear interpolation with different intervals, various NaN cases, and different limits."""
+
+    kwargs = {
+        "col_name": col_name,                                # col to interpolate
+        "interpolation_interval": interpolation_interval,    # difference in time between 2 periods, in seconds
+        "limit": limit                                       # max number of consecutive NaNs to interpolate
+    }
+
+    # call the post processing factory to do the work
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+
+    # compare the data frames 
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+
+
+
+"""
+In this section, lower interpolation intervals are tested with the previous NaN cases and limits.
+
+The interval does not change the interpolation logic or affect the expected values.
+Only the spacing of the timestamps in the index changes. Therefore, the previous data is resued, but with lower intervals.
+
+"""
+def create_lower_interval_test_data():
+
+    """Create test data for interval testing."""
+
+    # various gaps, limit of 5
+    # 3 NaNs -> interpolate
+    # 6 NaNs -> do not interpolate, higher than limit
+    # 2 NaNs -> interpolate
+    # 1 NaN -> interpolate
+    # 1 minute interval
+    data1 = [1.0, nan, nan, nan, 5.0, nan, nan, nan, nan, nan, nan, 12.0, nan, nan, 15.0, 16.0, 17.0, 18.0, nan, 20.0] 
+    index1 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='60s') 
+    df1 = DataFrame({'test_col': data1}, index=index1)
+
+    # various gaps, limit of 3
+    # 3 NaNs -> interpolate
+    # 1 NaN -> interpolate
+    # 2 NaNs -> interpolate
+    # 4 NaNs -> do not interpolate, higher than limit
+    # 1 second interval
+    data2 = [1.0, 2.0, nan, nan, nan, 6.0, 7.0, 8.0, nan, 10.0, nan, nan, 13.0, 14.0, 15.0, nan, nan, nan, nan, 20.0]
+    index2 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='1s')
+    df2 = DataFrame({'test_col': data2}, index=index2)
+
+    # various gaps, limit of 8
+    # 9 NaNs -> do not interpolate, higher than limit
+    # 8 NaNs -> interpolate
+    # 10 minute interval
+    data3 = [1.0, nan, nan, nan, nan, nan, nan, nan, nan, nan, 11.0, nan, nan, nan, nan, nan, nan, nan, nan, 20.0]
+    index3 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='600s') 
+    df3 = DataFrame({'test_col': data3}, index=index3)
+
+    # starts with NaNs, limit of 10
+    # 1 NaN -> do not interpolate, no starting value
+    # 6 NaNs -> interpolate
+    # 2 NaNs -> interpolate
+    # 1 NaN -> interpolate
+    # 2 NaNs -> interpolate
+    # 15 minute interval
+    data4 = [nan, 2.0, nan, nan, nan, nan, nan, nan, 9.0, 10.0, nan, nan, 13.0, 14.0, nan, 16.0, 17.0, nan, nan, 20.0]
+    index4 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='900s') 
+    df4 = DataFrame({'test_col': data4}, index=index4)
+
+    # ends with NaNs, limit of 2
+    # 2 NaNs -> interpolate
+    # 2 NaNs -> do not interpolate, no ending value
+    # 5 minute interval
+    data5 = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, nan, nan, 17.0, 18.0, nan, nan]
+    index5 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='300s') 
+    df5 = DataFrame({'test_col': data5}, index=index5)
+
+    # starts and ends with NaNs, limit of 5
+    # 1 NaN -> do not interpolate, no starting value
+    # 5 NaNs -> interpolate
+    # 2 NaNs -> interpolate
+    # 2 NaNs -> do not interpolate, no ending value
+    # 45 second interval
+    data6 = [nan, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, nan, nan, nan, nan, nan, 13.0, 14.0, 15.0, nan, nan, 18.0, nan, nan]
+    index6 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='45s') 
+    df6 = DataFrame({'test_col': data6}, index=index6)
+
+    # no NaNs, limit of 5
+    # 6 minute interval
+    data7 = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0]
+    index7 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='360s') 
+    df7 = DataFrame({'test_col': data7}, index=index7)
+
+    # all NaN gaps > limit, limit of 4
+    # do not interpolate any NaNs
+    # 8 minute interval
+    data8 = [1.0, nan, nan, nan, nan, nan, 7.0, nan, nan, nan, nan, nan, 13.0, nan, nan, nan, nan, nan, 19.0, 20.0]
+    index8 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='480s') 
+    df8 = DataFrame({'test_col': data8}, index=index8 )
+
+    return (df1, df2, df3, df4, df5, df6, df7, df8)
+
+
+def create_lower_interval_expected_data():    
+    """Create expected data for interval testing."""
+
+    # the index to use for each data frame
+    index1 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='60s')    # 1 minute
+    index2 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='1s')     # 1 second
+    index3 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='600s')   # 10 minutes
+    index4 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='900s')   # 15 minutes
+    index5 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='300s')   # 5 minutes
+    index6 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='45s')    # 45 seconds
+    index7 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='360s')   # 6 minutes
+    index8 = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=20, freq='480s')   # 8 minutes
+
+    # various gaps, limit of 5
+    # 6 NaNs -> do not interpolate
+    # 1 minute
+    expected_data1 = [1.0, 2.0, 3.0, 4.0, 5.0, nan, nan, nan, nan, nan, nan, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0]
+    expected_df1 = DataFrame({'test_col': expected_data1}, index=index1)
+
+    # various gaps, limit of 3
+    # 4 NaNs -> do not interpolate
+    # 1 second
+    expected_data2 = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, nan, nan, nan, nan, 20.0]
+    expected_df2 = DataFrame({'test_col': expected_data2}, index=index2)
+
+    # various gaps, limit of 8
+    # 9 NaNs -> do not interpolate
+    # 10 minutes
+    expected_data3 = [1.0, nan, nan, nan, nan, nan, nan, nan, nan, nan, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0]
+    expected_df3 = DataFrame({'test_col': expected_data3}, index=index3)
+
+    # starts with NaNs, limit of 10
+    # 1 NaN -> do not interpolate, no starting value
+    # 15 minutes
+    expected_data4 = [nan, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0]
+    expected_df4 = DataFrame({'test_col': expected_data4}, index=index4)
+
+    # ends with NaNs, limit of 2
+    # 2 NaNs -> do not interpolate, no ending value
+    # 5 minutes
+    expected_data5 = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, nan, nan]
+    expected_df5 = DataFrame({'test_col': expected_data5}, index=index5)
+
+    # starts and ends with NaNs, limit of 5
+    # 1 NaN -> do not interpolate, no starting value
+    # 2 NaNs -> do not interpolate, no ending value
+    # 45 seconds
+    expected_data6 = [nan, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, nan, nan]
+    expected_df6 = DataFrame({'test_col': expected_data6}, index=index6)
+
+    # no NaNs, limit of 5
+    # 6 minutes
+    expected_data7 = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0]
+    expected_df7 = DataFrame({'test_col': expected_data7}, index=index7)
+
+    # all NaN gaps > limit, limit of 4
+    # do not interpolate any NaNs
+    # 8 minutes
+    expected_data8 = [1.0, nan, nan, nan, nan, nan, 7.0, nan, nan, nan, nan, nan, 13.0, nan, nan, nan, nan, nan, 19.0, 20.0]
+    expected_df8 = DataFrame({'test_col': expected_data8}, index=index8)
+
+    return (expected_df1, expected_df2, expected_df3, expected_df4,
+            expected_df5, expected_df6, expected_df7, expected_df8)
+
+
+# make the test data for lower intervals
+low_df1 , low_df2, low_df3, low_df4, low_df5, low_df6, low_df7, low_df8 = create_lower_interval_test_data()
+
+# make the expected data for lower intervals
+expected_low1, expected_low2, expected_low3, expected_low4, expected_low5, expected_low6, expected_low7, expected_low8 = create_lower_interval_expected_data()
+
+@pytest.mark.parametrize("test_df, expected_df, col_name, interpolation_interval, limit", [
+    (low_df1, expected_low1, 'test_col', 60, 5),              # 1 minute interval, various gaps, limit of 5
+    (low_df2, expected_low2, 'test_col', 1, 3),               # 1 second interval, various gaps, limit of 3, 
+    (low_df3, expected_low3, 'test_col', 600, 8),             # 10 minute interval, various gaps, limit of 8, 
+    (low_df4, expected_low4, 'test_col', 900, 10),            # 15 minute interval, starts with NaNs, limit of 10, 
+    (low_df5, expected_low5, 'test_col', 300, 2),             # 5 minute interval, ends with NaNs, limit of 2, 
+    (low_df6, expected_low6, 'test_col', 45, 5),              # 45 second interval, starts and ends with NaNs, limit of 5, 
+    (low_df7, expected_low7, 'test_col', 360, 5),             # 6 minute interval, no NaNs, limit of 5, 
+    (low_df8, expected_low8, 'test_col', 480, 4),             # 8 minute interval, all NaN gaps > limit, limit of 4, 
+])
+def test_lower_intervals(test_df: DataFrame, expected_df: DataFrame, col_name: str, interpolation_interval: int, limit: int):
     """Test linear interpolation with different intervals, various NaN cases, and different limits."""
 
     kwargs = {
