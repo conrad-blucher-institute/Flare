@@ -26,7 +26,6 @@ from PostProcessing.IPostProcessing import post_process_factory
 This section tests linear interpolation with different limits
 and various NaN cases but keeps the same interpolation interval of 20 seconds.
 
-This sections data frames are also used to test invalid column names in the next section.
 Comments that specify to interpolate or not, are written from reading the array left to right.
 """
 def create_limit_test_data():
@@ -174,41 +173,6 @@ def test_different_limits(test_df: DataFrame, expected_df: DataFrame, col_name: 
 
     # compare the data frames 
     pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
-
-
-"""
-This section tests linear interpolation with invalid column names. 
-This uses the same DFs from the previous section, but with different column names.
-
-These should all raise a KeyError in the post_process_factory.
-"""
-
-# test invalid column names
-# the actual column name would be 'test_col' since that is what the data frames are created with in the 
-# create_test_data and create_expected_data functions.
-@pytest.mark.parametrize("test_df, expected_df, col_name, interpolation_interval, limit", [
-    (limit_test_df1, expected_limit_df1, 'Welcome', 20, 5),            
-    (limit_test_df2, expected_limit_df2, 'to', 20, 3),           
-    (limit_test_df3, expected_limit_df3, 'the', 20, 8),            
-    (limit_test_df4, expected_limit_df4, 'python', 20, 10),         
-    (limit_test_df5, expected_limit_df5, 'tests', 20, 2),           
-    (limit_test_df6, expected_limit_df6, 'for', 20, 5),          
-    (limit_test_df7, expected_limit_df7, 'this', 20, 5),           
-    (limit_test_df8, expected_limit_df8, 'file', 20, 4),            
-])
-def test_invalid_column_name(test_df: DataFrame, expected_df: DataFrame, col_name: str, interpolation_interval: int, limit: int):
-    """Test linear interpolation with an invalid column name."""
-
-    kwargs = {
-        "col_name": col_name,                                # col to interpolate
-        "interpolation_interval": interpolation_interval,    # difference in time between 2 periods, in seconds
-        "limit": limit                                       # max number of consecutive NaNs to interpolate
-    }
-
-    # a KeyError should be raised since the column name does not exist in the data frame
-    with pytest.raises(KeyError):
-        result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
-
 
 """
 In this section, higher interpolation intervals are tested with the previous NaN cases and limits.
@@ -564,6 +528,108 @@ def test_lower_intervals(test_df: DataFrame, expected_df: DataFrame, col_name: s
         "col_name": col_name,                                # col to interpolate
         "interpolation_interval": interpolation_interval,    # difference in time between 2 periods, in seconds
         "limit": limit                                       # max number of consecutive NaNs to interpolate
+    }
+
+    # call the post processing factory to do the work
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+
+    # compare the data frames 
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+
+
+"""
+This section tests extreme cases for error handling in the linear interpolation class.
+These should all raise an exception as specified in the validate_args method of the class,
+excepct for a limit of zero, which should not change the original DataFrame.
+"""
+
+# Test that a TypeError is raised when the input DataFrame is not a pandas DataFrame.
+def test_df_type():
+
+    df = "Hello World"
+
+    with pytest.raises(TypeError):
+        post_process_factory(df, "LinearInterpolation", {"col_name": "test_col", "interpolation_interval": 60, "limit": 5})
+
+# Test that a ValueError is raised when df is empty
+def test_empty_df():
+
+    df = DataFrame()
+
+    with pytest.raises(ValueError):
+        post_process_factory(df, "LinearInterpolation", {"col_name": "test_col", "interpolation_interval": 60, "limit": 5})
+
+# Test that a TypeError is raised when the index of the DataFrame is not a DateTimeIndex.
+def test_invalid_index():
+
+    df = DataFrame({'test_col': [1, 2, 3]}, index=[0, 1, 2])
+    
+    with pytest.raises(TypeError):
+        post_process_factory(df, "LinearInterpolation", {"col_name": "test_col", "interpolation_interval": 60, "limit": 5})
+
+# Test that a TypeError is raised when the column name is not a string.
+def test_invalid_col_type():
+    
+    df = DataFrame({'test_col': [1, 2, 3]}, index=date_range(datetime(2025, 1, 1, 0, 0, 0), periods=3, freq='60s'))
+
+    with pytest.raises(TypeError):
+        post_process_factory(df, "LinearInterpolation", {"col_name": 123, "interpolation_interval": 60, "limit": 5})
+
+# Test that a KeyError is raised when the column name does not exist in the DataFrame.
+def test_invalid_col_name():
+    
+    df = DataFrame({'test_col': [1, 2, 3]}, index=date_range(datetime(2025, 1, 1, 0, 0, 0), periods=3, freq='60s'))
+
+    with pytest.raises(KeyError):
+        post_process_factory(df, "LinearInterpolation", {"col_name": "HELLO WORLD", "interpolation_interval": 60, "limit": 5})
+
+# Test that a TypeError is raised when the interpolation interval is not an integer.
+def test_invalid_interval_type():
+    
+    df = DataFrame({'test_col': [1, 2, 3]}, index=date_range(datetime(2025, 1, 1, 0, 0, 0), periods=3, freq='60s'))
+
+    with pytest.raises(TypeError):
+        post_process_factory(df, "LinearInterpolation", {"col_name": "test_col", "interpolation_interval": "HELLO WORLD", "limit": 5})
+
+# Test that a ValueError is raised when the interpolation interval is less than or equal to zero.
+def test_invalid_interval_value():
+    
+    df = DataFrame({'test_col': [1, 2, 3]}, index=date_range(datetime(2025, 1, 1, 0, 0, 0), periods=3, freq='60s'))
+    
+    with pytest.raises(ValueError):
+        post_process_factory(df, "LinearInterpolation", {"col_name": "test_col", "interpolation_interval": 0, "limit": 5})
+
+# Test that a TypeError is raised when the limit is not an integer.
+def test_invalid_limit_type():
+    
+    df = DataFrame({'test_col': [1, 2, 3]}, index=date_range(datetime(2025, 1, 1, 0, 0, 0), periods=3, freq='60s'))
+    
+    with pytest.raises(TypeError):
+        post_process_factory(df, "LinearInterpolation", {"col_name": "test_col", "interpolation_interval": 60, "limit": "HELLO WORLD"})
+
+# Test that a ValueError is raised when the limit is less than zero.
+def test_invalid_limit_value():
+    
+    df = DataFrame({'test_col': [1, 2, 3]}, index=date_range(datetime(2025, 1, 1, 0, 0, 0), periods=3, freq='60s'))
+    
+    with pytest.raises(ValueError):
+        post_process_factory(df, "LinearInterpolation", {"col_name": "test_col", "interpolation_interval": 60, "limit": -1})
+
+# Test that a limit of zero does not change the original DataFrame.
+def test_zero_limit():
+
+    # make a test df
+    data = [1.0, nan, 3.0, nan, 5.0]
+    index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=5, freq='60s')
+    test_df = DataFrame({'test_col': data}, index=index)
+
+    # copy to the expected df because it should not change 
+    expected_df = test_df.copy()
+
+    kwargs = {
+        "col_name": 'test_col',                               
+        "interpolation_interval": 60,    
+        "limit": 0                                      
     }
 
     # call the post processing factory to do the work

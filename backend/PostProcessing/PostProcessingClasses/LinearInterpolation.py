@@ -45,6 +45,13 @@ class LinearInterpolation(IPostProcessing):
         },
         """
 
+        # Validate the arguments passed to the post_process method
+        self.validate_args(df, col_name, interpolation_interval, limit)
+
+        # If the limit is zero, do nothing and return the original DataFrame.
+        if limit == 0:
+            return df
+        
         # Isolate the data series we are going to interpolate
         data_series = df[col_name].copy()
 
@@ -68,6 +75,52 @@ class LinearInterpolation(IPostProcessing):
         df = df.join(interpolated_df, how='outer')
         return df
     
+    def validate_args(self, df: DataFrame, col_name: str, interpolation_interval: int, limit: int):
+        """
+        This method validates the arguments passed to the post_process method.
+
+        NOTE:: A limit of 0 is a special case that will not interpolate any data, but will return the original DataFrame.
+        This is done in the post_process method after validation, since this method does not return anything.
+        """
+
+        # df must be a pandas DataFrame
+        if not isinstance(df, DataFrame):
+            raise TypeError(f"[ERROR]:: DataFrame must be a pandas DataFrame, got {type(df)} instead.")
+        
+        # df cannot be empty
+        if df.empty:
+            raise ValueError("[ERROR]:: DataFrame is empty, cannot perform interpolation.")
+        
+        # Check if DataFrame has a datetime index
+        if not isinstance(df.index, pd.DatetimeIndex):
+            raise TypeError("[ERROR]:: DataFrame must have a DatetimeIndex for time-based interpolation.")
+        
+        # col_name must be a string
+        if not isinstance(col_name, str):
+            raise TypeError(f"[ERROR]:: Column name must be a string, got {type(col_name)} instead.")
+        
+        # col_name must be a valid column in the DataFrame
+        if col_name not in df.columns:
+            raise KeyError(f"Column '{col_name}' not found. Available columns: {df.columns.tolist()}")
+        
+        # interpolation_interval must be a positive integer
+        if not isinstance(interpolation_interval, int):
+            raise TypeError(f"[ERROR]:: Interpolation interval must be an integer, got {type(interpolation_interval)} instead.")
+        
+        # interpolation_interval must be greater than 0
+        if interpolation_interval <= 0:
+            raise ValueError(f"[ERROR]:: Interpolation interval must be greater than 0, got {interpolation_interval} instead.")
+        
+        # limit must be an integer
+        if not isinstance(limit, int):
+            raise TypeError(f"[ERROR]:: Limit must be an integer, got {type(limit)} instead.")
+        
+        # limit must be greater than or equal to 0.
+        # A limit of 0 is a special case that will not interpolate any data, but will return the original DataFrame.
+        if limit < 0:
+            raise ValueError(f"[ERROR]:: Limit must be greater than or equal to 0, got {limit} instead.")
+
+
 
     def find_gaps(self, temp_data_series: pd.Series, limit: int) -> pd.Series:
         """ 
