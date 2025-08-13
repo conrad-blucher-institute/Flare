@@ -2,7 +2,7 @@
 # LinearInterpolation.py
 #-------------------------------
 # Created By: Christian Quintero
-# Last Updated: 08/12/2025
+# Last Updated: 08/13/2025
 #-------------------------------
 """
 The post processing in this file performs linear interpolation of a column.
@@ -75,6 +75,8 @@ class LinearInterpolation(IPostProcessing):
         df = df.join(interpolated_df, how='outer')
         return df
     
+
+
     def validate_args(self, df: DataFrame, col_name: str, interpolation_interval: int, limit: int):
         """
         This method validates the arguments passed to the post_process method.
@@ -157,11 +159,10 @@ class LinearInterpolation(IPostProcessing):
                 nan_gap_start = i
 
                 # from the first NaN, continue to iterate until a non-NaN value is found
-                # this will leave i pointing to the first non_NaN value after a NaN gap
                 while i < len(temp_data_series) and pd.isna(temp_data_series.iloc[i]):
                     i = i + 1
                 
-                # mark the end of a NaN gap, again, i is left on a real value
+                # mark the end of a NaN gap
                 nan_gap_end = i
 
                 # by subtracting the start from the end, we can find the size of the NaN gap
@@ -172,15 +173,12 @@ class LinearInterpolation(IPostProcessing):
                 if nan_gap_size > limit:
 
                     # replace large gaps with dummy value
-                    # this does NOT include the position of nan_gap_end, so values from 
-                    # nan_gap_start to nan_gap_end - 1 are replaced with dummy_value
-                    # and nan_gap_end is left as a real value
+                    # excludes the nan_gap_end index
                     temp_data_series.iloc[nan_gap_start:nan_gap_end] = dummy_value
             else:
                 i = i + 1
         # end while loop
         
-
         # return the series with dummy values in place of large NaN gaps
         return temp_data_series
 
