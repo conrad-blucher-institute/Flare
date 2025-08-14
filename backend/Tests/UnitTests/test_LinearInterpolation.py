@@ -261,6 +261,44 @@ to determine to interpolate or not.
 Each test will have a comment showing what the reindexed data would look like with an explanation on how the gaps are analyzed.
 """
 
+def test_lower_index_limit_12():
+
+    # originally, these values are for every hour, so the reindexing at every half hour, will add a NaN in between each value here
+    test_data = [1.0, nan, 3.0, nan, nan, nan, nan, nan, nan, 10.0, nan, nan, nan, nan, nan, 16.0]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=16, freq='3600s')
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+
+    # reindexing at 30 minute intervals :
+    # [1.0, nan, nan, nan, 3.0, nan, nan, nan, nan, nan,
+    #  nan, nan, nan, nan, nan, nan, nan, nan, 10.0, nan,
+    #  nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, 16.0]
+
+    # Gap Analysis
+    # 1.0 to 3.0: 3 NaNs, limit 12 -> interpolate
+    # 3.0 to 10.0: 13 NaNs, limit 12 -> do not interpolate
+    # 10.0 to 16.0: 11 NaNs, limit 12 -> interpolate
+    expected_data = [1.0, 1.5, 2.0, 2.5, 3.0, nan, nan, nan, nan, nan,
+                      nan, nan, nan, nan, nan, nan, nan, nan, 10.0, 10.5,
+                        11.0, 11.5, 12.0, 12.5, 13.0, 13.5, 14.0, 14.5, 15.0, 15.5, 16.0]
+                        
+    expected_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=31, freq='1800s')
+    expected_df = DataFrame({'test_col': expected_data}, index=expected_index)
+
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 1800,  # 30 minutes, causes the reindexing to add NaNs
+        "limit": 12
+    }
+
+   
+    # call post process factory to do the post process
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+
+    print("Expected Seres:\n", expected_df['test_col'])
+    print("Result Series:\n", result_df['test_col'])
+
+    # compare
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
 
 
 

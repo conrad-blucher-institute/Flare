@@ -73,6 +73,12 @@ class LinearInterpolation(IPostProcessing):
         # drop original column and replace with the interpolated one
         df.drop(columns=[col_name], inplace=True)
         df = df.join(interpolated_df, how='outer')
+
+        # Restore the frequency metadata
+        # this is needed because when reindexing to a different frequency than the original DataFrame,
+        # the frequency metadata is lost. We restore it to the original frequency.
+        df.index.freq = pd.Timedelta(seconds=interpolation_interval)
+
         return df
     
 
