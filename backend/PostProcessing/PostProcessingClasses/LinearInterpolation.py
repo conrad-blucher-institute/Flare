@@ -55,7 +55,7 @@ class LinearInterpolation(IPostProcessing):
         # Isolate the data series we are going to interpolate
         data_series = df[col_name].copy()
 
-        # The index of the data frame isn't necessarily the correct for the values we want to interpolate for this series. Thus we reindex
+        # The index of the data frame isn't necessarily correct for the values we want to interpolate for this series. Thus we reindex
         # the data to the specific interval we want to interpolate on.
         data_series = data_series.reindex(date_range(start=data_series.index[0], end=data_series.index[-1], freq=timedelta(seconds=interpolation_interval)))
 
@@ -67,17 +67,9 @@ class LinearInterpolation(IPostProcessing):
         # interpolate over entire series and replace dummy values with NaN
         interpolated_data_series = self.interpolate_series(temp_data_series) 
 
-        # convert the series to a DataFrame with the proper column name before joining
-        interpolated_df = interpolated_data_series.to_frame(col_name)
-
         # drop original column and replace with the interpolated one
         df.drop(columns=[col_name], inplace=True)
-        df = df.join(interpolated_df, how='outer')
-
-        # Restore the frequency metadata
-        # this is needed because when reindexing to a different frequency than the original DataFrame,
-        # the frequency metadata is lost. We restore it to the original frequency.
-        df.index.freq = pd.Timedelta(seconds=interpolation_interval)
+        df = df.join(interpolated_data_series, how='outer')
 
         return df
     
