@@ -23,6 +23,8 @@ from PostProcessing.IPostProcessing import post_process_factory
 
 """
 The first section tests various NaN cases with the same interval as the index
+
+index frequency is 1 hour (3600 seconds), and the interpolation interval is also set to 3600 seconds.
 """  
 
 def test_same_index_limit_5():
@@ -72,6 +74,33 @@ def test_same_index_limit_3():
         "col_name": "test_col",
         "interpolation_interval": 3600,  
         "limit": 3
+    }
+
+    # call post process factory to do the post process
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+
+    # compare
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+
+
+def test_same_index_limit_8():
+
+    test_data = [1.0, nan, nan, nan, nan, nan, nan, nan, nan, 10.0, nan, nan, nan, 14.0, nan, nan, nan, nan, nan, nan, nan, nan, nan, 24.0]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=24, freq='3600s')
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+
+    # Gap Analysis
+    # 1.0 to 10.0: 8 NaNs, limit 8 -> interpolate
+    # 10.0 to 14.0: 3 NaNs, limit 8 -> interpolate
+    # 14.0 to 24.0: 9 NaNs, limit 8 -> do not interpolate
+    expected_data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, nan, nan, nan, nan, nan, nan, nan, nan, nan, 24.0]
+    expected_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=24, freq='3600s')
+    expected_df = DataFrame({'test_col': expected_data}, index=expected_index)
+
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 3600,  
+        "limit": 8
     }
 
     # call post process factory to do the post process
@@ -165,4 +194,73 @@ def test_same_index_start_end_nans():
 
     # compare
     pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+
+
+def test_same_index_no_nan():
+    """This test ensures nothing happens when there is no NaNs to interpolate."""
+
+    test_data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=10, freq='3600s')
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+
+    # No NaNs, no interpolation needed
+    expected_data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+    expected_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=10, freq='3600s')
+    expected_df = DataFrame({'test_col': expected_data}, index=expected_index)
+
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 3600,  
+        "limit": 3
+    }
+
+    # call post process factory to do the post process
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+
+    # compare
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+
+
+def test_same_index_all_nans():
+    """
+    This test ensures nothing happens when all values are NaNs. This is because we only interpolate
+    the inside of 2 real values, never the start or end of a series. 
+    """
+
+    test_data = [nan, nan, nan, nan, nan, nan, nan, nan, nan, nan]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=10, freq='3600s')
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+
+    # All NaNs, no interpolation needed
+    expected_data = [nan, nan, nan, nan, nan, nan, nan, nan, nan, nan]
+    expected_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=10, freq='3600s')
+    expected_df = DataFrame({'test_col': expected_data}, index=expected_index)
+
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 3600,  
+        "limit": 3
+    }
+
+    # call post process factory to do the post process
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+
+    # compare
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+
+
+
+"""
+The second section tests various NaN cases and limits with a smaller interpolation interval than the index. 
+This will cause new NaNs to be added to the data series during the interpolation process.
+
+For example, the test_index is set to a frequency of 1 hour (3600 seconds), but the interpolation interval is set to 30 minutes (1800 seconds).
+This causes new NaNs to be added to the data series during the interpolation process, and then the new NaN gaps are checked against the limit value
+to determine to interpolate or not. 
+
+Each test will have a comment showing what the reindexed data would look like with an explanation on how the gaps are analyzed.
+"""
+
+
+
 
