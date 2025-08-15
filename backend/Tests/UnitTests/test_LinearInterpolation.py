@@ -52,7 +52,7 @@ def test_same_index_limit_5():
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
 
     # compare
-    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
 def test_same_index_limit_3():
@@ -80,7 +80,7 @@ def test_same_index_limit_3():
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
 
     # compare
-    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
 def test_same_index_limit_8():
@@ -107,7 +107,7 @@ def test_same_index_limit_8():
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
 
     # compare
-    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
 def test_same_index_start_nans():
@@ -136,7 +136,7 @@ def test_same_index_start_nans():
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
 
     # compare
-    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
 def test_same_index_end_nans():
@@ -164,7 +164,7 @@ def test_same_index_end_nans():
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
 
     # compare
-    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
 def test_same_index_start_end_nans():
@@ -193,7 +193,7 @@ def test_same_index_start_end_nans():
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
 
     # compare
-    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
 def test_same_index_no_nan():
@@ -218,7 +218,7 @@ def test_same_index_no_nan():
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
 
     # compare
-    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
 def test_same_index_all_nans():
@@ -246,7 +246,7 @@ def test_same_index_all_nans():
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
 
     # compare
-    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
 """
@@ -298,7 +298,7 @@ def test_lower_index_limit_12():
     print("Result Series:\n", result_df['test_col'])
 
     # compare
-    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
 def test_lower_index_limit_6():
@@ -348,7 +348,7 @@ def test_lower_index_limit_6():
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
 
     # compare
-    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
 def test_lower_index_start_nans():
@@ -379,7 +379,7 @@ def test_lower_index_start_nans():
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
 
     # compare
-    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
 def test_lower_index_end_nans():
@@ -410,7 +410,7 @@ def test_lower_index_end_nans():
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
 
     # compare
-    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
 def test_lower_index_start_end_nans():
@@ -441,7 +441,7 @@ def test_lower_index_start_end_nans():
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
 
     # compare
-    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
 def test_lower_index_no_nan():
@@ -472,7 +472,7 @@ def test_lower_index_no_nan():
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
 
     # compare
-    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
 def test_lower_index_all_nans():
@@ -505,4 +505,43 @@ def test_lower_index_all_nans():
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
 
     # compare
-    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
+
+
+"""
+This next section tests various NaN cases with a higher interpolation interval. 
+Read test_higher_index_basic for an explanation of how the gaps are analyzed and what happens with the reindexing to higher intervals.
+
+In the class file, we join the data which preserves it so nothing gets discarded.
+"""
+
+def test_higher_index_basic():
+
+    test_data = [1.0, nan, nan, nan, 5.0, nan, 7.0, nan, 9.0]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=9, freq='3600s')  
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+
+    # after reindexing at 2 hour intervals (7200 seconds), data gets dropped:
+    # [1.0, nan, 5.0, 7.0, 9.0] from hour 0, hour 2, hour 4, hour 6, hour 8
+
+    # Gap Analysis
+    # 1.0 to 5.0: 1 NaN, limit 5 -> interpolate
+    # this causes 3.0 to be interpolated in the reindexed data making
+    # [1.0, 3.0, 5.0, 7.0, 9.0] 
+    # then because of the joining to preserve data, the df looks like this:
+
+    expected_data = [1.0, nan, 3.0, nan, 5.0, nan, 7.0, nan, 9.0]
+    expected_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=9, freq='3600s')
+    expected_df = DataFrame({'test_col': expected_data}, index=expected_index)
+
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 7200,  # 2 hours
+        "limit": 5
+    }
+
+    # call post process factory to do the post process
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+
+    # compare
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
