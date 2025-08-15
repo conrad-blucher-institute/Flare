@@ -2,7 +2,7 @@
 #test_LinearInterpolation.py
 #-------------------------------
 # Created By: Christian Quintero
-# Last Updated: 08/13/2025
+# Last Updated: 08/15/2025
 #----------------------------------
 """
 This file tests the LinearInterpolation PPC 
@@ -732,3 +732,141 @@ def test_higher_index_large_gap():
 
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
     pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
+
+
+"""
+This last section tests that the validate_args function correctly raises exceptions for various invalid inputs.
+"""
+
+def test_validate_args_invalid_dataframe_type():
+    """Test that validate_args raises TypeError for non-DataFrame input."""
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 3600,
+        "limit": 3
+    }
+    
+    with pytest.raises(TypeError):
+        result_df = post_process_factory("Hello World", "LinearInterpolation", kwargs)
+
+
+def test_validate_args_empty_dataframe():
+    """Test that validate_args raises ValueError for empty DataFrame."""
+    empty_df = DataFrame()
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 3600,
+        "limit": 3
+    }
+    
+    with pytest.raises(ValueError):
+        result_df = post_process_factory(empty_df, "LinearInterpolation", kwargs)
+
+
+def test_validate_args_non_datetime_index():
+    """Test that validate_args raises TypeError for non-DatetimeIndex."""
+    invalid_index_df = DataFrame({'test_col': [1.0, 2.0, 3.0, 4.0, 5.0]}, index=[1, 2, 3, 4, 5])
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 3600,
+        "limit": 3
+    }
+    
+    with pytest.raises(TypeError):
+        result_df = post_process_factory(invalid_index_df, "LinearInterpolation", kwargs)
+
+
+def test_validate_args_invalid_column_name_type():
+    """Test that validate_args raises TypeError for non-string column name."""
+    test_data = [1.0, 2.0, 3.0, 4.0, 5.0]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=5, freq='3600s')
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+    
+    kwargs = {
+        "col_name": 123,  # Invalid type
+        "interpolation_interval": 3600,
+        "limit": 3
+    }
+    
+    with pytest.raises(TypeError):
+        result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+
+
+def test_validate_args_column_not_found():
+    """Test that validate_args raises KeyError for non-existent column."""
+    test_data = [1.0, 2.0, 3.0, 4.0, 5.0]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=5, freq='3600s')
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+    
+    kwargs = {
+        "col_name": "nonexistent_col",
+        "interpolation_interval": 3600,
+        "limit": 3
+    }
+    
+    with pytest.raises(KeyError):
+        result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+
+
+def test_validate_args_invalid_interpolation_interval_type():
+    """Test that validate_args raises TypeError for non-integer interpolation_interval."""
+    test_data = [1.0, 2.0, 3.0, 4.0, 5.0]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=5, freq='3600s')
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+    
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": "Hello World",  # Invalid type
+        "limit": 3
+    }
+    
+    with pytest.raises(TypeError):
+        result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+
+
+def test_validate_args_invalid_limit_type():
+    """Test that validate_args raises TypeError for non-integer limit."""
+    test_data = [1.0, 2.0, 3.0, 4.0, 5.0]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=5, freq='3600s')
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+    
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 3600,
+        "limit": "Hello World"  # Invalid type
+    }
+    
+    with pytest.raises(TypeError):
+        result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+
+
+def test_validate_args_negative_interpolation_interval():
+    """Test that validate_args raises ValueError for negative interpolation_interval."""
+    test_data = [1.0, 2.0, 3.0, 4.0, 5.0]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=5, freq='3600s')
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+    
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": -100,  # Invalid value
+        "limit": 3
+    }
+    
+    with pytest.raises(ValueError):
+        result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+
+
+def test_validate_args_negative_limit():
+    """Test that validate_args raises ValueError for negative limit."""
+    test_data = [1.0, 2.0, 3.0, 4.0, 5.0]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=5, freq='3600s')
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+    
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 3600,
+        "limit": -1  # Invalid value
+    }
+    
+    with pytest.raises(ValueError):
+        result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
