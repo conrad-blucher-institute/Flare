@@ -53,7 +53,7 @@ class LinearInterpolation(IPostProcessing):
             return df
         
         # Isolate the data series we are going to interpolate
-        data_series = df[col_name].copy()
+        data_series = df[col_name]
 
         # The index of the data frame isn't necessarily correct for the values we want to interpolate for this series. Thus we reindex
         # the data to the specific interval we want to interpolate on.
