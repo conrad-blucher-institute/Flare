@@ -509,10 +509,10 @@ def test_lower_index_all_nans():
 
 
 """
-This next section tests various NaN cases with a higher interpolation interval. 
-Read test_higher_index_basic for an explanation of how the gaps are analyzed and what happens with the reindexing to higher intervals.
+This next section tests various NaN cases with a higher interpolation interval.
 
-In the class file, we join the data which preserves it so nothing gets discarded.
+NOTE:: When reindexing at a higher interval, data that is not aligned with the new interval will be dropped towards the end of the series.
+This happens in test_higher_index_limit_3 and test_higher_index_end_nans where the last value is dropped due to not being on the 2 hour grid.
 """
 
 def test_higher_index_basic():
@@ -544,4 +544,191 @@ def test_higher_index_basic():
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
 
     # compare
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
+
+
+def test_higher_index_limit_3():
+    test_data = [1.0, nan, nan, nan, nan, nan, 7.0, nan, 9.0, nan, nan, nan, nan, nan, nan, 16.0]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=16, freq='3600s')  
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+
+    # After reindexing to 2-hour intervals (7200s):
+    # Only even hours: 00:00->1.0, 02:00->nan, 04:00->nan, 06:00->7.0, 08:00->9.0, 
+    # 10:00->nan, 12:00->nan, 14:00->nan, 15:00 gets dropped (not on 2-hr grid)
+    # So reindexed: [1.0, nan, nan, 7.0, 9.0, nan, nan, nan]
+
+    # Gap Analysis on reindexed data:
+    # 1.0 to 7.0: 2 NaNs, limit 3 -> interpolate
+    # 7.0 to 9.0: 0 NaNs -> no gap
+    # 9.0 to end: 3 NaNs, no end value -> don't interpolate
+
+    expected_data = [1.0, nan, 3.0, nan, 5.0, nan, 7.0, nan, 9.0, nan, nan, nan, nan, nan, nan, nan]
+    expected_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=16, freq='3600s')
+    expected_df = DataFrame({'test_col': expected_data}, index=expected_index)
+
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 7200,  # 2 hours
+        "limit": 3
+    }
+
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
+
+
+def test_higher_index_start_nans():
+    test_data = [nan, nan, nan, nan, 5.0, nan, 7.0, 8.0, 9.0, 10.0]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=10, freq='3600s')
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+
+    # After reindexing to 2-hour intervals:
+    # 00:00->nan, 02:00->nan, 04:00->5.0, 06:00->7.0, 08:00->9.0
+    # Reindexed: [nan, nan, 5.0, 7.0, 9.0]
+
+    # Gap Analysis:
+    # Start with NaNs: don't interpolate
+    # 5.0 to 7.0: 0 NaNs -> no gap
+    # 7.0 to 9.0: 0 NaNs -> no gap
+
+    expected_data = [nan, nan, nan, nan, 5.0, nan, 7.0, nan, 9.0, nan]
+    expected_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=10, freq='3600s')
+    expected_df = DataFrame({'test_col': expected_data}, index=expected_index)
+
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 7200,  # 2 hours
+        "limit": 5
+    }
+
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
+
+
+def test_higher_index_end_nans():
+    test_data = [1.0, nan, nan, nan, nan, nan, nan, nan, 9.0, nan, 11.0, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, 22.0]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=22, freq='3600s')
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+
+    # After reindexing to 2-hour intervals:
+    # 00:00->1.0, 02:00->nan, 04:00->nan, 06:00->nan, 08:00->9.0, 10:00->11.0, 
+    # 12:00->nan, 14:00->nan, 16:00->nan, 18:00->nan, 20:00->nan
+    # Note: 22.0 at hour 21 gets dropped (not on 2-hr grid)
+    # Reindexed: [1.0, nan, nan, nan, 9.0, 11.0, nan, nan, nan, nan, nan]
+
+    # Gap Analysis:
+    # 1.0 to 9.0: 3 NaNs, limit 5 -> interpolate  
+    # 9.0 to 11.0: 0 NaNs -> no gap
+    # 11.0 to end: NaNs at end -> don't interpolate
+
+    expected_data = [1.0, nan, 3.0, nan, 5.0, nan, 7.0, nan, 9.0, nan, 11.0, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan]
+    expected_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=22, freq='3600s')
+    expected_df = DataFrame({'test_col': expected_data}, index=expected_index)
+
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 7200,  # 2 hours
+        "limit": 5
+    }
+
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
+
+
+def test_higher_index_start_end_nans():
+    test_data = [nan, nan, 3.0, nan, 5.0, nan, nan, 8.0, nan, nan]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=10, freq='3600s')
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+
+    # After reindexing to 2-hour intervals:
+    # 00:00->nan, 02:00->3.0, 04:00->5.0, 06:00->nan, 08:00->nan
+    # Reindexed: [nan, 3.0, 5.0, nan, nan]
+
+    # Gap Analysis:
+    # Start with NaNs: don't interpolate
+    # 3.0 to 5.0: 0 NaNs -> no gap
+    # 5.0 to end: NaNs at end -> don't interpolate
+
+    expected_data = [nan, nan, 3.0, nan, 5.0, nan, nan, nan, nan, nan]
+    expected_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=10, freq='3600s')
+    expected_df = DataFrame({'test_col': expected_data}, index=expected_index)
+
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 7200,  # 2 hours
+        "limit": 3
+    }
+
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
+
+
+
+def test_higher_index_no_nan():
+    test_data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=10, freq='3600s')
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+
+    # After reindexing to 2-hour intervals:
+    # 00:00->1.0, 02:00->3.0, 04:00->5.0, 06:00->7.0, 08:00->9.0
+    # Reindexed: [1.0, 3.0, 5.0, 7.0, 9.0] (no NaNs, no interpolation needed)
+
+    expected_data = [1.0, nan, 3.0, nan, 5.0, nan, 7.0, nan, 9.0, nan]
+    expected_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=10, freq='3600s')
+    expected_df = DataFrame({'test_col': expected_data}, index=expected_index)
+
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 7200,  # 2 hours
+        "limit": 3
+    }
+
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
+
+
+def test_higher_index_all_nans():
+    test_data = [nan, nan, nan, nan, nan, nan, nan, nan, nan, nan]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=10, freq='3600s')
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+
+    # After reindexing to 2-hour intervals:
+    # All values remain NaN, no interpolation possible
+
+    expected_data = [nan, nan, nan, nan, nan, nan, nan, nan, nan, nan]
+    expected_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=10, freq='3600s')
+    expected_df = DataFrame({'test_col': expected_data}, index=expected_index)
+
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 7200,  # 2 hours
+        "limit": 5
+    }
+
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
+
+
+def test_higher_index_large_gap():
+    test_data = [1.0, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, 16.0]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=16, freq='3600s')
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+
+    # After reindexing to 3-hour intervals:
+    # 00:00->1.0, 03:00->nan, 06:00->nan, 09:00->nan, 12:00->nan, 15:00->16.0
+    # Reindexed: [1.0, nan, nan, nan, nan, 16.0]
+
+    # Gap Analysis:
+    # 1.0 to 16.0: 4 NaNs, limit 2 -> don't interpolate
+
+    expected_data = [1.0, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, 16.0]
+    expected_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=16, freq='3600s')
+    expected_df = DataFrame({'test_col': expected_data}, index=expected_index)
+
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 10800,  # 3 hours
+        "limit": 2
+    }
+
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
     pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
