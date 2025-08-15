@@ -294,9 +294,6 @@ def test_lower_index_limit_12():
     # call post process factory to do the post process
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
 
-    print("Expected Seres:\n", expected_df['test_col'])
-    print("Result Series:\n", result_df['test_col'])
-
     # compare
     pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 

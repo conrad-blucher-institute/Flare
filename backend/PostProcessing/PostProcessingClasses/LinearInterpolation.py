@@ -19,6 +19,8 @@ from datetime import timedelta
 
 class LinearInterpolation(IPostProcessing):
 
+    # Dummy value used to replace large gaps in the data
+    DUMMY_VALUE = -9999  
 
     def post_process(self, df: DataFrame, col_name: str, interpolation_interval: int, limit: int) -> DataFrame:
         """The post processing in this file performs a linear interpolation of a column.
@@ -144,7 +146,6 @@ class LinearInterpolation(IPostProcessing):
         nan_gap_start = None                 # to mark the beginning of a NaN gap aka NaN streak
         nan_gap_end = None                   # to mark the end of a NaN gap aka NaN streak
         nan_gap_size = None                  # to mark the size of a NaN gap. This is the difference between nan_gap_end - nan_gap_start 
-        dummy_value = -9999                  # the value to replace large gaps with
         i = 0                                # index for iterating over the data series   
 
 
@@ -172,7 +173,7 @@ class LinearInterpolation(IPostProcessing):
 
                     # replace large gaps with dummy value
                     # excludes the nan_gap_end index
-                    temp_data_series.iloc[nan_gap_start:nan_gap_end] = dummy_value
+                    temp_data_series.iloc[nan_gap_start:nan_gap_end] = self.DUMMY_VALUE
             else:
                 i = i + 1
         # end while loop
@@ -198,7 +199,7 @@ class LinearInterpolation(IPostProcessing):
         temp_data_series = temp_data_series.interpolate(limit_area='inside', method='time')
 
         # find all dummy values and replace them with NaN
-        temp_data_series.loc[temp_data_series == -9999] = np.nan
+        temp_data_series.loc[temp_data_series == self.DUMMY_VALUE] = np.nan
 
         # return the result 
         return temp_data_series
