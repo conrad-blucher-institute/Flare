@@ -8,8 +8,6 @@
 #----------------------------------
 # 
 #
-import sys
-sys.path.append('/app/backend')
 
 import pytest
 from math import isclose

@@ -8,8 +8,6 @@
 #----------------------------------
 # 
 #
-import sys
-sys.path.append('/app/backend')
 
 import pytest
 from Ingestion.I_Ingestion import data_ingestion_factory

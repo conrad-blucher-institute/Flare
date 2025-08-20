@@ -10,9 +10,6 @@ percentile values to the expected values.
 """
 #----------------------------------
 
-import sys
-sys.path.append('/app/backend')
-
 import pytest
 import pandas as pd
 import numpy as np

@@ -6,8 +6,6 @@
 """ 
 Unit tests for the AddMostRecentMeasurement class using pytest.
 """
-import sys
-sys.path.append('/app/backend')
 
 import pytest
 from pandas import DataFrame, to_datetime
