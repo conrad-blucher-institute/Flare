@@ -16,6 +16,7 @@ from pandas import DataFrame, date_range
 import numpy as np
 import pandas as pd
 from datetime import timedelta
+import logging
 
 class LinearInterpolation(IPostProcessing):
 
@@ -60,9 +61,17 @@ class LinearInterpolation(IPostProcessing):
         # Isolate the data series we are going to interpolate
         data_series = df[col_name]
 
+        # Count the number of non-NaN values in the original data series for logging purposes 
+        original_data_count = data_series.dropna().shape[0]
+
         # The index of the data frame isn't necessarily correct for the values we want to interpolate for this series. Thus we reindex
         # the data to the specific interval we want to interpolate on.
         data_series = data_series.reindex(date_range(start=data_series.index[0], end=data_series.index[-1], freq=timedelta(seconds=interpolation_interval)))
+
+        # Log if data was lost during reindexing
+        reindexed_data_count = data_series.dropna().shape[0]
+        if reindexed_data_count < original_data_count:
+            logging.warning(f"Data loss during reindexing: {original_data_count - reindexed_data_count} values lost in column '{col_name}'")
 
         # make a copy of the data and find gaps larger than the limit
         # gaps larger than the limit will be replaced with a dummy value (-9999)

@@ -15,6 +15,7 @@ sys.path.append('/app/backend')
 
 import pytest
 import pandas as pd
+import logging
 from math import isclose
 from pandas import DataFrame, date_range, read_csv, Series
 from numpy import nan
@@ -533,8 +534,8 @@ def test_lower_interval_all_nans():
 """
 This next section tests various NaN cases with a higher interpolation interval.
 
-NOTE:: When reindexing at a higher interval, data that is not aligned with the new interval will be dropped towards the end of the series.
-This happens in test_higher_index_limit_3 and test_higher_index_end_nans where the last value is dropped due to not being on the 2 hour grid.
+NOTE:: When reindexing at a higher interval, data that is not aligned with the new interval will be dropped from the series.
+A warning will be logged when data is dropped due to reindexing.
 """
 
 def test_higher_interval_basic():
@@ -595,6 +596,85 @@ def test_higher_interval_limit_3():
     }
 
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
+
+
+def test_higher_interval_7min_to_9min_reindexing(caplog):
+    """
+    This test is for checking what happens when the index and interpolation interval are aligned very badly. 
+    In this case, the index is at 7 minute intervals, and the interpolation interval is at 9 minute intervals. 
+    This causes a lot of data loss, and would generate a warning in the log about significant data loss.
+
+    Considering that we are only interpolating over a small real life time period, minutes within a single hour, 
+    the limit can be higher. In this test, a limit of 10 means we can interpolate up to 90 minutes of real time missing data, 
+    which is fine in practice. 
+    """
+    
+    # 7-minute intervals
+    test_data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+    test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=10, freq='420s')  # 7 minutes
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+
+    # Create the expected index by combining original 7-minute intervals with 9-minute intervals
+    # Original 7-minute timestamps: 0:00, 0:07, 0:14, 0:21, 0:28, 0:35, 0:42, 0:49, 0:56, 1:03
+    original_timestamps = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=10, freq='420s')
+    
+    # 9-minute reindexing timestamps: 0:00, 0:09, 0:18, 0:27, 0:36, 0:45, 0:54, 1:03
+    reindex_timestamps = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=8, freq='540s')
+    
+    # Combine and sort all unique timestamps
+    all_timestamps = original_timestamps.union(reindex_timestamps).sort_values()
+    
+    # After reindexing to 9-minute intervals:
+    # Only values at 00:00 and 01:03 would be preserved
+    # which causes the reindex array to look like
+    # [1.0, nan, nan, nan, nan, nan, 10.0]
+    # 00:00->1.0, 00:09->nan, 00:18->nan, 00:27->nan, 00:36->nan, 00:45->nan, 01:03->10.0
+    #
+    # Gap Analysis
+    # 1.0 to 10.0: 5 NaNs, limit 10 -> interpolate
+    # [1.0, 9/7 + 1, 18/7 + 1, 27/7 + 1, 36/7 + 1, 45/7 + 1, 54/7 + 1, 10.0]
+
+    # 0:00 -> 1.0
+    # 0:07 -> nan           (from original 7 minute interval)
+    # 0:09 -> 9/7 + 1       (from reindexing to 9 minute interval)
+    # 0:14 -> nan           (from original 7 minute interval)
+    # 0:18 -> 18/7 + 1      (from reindexing to 9 minute interval)
+    # 0:21 -> nan           (from original 7 minute interval)
+    # 0:27 -> 27/7 + 1      (from reindexing to 9 minute interval)
+    # 0:28 -> nan           (from original 7 minute interval)
+    # 0:35 -> nan           (from original 7 minute interval)
+    # 0:36 -> 36/7 + 1      (from reindexing to 9 minute interval)
+    # 0:42 -> nan           (from original 7 minute interval)
+    # 0:45 -> 45/7 + 1      (from reindexing to 9 minute interval)
+    # 0:49 -> nan           (from original 7 minute interval)
+    # 0:54 -> 54/7 + 1      (from reindexing to 9 minute interval)
+    # 0:56 -> nan           (from original 7 minute interval)
+    # 1:03 -> 10.0
+
+    
+    # combined 7 and 9 minutes timestamps, where the 9 minute intervals got interpolated
+    # and the 7 minute stamps got dropped and replaced as nans
+    expected_data = [1.0, nan, 9/7 + 1, nan, 18/7 + 1, nan, 27/7 + 1, nan, nan, 36/7 + 1, nan, 45/7 + 1, nan, 54/7 + 1, nan,  10.0] 
+    expected_index = all_timestamps
+    expected_df = DataFrame({'test_col': expected_data}, index=expected_index)
+
+    kwargs = {
+        "col_name": "test_col", 
+        "interpolation_interval": 540,  # 9 minutes
+        "limit": 10
+    }
+
+    # Capture warning logs
+    with caplog.at_level(logging.WARNING):
+        result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+    
+    # Verify the data loss warning was logged
+    warning_messages = [record.message for record in caplog.records if record.levelname == "WARNING"]
+    assert any("Data loss during reindexing" in msg for msg in warning_messages)
+    assert any("8 values lost in column 'test_col'" in msg for msg in warning_messages)
+
+    # compare
     pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
