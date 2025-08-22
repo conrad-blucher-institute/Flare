@@ -50,7 +50,10 @@ class LinearInterpolation(IPostProcessing):
         # Validate the arguments passed to the post_process method
         self.validate_args(df, col_name, interpolation_interval, limit)
 
-        # If the limit is zero, do nothing and return the original DataFrame.
+        # make a copy of the original data frame to avoid modifying it directly
+        df = df.copy()
+
+        # If the limit is zero, do nothing and return the copied data frame
         if limit == 0:
             return df
         
@@ -64,7 +67,7 @@ class LinearInterpolation(IPostProcessing):
         # make a copy of the data and find gaps larger than the limit
         # gaps larger than the limit will be replaced with a dummy value (-9999)
         # gaps smaller than the limit will be left as NaN
-        masked_data_series = self.fill_large_gaps(data_series.copy(), limit)
+        masked_data_series = self.fill_large_gaps(data_series, limit)
 
         # interpolate the entire series
         # this will fill all the small NaN gaps and leave the dummy values in the large gaps
@@ -77,6 +80,7 @@ class LinearInterpolation(IPostProcessing):
         df.drop(columns=[col_name], inplace=True)
         df = df.join(interpolated_data_series, how='outer')
 
+        # return the modified data frame
         return df
     
 
@@ -122,13 +126,13 @@ class LinearInterpolation(IPostProcessing):
             raise TypeError(f"[ERROR]:: Limit must be an integer, got {type(limit)} instead.")
         
         # limit must be greater than or equal to 0.
-        # A limit of 0 is a special case that will not interpolate any data, but will return the original DataFrame.
+        # A limit of 0 is a special case that will not interpolate any data, but will return a copy of the original DataFrame.
         if limit < 0:
             raise ValueError(f"[ERROR]:: Limit must be greater than or equal to 0, got {limit} instead.")
 
 
 
-    def fill_large_gaps(self, temp_data_series: pd.Series, limit: int) -> pd.Series:
+    def fill_large_gaps(self, data_series: pd.Series, limit: int) -> pd.Series:
         """ 
         This method is used to find the gaps in the data that are larger than the limit.
         A for loop is used to iterate over the entire series, with a nested while loop to count consecutive NaNs. 
@@ -137,7 +141,7 @@ class LinearInterpolation(IPostProcessing):
         keeping the small gaps as NaNs. 
         
         Args:
-            temp_data_series: pd.Series - The series of data to find gaps in.
+            data_series: pd.Series - The series of data to find gaps in.
             limit: int - The maximum number of consecutive NaN entries that will be interpolated.
                 Any group of consecutive NaNs that are larger than this value will stay as NaNs.
 
@@ -145,6 +149,9 @@ class LinearInterpolation(IPostProcessing):
             pd.Series : A new series with dummy values in place of large NaN gaps, with small gaps left as NaN.
         
         """
+
+        # Create a copy to avoid modifying the input parameter
+        data_series = data_series.copy()
 
         # initialize variables 
         nan_gap_start = None                 # to mark the beginning of a NaN gap aka NaN streak
@@ -154,15 +161,15 @@ class LinearInterpolation(IPostProcessing):
 
 
         # iterate over the data series
-        while i < len(temp_data_series):
+        while i < len(data_series):
             
             # when a NaN is found, mark the start of a NaN gap
-            if pd.isna(temp_data_series.iloc[i]):
+            if pd.isna(data_series.iloc[i]):
 
                 nan_gap_start = i
 
                 # from the first NaN, continue to iterate until a non-NaN value is found
-                while i < len(temp_data_series) and pd.isna(temp_data_series.iloc[i]):
+                while i < len(data_series) and pd.isna(data_series.iloc[i]):
                     i = i + 1
                 
                 # mark the end of a NaN gap
@@ -177,13 +184,13 @@ class LinearInterpolation(IPostProcessing):
 
                     # replace large gaps with dummy value
                     # excludes the nan_gap_end index
-                    temp_data_series.iloc[nan_gap_start:nan_gap_end] = self.DUMMY_VALUE
+                    data_series.iloc[nan_gap_start:nan_gap_end] = self.DUMMY_VALUE
             else:
                 i = i + 1
         # end while loop
         
-        # return the series with dummy values in place of large NaN gaps
-        return temp_data_series
+        # return the modified copy with dummy values in place of large NaN gaps
+        return data_series
 
 
 
