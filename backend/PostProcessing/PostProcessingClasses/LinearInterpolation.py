@@ -64,10 +64,14 @@ class LinearInterpolation(IPostProcessing):
         # make a copy of the data and find gaps larger than the limit
         # gaps larger than the limit will be replaced with a dummy value (-9999)
         # gaps smaller than the limit will be left as NaN
-        temp_data_series = self.find_gaps(data_series.copy(), limit)
+        masked_data_series = self.fill_large_gaps(data_series.copy(), limit)
 
-        # interpolate over entire series and replace dummy values with NaN
-        interpolated_data_series = self.interpolate_series(temp_data_series) 
+        # interpolate the entire series
+        # this will fill all the small NaN gaps and leave the dummy values in the large gaps
+        interpolated_data_series = masked_data_series.interpolate(limit_area='inside', method='time')
+
+        # find all dummy values and replace them with NaN
+        interpolated_data_series.loc[interpolated_data_series == self.DUMMY_VALUE] = np.nan
 
         # drop original column and replace with the interpolated one
         df.drop(columns=[col_name], inplace=True)
@@ -124,7 +128,7 @@ class LinearInterpolation(IPostProcessing):
 
 
 
-    def find_gaps(self, temp_data_series: pd.Series, limit: int) -> pd.Series:
+    def fill_large_gaps(self, temp_data_series: pd.Series, limit: int) -> pd.Series:
         """ 
         This method is used to find the gaps in the data that are larger than the limit.
         A for loop is used to iterate over the entire series, with a nested while loop to count consecutive NaNs. 
@@ -180,30 +184,6 @@ class LinearInterpolation(IPostProcessing):
         
         # return the series with dummy values in place of large NaN gaps
         return temp_data_series
-
-
-    def interpolate_series(self, temp_data_series: pd.Series) -> pd.Series:
-        """
-        This method is used to interpolate over the entire series of data, then goes back to fill the 
-        dummy values with NaN.
-
-        Args:
-            temp_data_series: pd.Series - The series of data to interpolate.
-            
-        Returns:
-            pd.Series : A new series with NaN values in place of dummy values, and small gaps filled with interpolated values.
-        """
-
-        # interpolate the entire series
-        # this will fill all the small NaN gaps and leave the dummy values in the large gaps
-        temp_data_series = temp_data_series.interpolate(limit_area='inside', method='time')
-
-        # find all dummy values and replace them with NaN
-        temp_data_series.loc[temp_data_series == self.DUMMY_VALUE] = np.nan
-
-        # return the result 
-        return temp_data_series
-
 
 
 
