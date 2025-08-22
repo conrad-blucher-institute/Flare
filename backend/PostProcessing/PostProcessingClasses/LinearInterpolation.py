@@ -2,7 +2,7 @@
 # LinearInterpolation.py
 #-------------------------------
 # Created By: Christian Quintero
-# Last Updated: 08/13/2025
+# Last Updated: 08/22/2025
 #-------------------------------
 """
 The post processing in this file performs linear interpolation of a column.
@@ -89,7 +89,7 @@ class LinearInterpolation(IPostProcessing):
         """
         This method validates the arguments passed to the post_process method.
 
-        NOTE:: A limit of 0 is a special case that will not interpolate any data, but will return the original DataFrame.
+        NOTE:: A limit of 0 is a special case that will not interpolate any data, but will return a copy of the DataFrame.
         This is done in the post_process method after validation, since this method does not return anything.
         """
 
@@ -134,8 +134,7 @@ class LinearInterpolation(IPostProcessing):
 
     def fill_large_gaps(self, data_series: pd.Series, limit: int) -> pd.Series:
         """ 
-        This method is used to find the gaps in the data that are larger than the limit.
-        A for loop is used to iterate over the entire series, with a nested while loop to count consecutive NaNs. 
+        This method is used to find the gaps in the data that are larger than the limit and fill them with the dummy value.
         If a gap > limit is found, it is replaced with a dummy value (-9999).
         After all large gaps are replaced, the series is returned with dummy values in place of large NaN gaps,
         keeping the small gaps as NaNs. 
