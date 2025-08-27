@@ -24,8 +24,7 @@ const state = reactive({
   isSmallScreen: window.innerWidth <= 600
 });
 
-// const csvURL = ref(`${window.location.origin}/flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv`);
-const csvURL = ref(`http://localhost:8080/flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv`);
+const csvURL = ref(`${window.location.origin}/flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv`);
 
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
