@@ -16,6 +16,9 @@ import { Chart } from "highcharts-vue";
 
 import { ref, onMounted, onUnmounted, reactive } from "vue";
 
+import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
+const missingDataWarningBanner = ref(MissingDataWarningBanner);
+
 // Using reactive state to track if the screen is small
 const state = reactive({
   isSmallScreen: window.innerWidth <= 600
@@ -434,11 +437,15 @@ const toggleExportMenu = () => {
 ///Fetch and update chart data every 15 minutes
 let updateInterval;
 onMounted(() => {
-  fetchAndFilterData();
+  fetchAndFilterData().then(() => {
+
+  });
   window.addEventListener('resize', handleResize);
   updateInterval = setInterval(() => {
     console.log("Fetching and updating chart data...");
-    fetchAndFilterData();
+    fetchAndFilterData().then(() => {
+      missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value]);
+    });
   }, 900000); 
 });
 
@@ -469,7 +476,7 @@ onUnmounted(() => {
       </div>
     </div>
   </section>
-
+  <MissingDataWarningBanner ref="missingDataWarningBanner" />
   <!-- Chart Section -->
   <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 py-8 px-4 bg-white items-stretch">
   <!-- Chart -->
