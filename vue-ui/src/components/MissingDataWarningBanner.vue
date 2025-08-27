@@ -58,7 +58,7 @@ const checkForMissingDataAndWarn = (charts) => {
         }
 
         if (chartHasMissingData) {
-            showBanner(`Warning: ${moreThanOneChart ? 'Charts' : 'Chart'} may be inaccurate due to missing data.`);
+            showBanner(`⚠️ Warning: ${moreThanOneChart ? 'Charts' : 'Chart'} may be inaccurate due to missing data.`);
         } else {
             hideBanner();
         }
