@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#ImmediateArithmeticOperation.py
+#LinearInterpolation.py
 #-------------------------------
 # Created By : Matthew Kastl
 #-------------------------------
@@ -65,6 +65,5 @@ class LinearInterpolation(IPostProcessing):
         # Outer join to preserve all data in the dataframe.
         df.drop(columns=[col_name], inplace=True)
         df = df.join(backwards_interpolation, how='outer')
-        return df
-
-
+        return df   
+    
