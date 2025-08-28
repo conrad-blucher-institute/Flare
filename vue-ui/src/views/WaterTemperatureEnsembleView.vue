@@ -494,6 +494,7 @@ chartOptions.value = reactive(buildChart(isSmallScreen));
         </div>
       </div>
       </section>
+      <MissingDataWarningBanner ref="missingDataWarningBanner" />
 
       <!-- Chart Section -->
       <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 py-8 px-4 bg-white items-stretch">
