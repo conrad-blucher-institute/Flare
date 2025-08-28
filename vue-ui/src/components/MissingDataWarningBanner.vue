@@ -42,8 +42,8 @@ function hideBanner() {
  */
 const checkForMissingDataAndWarn = (charts) => {
     const moreThanOneChart = charts.length > 1;
+    let chartHasMissingData = false;
     charts.forEach(chart => {
-        let chartHasMissingData = false;
         if (!chart.series || chart.series.length === 0) {
             console.warn("A Warning banner will be displayed to user. No series found in chart:", chart);
             chartHasMissingData = true;
@@ -56,13 +56,14 @@ const checkForMissingDataAndWarn = (charts) => {
                 }
             });
         }
-
-        if (chartHasMissingData) {
-            showBanner(`⚠️ Warning: ${moreThanOneChart ? 'Charts' : 'Chart'} may be inaccurate due to missing data.`);
-        } else {
-            hideBanner();
-        }
     });
+
+    if (chartHasMissingData) {
+        showBanner(`⚠️ Warning: ${moreThanOneChart ? 'Charts' : 'Chart'} may be inaccurate due to missing data.`);
+    } else {
+        hideBanner();
+    }
+
 }
 defineExpose({ checkForMissingDataAndWarn });
 

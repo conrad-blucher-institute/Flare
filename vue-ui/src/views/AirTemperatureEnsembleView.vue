@@ -792,10 +792,18 @@ const parseSecondCSV = (csvText) => {
     const localDate = new Date(localTimestamp);
 
     if (!isNaN(localDate)) {
-      fifthPercentiles.push([localDate.getTime(), +fifthPercentile]);
-      medians.push([localDate.getTime(), +median]);
-      ninetyfifthPercentiles.push([localDate.getTime(), +ninetyfifthPercentile]);
-      NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
+      if (fifthPercentile && !isNaN(+fifthPercentile)) {
+        fifthPercentiles.push([localDate.getTime(), +fifthPercentile]);
+      }
+      if (median && !isNaN(+median)) {
+        medians.push([localDate.getTime(), +median]);
+      }
+      if (ninetyfifthPercentile && !isNaN(+ninetyfifthPercentile)) {
+        ninetyfifthPercentiles.push([localDate.getTime(), +ninetyfifthPercentile]);
+      }
+      if (ndfdPrediction && !isNaN(+ndfdPrediction)) {
+        NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
+      }
     }
   });
 
@@ -830,12 +838,24 @@ const parseThirdCSV = (csvText) => {
     const localDate = new Date(localTimestamp);
 
     if (!isNaN(localDate)) {
-      lowerBounds.push([localDate.getTime(), +lowerBound]);
-      twentyfifthPercentiles.push([localDate.getTime(), +twentyfifthPercentile]);
-      medians.push([localDate.getTime(), +median]);
-      seventyfifthPercentiles.push([localDate.getTime(), +seventyfifthPercentile]);
-      upperBounds.push([localDate.getTime(), +upperBound]);
-      NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
+      if (lowerBound && !isNaN(+lowerBound)) {
+        lowerBounds.push([localDate.getTime(), +lowerBound]);
+      }
+      if (twentyfifthPercentile && !isNaN(+twentyfifthPercentile)) {
+        twentyfifthPercentiles.push([localDate.getTime(), +twentyfifthPercentile]);
+      }
+      if (median && !isNaN(+median)) {
+        medians.push([localDate.getTime(), +median]);
+      }
+      if (seventyfifthPercentile && !isNaN(+seventyfifthPercentile)) {
+        seventyfifthPercentiles.push([localDate.getTime(), +seventyfifthPercentile]);
+      }
+      if (upperBound && !isNaN(+upperBound)) {
+        upperBounds.push([localDate.getTime(), +upperBound]);
+      }
+      if (ndfdPrediction && !isNaN(+ndfdPrediction)) {
+        NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
+      }
     }
   });
 
