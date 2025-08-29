@@ -20,6 +20,9 @@ import { Chart } from "highcharts-vue";
 
 import { ref, onMounted, onUnmounted, reactive } from "vue";
 
+import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
+const missingDataWarningBanner = ref(MissingDataWarningBanner);
+
 // Using reactive state to track if the screen is small
 const state = reactive({ 
   isSmallScreen: window.innerWidth <= 600
@@ -789,10 +792,18 @@ const parseSecondCSV = (csvText) => {
     const localDate = new Date(localTimestamp);
 
     if (!isNaN(localDate)) {
-      fifthPercentiles.push([localDate.getTime(), +fifthPercentile]);
-      medians.push([localDate.getTime(), +median]);
-      ninetyfifthPercentiles.push([localDate.getTime(), +ninetyfifthPercentile]);
-      NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
+      if (fifthPercentile && !isNaN(+fifthPercentile)) {
+        fifthPercentiles.push([localDate.getTime(), +fifthPercentile]);
+      }
+      if (median && !isNaN(+median)) {
+        medians.push([localDate.getTime(), +median]);
+      }
+      if (ninetyfifthPercentile && !isNaN(+ninetyfifthPercentile)) {
+        ninetyfifthPercentiles.push([localDate.getTime(), +ninetyfifthPercentile]);
+      }
+      if (ndfdPrediction && !isNaN(+ndfdPrediction)) {
+        NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
+      }
     }
   });
 
@@ -827,12 +838,24 @@ const parseThirdCSV = (csvText) => {
     const localDate = new Date(localTimestamp);
 
     if (!isNaN(localDate)) {
-      lowerBounds.push([localDate.getTime(), +lowerBound]);
-      twentyfifthPercentiles.push([localDate.getTime(), +twentyfifthPercentile]);
-      medians.push([localDate.getTime(), +median]);
-      seventyfifthPercentiles.push([localDate.getTime(), +seventyfifthPercentile]);
-      upperBounds.push([localDate.getTime(), +upperBound]);
-      NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
+      if (lowerBound && !isNaN(+lowerBound)) {
+        lowerBounds.push([localDate.getTime(), +lowerBound]);
+      }
+      if (twentyfifthPercentile && !isNaN(+twentyfifthPercentile)) {
+        twentyfifthPercentiles.push([localDate.getTime(), +twentyfifthPercentile]);
+      }
+      if (median && !isNaN(+median)) {
+        medians.push([localDate.getTime(), +median]);
+      }
+      if (seventyfifthPercentile && !isNaN(+seventyfifthPercentile)) {
+        seventyfifthPercentiles.push([localDate.getTime(), +seventyfifthPercentile]);
+      }
+      if (upperBound && !isNaN(+upperBound)) {
+        upperBounds.push([localDate.getTime(), +upperBound]);
+      }
+      if (ndfdPrediction && !isNaN(+ndfdPrediction)) {
+        NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
+      }
     }
   });
 
@@ -863,14 +886,23 @@ const toggleThirdExportMenu = () => {
 ///Fetch and update chart data every 15 minutes
 let updateInterval;
 onMounted(() => {
-  fetchAndFilterData(); 
-  fetchAndFilterSecondData();
-  fetchAndFilterThirdData();
+  Promise.all([
+    fetchAndFilterData(),
+    fetchAndFilterSecondData(),
+    fetchAndFilterThirdData()
+  ]).then(() => {
+    missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value, secondChartOptions.value, thirdChartOptions.value]);
+  });
+  
   updateInterval = setInterval(() => {
     console.log("Fetching and updating chart data...");
-    fetchAndFilterData();
-    fetchAndFilterSecondData();
-    fetchAndFilterThirdData();
+    Promise.all([
+      fetchAndFilterData(),
+      fetchAndFilterSecondData(),
+      fetchAndFilterThirdData(),
+    ]).then(() => {
+      missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value, secondChartOptions.value, thirdChartOptions.value]);
+    });
   }, 900000); 
 });
 
@@ -900,7 +932,7 @@ onUnmounted(() => {
         </div>
       </div>
       </section>
-
+      <MissingDataWarningBanner ref="missingDataWarningBanner" />
       <!-- First Chart Section: Spaghetti Graph -->
       <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 py-8 px-4 bg-white items-stretch">
         <!-- Chart -->
