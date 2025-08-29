@@ -16,7 +16,7 @@ from abc import ABC, abstractmethod
 from importlib import import_module
 from pandas import DataFrame
 from datetime import datetime
-from utility import log_error,get_current_chart_name
+
 
 
 class IDataIngestion(ABC):
@@ -34,13 +34,14 @@ def data_ingestion_factory(data: DataFrame, ref_time: datetime,  key: str, kwarg
         :kwargs: dict - The keyword args to pas to the resulting method. Make sure this is formatted as the targeted method wants.
         :returns DataFrame - A reference to the most updated DataFrame
     """
+
     try:
         ingestion_class: IDataIngestion = getattr(import_module(f'.IngestionClasses.{key}', 'Ingestion'), key)()
         return ingestion_class.ingest_data(data, ref_time, **kwargs)
-    except ModuleNotFoundError:
-        log_error(message=f'No module named {key} in IngestionClasses!',chart_name=get_current_chart_name(),error_type='ModuleNotFoundError')
-        raise ModuleNotFoundError
+    except ModuleNotFoundError as e:
+        raise ModuleNotFoundError(f'No module named {key} in IngestionClasses!') from e
+        
     except TypeError as e:
-        log_error(message=f'kwargs mismatch for key: {key} and kwargs: {kwargs}\n{e}',chart_name=get_current_chart_name(),error_type='TypeError')
-        raise TypeError
+        raise TypeError(f'kwargs mismatch for key: {key} and kwargs: {kwargs}') from e
+        
     

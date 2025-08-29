@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 from Ingestion.Ingestion_Utility import api_request, add_empty_column
 from pandas import DataFrame
 from numpy import nan
-from utility import log_info,log_error,get_current_chart_name
+from runtimeContext import thread_storage
 from os import getenv
 import ast
 
@@ -24,7 +24,10 @@ class SemaphoreInputs(IDataIngestion):
 
     def ingest_data(self, data: DataFrame, ref_time: datetime, column_name: str, range: list[int], source: str, series: str, location: str, interval: str, datum: str = None):
         '''Ingests data from the Semaphore Inputs API.'''
-
+        self.source = source
+        self.series = series
+        self.location = location
+        
         url = self.__prepare_url(ref_time, range, source, series, location, interval, datum)
 
         response = api_request(url)
@@ -55,8 +58,10 @@ class SemaphoreInputs(IDataIngestion):
     def __validate_response(self, response: dict[any]) -> bool:
         '''Checks for things like no data, empty response or non complete warnings.'''
         
+        logger = thread_storage.logger
         if response is None: return False
-        if not response['isComplete']: log_info(f'Warning:: Api response warns its not complete -> {response["nonCompleteReason"]}')
+        if not response['isComplete']: 
+            logger.log_info( f'[source:{self.source} series:{self.series} location: {self.location}] Warning:: Semaphore API response incomplete. Reason: {response["nonCompleteReason"]}')
         if len(response['_Series__data']) <= 0: return False
         return True
     
@@ -66,6 +71,7 @@ class SemaphoreInputs(IDataIngestion):
         dataframe with all the other data.'''
         index = []
         data = []
+        logger = thread_storage.logger
         for datapoint in data_points:
             
             # Convert the string datetime into a proper datetime
@@ -80,17 +86,17 @@ class SemaphoreInputs(IDataIngestion):
                     if isinstance(value_array, list):
                         data.append([float(v) for v in value_array])  # Convert elements to float
                     else:
-                        log_info(f"Parsed value is not a list: {value_array}")
+                        logger.log_info(f"Parsed value is not a list: {value_array}")
                         data.append(nan)  # Append NaN if it's not a list
                 except (ValueError, SyntaxError) as e:
-                    log_error(message=f"Error decoding array: {value} -> {e}",chart_name=get_current_chart_name(),error_type="ValueError, SyntaxError",include_traceback=True)
+                    logger.log_error(message=f"[source:{self.source} series:{self.series} location: {self.location}] Error decoding array: {value} -> {e} for source={self.source}, series={self.series}, location={self.location}",error_type="ValueError, SyntaxError",include_traceback=True)
                     data.append(nan)  # Append NaN if parsing fails
             else: 
                 try:
                     value = float(value)
                     data.append(value)
                 except ValueError:
-                    log_error(message=f"Error converting value to float: {value}",chart_name=get_current_chart_name(),error_type="ValueError",include_traceback=True)
+                    logger.log_error(message=f"[source:{self.source} series:{self.series} location: {self.location}] Error converting value to float: {value}",error_type="ValueError",include_traceback=True)
                     data.append(nan)  # Append NaN if conversion fails
 
         # Add this to the collation df with an outer join to ensure all data is preserved

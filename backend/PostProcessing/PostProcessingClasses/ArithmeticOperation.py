@@ -13,7 +13,7 @@ By the index of the data frame!
 #Imports
 from PostProcessing.IPostProcessing import IPostProcessing
 from pandas import DataFrame
-from utility import get_current_chart_name,log_error
+
 
 
 class ArithmeticOperation(IPostProcessing):
@@ -51,6 +51,7 @@ class ArithmeticOperation(IPostProcessing):
                 }
             },
         """
+
         # Preform the requested operation on the data
         match op:
             case 'addition':
@@ -64,7 +65,6 @@ class ArithmeticOperation(IPostProcessing):
             case 'modulo':
                 data[out_col_key] = data[left_col_key] % data[right_col_key]
             case _:
-                log_error(message=f'{op} not found in ArithmeticOperation class',chart_name=get_current_chart_name(),error_type='NotImplementedError')
-                raise NotImplementedError
+                raise NotImplementedError(f'{op} not found in ArithmeticOperation class')
 
         return data

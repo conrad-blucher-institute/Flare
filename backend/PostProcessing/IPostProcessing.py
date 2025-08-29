@@ -16,7 +16,7 @@ New data will be inserted into the DataFrame by reference
 from abc import ABC, abstractmethod
 from importlib import import_module
 from pandas import DataFrame
-from utility import log_error,get_current_chart_name
+
 
 
 class IPostProcessing(ABC):
@@ -33,13 +33,12 @@ def post_process_factory(data: DataFrame, key: str, kwargs) -> DataFrame:
         :kwargs: dict - The keyword args to pas to the resulting method. Make sure this is formatted as the targeted method wants.
         :returns bool - True indicated the process succeeded while false indicated it failed for some reason. 
     """
+
     try:
         post_processing_class: IPostProcessing = getattr(import_module(f'.PostProcessingClasses.{key}', 'PostProcessing'), key)()
         return post_processing_class.post_process(data, **kwargs)
-    except ModuleNotFoundError:
-        log_error(message=f'No module named {key} in PostProcessingClasses!',chart_name=get_current_chart_name(),error_type='ModuleNotFoundError')
-        raise ModuleNotFoundError
+    except ModuleNotFoundError as e:
+        raise ModuleNotFoundError(f'No module named {key} in PostProcessingClasses!') from e
     except TypeError as e:
-        log_error(message=f'{e}.kwargs mismatch for key: {key} and kwargs: {kwargs}',chart_name=get_current_chart_name(),error_type='TypeError')
-        raise TypeError
+        raise TypeError(f'{e}.kwargs mismatch for key: {key} and kwargs: {kwargs}') from e
     
