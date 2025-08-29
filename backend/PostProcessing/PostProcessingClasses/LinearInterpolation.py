@@ -2,7 +2,7 @@
 # LinearInterpolation.py
 #-------------------------------
 # Created By: Christian Quintero
-# Last Updated: 08/22/2025
+# Last Updated: 08/29/2025
 #-------------------------------
 """
 The post processing in this file performs linear interpolation of a column.
@@ -51,13 +51,13 @@ class LinearInterpolation(IPostProcessing):
         # Validate the arguments passed to the post_process method
         self.validate_args(df, col_name, interpolation_interval, limit)
 
-        # make a copy of the original data frame to avoid modifying it directly
-        df = df.copy()
-
         # If the limit is zero, do nothing and return the copied data frame
         if limit == 0:
             return df
-        
+
+        # make a copy of the original data frame to avoid modifying it directly
+        df = df.copy()
+
         # Isolate the data series we are going to interpolate
         data_series = df[col_name]
 

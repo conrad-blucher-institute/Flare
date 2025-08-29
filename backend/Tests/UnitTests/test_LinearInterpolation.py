@@ -2,7 +2,7 @@
 #test_LinearInterpolation.py
 #-------------------------------
 # Created By: Christian Quintero
-# Last Updated: 08/22/2025
+# Last Updated: 08/29/2025
 #----------------------------------
 """
 This file tests the LinearInterpolation PPC 
@@ -16,8 +16,7 @@ sys.path.append('/app/backend')
 import pytest
 import pandas as pd
 import logging
-from math import isclose
-from pandas import DataFrame, date_range, read_csv, Series
+from pandas import DataFrame, date_range
 from numpy import nan
 from datetime import datetime
 from PostProcessing.IPostProcessing import post_process_factory
