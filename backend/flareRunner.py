@@ -21,15 +21,12 @@ from PostProcessing.IPostProcessing import post_process_factory
 
 def generate_csv(cspec_file_path: str, verbose: bool = False) -> None:
     
-    
-    
     # Parse CSPEC
     try:
         CSPEC = CSPEC_Parser(cspec_file_path).parse_CSPEC()
     except Exception as e:
         raise RuntimeError(f"Failed to parse CSPEC: {cspec_file_path}") from e
         
-    thread_storage.logger = Logger(CSPEC.chart_name)
     logger = thread_storage.logger
 
     # Initialize reference data and data structures

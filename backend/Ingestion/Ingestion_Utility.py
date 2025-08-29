@@ -18,10 +18,10 @@ def api_request( url: str):
             data = json.loads(''.join([line.decode() for line in response.readlines()])) #Download and parse
         return data
     except HTTPError as err:
-        logger.log_error(f'[URL:{url}] Fetch failed, HTTPError of code: {err.status} for: {err.reason}',error_type="HTTPError",include_traceback=True)
+        logger.log_error(f'[URL:{url}] Fetch failed, HTTPError of code: {err.status} for: {err.reason}',error_type="HTTPError")
         return None
     except Exception as ex:
-        logger.log_error(message=f'[URL:{url}] Fetch failed, unhandled exceptions: {ex}',include_traceback=True)
+        logger.log_error(message=f'[URL:{url}] Fetch failed, unhandled exceptions: {ex}')
         return None
     
 

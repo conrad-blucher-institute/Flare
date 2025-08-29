@@ -89,14 +89,14 @@ class SemaphoreInputs(IDataIngestion):
                         logger.log_info(f"Parsed value is not a list: {value_array}")
                         data.append(nan)  # Append NaN if it's not a list
                 except (ValueError, SyntaxError) as e:
-                    logger.log_error(message=f"[source:{self.source} series:{self.series} location: {self.location}] Error decoding array: {value} -> {e} for source={self.source}, series={self.series}, location={self.location}",error_type="ValueError, SyntaxError",include_traceback=True)
+                    logger.log_error(message=f"[source:{self.source} series:{self.series} location: {self.location}] Error decoding array: {value} -> {e} for source={self.source}, series={self.series}, location={self.location}",error_type="ValueError, SyntaxError")
                     data.append(nan)  # Append NaN if parsing fails
             else: 
                 try:
                     value = float(value)
                     data.append(value)
                 except ValueError:
-                    logger.log_error(message=f"[source:{self.source} series:{self.series} location: {self.location}] Error converting value to float: {value}",error_type="ValueError",include_traceback=True)
+                    logger.log_error(message=f"[source:{self.source} series:{self.series} location: {self.location}] Error converting value to float: {value}",error_type="ValueError")
                     data.append(nan)  # Append NaN if conversion fails
 
         # Add this to the collation df with an outer join to ensure all data is preserved
