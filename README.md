@@ -42,7 +42,9 @@ Flare is a student-built and maintained web application that visualizes data gen
 3. Build containers
    - Run `docker compose build`
    - Run `docker compose up -d`
-4. Run the development enviornment : `npm run dev`
+4. Ensure the CSV URL for the chart is directed to the correct port. Port 8080 hosts the dynamic csv files:
+   'const csvURL = ref(`http://localhost:8080/flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv`);'
+5. Run the development enviornment : `npm run dev`. NOTE: 'r' to restart the server after changes. 'q' to quit the server.
 
 
 ## Authors
