@@ -18,6 +18,7 @@ from importlib import import_module
 from pandas import DataFrame
 
 
+
 class IPostProcessing(ABC):
 
     @abstractmethod
@@ -32,12 +33,12 @@ def post_process_factory(data: DataFrame, key: str, kwargs) -> DataFrame:
         :kwargs: dict - The keyword args to pas to the resulting method. Make sure this is formatted as the targeted method wants.
         :returns bool - True indicated the process succeeded while false indicated it failed for some reason. 
     """
+
     try:
         post_processing_class: IPostProcessing = getattr(import_module(f'.PostProcessingClasses.{key}', 'PostProcessing'), key)()
         return post_processing_class.post_process(data, **kwargs)
-    except ModuleNotFoundError:
-        raise ModuleNotFoundError(f'[Error]:: No module named {key} in PostProcessingClasses!')
+    except ModuleNotFoundError as e:
+        raise ModuleNotFoundError(f'No module named {key} in PostProcessingClasses!') from e
     except TypeError as e:
-        print(e)
-        raise TypeError(f'[Error]:: kwargs mismatch for key: {key} and kwargs: {kwargs}')
+        raise TypeError(f'{e}.kwargs mismatch for key: {key} and kwargs: {kwargs}') from e
     

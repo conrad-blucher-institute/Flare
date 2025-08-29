@@ -15,12 +15,14 @@ from os.path import exists
 from json import load
 from DataClasses import *
 
+
+
 class CSPEC_Parser:
     def __init__(self, file_path: str) -> None:
 
         if not exists(file_path):
-            print(f'{file_path} not found!')
-            raise FileNotFoundError
+            raise FileNotFoundError(f'{file_path} not found!')
+
         with open(file_path) as CSPEC_file:
             
             # Read CSPEC from file and grab version

@@ -18,6 +18,7 @@ from pandas import DataFrame
 from datetime import datetime
 
 
+
 class IDataIngestion(ABC):
 
     @abstractmethod
@@ -33,11 +34,14 @@ def data_ingestion_factory(data: DataFrame, ref_time: datetime,  key: str, kwarg
         :kwargs: dict - The keyword args to pas to the resulting method. Make sure this is formatted as the targeted method wants.
         :returns DataFrame - A reference to the most updated DataFrame
     """
+
     try:
         ingestion_class: IDataIngestion = getattr(import_module(f'.IngestionClasses.{key}', 'Ingestion'), key)()
         return ingestion_class.ingest_data(data, ref_time, **kwargs)
-    except ModuleNotFoundError:
-        raise ModuleNotFoundError(f'[Error]:: No module named {key} in IngestionClasses!')
+    except ModuleNotFoundError as e:
+        raise ModuleNotFoundError(f'No module named {key} in IngestionClasses!') from e
+        
     except TypeError as e:
-        raise TypeError(f'[Error]:: kwargs mismatch for key: {key} and kwargs: {kwargs}\n{e}')
+        raise TypeError(f'kwargs mismatch for key: {key} and kwargs: {kwargs}') from e
+        
     
