@@ -10,7 +10,10 @@ These data classes are to make function call more generic and readable
 # 
 #
 #Imports
-
+from datetime import datetime
+import sys
+import inspect
+import traceback
 
 class Call():
     def __init__(self, call_key: str, **kwargs) -> None:
@@ -51,4 +54,42 @@ class CSPEC():
     csv_name: {self.csv_name}\n\
     included_columns: {self.included_columns}\n\
 ---------------------------------------' 
+
+
+class Logger():
+    def __init__(self, chart_name: str | None = None):
+        self.chart_name = chart_name
+      
+      
+    #Add the chart name
+    def log_info(self, message: str) -> None:
+        """Logs an info-level message to stdout with timestamp."""
+        timestamp = datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
+        
+        print(f"[{timestamp}] [Chart:{self.chart_name}] {message}", file=sys.stdout)
+        
+    def log_error(self, message: str, error_type: str = "ERROR", include_traceback: bool = True ) -> None:
+        """Logs an error-level message to stderr with timestamp."""
+        timestamp = datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
+        
+        # Get the caller's location
+        frame = inspect.currentframe().f_back
+        location = f"{frame.f_globals.get('__name__', '__main__')}::{frame.f_code.co_name}()"
+
+        print(file=sys.stderr)  # Blank line for spacing
+        print("=" * 80, file=sys.stderr)
+        print(f"[{timestamp}] {error_type}", file=sys.stderr)
+        print(f"Location    : {location}", file=sys.stderr)
+        print(f"ChartName   : {self.chart_name}", file=sys.stderr)
+        print(f"Message     : {message}", file=sys.stderr)
+
+        if include_traceback:
+            tb = traceback.format_exc()
+            if tb.strip() != "NoneType: None":
+                print("Traceback   :", file=sys.stderr)
+                print(tb, file=sys.stderr)
+
+        print("=" * 80, file=sys.stderr)
+        print(file=sys.stderr)
+        
         

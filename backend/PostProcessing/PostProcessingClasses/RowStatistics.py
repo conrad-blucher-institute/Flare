@@ -35,6 +35,7 @@ class RowStatistics(IPostProcessing):
         Returns:
             DataFrame: Original DataFrame with new columns based on selected statistics.
         """
+
         
         df = data.copy()
         

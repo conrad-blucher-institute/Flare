@@ -15,6 +15,7 @@ from PostProcessing.IPostProcessing import IPostProcessing
 from pandas import DataFrame
 
 
+
 class ArithmeticOperation(IPostProcessing):
 
     def post_process(self, data: DataFrame, op: str, left_col_key: str, right_col_key: str, out_col_key: str) -> DataFrame:
@@ -50,6 +51,7 @@ class ArithmeticOperation(IPostProcessing):
                 }
             },
         """
+
         # Preform the requested operation on the data
         match op:
             case 'addition':
@@ -63,6 +65,6 @@ class ArithmeticOperation(IPostProcessing):
             case 'modulo':
                 data[out_col_key] = data[left_col_key] % data[right_col_key]
             case _:
-                raise NotImplementedError(f'ERROR:: {op} not found in ArithmeticOperation class')
+                raise NotImplementedError(f'{op} not found in ArithmeticOperation class')
 
         return data

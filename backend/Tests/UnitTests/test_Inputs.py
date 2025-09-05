@@ -14,6 +14,8 @@ from Ingestion.I_Ingestion import data_ingestion_factory
 from datetime import datetime
 from numpy import nan
 from pandas import DataFrame
+from runtimeContext import thread_storage
+from DataClasses import Logger
 
 # Numeric test data
 
@@ -28,7 +30,8 @@ from pandas import DataFrame
 def test_post_process_data(column_name: str, location: str, source: str, series: str, interval: str, range: list[int], datum: str):
     """This function tests the post process method in the Arithmetic Operation post process class.
     """
-
+    thread_storage.logger = Logger()
+    logger = thread_storage.logger
     test_df = DataFrame()
     reference_time = datetime.now()
     reference_time = reference_time.replace(second=0, microsecond=0)
