@@ -2,7 +2,7 @@
 # LinearInterpolation.py
 #-------------------------------
 # Created By: Christian Quintero
-# Last Updated: 08/29/2025
+# Last Updated: 09/09/2025
 #-------------------------------
 """
 The post processing in this file performs linear interpolation of a column.
@@ -30,7 +30,7 @@ class LinearInterpolation(IPostProcessing):
             df: DataFrame: The DataFrame containing the data we want to interpolate.
             col_name: str - The column in the DataFrame to interpolate.
             interpolation_interval: int - The interval to interpolate data on, in seconds.
-            limit: int - The amount of consecutive NaNs in a row to interpolate.
+            limit: int - The amount of time between 2 real values that will be interpolated, in seconds.
 
         Returns:
             DataFrame : A new dataframe obj might have to be created, this will always be a reference to the most updated version.
@@ -48,51 +48,55 @@ class LinearInterpolation(IPostProcessing):
         },
         """
 
+
         # Validate the arguments passed to the post_process method
         self.validate_args(df, col_name, interpolation_interval, limit)
 
-        # If the limit is zero, do nothing and return the copied data frame
+
+        # If the limit is zero, do nothing and return the data frame
         if limit == 0:
             return df
+
 
         # make a copy of the original data frame to avoid modifying it directly
         df = df.copy()
 
+
         # Isolate the data series we are going to interpolate
         data_series = df[col_name]
+
 
         # Count the number of non-NaN values in the original data series for logging purposes 
         original_data_count = data_series.dropna().shape[0]
 
-        # The index of the data frame isn't necessarily correct for the values we want to interpolate for this series. Thus we reindex
-        # the data to the specific interval we want to interpolate on.
-        data_series = data_series.reindex(date_range(start=data_series.index[0], end=data_series.index[-1], freq=timedelta(seconds=interpolation_interval)))
 
-        # Log if data was lost during reindexing
-        reindexed_data_count = data_series.dropna().shape[0]
-        if reindexed_data_count < original_data_count:
-            logging.warning(f"Data loss during reindexing: {original_data_count - reindexed_data_count} values lost in column '{col_name}'")
-
-        # make a copy of the data and find gaps larger than the limit
-        # gaps larger than the limit will be replaced with a dummy value (-9999)
-        # gaps smaller than the limit will be left as NaN
+        # find gaps whose timestamps difference is larger than the limit
+        # time gaps larger than the limit will be replaced with a dummy value (-9999)
+        # time gaps smaller than the limit will be left as NaN
         masked_data_series = self.fill_large_gaps(data_series, limit)
 
         # interpolate the entire series
-        # this will fill all the small NaN gaps and leave the dummy values in the large gaps
+        # this will fill all the small NaN gaps and leave the dummy values in the large time gaps
         interpolated_data_series = masked_data_series.interpolate(limit_area='inside', method='time')
 
         # find all dummy values and replace them with NaN
         interpolated_data_series.loc[interpolated_data_series == self.DUMMY_VALUE] = np.nan
 
-        # drop original column and replace with the interpolated one
+        # after interpolating, we reindex to the interval specified
+        reindexed_data_series = interpolated_data_series.reindex(date_range(start=interpolated_data_series.index[0], end=interpolated_data_series.index[-1], freq=timedelta(seconds=interpolation_interval)))
+
+        # Log if data was lost during reindexing
+        reindexed_data_count = reindexed_data_series.dropna().shape[0]
+        if reindexed_data_count < original_data_count:
+            logging.warning(f"Data loss during reindexing: {original_data_count - reindexed_data_count} values lost in column '{col_name}'")
+
+        # drop original column and replace with the interpolated and reindexed one
         df.drop(columns=[col_name], inplace=True)
-        df = df.join(interpolated_data_series, how='outer')
+        df = df.join(reindexed_data_series, how='outer')
 
         # return the modified data frame
         return df
     
-
 
     def validate_args(self, df: DataFrame, col_name: str, interpolation_interval: int, limit: int):
         """
@@ -140,21 +144,20 @@ class LinearInterpolation(IPostProcessing):
             raise ValueError(f"[ERROR]:: Limit must be greater than or equal to 0, got {limit} instead.")
 
 
-
     def fill_large_gaps(self, data_series: pd.Series, limit: int) -> pd.Series:
         """ 
-        This method is used to find the gaps in the data that are larger than the limit and fill them with the dummy value.
-        If a gap > limit is found, it is replaced with a dummy value (-9999).
-        After all large gaps are replaced, the series is returned with dummy values in place of large NaN gaps,
-        keeping the small gaps as NaNs. 
+        This method is used to find the time gaps whose difference is larger than the limit.
+        That is, if the time difference (in seconds) is > limit, the time betwee 2 real values is too long
+        and we will not interpolate the values in between. Instead, we will replace the NaN values in large time gaps with a dummy value (-9999)
+        to mark them as invalid for interpolation.
+        This will leave time gaps <= limit as NaN, and time gaps > limit will be replaced with the dummy value.
         
         Args:
             data_series: pd.Series - The series of data to find gaps in.
-            limit: int - The maximum number of consecutive NaN entries that will be interpolated.
-                Any group of consecutive NaNs that are larger than this value will stay as NaNs.
+            limit: int - The maximum number of seconds between 2 real values that will be interpolated.
 
         Returns:
-            pd.Series : A new series with dummy values in place of large NaN gaps, with small gaps left as NaN.
+            pd.Series : A new series with dummy values in place of long time gaps and with NaNs left in place for small time gaps.
         
         """
 
@@ -162,8 +165,8 @@ class LinearInterpolation(IPostProcessing):
         data_series = data_series.copy()
 
         # initialize variables 
-        nan_gap_start = None                 # to mark the beginning of a NaN gap aka NaN streak
-        nan_gap_end = None                   # to mark the end of a NaN gap aka NaN streak
+        nan_gap_start = None                 # to mark the beginning of a NaN gap
+        nan_gap_end = None                   # to mark the end of a NaN gap
         nan_gap_size = None                  # to mark the size of a NaN gap. This is the difference between nan_gap_end - nan_gap_start 
         i = 0                                # index for iterating over the data series   
 
@@ -183,18 +186,23 @@ class LinearInterpolation(IPostProcessing):
                 # mark the end of a NaN gap
                 nan_gap_end = i
 
-                # by subtracting the start from the end, we can find the size of the NaN gap
-                # for example, a nan_gap_size of 2 means 2 consecutive NaNs were found
-                nan_gap_size = nan_gap_end - nan_gap_start
+                # calculate the time difference between 2 real values in seconds
+                # start gets subtracted by 1 to get the last real value before the NaN gap
+                # and end is already set to the first real value after the NaN gap
+                time_difference = data_series.index[nan_gap_start - 1] - data_series.index[nan_gap_end]
+                time_difference = abs(time_difference.total_seconds())
 
-                # if the gap size is > limit, replace with dummy values, otherwise, leave the small gaps as NaN
-                if nan_gap_size > limit:
+                # if the time gap size is > limit, replace with dummy values, otherwise, leave the small time gaps as NaN
+                if time_difference > limit:
 
-                    # replace large gaps with dummy value
+                    # replace large time gaps with dummy value.
                     # excludes the nan_gap_end index
                     data_series.iloc[nan_gap_start:nan_gap_end] = self.DUMMY_VALUE
+
+            # if a non NaN value is found, continue to next index
             else:
                 i = i + 1
+
         # end while loop
         
         # return the modified copy with dummy values in place of large NaN gaps
