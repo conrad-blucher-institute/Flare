@@ -48,34 +48,28 @@ class LinearInterpolation(IPostProcessing):
         },
         """
 
-
         # Validate the arguments passed to the post_process method
         self.validate_args(df, col_name, interpolation_interval, limit)
-
 
         # If the limit is zero, do nothing and return the data frame
         if limit == 0:
             return df
 
-
         # make a copy of the original data frame to avoid modifying it directly
         df = df.copy()
-
 
         # Isolate the data series we are going to interpolate
         data_series = df[col_name]
 
-
         # Count the number of non-NaN values in the original data series for logging purposes 
         original_data_count = data_series.dropna().shape[0]
-
 
         # find gaps whose timestamps difference is larger than the limit
         # time gaps larger than the limit will be replaced with a dummy value (-9999)
         # time gaps smaller than the limit will be left as NaN
         masked_data_series = self.fill_large_gaps(data_series, limit)
 
-        # interpolate the entire series
+        # interpolate the entire series using time based interpolation and only fill NaNs between real values
         # this will fill all the small NaN gaps and leave the dummy values in the large time gaps
         interpolated_data_series = masked_data_series.interpolate(limit_area='inside', method='time')
 
@@ -88,7 +82,7 @@ class LinearInterpolation(IPostProcessing):
         # Log if data was lost during reindexing
         reindexed_data_count = reindexed_data_series.dropna().shape[0]
         if reindexed_data_count < original_data_count:
-            logging.warning(f"Data loss during reindexing: {original_data_count - reindexed_data_count} values lost in column '{col_name}'")
+            logging.warning(f"[WARNING]: Data loss during reindexing: {original_data_count - reindexed_data_count} values lost in column '{col_name}'")
 
         # drop original column and replace with the interpolated and reindexed one
         df.drop(columns=[col_name], inplace=True)
@@ -102,7 +96,7 @@ class LinearInterpolation(IPostProcessing):
         """
         This method validates the arguments passed to the post_process method.
 
-        NOTE:: A limit of 0 is a special case that will not interpolate any data, but will return a copy of the DataFrame.
+        NOTE:: A limit of 0 is a special case that will not interpolate any data, but will return the original DataFrame.
         This is done in the post_process method after validation, since this method does not return anything.
         """
 
@@ -139,7 +133,7 @@ class LinearInterpolation(IPostProcessing):
             raise TypeError(f"[ERROR]:: Limit must be an integer, got {type(limit)} instead.")
         
         # limit must be greater than or equal to 0.
-        # A limit of 0 is a special case that will not interpolate any data, but will return a copy of the original DataFrame.
+        # A limit of 0 is a special case that will not interpolate any data, but will return the original DataFrame.
         if limit < 0:
             raise ValueError(f"[ERROR]:: Limit must be greater than or equal to 0, got {limit} instead.")
 
@@ -148,8 +142,8 @@ class LinearInterpolation(IPostProcessing):
         """ 
         This method is used to find the time gaps whose difference is larger than the limit.
         That is, if the time difference (in seconds) is > limit, the time betwee 2 real values is too long
-        and we will not interpolate the values in between. Instead, we will replace the NaN values in large time gaps with a dummy value (-9999)
-        to mark them as invalid for interpolation.
+        and we will not interpolate the values in between. Instead, we will replace the NaN values in large
+        time gaps with a dummy value (-9999) to mark them as invalid for interpolation.
         This will leave time gaps <= limit as NaN, and time gaps > limit will be replaced with the dummy value.
         
         Args:
@@ -166,10 +160,8 @@ class LinearInterpolation(IPostProcessing):
 
         # initialize variables 
         nan_gap_start = None                 # to mark the beginning of a NaN gap
-        nan_gap_end = None                   # to mark the end of a NaN gap
-        nan_gap_size = None                  # to mark the size of a NaN gap. This is the difference between nan_gap_end - nan_gap_start 
+        nan_gap_end = None                   # to mark the end of a NaN gap 
         i = 0                                # index for iterating over the data series   
-
 
         # iterate over the data series
         while i < len(data_series):
@@ -186,13 +178,13 @@ class LinearInterpolation(IPostProcessing):
                 # mark the end of a NaN gap
                 nan_gap_end = i
 
-                # calculate the time difference between 2 real values in seconds
+                # calculate the time difference between 2 real values in seconds.
                 # start gets subtracted by 1 to get the last real value before the NaN gap
                 # and end is already set to the first real value after the NaN gap
                 time_difference = data_series.index[nan_gap_start - 1] - data_series.index[nan_gap_end]
                 time_difference = abs(time_difference.total_seconds())
 
-                # if the time gap size is > limit, replace with dummy values, otherwise, leave the small time gaps as NaN
+                # if the time gap size is > limit, replace with dummy values and leave the small time gaps as NaN
                 if time_difference > limit:
 
                     # replace large time gaps with dummy value.
