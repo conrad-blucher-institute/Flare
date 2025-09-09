@@ -162,8 +162,7 @@ class LinearInterpolation(IPostProcessing):
         nan_gap_start = None                 # to mark the beginning of a NaN gap
         nan_gap_end = None                   # to mark the end of a NaN gap 
         i = 0                                # index for iterating over the data series   
-        one_hour_in_seconds = 3600           # to account for time difference calculation
-
+    
         # iterate over the data series
         while i < len(data_series):
             
@@ -178,6 +177,10 @@ class LinearInterpolation(IPostProcessing):
                 
                 # mark the end of a NaN gap
                 nan_gap_end = i
+
+                if nan_gap_end >= len(data_series):
+                    # if we reached the end of the series, break out of the loop
+                    break
 
                 # calculate the time difference between 2 real values in seconds.
                 # start is set to the first NaN value in the gap
