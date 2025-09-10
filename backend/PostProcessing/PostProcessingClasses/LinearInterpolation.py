@@ -20,8 +20,9 @@ import logging
 
 class LinearInterpolation(IPostProcessing):
 
-    # Dummy value used to replace large gaps in the data
-    DUMMY_VALUE = -9999  
+    # Dummy values used to mark to large time gaps that should not be interpolated
+    DUMMY_VALUE = -9999
+
 
     def post_process(self, df: DataFrame, col_name: str, interpolation_interval: int, limit: int) -> DataFrame:
         """The post processing in this file performs a linear interpolation of a column.
@@ -68,6 +69,7 @@ class LinearInterpolation(IPostProcessing):
         # time gaps larger than the limit will be replaced with a dummy value (-9999)
         # time gaps smaller than the limit will be left as NaN
         masked_data_series = self.fill_large_gaps(data_series, limit)
+        
 
         # interpolate the entire series using time based interpolation and only fill NaNs between real values
         # this will fill all the small NaN gaps and leave the dummy values in the large time gaps
@@ -159,50 +161,38 @@ class LinearInterpolation(IPostProcessing):
         data_series = data_series.copy()
 
         # initialize variables 
-        nan_gap_start = None                 # to mark the beginning of a NaN gap
-        nan_gap_end = None                   # to mark the end of a NaN gap 
-        i = 0                                # index for iterating over the data series   
-    
+        nan_gap_start_index = None                     # holds the index of the first nan in a gap
+        next_real_value_index = None                   # holds the index of the next real value after a gap
+        i = 0                                          # iterator
+
         # iterate over the data series
         while i < len(data_series):
             
             # when a NaN is found, mark the start of a NaN gap
             if pd.isna(data_series.iloc[i]):
+                
+                # holds the position of the first nan in a gap
+                nan_gap_start_index = i
 
-                nan_gap_start = i
-
-                # from the first NaN, continue to iterate until a non-NaN value is found
+                # from the first NaN, continue to iterate until a real value is found
                 while i < len(data_series) and pd.isna(data_series.iloc[i]):
                     i = i + 1
                 
-                # mark the end of a NaN gap
-                nan_gap_end = i
+                # mark the end of a NaN gap (holds a real value)
+                next_real_value_index = i
 
-                if nan_gap_end >= len(data_series):
-                    # if we reached the end of the series, break out of the loop
-                    break
+                # calculate how many seconds are between the first nan in the gap, and the next real value
+                # Ex) a time difference of 18000 seconds, means there are 5 hours of nans in between 2 real values
+                time_difference = data_series.index[next_real_value_index] - data_series.index[nan_gap_start_index]
+                time_difference_seconds = time_difference.total_seconds()
 
-                # calculate the time difference between 2 real values in seconds.
-                # start is set to the first NaN value in the gap
-                # and end is set to the first non-NaN value after the gap
-                time_difference = data_series.index[nan_gap_end] - data_series.index[nan_gap_start]
-                time_difference = time_difference.total_seconds()
-
-                # if the time gap size is > limit, replace with dummy values and leave the small time gaps as NaN
-                if time_difference > limit:
-
-                    # replace large time gaps with dummy value.
-                    # excludes the nan_gap_end index
-                    data_series.iloc[nan_gap_start:nan_gap_end] = self.DUMMY_VALUE
-
-            # if a non NaN value is found, continue to next index
+                # if the time difference is larger than the limit, replace the NaNs in between with the dummy value
+                if time_difference_seconds > limit:
+                    data_series.iloc[nan_gap_start_index:next_real_value_index] = self.DUMMY_VALUE
+                
             else:
                 i = i + 1
-
         # end while loop
         
         # return the modified copy with dummy values in place of large NaN gaps
         return data_series
-
-
-
