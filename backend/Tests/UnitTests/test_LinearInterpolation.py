@@ -214,6 +214,13 @@ This next section tests reindexing when the interval is higher than our index fr
 def test_higher_interval():
     """
     A basic test to ensure reindexing works when the interval is higher than the index frequency.
+    In this test, we join the reindexed interpolated data back to the original dataframe,
+    so this means we should keep all non-nan values from the original dataframe,
+    and fill in interpolated values where they landed on the reindexed intervals.
+    
+    Nan values that existed in the original df and do not land on the reindexed interval
+    (regardless of whether they were interpolated or not)
+    remain as nans.
     """
     test_data = [1.0, nan, nan, nan, 5.0, nan, nan, nan, 9.0, nan, nan, nan, 13.0]
     test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=13, freq='3600s')     
