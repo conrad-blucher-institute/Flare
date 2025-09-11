@@ -181,6 +181,13 @@ class LinearInterpolation(IPostProcessing):
                 # mark the end of a NaN gap (holds a real value)
                 next_real_value_index = i
 
+                # this handles the case where the series ends with NaNs
+                # and also prevents index out of range errors
+                if next_real_value_index >= len(data_series):
+                    # Mark all trailing NaNs as dummy values since there's no next real value
+                    data_series.iloc[nan_gap_start_index:] = self.DUMMY_VALUE
+                    break
+
                 # calculate how many seconds are between the first nan in the gap, and the next real value
                 # Ex) a time difference of 18000 seconds, means there are 5 hours of nans in between 2 real values
                 time_difference = data_series.index[next_real_value_index] - data_series.index[nan_gap_start_index]
