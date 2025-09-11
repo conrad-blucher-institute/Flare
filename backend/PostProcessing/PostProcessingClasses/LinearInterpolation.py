@@ -2,7 +2,7 @@
 # LinearInterpolation.py
 #-------------------------------
 # Created By: Christian Quintero
-# Last Updated: 09/09/2025
+# Last Updated: 09/11/2025
 #-------------------------------
 """
 The post processing in this file performs linear interpolation of a column.
@@ -70,7 +70,6 @@ class LinearInterpolation(IPostProcessing):
         # time gaps smaller than the limit will be left as NaN
         masked_data_series = self.fill_large_gaps(data_series, limit)
         
-
         # interpolate the entire series using time based interpolation and only fill NaNs between real values
         # this will fill all the small NaN gaps and leave the dummy values in the large time gaps
         interpolated_data_series = masked_data_series.interpolate(limit_area='inside', method='time')
@@ -81,14 +80,18 @@ class LinearInterpolation(IPostProcessing):
         # after interpolating, we reindex to the interval specified
         reindexed_data_series = interpolated_data_series.reindex(date_range(start=interpolated_data_series.index[0], end=interpolated_data_series.index[-1], freq=timedelta(seconds=interpolation_interval)))
 
-        # Log if data was lost during reindexing
-        reindexed_data_count = reindexed_data_series.dropna().shape[0]
-        if reindexed_data_count < original_data_count:
-            logging.warning(f"[WARNING]: Data loss during reindexing: {original_data_count - reindexed_data_count} values lost in column '{col_name}'")
-
-        # drop original column and replace with the interpolated and reindexed one
+        # Preserve original values that aren't NaN by combining with reindexed values
+        # Use combine_first to prioritize original values where they exist
+        final_series = data_series.combine_first(reindexed_data_series)
+    
+        # drop original column and replace with the combined series
         df.drop(columns=[col_name], inplace=True)
-        df = df.join(reindexed_data_series, how='outer')
+        df = df.join(final_series, how='outer')
+
+        # Log if data was lost 
+        final_series_data_count = final_series.dropna().shape[0]
+        if final_series_data_count < original_data_count:
+            logging.warning(f"[WARNING]: Data loss during reindexing: {original_data_count - final_series_data_count} values lost in column '{col_name}'")
 
         # return the modified data frame
         return df
