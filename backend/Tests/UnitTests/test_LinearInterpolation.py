@@ -125,3 +125,56 @@ def test_start_end_nans():
     pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 # end section one
+
+def test_real_data():
+    """
+    This test uses real NDFD data returned from calling NDFD without interpolating.
+    This is to check that the code is working as expected, because Flare refues to interpolate 
+    data as expected, so to ensure the code is working, we use real data that has been manually checked.
+    """
+    test_data = [28.0, 28.0, 28.0, 28.0, 28.0, 29.0, 30.0, 30.0, 31.0, 31.0, 31.0,
+                  31.0, 31.0, 31.0, 31.0, 30.0, 30.0, 30.0, 30.0, 30.0, 29.0, 29.0, 29.0, 29.0, 29.0,
+                  28.0, 28.0, 28.0, 28.0, 29.0, 30.0, 30.0, 29.0, 31.0, 31.0, 30.0, 32.0,
+                  30.0, 30.0, 30.0, 30.0, 29.0, 30.0, 29.0, 29.0, 29.0, 29.0, 28.0, 29.0,
+                  28.0, 28.0, 28.0, 27.0, 29.0, 30.0, 29.0, 29.0, 31.0, 31.0, 30.0, 32.0, 
+                  30.0, 30.0, 30.0, 30.0, 29.0, 29.0, 29.0, 29.0, 29.0, 29.0, 28.0, 28.0,
+                  28.0, 28.0, 28.0, 28.0, 29.0, 29.0, 29.0, 29.0, 31.0, 31.0, 30.0, 30.0,
+                  30.0, 31.0, 30.0, 30.0, 29.0, 29.0, 29.0, 29.0, 29.0, 29.0, 28.0, 28.0,
+                  28.0, 28.0, 28.0, 28.0, 29.0, 29.0, 29.0, 29.0, 31.0, 31.0, 30.0, 30.0,
+                  30.0, 30.0, 30.0, 30.0, 29.0, 29.0, 29.0, 29.0, 29.0, 29.0, 28.0, 28.0,
+                  28.0, 28.0, 27.0, 27.0, 28.0, nan, nan, nan, 30.0, nan, nan, nan, nan, nan, 30.0,
+                  nan, nan, nan, nan, nan, 29.0, nan, nan, nan, nan, nan, 27.0, nan, nan, nan, nan, nan, 30.0,
+                  nan, nan, nan, nan, nan, 30.0, nan, nan, nan, nan, nan, nan, nan, nan, 30.0]
+    test_index = date_range(datetime(2025, 9, 15, 1, 0, 0), periods=len(test_data), freq='3600s')
+    test_df = DataFrame({'test_col': test_data}, index=test_index)
+
+    expected_data = [28.0, 28.0, 28.0, 28.0, 28.0, 29.0, 30.0, 30.0, 31.0, 31.0, 31.0,
+                  31.0, 31.0, 31.0, 31.0, 30.0, 30.0, 30.0, 30.0, 30.0, 29.0, 29.0, 29.0, 29.0, 29.0,
+                  28.0, 28.0, 28.0, 28.0, 29.0, 30.0, 30.0, 29.0, 31.0, 31.0, 30.0, 32.0,
+                  30.0, 30.0, 30.0, 30.0, 29.0, 30.0, 29.0, 29.0, 29.0, 29.0, 28.0, 29.0,
+                  28.0, 28.0, 28.0, 27.0, 29.0, 30.0, 29.0, 29.0, 31.0, 31.0, 30.0, 32.0, 
+                  30.0, 30.0, 30.0, 30.0, 29.0, 29.0, 29.0, 29.0, 29.0, 29.0, 28.0, 28.0,
+                  28.0, 28.0, 28.0, 28.0, 29.0, 29.0, 29.0, 29.0, 31.0, 31.0, 30.0, 30.0,
+                  30.0, 31.0, 30.0, 30.0, 29.0, 29.0, 29.0, 29.0, 29.0, 29.0, 28.0, 28.0,
+                  28.0, 28.0, 28.0, 28.0, 29.0, 29.0, 29.0, 29.0, 31.0, 31.0, 30.0, 30.0,
+                  30.0, 30.0, 30.0, 30.0, 29.0, 29.0, 29.0, 29.0, 29.0, 29.0, 28.0, 28.0,
+                  28.0, 28.0, 27.0, 27.0, 28.0, 28.5, 29.0, 29.5, 30.0, 30.0, 30.0, 30.0, 30.0, 30.0, 30.0,
+                  29.83333333, 29.66666667, 29.5, 29.33333333, 29.16666667, 29.0, 28.66666667, 28.33333333,
+                  28.0, 27.66666667, 27.33333333, 27.0, 27.5, 28.0, 28.5, 29.0, 29.5, 30.0,
+                  30.0, 30.0, 30.0, 30.0, 30.0, 30.0, nan, nan, nan, nan, nan, nan, nan, nan, 30.0]
+    expected_index = date_range(datetime(2025, 9, 15, 1, 0, 0), periods=len(expected_data), freq='3600s')
+    expected_df = DataFrame({'test_col': expected_data}, index=expected_index)
+
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 3600,  # 1 hour
+        "limit": 18000                   # 5 hours
+    }
+
+    # call post process factory to do the post process
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+    result_df = result_df
+
+    # compare
+    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
+
