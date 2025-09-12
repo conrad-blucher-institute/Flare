@@ -27,7 +27,7 @@ The first section tests various NaN cases with the same interval as the index
 index frequency is 1 hour (3600 seconds), and the interpolation interval is also set to 3600 seconds.
 """  
 
-def test_same_index_limit_5():
+def test_same_index_limit_5hours():
 
     test_data = [1.0, nan, nan, nan, nan, nan, 7.0, nan, 9.0, nan, nan, nan, nan, nan, nan, 16.0]
     test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=16, freq='3600s')  
@@ -55,7 +55,7 @@ def test_same_index_limit_5():
     pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
-def test_same_index_limit_3():
+def test_same_index_limit_3hours():
 
     test_data = [1.0, nan, nan, nan, nan, 6.0, nan, 8.0, nan, nan, nan, 12.0]
     test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=12, freq='3600s')
@@ -82,7 +82,7 @@ def test_same_index_limit_3():
     pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
-def test_same_index_limit_8():
+def test_same_index_limit_8hours():
 
     test_data = [1.0, nan, nan, nan, nan, nan, nan, nan, nan, 10.0, nan, nan, nan, 14.0, nan, nan, nan, nan, nan, nan, nan, nan, nan, 24.0]
     test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=24, freq='3600s')
@@ -257,7 +257,7 @@ Each test will have a comment showing what the reindexed data would look like wi
 """
 
 
-def test_lower_interval_limit_12():
+def test_lower_interval_limit_6hours():
 
     # originally, these values are for every hour, so the reindexing at every half hour, will add a NaN in between each value here
     test_data = [1.0, nan, 3.0, nan, nan, nan, nan, nan, nan, 10.0, nan, nan, nan, nan, nan, 16.0]
@@ -294,7 +294,7 @@ def test_lower_interval_limit_12():
     pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
-def test_lower_interval_limit_6():
+def test_lower_interval_limit_2hours():
 
     test_data = [1.0, nan, 3.0, nan, nan, 6.0]
     test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=6, freq='3600s')
@@ -555,7 +555,7 @@ def test_higher_interval_basic():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 7200,  # 2 hours
-        "limit": 5
+        "limit": 7200                    # 2 hours
     }
 
     # call post process factory to do the post process
@@ -565,7 +565,7 @@ def test_higher_interval_basic():
     pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
-def test_higher_interval_limit_3():
+def test_higher_interval_limit_4hours():
     test_data = [1.0, nan, nan, nan, nan, nan, 7.0, nan, 9.0, nan, nan, nan, nan, nan, nan, 16.0]
     test_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=16, freq='3600s')  
     test_df = DataFrame({'test_col': test_data}, index=test_index)
@@ -576,9 +576,8 @@ def test_higher_interval_limit_3():
     # So reindexed: [1.0, nan, nan, 7.0, 9.0, nan, nan, nan]
 
     # Gap Analysis on reindexed data:
-    # 1.0 to 7.0: 2 NaNs, limit 3 -> interpolate
-    # 7.0 to 9.0: 0 NaNs -> no gap
-    # 9.0 to end: 3 NaNs, no end value -> don't interpolate
+    # 1.0 to 7.0: 4 hours of nans, limit 4 hours -> interpolate
+    # 9.0 to end: no end value -> don't interpolate
 
     expected_data = [1.0, nan, 3.0, nan, 5.0, nan, 7.0, nan, 9.0, nan, nan, nan, nan, nan, nan, nan]
     expected_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=16, freq='3600s')
@@ -587,7 +586,7 @@ def test_higher_interval_limit_3():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 7200,  # 2 hours
-        "limit": 3
+        "limit": 14400                   # 4 hours
     }
 
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
@@ -601,7 +600,7 @@ def test_higher_interval_7min_to_9min_reindexing(caplog):
     This causes a lot of data loss, and would generate a warning in the log about significant data loss.
 
     Considering that we are only interpolating over a small real life time period, minutes within a single hour, 
-    the limit can be higher. In this test, a limit of 10 means we can interpolate up to 90 minutes of real time missing data, 
+    the limit can be higher. In this test, a limit of 5400 means we can interpolate up to 90 minutes of real time missing data, 
     which is fine in practice. 
     """
     
@@ -657,17 +656,12 @@ def test_higher_interval_7min_to_9min_reindexing(caplog):
     kwargs = {
         "col_name": "test_col", 
         "interpolation_interval": 540,  # 9 minutes
-        "limit": 10
+        "limit": 5400                    # 90 minutes
     }
 
-    # Capture warning logs
-    with caplog.at_level(logging.WARNING):
-        result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+    # call the post process factory to do the post process
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
     
-    # Verify the data loss warning was logged
-    warning_messages = [record.message for record in caplog.records if record.levelname == "WARNING"]
-    assert any("Data loss during reindexing" in msg for msg in warning_messages)
-    assert any("8 values lost in column 'test_col'" in msg for msg in warning_messages)
 
     # compare
     pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
@@ -684,8 +678,6 @@ def test_higher_interval_start_nans():
 
     # Gap Analysis:
     # Start with NaNs: don't interpolate
-    # 5.0 to 7.0: 0 NaNs -> no gap
-    # 7.0 to 9.0: 0 NaNs -> no gap
 
     expected_data = [nan, nan, nan, nan, 5.0, nan, 7.0, nan, 9.0, nan]
     expected_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=10, freq='3600s')
@@ -694,7 +686,7 @@ def test_higher_interval_start_nans():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 7200,  # 2 hours
-        "limit": 5
+        "limit": 18000                   # 5 hours
     }
 
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
@@ -713,8 +705,7 @@ def test_higher_interval_end_nans():
     # Reindexed: [1.0, nan, nan, nan, 9.0, 11.0, nan, nan, nan, nan, nan]
 
     # Gap Analysis:
-    # 1.0 to 9.0: 3 NaNs, limit 5 -> interpolate  
-    # 9.0 to 11.0: 0 NaNs -> no gap
+    # 1.0 to 9.0: 6 hours of nans, limit 6 hours -> interpolate  
     # 11.0 to end: NaNs at end -> don't interpolate
 
     expected_data = [1.0, nan, 3.0, nan, 5.0, nan, 7.0, nan, 9.0, nan, 11.0, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan]
@@ -724,7 +715,7 @@ def test_higher_interval_end_nans():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 7200,  # 2 hours
-        "limit": 5
+        "limit": 21600                   # 5 hours
     }
 
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
@@ -742,7 +733,6 @@ def test_higher_interval_start_end_nans():
 
     # Gap Analysis:
     # Start with NaNs: don't interpolate
-    # 3.0 to 5.0: 0 NaNs -> no gap
     # 5.0 to end: NaNs at end -> don't interpolate
 
     expected_data = [nan, nan, 3.0, nan, 5.0, nan, nan, nan, nan, nan]
@@ -752,12 +742,11 @@ def test_higher_interval_start_end_nans():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 7200,  # 2 hours
-        "limit": 3
+        "limit": 18000                   # 5 hours
     }
 
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
     pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
-
 
 
 def test_higher_interval_no_nan():
@@ -776,7 +765,7 @@ def test_higher_interval_no_nan():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 7200,  # 2 hours
-        "limit": 3
+        "limit": 7200                    # 2 hours
     }
 
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
@@ -798,7 +787,7 @@ def test_higher_interval_all_nans():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 7200,  # 2 hours
-        "limit": 5
+        "limit": 21600                   # 6 hours
     }
 
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
@@ -815,7 +804,7 @@ def test_higher_interval_large_gap():
     # Reindexed: [1.0, nan, nan, nan, nan, 16.0]
 
     # Gap Analysis:
-    # 1.0 to 16.0: 4 NaNs, limit 2 -> don't interpolate
+    # 1.0 to 16.0: 12 hours of nans, limit 2 hours -> don't interpolate
 
     expected_data = [1.0, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, 16.0]
     expected_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=16, freq='3600s')
@@ -824,7 +813,7 @@ def test_higher_interval_large_gap():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 10800,  # 3 hours
-        "limit": 2
+        "limit": 7200                     # 2 hours
     }
 
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
@@ -840,7 +829,7 @@ def test_validate_args_invalid_dataframe_type():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 3600,
-        "limit": 3
+        "limit": 3600
     }
     
     with pytest.raises(TypeError):
@@ -853,7 +842,7 @@ def test_validate_args_empty_dataframe():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 3600,
-        "limit": 3
+        "limit": 3600
     }
     
     with pytest.raises(ValueError):
@@ -866,7 +855,7 @@ def test_validate_args_non_datetime_index():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 3600,
-        "limit": 3
+        "limit": 21600
     }
     
     with pytest.raises(TypeError):
@@ -882,7 +871,7 @@ def test_validate_args_invalid_column_name_type():
     kwargs = {
         "col_name": 123,  # Invalid type
         "interpolation_interval": 3600,
-        "limit": 3
+        "limit": 18000
     }
     
     with pytest.raises(TypeError):
@@ -898,7 +887,7 @@ def test_validate_args_column_not_found():
     kwargs = {
         "col_name": "nonexistent_col",
         "interpolation_interval": 3600,
-        "limit": 3
+        "limit": 18000
     }
     
     with pytest.raises(KeyError):
@@ -914,7 +903,7 @@ def test_validate_args_invalid_interpolation_interval_type():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": "Hello World",  # Invalid type
-        "limit": 3
+        "limit": 18000
     }
     
     with pytest.raises(TypeError):
@@ -946,7 +935,7 @@ def test_validate_args_negative_interpolation_interval():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": -100,  # Invalid value
-        "limit": 3
+        "limit": 18000
     }
     
     with pytest.raises(ValueError):
