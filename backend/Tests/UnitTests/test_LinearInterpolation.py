@@ -270,9 +270,9 @@ def test_lower_interval_limit_12():
     #  nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, 16.0]
 
     # Gap Analysis
-    # 1.0 to 3.0: 3 NaNs, limit 12 -> interpolate
-    # 3.0 to 10.0: 13 NaNs, limit 12 -> do not interpolate
-    # 10.0 to 16.0: 11 NaNs, limit 12 -> interpolate
+    # 1.0 to 3.0: 1.5 hours of nans, limit 6 hours -> interpolate
+    # 3.0 to 10.0: 6.5 hours of NaNs, limit 6 -> do not interpolate
+    # 10.0 to 16.0: 5.5 hours of NaNs, limit 6 -> interpolate
     expected_data = [1.0, 1.5, 2.0, 2.5, 3.0, nan, nan, nan, nan, nan,
                       nan, nan, nan, nan, nan, nan, nan, nan, 10.0, 10.5,
                         11.0, 11.5, 12.0, 12.5, 13.0, 13.5, 14.0, 14.5, 15.0, 15.5, 16.0]
@@ -283,7 +283,7 @@ def test_lower_interval_limit_12():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 1800,  # 30 minutes, causes the reindexing to add NaNs
-        "limit": 12
+        "limit": 21600                   # 6 hours
     }
 
    
@@ -322,8 +322,8 @@ def test_lower_interval_limit_6():
     # Index 15 (05:00): 6.0 (original position 5)
 
     # Gap Analysis:
-    # 1.0 to 3.0: 5 NaNs, limit 6 -> interpolate
-    # 3.0 to 6.0: 8 NaNs, limit 6 -> do not interpolate
+    # 1.0 to 3.0: 1hour 40 mins of nans, limit 2 hours -> interpolate
+    # 3.0 to 6.0: 2 hours 40 mins of nans, limit 2 hours -> do not interpolate
 
     # fractions are used for precision
     expected_data = [1.0, 4.0/3.0, 5.0/3.0, 2.0, 7.0/3.0, 8.0/3.0, 3.0, nan, nan, nan, nan, nan, nan, nan, nan, 6.0]
@@ -334,7 +334,7 @@ def test_lower_interval_limit_6():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 1200,  # 20 minutes
-        "limit": 6
+        "limit": 7200                  # 2 hours
     }
 
     # call post process factory to do the post process
@@ -344,7 +344,7 @@ def test_lower_interval_limit_6():
     pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-9, check_freq=False)
 
 
-def test_lower_interval_limit_7():
+def test_lower_interval_limit_1hour_45mins():
     
 
     test_data = [1.0, nan, 3.0, nan, nan, 6.0]
@@ -355,8 +355,8 @@ def test_lower_interval_limit_7():
     # [1.0, nan, nan, nan, nan, nan, nan, nan, 3.0, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, 6.0]
 
     # Gap Analysis:
-    # 1.0 to 3.0: 7 NaNs, limit 7 -> interpolate
-    # 3.0 to 6.0: 11 NaNs, limit 7 -> do not interpolate
+    # 1.0 to 3.0: 105 minutes of nans (1 hour 45 mins), exactly limit -> interpolate
+    # 3.0 to 6.0: 2 hours 45 mins of nans, limit 1 hour 45 mins -> do not interpolate
 
     expected_data = [1.0, 1.25, 1.5, 1.75, 2.0, 2.25, 2.5, 2.75, 3.0, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, nan, 6.0]
     expected_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=21, freq='900s')
@@ -365,7 +365,7 @@ def test_lower_interval_limit_7():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 900,  # 15 minutes
-        "limit": 7
+        "limit": 6300                   # 1 hour 45 minutes 
     }
 
     # call post process factory to do the post process
@@ -386,8 +386,8 @@ def test_lower_interval_start_nans():
 
     # Gap Analysis:
     # Start with NaNs: do not interpolate
-    # 3.0 to 5.0: 3 NaNs, limit 3 -> interpolate
-    # 5.0 to 6.0: 1 NaN, limit 3 -> interpolate
+    # 3.0 to 5.0: 90 mins of nans, limit 90 mins -> interpolate
+    # 5.0 to 6.0: 30 mis of nans, limit 90 mins -> interpolate
 
     expected_data = [nan, nan, nan, nan, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0]
     expected_index = date_range(datetime(2025, 1, 1, 0, 0, 0), periods=11, freq='1800s')
@@ -396,7 +396,7 @@ def test_lower_interval_start_nans():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 1800,  # 30 minutes
-        "limit": 3
+        "limit": 5400                    # 90 minutes
     }
 
     # call post process factory to do the post process
@@ -416,8 +416,8 @@ def test_lower_interval_end_nans():
     # [1.0, nan, 2.0, nan, nan, nan, nan, nan, 5.0, nan, nan]
 
     # Gap Analysis:
-    # 1.0 to 2.0: 1 NaN, limit 3 -> interpolate
-    # 2.0 to 5.0: 5 NaNs, limit 3 -> do not interpolate
+    # 1.0 to 2.0: 30 mins of nans, limit 90 mins -> interpolate
+    # 2.0 to 5.0: 150 mins of nans, limit 90 mins -> do not interpolate
     # End with NaNs: do not interpolate
 
     expected_data = [1.0, 1.5, 2.0, nan, nan, nan, nan, nan, 5.0, nan, nan]
@@ -427,7 +427,7 @@ def test_lower_interval_end_nans():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 1800,  # 30 minutes
-        "limit": 3
+        "limit": 5400                   # 90 minutes
     }
 
     # call post process factory to do the post process
@@ -448,7 +448,7 @@ def test_lower_interval_start_end_nans():
 
     # Gap Analysis:
     # Start with NaNs: do not interpolate
-    # 3.0 to 5.0: 3 NaNs, limit 3 -> interpolate
+    # 3.0 to 5.0: 90 mins of nans, limit 90 mins -> interpolate
     # End with NaNs: do not interpolate
 
     expected_data = [nan, nan, nan, nan, 3.0, 3.5, 4.0, 4.5, 5.0, nan, nan]
@@ -458,7 +458,7 @@ def test_lower_interval_start_end_nans():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 1800,  # 30 minutes
-        "limit": 3
+        "limit": 5400                    # 90 minutes
     }
 
     # call post process factory to do the post process
@@ -483,7 +483,7 @@ def test_lower_interval_no_nans():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 1200,  # 20 minutes
-        "limit": 3
+        "limit": 10800                      # 3 hours
     }
 
     # call post process factory to do the post process
@@ -516,7 +516,7 @@ def test_lower_interval_all_nans():
     kwargs = {
         "col_name": "test_col",
         "interpolation_interval": 10,  # 10 seconds
-        "limit": 1000  # big limit to ensure no interpolation happens
+        "limit": 86400  # 24 hours, big limit to ensure no interpolation happens
     }
 
     # call post process factory to do the post process
