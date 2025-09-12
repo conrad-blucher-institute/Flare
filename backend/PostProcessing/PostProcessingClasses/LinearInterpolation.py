@@ -2,7 +2,7 @@
 # LinearInterpolation.py
 #-------------------------------
 # Created By: Christian Quintero
-# Last Updated: 09/11/2025
+# Last Updated: 09/12/2025
 #-------------------------------
 """
 The post processing in this file performs linear interpolation of a column.
@@ -65,10 +65,14 @@ class LinearInterpolation(IPostProcessing):
         # Count the number of non-NaN values in the original data series for logging purposes 
         original_data_count = data_series.dropna().shape[0]
 
+        # the data series isn't guaranteed to be indexed at the specified interval
+        # so we reindex the series to the specified interval
+        reindexed_data_series = data_series.reindex(date_range(start=data_series.index[0], end=data_series.index[-1], freq=timedelta(seconds=interpolation_interval)))
+
         # find gaps whose timestamps difference is larger than the limit
         # time gaps larger than the limit will be replaced with a dummy value (-9999)
         # time gaps smaller than the limit will be left as NaN
-        masked_data_series = self.fill_large_gaps(data_series, limit)
+        masked_data_series = self.fill_large_gaps(reindexed_data_series, limit)
         
         # interpolate the entire series using time based interpolation and only fill NaNs between real values
         # this will fill all the small NaN gaps and leave the dummy values in the large time gaps
@@ -77,21 +81,15 @@ class LinearInterpolation(IPostProcessing):
         # find all dummy values and replace them with NaN
         interpolated_data_series.loc[interpolated_data_series == self.DUMMY_VALUE] = np.nan
 
-        # after interpolating, we reindex to the interval specified
-        reindexed_data_series = interpolated_data_series.reindex(date_range(start=interpolated_data_series.index[0], end=interpolated_data_series.index[-1], freq=timedelta(seconds=interpolation_interval)))
+        # Log if data was lost during reindexing
+        interpolted_data_series_count = interpolated_data_series.dropna().shape[0]
 
-        # Preserve original values that aren't NaN by combining with reindexed values
-        # Use combine_first to prioritize original values where they exist
-        final_series = data_series.combine_first(reindexed_data_series)
-    
+        if interpolted_data_series_count < original_data_count:
+            logging.warning(f"[WARNING]: Data loss during reindexing: {original_data_count - interpolted_data_series_count} values lost in column '{col_name}'")
+       
         # drop original column and replace with the combined series
         df.drop(columns=[col_name], inplace=True)
-        df = df.join(final_series, how='outer')
-
-        # Log if data was lost 
-        final_series_data_count = final_series.dropna().shape[0]
-        if final_series_data_count < original_data_count:
-            logging.warning(f"[WARNING]: Data loss during reindexing: {original_data_count - final_series_data_count} values lost in column '{col_name}'")
+        df = df.join(interpolated_data_series, how='outer')
 
         # return the modified data frame
         return df
