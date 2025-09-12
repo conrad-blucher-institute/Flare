@@ -70,12 +70,12 @@ class LinearInterpolation(IPostProcessing):
         reindexed_data_series = data_series.reindex(date_range(start=data_series.index[0], end=data_series.index[-1], freq=timedelta(seconds=interpolation_interval)))
 
         # find gaps whose timestamps difference is larger than the limit
-        # time gaps larger than the limit will be replaced with a dummy value (-9999)
+        # time gaps larger than the limit will be replaced with a dummy value
         # time gaps smaller than the limit will be left as NaN
         masked_data_series = self.fill_large_gaps(reindexed_data_series, limit)
         
         # interpolate the entire series using time based interpolation and only fill NaNs between real values
-        # this will fill all the small NaN gaps and leave the dummy values in the large time gaps
+        # this will fill all the small time gaps and leave the dummy values in the large time gaps
         interpolated_data_series = masked_data_series.interpolate(limit_area='inside', method='time')
 
         # find all dummy values and replace them with NaN
@@ -83,7 +83,6 @@ class LinearInterpolation(IPostProcessing):
 
         # Log if data was lost during reindexing
         interpolted_data_series_count = interpolated_data_series.dropna().shape[0]
-
         if interpolted_data_series_count < original_data_count:
             logging.warning(f"[WARNING]: Data loss during reindexing: {original_data_count - interpolted_data_series_count} values lost in column '{col_name}'")
        
@@ -146,7 +145,7 @@ class LinearInterpolation(IPostProcessing):
         This method is used to find the time gaps whose difference is larger than the limit.
         That is, if the time difference (in seconds) is > limit, the time betwee 2 real values is too long
         and we will not interpolate the values in between. Instead, we will replace the NaN values in large
-        time gaps with a dummy value (-9999) to mark them as invalid for interpolation.
+        time gaps with a dummy value to mark them as invalid for interpolation.
         This will leave time gaps <= limit as NaN, and time gaps > limit will be replaced with the dummy value.
         
         Args:
