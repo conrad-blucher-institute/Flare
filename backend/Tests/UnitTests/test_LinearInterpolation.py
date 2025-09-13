@@ -147,79 +147,57 @@ def test_all_nans():
 
 def test_higher_interval():
     """
-    When interpolating from a lower frequency to a higher frequency, the timestamps that fall exactly on the new index
-    are taken. From this new array, linear interpolation is performed depening on how many hours of nans we can interpolate.
-    Next, the original timestamps are outer joined with the new interpolated timestamps to preserve the original timestamps
-    but only keep the interpolated values where they match the new index.
+    When interpolating from a lower frequency to a higher frequency, the union of original and new timestamps is taken.
+    Then interpolation is performed on the new timestamps depending on how many hours (in seconds) we can interpolate.
     """
 
-    test_data = [1.0, nan, nan, nan, nan, nan, nan, nan, nan, nan, 11.0, nan, nan, nan, nan, nan, nan, nan, 19.0]
-    test_index = date_range(datetime(2025, 1, 1, 0, 0), periods=19, freq='3600s')
+    # data at random intervals
+    test_index = [
+        datetime(2025, 1, 1, 0, 0),
+        datetime(2025, 1, 1, 2, 0),
+        datetime(2025, 1, 1, 4, 0),
+        datetime(2025, 1, 1, 5, 0),
+        datetime(2025, 1, 1, 10, 0),
+        datetime(2025, 1, 1, 15, 0),
+    ]
+    test_data = [0.0, 2.0, 4.0, 5.0, 10.0, 15.0]
     test_df = DataFrame(data={'test_col': test_data}, index=test_index)
 
-    # reindexed to every 2 hours (7200 seconds)
-    # reindexed_data = [1.0, nan, nan, nan, nan, 11.0, nan, nan, nan, 19.0]
+    # reindexed to every 3 hours (10800 seconds)
+    # reindexing to 3 hours:
+    # [0.0, nan, nan, nan, nan, 15.0] for timestamps 00:00 03:00 06:00 09:00 12:00 15:00
     #
-    # 8 hours of nans from 1.0 to 11.0 -> don't interpolate
-    # 6 hours of nans from 11.0 to 18.0 -> interpolate
+    # after the union of indices:
+    # [0.0, 2.0, nan, 4.0, 5.0, nan, nan, 10.0, nan, 15.0]
+    # for timestamps 00:00 02:00 03:00 04:00 05:00 06:00 09:00 10:00 12:00 15:00
     #
-    # interpolated_data = [1.0, nan, nan, nan, nan, 11.0, 13.0, 15.0, 17.0, 19.0]
-    # 
-    # after outer join:
-    expected_data = [1.0, nan, nan, nan, nan, nan, nan, nan, nan, nan, 11.0, nan, 13.0, nan, 15.0, nan, 17.0, nan, 19.0]
-    expected_index = date_range(datetime(2025, 1, 1, 0, 0), periods=19, freq='3600s')
+    # 1 hour gap from 02:00 to 04:00: hour 03:00 is missing -> interpolate
+    # 4 hour gap from 05:00 to 10:00, due to 06:00 and 09:00 missing -> don't interpolate bc from hour 06:00 to 10:00 is 4 hours of missing data
+    # 3 hour gap from 10.0 to 15.0 from missing 12:00 -> interpolate
+    expected_data = [0.0, 2.0, 3.0, 4.0, 5.0, nan, nan, 10.0, 12.0, 15.0]
+    expected_index = [
+        datetime(2025, 1, 1, 0, 0),     # from original index
+        datetime(2025, 1, 1, 2, 0),     # from original index
+        datetime(2025, 1, 1, 3, 0),     # new from reindexing
+        datetime(2025, 1, 1, 4, 0),     # from original index
+        datetime(2025, 1, 1, 5, 0),     # from original index
+        datetime(2025, 1, 1, 6, 0),     # new from reindexing
+        datetime(2025, 1, 1, 9, 0),     # new from reindexing
+        datetime(2025, 1, 1, 10, 0),    # from original index
+        datetime(2025, 1, 1, 12, 0),    # new from reindexing
+        datetime(2025, 1, 1, 15, 0)     # from original index
+    ]
     expected_df = DataFrame(data={'test_col': expected_data}, index=expected_index)
 
     kwargs = {
         "col_name": "test_col", 
-        "interpolation_interval": 7200,    # 2 hours
-        "limit": 21600                     # 6 hours
+        "interpolation_interval": 10800,    # 3 hours
+        "limit": 10800                      # 3 hours
     }
 
     result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
     pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-5, check_freq=False)
 
-
-def test_higher_interval_irregular():
-    """
-    This test ensures no original data values are lost when reindexing from a lower frequency to a higher frequency.
-
-    In this case, we have original data at 1-hour intervals, and we reindex to 2-hour intervals.
-    The reindexed data gets interpolated based on the limit, and then the result is a merged product of 
-    the original timestamps and the interpolated timestamps, preserving all original values while adding in the interpolated timestamps.
-    """
-    test_data = [1.0, nan, nan, 4.0, nan, nan, nan, nan, 9.0]
-    test_index = date_range(datetime(2025, 1, 1, 0, 0), periods=9, freq='3600s')
-    test_df = DataFrame(data={'test_col': test_data}, index=test_index)
-
-    # reindexed to every 2 hours (7200 seconds)
-    # reindexed_data = [1.0, nan, nan, nan, 9.0]
-    #
-    # 6 hours of nans gets interpolated
-    # interpolated_data = [1.0, 3.0, 5.0, 7.0, 9.0]
-    #
-    # after outer join and preserving original timestamps and values:
-    # we get a combined array of the interpolated values merged with original values
-    #
-    # 1.0 -> original value
-    # 3.0 -> interpolated value 
-    # 4.0 -> original value
-    # 5.0 -> interpolated value
-    # 7.0 -> interpolated value
-    # 9.0 -> original value
-    expected_data = [1.0, nan, 3.0, 4.0, 5.0, nan, 7.0, nan, 9.0]
-    expected_index = date_range(datetime(2025, 1, 1, 0, 0), periods=9, freq='3600s')
-    expected_df = DataFrame(data={'test_col': expected_data}, index=expected_index)
-
-
-    kwargs = {
-        "col_name": "test_col",
-        "interpolation_interval": 7200,    # 2 hours
-        "limit": 21600                     # 6 hours
-    }
-
-    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
-    pd.testing.assert_frame_equal(result_df, expected_df, rtol=1e-5, check_freq=False)
 
 
 def test_preserve_original_values_when_reindexing():

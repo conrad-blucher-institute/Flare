@@ -23,7 +23,6 @@ class LinearInterpolation(IPostProcessing):
     # Dummy values used to mark to large time gaps that should not be interpolated
     DUMMY_VALUE = -9999
 
-
     def post_process(self, df: DataFrame, col_name: str, interpolation_interval: int, limit: int) -> DataFrame:
         """The post processing in this file performs a linear interpolation of a column.
 
@@ -52,48 +51,53 @@ class LinearInterpolation(IPostProcessing):
         # Validate the arguments passed to the post_process method
         self.validate_args(df, col_name, interpolation_interval, limit)
 
-        # If the limit is zero, do nothing and return the data frame
+        # A limit of 0 is a special case that will not interpolate any data, but will return the original DataFrame.
         if limit == 0:
             return df
 
-        # make a copy of the original data frame to avoid modifying it directly
+        # Create a copy to avoid modifying the input parameter
         df = df.copy()
 
-        # Isolate the data series we are going to interpolate
+        # Build a uniform interval index because the original index may be irregular
+        interval_index = date_range(
+            start=df.index[0],
+            end=df.index[-1],
+            freq=timedelta(seconds=interpolation_interval)
+        )
+        
+        # make a union of the original index and the new interval index
+        combined_index = df.index.union(interval_index)
+
+        # Reindex the DataFrame to include the new and original indices
+        df = df.reindex(combined_index)
+
+        # isolate the series we are looking at
         data_series = df[col_name]
 
-        # Count the number of non-NaN values in the original data series for logging purposes 
+        # Count original non-NaN data points for logging purposes
         original_data_count = data_series.dropna().shape[0]
 
-        # the data series isn't guaranteed to be indexed at the specified interval
-        # so we reindex the series to the specified interval
-        reindexed_data_series = data_series.reindex(date_range(start=data_series.index[0], end=data_series.index[-1], freq=timedelta(seconds=interpolation_interval)))
+        # Mask large gaps with dummy values
+        masked_data_series = self.fill_large_gaps(data_series, limit)
 
-        # find gaps whose timestamps difference is larger than the limit
-        # time gaps larger than the limit will be replaced with a dummy value
-        # time gaps smaller than the limit will be left as NaN
-        masked_data_series = self.fill_large_gaps(reindexed_data_series, limit)
-        
-        # interpolate the entire series using time based interpolation and only fill NaNs between real values
-        # this will fill all the small time gaps and leave the dummy values in the large time gaps
-        interpolated_data_series = masked_data_series.interpolate(limit_area='inside', method='time')
+        # Interpolate small gaps only
+        interpolated_data_series = masked_data_series.interpolate(limit_area="inside", method="time")
 
-        # find all dummy values and replace them with NaN
+        # Replace dummy values with NaN
         interpolated_data_series.loc[interpolated_data_series == self.DUMMY_VALUE] = np.nan
 
-        # create a combined series that preserves original values where they existed before reindexing andinterpolation
-        combined_series = data_series.combine_first(interpolated_data_series)
-    
-        # Drop original column and replace with the combined series
+        # Replace the original column in the DataFrame
         df.drop(columns=[col_name], inplace=True)
-        df = df.join(combined_series, how='outer')
+        df = df.join(interpolated_data_series.rename(col_name), how="outer")
 
-        # Log if data was lost during reindexing
-        final_data_count = combined_series.dropna().shape[0]
+        # Log if data was lost
+        final_data_count = df[col_name].dropna().shape[0]
         if final_data_count < original_data_count:
-            logging.warning(f"[WARNING]: Data loss during reindexing: {original_data_count - final_data_count} values lost in column '{col_name}'")
+            logging.warning(
+                f"[WARNING]: Data loss during reindexing: {original_data_count - final_data_count} "
+                f"values lost in column '{col_name}'"
+            )
 
-        # return the modified data frame
         return df
     
 
