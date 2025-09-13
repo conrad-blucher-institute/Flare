@@ -81,14 +81,17 @@ class LinearInterpolation(IPostProcessing):
         # find all dummy values and replace them with NaN
         interpolated_data_series.loc[interpolated_data_series == self.DUMMY_VALUE] = np.nan
 
-        # Log if data was lost during reindexing
-        interpolted_data_series_count = interpolated_data_series.dropna().shape[0]
-        if interpolted_data_series_count < original_data_count:
-            logging.warning(f"[WARNING]: Data loss during reindexing: {original_data_count - interpolted_data_series_count} values lost in column '{col_name}'")
-       
-        # drop original column and replace with the combined series
+        # create a combined series that preserves original values where they existed before reindexing andinterpolation
+        combined_series = data_series.combine_first(interpolated_data_series)
+    
+        # Drop original column and replace with the combined series
         df.drop(columns=[col_name], inplace=True)
-        df = df.join(interpolated_data_series, how='outer')
+        df = df.join(combined_series, how='outer')
+
+        # Log if data was lost during reindexing
+        final_data_count = combined_series.dropna().shape[0]
+        if final_data_count < original_data_count:
+            logging.warning(f"[WARNING]: Data loss during reindexing: {original_data_count - final_data_count} values lost in column '{col_name}'")
 
         # return the modified data frame
         return df
