@@ -189,9 +189,10 @@ const buildChart = (isSmallScreen) => {
           fontSize: isSmallScreen ? "12px" : "20px", 
         },
       },
-      max: 90,
+      softMax: 90,  // set a soft max that can be exceeded when necessary
       min: 20,
       tickInterval: 10, // Add ticks every 10 units
+      maxPadding: 0.05, // 5% padding on top of the highest data point
       plotLines: [
         {
           color: "red",
