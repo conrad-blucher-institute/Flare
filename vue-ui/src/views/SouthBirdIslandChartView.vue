@@ -320,10 +320,6 @@ const fetchAndFilterData = async () => {
       (celsius * 9) / 5 + 32,
     ]);
 
-
-    // Update chart options with the calculated max value
-    chartOptions.value = buildChart(state.isSmallScreen, overallMax);
-
     // Update chart series with filtered data
     chartOptions.value.series = [
       {
@@ -451,10 +447,6 @@ onUnmounted(() => {
   clearInterval(updateInterval);
   window.removeEventListener('resize', handleResize);
 });
-
-
-
-
 </script>
 
 <template>
