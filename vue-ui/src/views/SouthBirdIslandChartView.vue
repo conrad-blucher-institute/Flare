@@ -250,6 +250,7 @@ const buildChart = (isSmallScreen) => {
   };
 };
 
+
 const handleResize = () => {
   state.isSmallScreen = window.innerWidth <= 600;
   chartOptions.value = buildChart(state.isSmallScreen);
