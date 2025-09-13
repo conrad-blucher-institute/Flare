@@ -8,7 +8,7 @@
                   - Additional links
                   - Informative sections about South Bird Island and its environmental significance.
      Author: Anointiyae Beasley, Christian Quintero
-     Last Updated: 08/10/2025
+     Last Updated: 09/13/2025
 ======================================================= -->
 <script setup>
 import Highcharts from "highcharts";
@@ -35,8 +35,8 @@ const nowTime = nowDate.getTime();
 
 const chartOptions = ref({});
 
-// Creating a single chart function that changes based on screen size, and max value of the data
-const buildChart = (isSmallScreen, overallMax) => {
+// Creating a single chart function that changes based on screen size
+const buildChart = (isSmallScreen) => {
   return {
     chart: {
       type: "line",
@@ -186,9 +186,10 @@ const buildChart = (isSmallScreen, overallMax) => {
           fontSize: isSmallScreen ? "12px" : "20px", 
         },
       },
-      max: overallMax > 90 ? 100 : 90, // if the max data value is greater than 90, set max to 100, else set to 90
+      softMax: 90,      // Stay at 90°F when data is below it
       min: 20,
       tickInterval: 10, // Add ticks every 10 units
+      maxPadding: 0.05, // Add padding only when data exceeds 90°F
       plotLines: [
         {
           color: "red",
@@ -248,7 +249,6 @@ const buildChart = (isSmallScreen, overallMax) => {
     },
   };
 };
-
 
 const handleResize = () => {
   state.isSmallScreen = window.innerWidth <= 600;
@@ -320,18 +320,6 @@ const fetchAndFilterData = async () => {
       (celsius * 9) / 5 + 32,
     ]);
 
-    // find the max of each data set
-    const maxValuesArray = [
-      Math.max(...WaterMeasurementDataFahrenheit.map(point => point[1])),
-      Math.max(...InterpolatedWaterPredictionDataFahrenheit.map(point => point[1])),
-      Math.max(...AirMeasurementDataFahrenheit.map(point => point[1])),
-      Math.max(...InterpolatedAirPredictionDataFahrenheit.map(point => point[1])),
-      Math.max(...AirPredictionDataFahrenheit.map(point => point[1])),
-      Math.max(...WaterPredictionDataFahrenheit.map(point => point[1]))
-    ];
-
-    // then take the overall max of the max values
-    const overallMax = Math.max(...maxValuesArray);
 
     // Update chart options with the calculated max value
     chartOptions.value = buildChart(state.isSmallScreen, overallMax);
