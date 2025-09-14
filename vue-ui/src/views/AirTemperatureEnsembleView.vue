@@ -10,7 +10,7 @@
                   - Additional links
      Author: Anointiyae Beasley, Savannah Stephenson, Christian Quintero
 
-     Last Updated: 06/17/2025
+     Last Updated: 07/27/2025
 
 ======================================================= -->
 <script setup>
@@ -19,6 +19,9 @@ import HighchartsMore from "highcharts/highcharts-more";
 import { Chart } from "highcharts-vue";
 
 import { ref, onMounted, onUnmounted, reactive } from "vue";
+
+import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
+const missingDataWarningBanner = ref(MissingDataWarningBanner);
 
 // Using reactive state to track if the screen is small
 const state = reactive({ 
@@ -31,6 +34,8 @@ const state = reactive({
 const csvURL = ref(`${window.location.origin}/flare/csv-data/TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
 const csvURL2 = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
 const csvURL3 = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs.csv`);
+
+
 
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
@@ -371,7 +376,7 @@ const buildThirdChart = (isSmallScreen) => {
       marginRight: 30
     },
     title: {
-      text: "Box Plots for Air Temperature Predictions from The Weather Company and The National Digital Forecast Database",
+      text: "Box Plot for Air Temperature Predictions from The Weather Company and The National Digital Forecast Database",
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
@@ -450,7 +455,7 @@ const buildThirdChart = (isSmallScreen) => {
       formatter: function () {
         const localDate = new Date(this.x); 
         // Dynamically creating the tooltip based on what series are present
-        // Bounds are a special case since they are a range
+        // Box Plot is a special case since they have multiple values
         var displayInfo = ``;
         this.points.forEach(line => {
           if (line.series.name === "Box Plot Air Temperature Predictions") {
@@ -485,6 +490,14 @@ const buildThirdChart = (isSmallScreen) => {
         padding: isSmallScreen ? "5px" : "8px", 
         color: "#0f4f66",
         fontFamily: "Arial",
+      },
+    },
+    plotOptions: {
+      line: {
+        lineWidth: 3
+      },
+      spline: {
+      lineWidth: 3,
       },
     },
   }
@@ -562,7 +575,7 @@ const fetchAndFilterSecondData = async () => {
 
     // Convert to Fahrenheit
     // and round to 1 decimal
-    const toFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
+    const toFahrenheit = (celsius) => (celsius * 9/5) + 32;
     const fifthPercentilesFahrenheit = fifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const mediansFahrenheit = medians.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const ninetyfifthPercentilesFahrenheit = ninetyfifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
@@ -578,15 +591,17 @@ const fetchAndFilterSecondData = async () => {
       return [dateIndex, fifthPercentile, ninetyfifthPercentile];
     });
 
-    // log to console after rounding to 1 decimal
-    // this logs the date, 5th Percentile, and 95th Percentile
-    console.log("Bounds Data converted to Fahrenheit rounded to 1 decimal:", boundsFahrenheit);
-
-
     // Update chart series with filtered data
     secondChartOptions.value.series = [
-      // show the 5th-95th percentiles first in the tooltip
-      // then the median, then NDFD predictions
+      {
+        name: "Median Air Temperature Predictions",
+        data: mediansFahrenheit,
+        type: "line",
+        color: "blue",
+        lineWidth: state.isSmallScreen ? 2 : 4,
+        zIndex: 1, // Ensure this is in front of the bounds
+        marker: { enabled: false },
+      },
       {
         name: "Bounds",
         data: boundsFahrenheit,
@@ -594,16 +609,7 @@ const fetchAndFilterSecondData = async () => {
         lineWidth: 0, // No line for bounds
         color: Highcharts.getOptions().colors[0],
         fillOpacity: 0.3,
-        zIndex: 0, // Ensure this is below the mean line
-        marker: { enabled: false },
-      },
-      {
-        name: "Median Air Temperature Predictions",
-        data: mediansFahrenheit,
-        type: "line",
-        color: "blue",
-        lineWidth: state.isSmallScreen ? 2 : 4,
-        zIndex: 1, // Ensure this is above the bounds
+        zIndex: 0, // Ensure this is behind the mean line
         marker: { enabled: false },
       },
       {
@@ -649,7 +655,7 @@ const fetchAndFilterThirdData = async () => {
 
     // Convert to Fahrenheit
     // and round to 1 decimal place
-    const toFahrenheit = (celsius) => (celsius * 9) / 5 + 32;
+    const toFahrenheit = (celsius) => (celsius * 9/5) + 32;
     const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const twentyfifthPercentilesFahrenheit = twentyfifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const mediansFahrenheit = medians.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
@@ -668,9 +674,6 @@ const fetchAndFilterThirdData = async () => {
       return [dateIndex, lowerBound, twentyfifthPercentile, median, seventyfifthPercentile, upperBound];
     });
 
-    // log the data to the console after converting to Fahrenheit and 1 decimal place
-    console.log("Box Plot Data converted to Fahrenheit rounded to 1 decimal:", boxplotData);
-
     thirdChartOptions.value.series = [
       {
         name: "Box Plot Air Temperature Predictions",
@@ -683,7 +686,7 @@ const fetchAndFilterThirdData = async () => {
         data: mediansFahrenheit,
         type: "line",
         color: "blue",
-        zIndex: 1,                                    // Ensure this line is above the box plot 
+        zIndex: 1,                                    // Ensure this line is in front of the box plot
         marker: { enabled: false },
       },
       {
@@ -691,6 +694,7 @@ const fetchAndFilterThirdData = async () => {
         data: NDFPredictionsFahrenheit,
         type: "line",
         color: "purple",
+        zIndex: 1,                                    // Ensure this line is in front of the box plot   
         lineWidth: state.isSmallScreen ? 2 : 4,
         marker: {
           enabled: false,
@@ -788,10 +792,18 @@ const parseSecondCSV = (csvText) => {
     const localDate = new Date(localTimestamp);
 
     if (!isNaN(localDate)) {
-      fifthPercentiles.push([localDate.getTime(), +fifthPercentile]);
-      medians.push([localDate.getTime(), +median]);
-      ninetyfifthPercentiles.push([localDate.getTime(), +ninetyfifthPercentile]);
-      NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
+      if (fifthPercentile && !isNaN(+fifthPercentile)) {
+        fifthPercentiles.push([localDate.getTime(), +fifthPercentile]);
+      }
+      if (median && !isNaN(+median)) {
+        medians.push([localDate.getTime(), +median]);
+      }
+      if (ninetyfifthPercentile && !isNaN(+ninetyfifthPercentile)) {
+        ninetyfifthPercentiles.push([localDate.getTime(), +ninetyfifthPercentile]);
+      }
+      if (ndfdPrediction && !isNaN(+ndfdPrediction)) {
+        NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
+      }
     }
   });
 
@@ -826,12 +838,24 @@ const parseThirdCSV = (csvText) => {
     const localDate = new Date(localTimestamp);
 
     if (!isNaN(localDate)) {
-      lowerBounds.push([localDate.getTime(), +lowerBound]);
-      twentyfifthPercentiles.push([localDate.getTime(), +twentyfifthPercentile]);
-      medians.push([localDate.getTime(), +median]);
-      seventyfifthPercentiles.push([localDate.getTime(), +seventyfifthPercentile]);
-      upperBounds.push([localDate.getTime(), +upperBound]);
-      NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
+      if (lowerBound && !isNaN(+lowerBound)) {
+        lowerBounds.push([localDate.getTime(), +lowerBound]);
+      }
+      if (twentyfifthPercentile && !isNaN(+twentyfifthPercentile)) {
+        twentyfifthPercentiles.push([localDate.getTime(), +twentyfifthPercentile]);
+      }
+      if (median && !isNaN(+median)) {
+        medians.push([localDate.getTime(), +median]);
+      }
+      if (seventyfifthPercentile && !isNaN(+seventyfifthPercentile)) {
+        seventyfifthPercentiles.push([localDate.getTime(), +seventyfifthPercentile]);
+      }
+      if (upperBound && !isNaN(+upperBound)) {
+        upperBounds.push([localDate.getTime(), +upperBound]);
+      }
+      if (ndfdPrediction && !isNaN(+ndfdPrediction)) {
+        NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
+      }
     }
   });
 
@@ -862,14 +886,23 @@ const toggleThirdExportMenu = () => {
 ///Fetch and update chart data every 15 minutes
 let updateInterval;
 onMounted(() => {
-  fetchAndFilterData(); 
-  fetchAndFilterSecondData();
-  fetchAndFilterThirdData();
+  Promise.all([
+    fetchAndFilterData(),
+    fetchAndFilterSecondData(),
+    fetchAndFilterThirdData()
+  ]).then(() => {
+    missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value, secondChartOptions.value, thirdChartOptions.value]);
+  });
+  
   updateInterval = setInterval(() => {
     console.log("Fetching and updating chart data...");
-    fetchAndFilterData();
-    fetchAndFilterSecondData();
-    fetchAndFilterThirdData();
+    Promise.all([
+      fetchAndFilterData(),
+      fetchAndFilterSecondData(),
+      fetchAndFilterThirdData(),
+    ]).then(() => {
+      missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value, secondChartOptions.value, thirdChartOptions.value]);
+    });
   }, 900000); 
 });
 
@@ -899,7 +932,7 @@ onUnmounted(() => {
         </div>
       </div>
       </section>
-
+      <MissingDataWarningBanner ref="missingDataWarningBanner" />
       <!-- First Chart Section: Spaghetti Graph -->
       <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 py-8 px-4 bg-white items-stretch">
         <!-- Chart -->

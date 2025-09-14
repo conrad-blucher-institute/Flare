@@ -15,6 +15,7 @@ from PostProcessing.IPostProcessing import IPostProcessing
 from pandas import DataFrame
 
 
+
 class ImmediateArithmeticOperation(IPostProcessing):
 
     def post_process(self, data: DataFrame, op: str, left_col_key: str, value: float, out_col_key: str) -> DataFrame:
@@ -49,6 +50,7 @@ class ImmediateArithmeticOperation(IPostProcessing):
             }
         },
         """
+
         # Preform the requested operation on the data
         match op:
             case 'addition':

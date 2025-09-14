@@ -6,8 +6,6 @@
 """This file tests the RowStatistics post-processing class for list-in-cell values."""
 # -------------------------------
 
-import sys
-sys.path.append('/app/backend')
 
 import pytest
 import pandas as pd

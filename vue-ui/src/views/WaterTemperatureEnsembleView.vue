@@ -20,6 +20,9 @@ import { Chart } from "highcharts-vue";
 
 import { ref, onMounted, onUnmounted, reactive } from "vue";
 
+import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
+const missingDataWarningBanner = ref(MissingDataWarningBanner);
+
 const isSmallScreen = window.innerWidth <= 600;
 const csvURL = ref(`${window.location.origin}/flare/csv-data/MRE_Bird-Island_Water-Temperature.csv`);
 
@@ -460,10 +463,14 @@ const toggleExportMenu = () => {
 ///Fetch and update chart data every 15 minutes
 let updateInterval;
 onMounted(() => {
-  fetchAndFilterData(); 
+  fetchAndFilterData().then(() => {
+    missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value]);
+  });
   updateInterval = setInterval(() => {
     console.log("Fetching and updating chart data...");
-    fetchAndFilterData();
+    fetchAndFilterData().then(() => {
+    missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value]);
+  });
   }, 900000); 
 });
 
@@ -497,6 +504,7 @@ chartOptions.value = reactive(buildChart(isSmallScreen));
         </div>
       </div>
       </section>
+      <MissingDataWarningBanner ref="missingDataWarningBanner" />
 
       <!-- Chart Section -->
       <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 py-8 px-4 bg-white items-stretch">

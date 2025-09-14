@@ -21,7 +21,7 @@
             "source": "NDFD_EXP",
             "series": "pAirTemp",
             "interval": 3600,
-            "range": [0, 240]
+            "range": [0, 168]
          }
             
       }
@@ -32,8 +32,8 @@
         "args": {
             "col_name": "NDFD Air Temperature Predictions",
             "interpolation_interval": 3600,
-            "limit": 10800
-        }
+            "limit": 5
+          }
       },
       {
          "key": "RowStatistics",
