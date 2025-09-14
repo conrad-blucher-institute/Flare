@@ -232,7 +232,7 @@ const buildChart = (isSmallScreen) => {
         // Bounds are a special case since they are a range
         var displayInfo = ``;
         this.points.forEach(line => {
-          if (line.series.name === "Bounds") {
+          if (line.series.name === "Ribbon Water Temperature Predictions") {
             displayInfo += `
               <span style="color:${line.color}">\u25CF</span> 95th Percentile: <b>${line.high.toFixed(1)}°F</b><br>
               <span style="color:${line.color}">\u25CF</span> 5th Percentile: <b>${line.low.toFixed(1)}°F</b><br>`;
@@ -326,18 +326,18 @@ const fetchAndFilterData = async () => {
         color: "black",
         dashStyle: "Dash",
         lineWidth: isSmallScreen ? 1.9 : 2.5,
-        zIndex: 1, // Ensure this is above the bounds
+        zIndex: 1, // Ensure this is in front of the bounds
         marker: { enabled: false },
       },
       {
-        name: "Bounds",
+        name: "Ribbon Water Temperature Predictions",
         data: boundsFahrenheit,
         type: 'arearange',
-        linkedTo: "Water Temperature Predictions",
+        //linkedTo: "Water Temperature Predictions", //not sure why we wanted to linked them but it does not seem necessary and was not allowing the ribbon to be toggled on and off
         lineWidth: 1.9, // No line for bounds
         color: "#00a0ff",
         fillOpacity: 0.3,
-        zIndex: 0, // Ensure this is below the mean line
+        zIndex: 0, // Ensure this is underneath the mean line
         marker: { enabled: false },
       },
       {
