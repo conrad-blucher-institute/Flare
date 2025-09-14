@@ -88,8 +88,8 @@
         "_comment": "Calculates max, min, and median statistics in one call",
         "key": "RowStatistics",
         "args": { 
-        "metrics": "all",
-        "col_name": "Water Temperature Prediction"
+            "metrics": "all",
+            "col_name": "Water Temperature Prediction"
         }
       },
       {

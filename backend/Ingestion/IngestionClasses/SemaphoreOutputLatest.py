@@ -70,14 +70,12 @@ class SemaphoreOutputLatest(IDataIngestion):
             index.append(verifiedTime)
 
             value = data_point['dataValue']
-            if value == 'None': value = nan
+            if value is 'None': value = nan
             
             elif isinstance(value, list):
                 # Convert all elements to float
                 value = [float(v) for v in value]
             
-            if value is None:
-                value = nan
             data.append(value)
 
         # Add this to the collation df with an outerjoin to ensure all data is preserved
