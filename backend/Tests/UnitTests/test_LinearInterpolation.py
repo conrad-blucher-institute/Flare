@@ -418,11 +418,11 @@ def test_limit_integrity():
     #
     # interpolated data
     # 00:06 00:17 00:28 00:30 00:39 00:45 00:50 01:00 01:01 01:12 01:23 01:34 01:45 01:56 02:07 02:10 02:18 02:29 02:39
-    # 0.0   1.0  1.545  2.0  2.818  3.0  3.333  4.0   nan   nan   nan   nan   nan   5.0  5.666   6.0  6.666  7.333   7.0
+    # 0.0   1.0  1.846  2.0  2.600  3.0  3.333  4.0   nan   nan   nan   nan   nan   5.0  5.785   6.0  6.275 6.655 7.0
     #
     # final reindex to every 11 minutes (keep values on 11 minute intervals and insert nans elsewhere)
     # 00:06 00:17 00:28 00:30 00:39 00:45 00:50 01:00 01:01 01:12 01:23 01:34 01:45 01:56 02:07 02:10 02:18 02:29 02:39
-    # 0.0   1.0   1.545  nan  2.818 nan   3.333  nan   nan   nan   nan   nan   nan   5.0  5.666  nan  6.666 7.333  nan
+    # 0.0   1.0   1.846  nan  2.600 nan   3.333  nan   nan   nan   nan   nan   nan   5.0  5.785  nan  6.275 6.655  nan
 
     expected_data = [0.0, 1.0, 1.846153846, nan, 2.600000000, nan, 3.333333333,
                       nan, nan, nan, nan, nan, nan, 5.0, 5.785714286, nan, 6.275862069, 6.655172414, nan]
