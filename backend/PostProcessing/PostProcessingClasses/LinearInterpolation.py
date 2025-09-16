@@ -59,23 +59,21 @@ class LinearInterpolation(IPostProcessing):
         df = df.copy()
 
         # Build a uniform interval index because the original index may be irregular
-        interval_index = date_range(
+        target_interval_index = date_range(
             start=df.index[0],
             end=df.index[-1],
             freq=timedelta(seconds=interpolation_interval)
         )
         
-        # make a union of the original index and the new interval index
-        combined_index = df.index.union(interval_index)
+        # make a union of the original index and the target interval index
+        combined_index = df.index.union(target_interval_index)
 
         # Reindex the DataFrame to include the new and original indices
+        # This will insert NaNs into the DataFrame 
         df = df.reindex(combined_index)
 
         # isolate the series we are looking at
         data_series = df[col_name]
-
-        # Count original non-NaN data points for logging purposes
-        original_data_count = data_series.dropna().shape[0]
 
         # Mask large gaps with dummy values
         masked_data_series = self.fill_large_gaps(data_series, limit)
@@ -86,17 +84,12 @@ class LinearInterpolation(IPostProcessing):
         # Replace dummy values with NaN
         interpolated_data_series.loc[interpolated_data_series == self.DUMMY_VALUE] = np.nan
 
+        # Reindex the data to only return the requested interval
+        final_data_series = interpolated_data_series.reindex(date_range(start=interpolated_data_series.index[0], end=interpolated_data_series.index[-1], freq=timedelta(seconds=interpolation_interval)))
+
         # Replace the original column in the DataFrame
         df.drop(columns=[col_name], inplace=True)
-        df = df.join(interpolated_data_series.rename(col_name), how="outer")
-
-        # Log if data was lost
-        final_data_count = df[col_name].dropna().shape[0]
-        if final_data_count < original_data_count:
-            logging.warning(
-                f"[WARNING]: Data loss during reindexing: {original_data_count - final_data_count} "
-                f"values lost in column '{col_name}'"
-            )
+        df = df.join(final_data_series, how="outer")
 
         return df
     
