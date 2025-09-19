@@ -32,7 +32,7 @@
         "args": {
             "col_name": "NDFD Air Temperature Predictions",
             "interpolation_interval": 3600,
-            "limit": 5
+            "limit": 21600
           }
       },
       {
