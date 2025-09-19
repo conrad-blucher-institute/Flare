@@ -7,8 +7,8 @@
                   - Information on the data of the chart.
                   - Additional links
                   - Informative sections about South Bird Island and its environmental significance.
-     Author: Anointiyae Beasley
-     Date: 01/05/2025
+     Author: Anointiyae Beasley, Christian Quintero
+     Last Updated: 09/13/2025
 ======================================================= -->
 <script setup>
 import Highcharts from "highcharts";
@@ -189,9 +189,10 @@ const buildChart = (isSmallScreen) => {
           fontSize: isSmallScreen ? "12px" : "20px", 
         },
       },
-      max: 90,
+      softMax: 90,      // Stay at 90°F when data is below it
       min: 20,
       tickInterval: 10, // Add ticks every 10 units
+      maxPadding: 0.05, // Add padding only when data exceeds 90°F
       plotLines: [
         {
           color: "red",
