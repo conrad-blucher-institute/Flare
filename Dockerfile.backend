@@ -1,6 +1,10 @@
 # Build the Python image
 FROM python:3.13
 
+# Fetch the .env arguments needed
+ARG SERVICE_ACCOUNT_USERNAME
+ARG SERVICE_ACCOUNT_UID
+
 # Set the working directory to /app
 WORKDIR /app
 
@@ -20,7 +24,23 @@ COPY ./data/cspec ./data/cspec
 # Copy the backend directory
 COPY ./backend ./backend
 
+# Create the service account user, skip if it already exists
+RUN if ! id -u ${SERVICE_ACCOUNT_USERNAME} >/dev/null 2>&1; then \
+        # Check if the UID is already in use
+        if getent passwd ${SERVICE_ACCOUNT_UID} >/dev/null 2>&1; then \
+            echo "Error: UID ${SERVICE_ACCOUNT_UID} is already in use. Exiting." >&2; \
+            exit 1; \
+        fi; \
+        # Validate the UID range, must be between 1000 and 60000
+        if [ ${SERVICE_ACCOUNT_UID} -lt 1000 ] || [ ${SERVICE_ACCOUNT_UID} -gt 60000 ]; then \
+            echo "Error: UID ${SERVICE_ACCOUNT_UID} is outside the valid range (1000-60000). Exiting." >&2; \
+            exit 1; \
+        fi; \
+        useradd -u ${SERVICE_ACCOUNT_UID} -m -s /bin/bash ${SERVICE_ACCOUNT_USERNAME}; \
+    fi
 
+# Change ownership of the /app directory to the service account user
+RUN chown -R ${SERVICE_ACCOUNT_USERNAME}:${SERVICE_ACCOUNT_USERNAME} /app
 
-
-
+# Switch to the service account user
+USER ${SERVICE_ACCOUNT_USERNAME}
