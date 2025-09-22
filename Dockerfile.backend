@@ -7,7 +7,7 @@ ARG SERVICE_ACCOUNT_UID
 
 # Validate that the arguments are provided
 RUN if [ -z "${SERVICE_ACCOUNT_USERNAME}" ] || [ -z "${SERVICE_ACCOUNT_UID}" ]; then \
-    echo "Error: SERVICE_ACCOUNT_USERNAME and SERVICE_ACCOUNT_UID must be provided in env. Exiting." >&2; \
+    echo "Error: SERVICE_ACCOUNT_USERNAME and SERVICE_ACCOUNT_UID must be provided as build arguments. Exiting." >&2; \
     exit 1; \
 fi;
 
