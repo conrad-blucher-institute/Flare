@@ -5,6 +5,12 @@ FROM python:3.13
 ARG SERVICE_ACCOUNT_USERNAME
 ARG SERVICE_ACCOUNT_UID
 
+# Validate that the arguments are provided
+RUN if [ -z "${SERVICE_ACCOUNT_USERNAME}" ] || [ -z "${SERVICE_ACCOUNT_UID}" ]; then \
+    echo "Error: SERVICE_ACCOUNT_USERNAME and SERVICE_ACCOUNT_UID must be provided in env. Exiting." >&2; \
+    exit 1; \
+fi;
+
 # Set the working directory to /app
 WORKDIR /app
 
