@@ -6,6 +6,9 @@ services:
     build:
       context: .    
       dockerfile: Dockerfile.backend 
+      args:
+        SERVICE_ACCOUNT_USERNAME: ${SERVICE_ACCOUNT_USERNAME}
+        SERVICE_ACCOUNT_UID: ${SERVICE_ACCOUNT_UID}
     env_file:
       - .env
     environment:
