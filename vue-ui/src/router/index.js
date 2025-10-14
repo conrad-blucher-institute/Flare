@@ -16,6 +16,7 @@
 //
 // Author: Anointiyae Beasley
 // Date: 11/04/2024
+// Last Updated: 10/14/2025 by Christian Quintero
 // ===================================================
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
@@ -42,8 +43,12 @@ const router = createRouter({
       path: '/water-temperature-ensemble',
       name: 'waterTemperatureEnsemble',
       component: () => import('../views/WaterTemperatureEnsembleView.vue'), // Lazy-loaded component
+    },
+    {
+      path: '/port-aransas-winds',
+      name: 'portAransasWinds',
+      component: () => import('../views/PortAransasWindsView.vue'), // Lazy-loaded component
     }
-    
   ],
 })
 
