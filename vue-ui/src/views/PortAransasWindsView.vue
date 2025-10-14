@@ -110,9 +110,6 @@ onUnmounted(() => { clearInterval(updateInterval) });
       <a href="https://www.conradblucherinstitute.org/" target="_blank" class="hover:scale-110 transition-transform">
         <img src="@/assets/images/CBI-Logo.png" alt="Conrad Blutcher Institute Logo" class="w-[230px] h-[75px] pt-5 lg:pt-10 lg:w-[550px] lg:h-[150px]">
       </a>
-      <a href="https://www.weathercompany.com/" target="_blank" class="hover:scale-110 transition-transform">
-        <img src="@/assets/images/TWC-Logo.png" alt="The Weather Company Logo" class="w-[100px] h-[100px] lg:w-[200px] lg:h-[200px]">
-      </a>
     </div>
     <p class="mt-4 text-sm text-gray-300">&copy; 2024 Flare. All rights reserved.</p>
   </footer>
