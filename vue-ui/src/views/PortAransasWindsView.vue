@@ -25,7 +25,7 @@ import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue"
 const missingDataWarningBanner = ref(null)
 
 // env and reactive state
-const FRONTEND_HOST_PORT = import.meta.env.FRONTEND_HOST_PORT
+const HOST_URL = import.meta.env.HOST_URL
 let updateInterval = null
 
 // get the api data and build the chart 
@@ -45,7 +45,7 @@ function getAPIData (apiUrls) {
       );
       
       // find the index of the date column
-      const dateColumnIndex = Object.keys(data[0].indexOf("date"))
+      const dateColumnIndex = Object.keys(data[0]).indexOf("date")
 
       // format data for all APIs
       const formattedData = data.map((d) => {
@@ -122,15 +122,15 @@ function getAPIData (apiUrls) {
 onMounted(() => {
   // on mount, build the chart and fetch data
   getAPIData([
-        `${FRONTEND_HOST_PORT}/sailwind/api/ndbc/measurements/file_format=json/data_type=std/station_id=PTAT2/product=WSPD/units=mph/last45days`,
-        `${FRONTEND_HOST_PORT}/sailwind/api/nwps/predictions/wind/file_format=json/location=hcp/cg=cg1/units=mph`,
+        `${HOST_URL}/sailwind/api/ndbc/measurements/file_format=json/data_type=std/station_id=PTAT2/product=WSPD/units=mph/last45days`,
+        `${HOST_URL}/sailwind/api/nwps/predictions/wind/file_format=json/location=hcp/cg=cg1/units=mph`,
   ])
 
   // set the interval update every 10 minutes
   updateInterval = setInterval(() => {
     getAPIData([
-      `${FRONTEND_HOST_PORT}/sailwind/api/ndbc/measurements/file_format=json/data_type=std/station_id=PTAT2/product=WSPD/units=mph/last45days`,
-      `${FRONTEND_HOST_PORT}/sailwind/api/nwps/predictions/wind/file_format=json/location=hcp/cg=cg1/units=mph`,
+      `${HOST_URL}/sailwind/api/ndbc/measurements/file_format=json/data_type=std/station_id=PTAT2/product=WSPD/units=mph/last45days`,
+      `${HOST_URL}/sailwind/api/nwps/predictions/wind/file_format=json/location=hcp/cg=cg1/units=mph`,
     ])
   }, 600000);
 
