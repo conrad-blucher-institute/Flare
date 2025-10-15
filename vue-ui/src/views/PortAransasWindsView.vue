@@ -25,52 +25,110 @@ import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue"
 const missingDataWarningBanner = ref(null)
 
 // env and reactive state
-const HOST_URL = import.meta.env.HOST_URL || 'http://localhost:8000'
-const chartOptions = ref({})
-const state = reactive({ isSmallScreen: window.innerWidth <= 600 })
+const FRONTEND_HOST_PORT = import.meta.env.FRONTEND_HOST_PORT
 
-let updateInterval = null
+// get the api data and build the chart 
+function getAPIData (apiUrls) {
+  // fetch data from all APIs
+  Promise.all(
+    apiUrls.map((apiUrl) =>
+      fetch(apiUrl).then((response) => response.json())
+    )
+  )
+  .then((apiData) => {
+    // format data from each API
+    const formattedData = apiData.map((data, i) => {
+      // extract the column names from the keys of the first element
+      const columnNames = Object.keys(data[0]).indexOf("data");
 
-// the URLs to fetch data from
-const URLs = [
-  `${HOST_URL}/sailwind/api/ndbc/measurements/file_format=json/data_type=std/station_id=PTAT2/product=WSPD/units=mph/last45days`,
-  `${HOST_URL}/sailwind/api/nwps/predictions/wind/file_format=json/location=hcp/cg=cg1/units=mph`,
-]
+      // format data for all APIs
+      const formattedData = data.map((d) => {
+        const values = Object.values(d)
+        .filter((column, index) => index !== dateColumnIndex)
+        .map((value) => parseFloat(value));
+        return [new Date(d.date).getTime(), ...values];
+      });
 
-const buildChart = (isSmallScreen) => {
-  return {
-    chart: { zoomType: "x", panKey: "alt" },
-    title: { text: "Wind Speed Measurements and Predictions Over the Past Week", style: { fontSize: "170%" } },
-    xAxis: {
-      type: "datetime",
-      dateTimeLabelFormats: { day: "%a %b %e" },
-      title: { text: "Time (CDT)", style: { fontSize: "150%" } },
-      plotLines: [{ enablePolling: true, color: "red", width: 2, value: Date.now(), dashStyle: "Solid", label: { text: "Now", color: "red" } }],
-      labels: { padding: 25, style: { fontSize: "130%", color: "black" } }
-    },
-    yAxis: { title: { text: "Wind Speed (mph)", style: { fontSize: "150%" } } },
-    colors: ["black", "grey", "orangered", "orange"],
-    series: []
-  }
-};
+      // map over formattedData and create an array of objects with the date and the values for each column
+      const seriesData = formattedData.map((row) => {
+        const data = {};
+        data["date"] = row[0];
+        columnNames.forEach((name, index) => {
+          data[name] = row[index + 1];
+        });
+        return data;
+      });
+
+      // create Highcharts series
+      return columnNames.map((name) => {
+        return {
+          name: name,
+          data: seriesData.map((d) => [d.date, d[name]]),
+          dashStyle: i === 0 ? "Solid" : "Dash"
+        }
+      })
+    }); // end formattedData map
+
+    Highcharts.setOptions({
+      time: { useUTC: false, timezone: "America/Chicago" },
+      lang: { shortWeekday: [ "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" ] }
+    });
+
+    Highcharts.chart("container", {
+      chart: { zoomType: "x", panKey: "alt" },
+      title: { 
+        text: "Wind Speed Measurements and Predictions Over the Past Week",
+        style: { fontSize: "170%" }
+      },
+      xAxis: {
+        type: "datetime",
+        dateTimeLabelFormats: { day: "%a %b %e" },
+        title: { text: "Time (CDT)", style: { fontSize: "150% "} },
+        plotLines: [{
+          // mark now
+          enablePolling: true,
+          color: "red",
+          width: 2,
+          value: Date.now(),
+          dashStyle: "Solid",
+          label: { text: "Now", color: "red" }
+        }],
+        labels: {
+          padding: 25,
+          style: { fontSize: "130%", color:"black" }
+        }
+      },
+      yAxis: {
+         title: {
+           text: "Wind Speed (mph)",
+           style: { fontSize: "150%" }
+          }
+      },
+      colors: ["black", "grey", "orangered", "orange"],
+      series: [...formattedData.flat()]
+    }); // end Highcharts.chart
+
+  }) // end Promise.all
+  .catch((error) => console.error(error));
+
+} // end getAPIData
 
 onMounted(() => {
-  // on mount, build the chart 
-  chartOptions.value = buildChart(state.isSmallScreen)
-
-  // call banner check if the component ref is available
-  if (missingDataWarningBanner.value && typeof missingDataWarningBanner.value.checkForMissingDataAndWarn === 'function') {
-    missingDataWarningBanner.value.checkForMissingDataAndWarn(chartOptions.value)
-  }
+  // on mount, build the chart and fetch data
+  getAPIData([
+        `${FRONTEND_HOST_PORT}/sailwind/api/ndbc/measurements/file_format=json/data_type=std/station_id=PTAT2/product=WSPD/units=mph/last45days`,
+        `${FRONTEND_HOST_PORT}/sailwind/api/nwps/predictions/wind/file_format=json/location=hcp/cg=cg1/units=mph`,
+  ])
 
   // set the interval update every 10 minutes
   updateInterval = setInterval(() => {
-    chartOptions.value = buildChart(state.isSmallScreen)
-    if (missingDataWarningBanner.value && typeof missingDataWarningBanner.value.checkForMissingDataAndWarn === 'function') {
-      missingDataWarningBanner.value.checkForMissingDataAndWarn(chartOptions.value)
-    }
+    getAPIData([
+      `${FRONTEND_HOST_PORT}/sailwind/api/ndbc/measurements/file_format=json/data_type=std/station_id=PTAT2/product=WSPD/units=mph/last45days`,
+      `${FRONTEND_HOST_PORT}/sailwind/api/nwps/predictions/wind/file_format=json/location=hcp/cg=cg1/units=mph`,
+    ])
   }, 600000);
-});
+
+}); // end onMounted
 
 // on dismount clear the interval
 onUnmounted(() => { clearInterval(updateInterval) });
@@ -91,7 +149,7 @@ onUnmounted(() => { clearInterval(updateInterval) });
         <!-- Text content overlay -->
         <div class="absolute  inset-0 flex items-center justify-center">
           <h1 class=" max-w-[1500px] text-lg md:text-3xl lg:text-5xl font-bold text-center pr-5 pl-5">
-            Port Aransas Winds
+            Wind Speed Measurements and Predictions Over the Past Week
           </h1>
         </div>
       </div>
@@ -99,6 +157,11 @@ onUnmounted(() => { clearInterval(updateInterval) });
     <MissingDataWarningBanner ref="missingDataWarningBanner" />
   </div>
 
+
+  <!-- Chart Section -->
+  <div class="container-fluid" style="background-color: white">
+    <div id="container" class="chart"></div>
+  </div>
 
 
   <!-- Footer -->
