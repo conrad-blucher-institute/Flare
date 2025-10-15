@@ -26,6 +26,7 @@ const missingDataWarningBanner = ref(null)
 
 // env and reactive state
 const FRONTEND_HOST_PORT = import.meta.env.FRONTEND_HOST_PORT
+let updateInterval = null
 
 // get the api data and build the chart 
 function getAPIData (apiUrls) {
@@ -39,7 +40,12 @@ function getAPIData (apiUrls) {
     // format data from each API
     const formattedData = apiData.map((data, i) => {
       // extract the column names from the keys of the first element
-      const columnNames = Object.keys(data[0]).indexOf("data");
+      const columnNames = Object.keys(data[0]).filter(
+        (column) => column !== "date"
+      );
+      
+      // find the index of the date column
+      const dateColumnIndex = Object.keys(data[0].indexOf("date"))
 
       // format data for all APIs
       const formattedData = data.map((d) => {
