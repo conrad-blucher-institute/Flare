@@ -18,7 +18,7 @@
          "args": {
             "column_name": "NDFD Air Temperature Predictions",
             "location": "SBirdIsland", 
-            "source": "NDFD_EXP",
+            "source": "NDFD_JSON",
             "series": "pAirTemp",
             "interval": 3600,
             "range": [0, 168]
