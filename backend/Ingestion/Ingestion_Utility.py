@@ -4,6 +4,7 @@ from numpy import nan
 from pandas import DataFrame
 import json
 from runtimeContext import thread_storage
+import ssl
 
 
 def api_request( url: str):
@@ -14,7 +15,9 @@ def api_request( url: str):
     """
     logger = thread_storage.logger
     try:
-        with urlopen(url) as response:
+        # As of writing this 10/26/2025 sherlock-dev has no ssl cert, so if we are hitting the dev server we disable ssl verification
+        context = ssl.create_default_context() if not "sherlock-dev" in url else ssl._create_unverified_context()
+        with urlopen(url, context=context) as response:
             data = json.loads(''.join([line.decode() for line in response.readlines()])) #Download and parse
         return data
     except HTTPError as err:
