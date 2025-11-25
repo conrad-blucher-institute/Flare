@@ -62,15 +62,18 @@ const buildChart = (isSmallScreen) => {
       zoomType: "x",
       backgroundColor: "white",
       style: { fontFamily: "Arial" },
-      marginRight: 30
+      marginRight: 30,
+      marginTop: 100, 
     },
     title: {
       text: "Ensemble Air Temperature Forecasts for the Upper Laguna Madre",
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
-        color: "#0f4f66" 
+        color: "#0f4f66"
       },
+      useHTML: true,
+      align: 'center',
     },
     exporting: {
       enabled: true, // Enables the export menu
@@ -184,9 +187,10 @@ const buildChart = (isSmallScreen) => {
           fontSize: isSmallScreen ? "12px" : "20px", 
         },
     },
-    max: 100,
-    min: 65,
-    tickInterval: 10, // Major ticks every 10 units
+    // Let Highcharts auto-calculate range with some padding
+    startOnTick: true,
+    endOnTick: true,
+    tickInterval: 5, // Major ticks every 10 units
     },
 
     series: [], // Placeholder for data, dynamically updated
@@ -226,15 +230,18 @@ const buildSecondChart = (isSmallScreen) => {
       zoomType: "x",
       backgroundColor: "white",
       style: { fontFamily: "Arial" },
-      marginRight: 30
+      marginRight: 30,
+      marginTop: 100,
     },
     title: {
-      text: "Air Temperature Predictions from The Weather Company and The National Digital Forecast Database",
+      text: "Air Temperature Predictions from The Weather Company and<br>The National Digital Forecast Database",
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
         color: "#0f4f66" 
       },
+      useHTML: true,
+      align: 'center',
     },
     exporting: {
       enabled: true,
@@ -297,8 +304,9 @@ const buildSecondChart = (isSmallScreen) => {
             fontSize: isSmallScreen ? "12px" : "20px", 
         },
       },
-      max: 100,
-      min: 65,
+      // Let Highcharts auto-calculate range with some padding
+      startOnTick: true,
+      endOnTick: true,
       tickInterval: 5, // Major ticks every 5 units
     },
     plotOptions: {
@@ -373,15 +381,18 @@ const buildThirdChart = (isSmallScreen) => {
       zoomType: "x",
       backgroundColor: "white",
       style: { fontFamily: "Arial" },
-      marginRight: 30
+      marginRight: 30,
+      marginTop: 100,
     },
     title: {
-      text: "Box Plot for Air Temperature Predictions from The Weather Company and The National Digital Forecast Database",
+      text: "Box Plot for Air Temperature Predictions from The Weather Company<br>and The National Digital Forecast Database",
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
-        color: "#0f4f66" 
+        color: "#0f4f66"
       },
+      useHTML: true,
+      align: 'center'
     },
     exporting: {
       enabled: true,
@@ -444,8 +455,9 @@ const buildThirdChart = (isSmallScreen) => {
             fontSize: isSmallScreen ? "12px" : "20px", 
         },
       },
-      max: 100,
-      min: 65,
+      // Let Highcharts auto-calculate range with some padding
+      startOnTick: true,
+      endOnTick: true,
       tickInterval: 5, // Major ticks every 5 units
     },
     series: [], // Placeholder for data, dynamically updated

@@ -85,9 +85,9 @@
           <p class="text-sm lg:text-lg text-gray-600">Undergraduate Student</p>
         </a>
 
-        <a href="https://www.linkedin.com/in/jeremiah-sosa/" target="_blank" class="flex flex-col items-center w-[220px]  lg:w-[300px] lg:h-[400px] bg-gray-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition">
-          <img src="@/assets/images/JeremiahSosa.jpg" alt="Jeremiah Sosa" class="w-40 h-40 lg:w-60 lg:h-60  rounded-full mb-4 object-cover">
-          <h3 class="text-sm lg:text-2xl font-semibold text-gray-800">Jeremiah Sosa</h3>
+        <a href="https://www.linkedin.com/in/christian-quintero-07686a2b2/" target="_blank" class="flex flex-col items-center w-[220px]  lg:w-[300px] lg:h-[400px] bg-gray-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition">
+          <img src="@/assets/images/christan_placeholder.jpeg" alt="Christian Quintero" class="w-40 h-40 lg:w-60 lg:h-60  rounded-full mb-4 object-cover">
+          <h3 class="text-sm lg:text-2xl font-semibold text-gray-800">Christian Quintero</h3>
           <p class="text-sm lg:text-lg text-gray-600">Undergraduate Student</p>
         </a>
       </div>
