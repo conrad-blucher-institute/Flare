@@ -190,7 +190,7 @@ const buildChart = (isSmallScreen) => {
     // Let Highcharts auto-calculate range with some padding
     startOnTick: true,
     endOnTick: true,
-    tickInterval: 5, // Major ticks every 10 units
+    tickInterval: 5, // Major ticks every 5 units
     },
 
     series: [], // Placeholder for data, dynamically updated
