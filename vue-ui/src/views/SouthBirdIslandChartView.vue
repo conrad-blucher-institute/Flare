@@ -441,7 +441,6 @@ onMounted(() => {
   fetchAndFilterData().then(() => {
     missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value]);
   });
-  window.addEventListener('resize', handleResize);
   updateInterval = setInterval(() => {
     console.log("Fetching and updating chart data...");
     fetchAndFilterData().then(() => {
@@ -453,7 +452,6 @@ onMounted(() => {
 
 onUnmounted(() => {
   clearInterval(updateInterval);
-  window.removeEventListener('resize', handleResize);
 });
 </script>
 
