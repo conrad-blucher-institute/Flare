@@ -8,7 +8,7 @@
                   - Additional links
                   - Informative sections about South Bird Island and its environmental significance.
      Author: Anointiyae Beasley, Christian Quintero
-     Last Updated: 09/13/2025
+     Last Updated: 12/02/2025
 ======================================================= -->
 <script setup>
 import Highcharts from "highcharts";
