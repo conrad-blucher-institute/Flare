@@ -19,11 +19,7 @@ import { ref, onMounted, onUnmounted, reactive } from "vue";
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
 const missingDataWarningBanner = ref(MissingDataWarningBanner);
 
-// Using reactive state to track if the screen is small
-const state = reactive({
-  isSmallScreen: window.innerWidth <= 600
-});
-
+const isSmallScreen = window.innerWidth <= 600;
 const csvURL = ref(`${window.location.origin}/flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv`);
 
 // Add reactive state for dropdown visibility
@@ -254,13 +250,8 @@ const buildChart = (isSmallScreen) => {
 };
 
 
-const handleResize = () => {
-  state.isSmallScreen = window.innerWidth <= 600;
-  chartOptions.value = buildChart(state.isSmallScreen);
-}
-
 // Setting chartOptions based on the returned screensize
-chartOptions.value = buildChart(state.isSmallScreen);
+chartOptions.value = reactive(buildChart(isSmallScreen));
 
 // Function to fetch and process CSV data
 const fetchAndFilterData = async () => {
@@ -330,7 +321,7 @@ const fetchAndFilterData = async () => {
         name: "Water Temperature Measurements",
         data: WaterMeasurementDataFahrenheit,
         color: "black",
-        lineWidth: state.isSmallScreen ? 2 : 4,
+        lineWidth: isSmallScreen ? 2 : 4,
         marker: { enabled: false },
       },
       {
@@ -338,14 +329,14 @@ const fetchAndFilterData = async () => {
         data: InterpolatedWaterPredictionDataFahrenheit,
         color: "black",
         dashStyle: "2.5, 2.5", // Shorter dashes
-        lineWidth: state.isSmallScreen ? 2 : 5,
+        lineWidth: isSmallScreen ? 2 : 5,
         marker: { enabled: false },
       },
       {
         name: "Air Temperature Measurements",
         data: AirMeasurementDataFahrenheit,
         color: "#73c5da",
-        lineWidth: state.isSmallScreen ? 2 : 4,
+        lineWidth: isSmallScreen ? 2 : 4,
         marker: { enabled: false },
       },
       {
@@ -353,7 +344,7 @@ const fetchAndFilterData = async () => {
         data: InterpolatedAirPredictionDataFahrenheit,
         color: "orange",
         dashStyle: "2.5, 2.5", // Shorter dashes
-        lineWidth: state.isSmallScreen ? 2 : 5,
+        lineWidth: isSmallScreen ? 2 : 5,
         marker: { enabled: false },
       },
       {
@@ -364,7 +355,7 @@ const fetchAndFilterData = async () => {
         lineWidth: 0,
         marker: {
           enabled: true,
-          radius: state.isSmallScreen ? 2 : 4,
+          radius: isSmallScreen ? 2 : 4,
         },
       },
       {
@@ -375,7 +366,7 @@ const fetchAndFilterData = async () => {
         lineWidth: 0,
         marker: {
           enabled: true,
-          radius: state.isSmallScreen ? 2 : 4,
+          radius: isSmallScreen ? 2 : 4,
         },
       },
     ];
