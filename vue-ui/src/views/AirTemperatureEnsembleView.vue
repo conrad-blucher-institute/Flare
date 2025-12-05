@@ -22,11 +22,7 @@ import { ref, onMounted, onUnmounted, reactive } from "vue";
 
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
 const missingDataWarningBanner = ref(MissingDataWarningBanner);
-
-// Using reactive state to track if the screen is small
-const state = reactive({ 
-  isSmallScreen: window.innerWidth <= 600
-});
+const isSmallScreen = window.innerWidth <= 600;
 
 // spaghetti graph
 // ribbon graph
@@ -504,17 +500,9 @@ const buildThirdChart = (isSmallScreen) => {
 } // end buildThirdChart (box plot graph)
 
 
-const handleResize = () => {
-  state.isSmallScreen = window.innerWidth <= 600;
-  chartOptions.value = buildChart(state.isSmallScreen);
-  secondChartOptions.value = buildSecondChart(state.isSmallScreen);
-  thirdChartOptions.value = buildThirdChart(state.isSmallScreen);
-}
-
-// Setting chartOptions based on the returned screen size
-chartOptions.value = buildChart(state.isSmallScreen);
-secondChartOptions.value = buildSecondChart(state.isSmallScreen);
-thirdChartOptions.value = buildThirdChart(state.isSmallScreen);
+chartOptions.value = reactive(buildChart(isSmallScreen));
+secondChartOptions.value = buildSecondChart(isSmallScreen);
+thirdChartOptions.value = buildThirdChart(isSmallScreen);
 
 // Function to fetch and process CSV data for first chart
 const fetchAndFilterData = async () => {
@@ -598,7 +586,7 @@ const fetchAndFilterSecondData = async () => {
         data: mediansFahrenheit,
         type: "line",
         color: "blue",
-        lineWidth: state.isSmallScreen ? 2 : 4,
+        lineWidth: isSmallScreen ? 2 : 4,
         zIndex: 1, // Ensure this is in front of the bounds
         marker: { enabled: false },
       },
@@ -617,10 +605,10 @@ const fetchAndFilterSecondData = async () => {
         data: NDFPredictionsFahrenheit,
         type: "line",
         color: "purple",
-        lineWidth: state.isSmallScreen ? 2 : 4,
+        lineWidth: isSmallScreen ? 2 : 4,
         marker: {
           enabled: false,
-          radius: state.isSmallScreen ? 1 : 2,
+          radius: isSmallScreen ? 1 : 2,
         },
       },
     ];
@@ -695,10 +683,10 @@ const fetchAndFilterThirdData = async () => {
         type: "line",
         color: "purple",
         zIndex: 1,                                    // Ensure this line is in front of the box plot   
-        lineWidth: state.isSmallScreen ? 2 : 4,
+        lineWidth: isSmallScreen ? 2 : 4,
         marker: {
           enabled: false,
-          radius: state.isSmallScreen ? 1 : 2,
+          radius: isSmallScreen ? 1 : 2,
         },
       }
     ]
