@@ -42,7 +42,6 @@ const isExportMenuVisible = ref(false);
 const isSecondExportMenuVisible = ref(false);
 const isThirdExportMenuVisible = ref(false);
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-console.log("User's Time Zone:", userTimeZone);
 
 
 // Define the current date and time
@@ -534,14 +533,11 @@ const fetchAndFilterData = async () => {
     // Fetch CSV data
     const response = await fetch(csvURL.value);
     if (!response.ok) throw new Error("Failed to fetch CSV data");
-    console.log(`Fetched URL: ${response.url}`);
 
     const csvText = await response.text();
-    console.log("Fetched CSV Data:", csvText);
 
     // Parse the CSV data
     const { airPredictionMembers } = parseCSV(csvText);
-    console.log("Parsed Ensemble Models Data:", airPredictionMembers);
 
     const series = [];
 
@@ -558,7 +554,6 @@ const fetchAndFilterData = async () => {
 
     // Update chart options
     chartOptions.value.series = series;
-    console.log("Updated Chart Options:", chartOptions.value);
   } catch (error) {
     console.error("Error fetching or processing data:", error);
   }
@@ -570,14 +565,11 @@ const fetchAndFilterSecondData = async () => {
     // Fetch CSV data
     const response = await fetch(csvURL2.value);
     if (!response.ok) throw new Error("Failed to fetch second CSV data");
-    console.log(`Fetched second URL: ${response.url}`);
 
     const csvText = await response.text();
-    console.log("Fetched Second CSV Data:", csvText);
 
     // Parse the CSV data for the second chart
     const parsedData = parseSecondCSV(csvText);
-    console.log("Parsed Temperature Data:", parsedData);
 
     // Ensure parsed arrays are initialized
     const fifthPercentiles = parsedData.fifthPercentiles || [];
@@ -648,14 +640,11 @@ const fetchAndFilterThirdData = async () => {
     // Fetch CSV data
     const response = await fetch(csvURL3.value);
     if (!response.ok) throw new Error("Failed to fetch third CSV data");
-    console.log(`Fetched third URL: ${response.url}`);
 
     const csvText = await response.text();
-    console.log("Fetched third CSV Data:", csvText);
 
     // Parse the CSV data for the third chart
     const parsedData = parseThirdCSV(csvText);
-    console.log("Parsed Temperature Data:", parsedData);
 
     // Ensure parsed arrays are initialized
     const lowerBounds = parsedData.lowerBounds || [];
@@ -907,7 +896,6 @@ onMounted(() => {
   });
   
   updateInterval = setInterval(() => {
-    console.log("Fetching and updating chart data...");
     Promise.all([
       fetchAndFilterData(),
       fetchAndFilterSecondData(),

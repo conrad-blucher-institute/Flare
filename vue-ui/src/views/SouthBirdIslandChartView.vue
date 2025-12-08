@@ -29,7 +29,6 @@ const csvURL = ref(`${window.location.origin}/flare/csv-data/Laguna-Madre_Water-
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-console.log("User's Time Zone:", userTimeZone);
 
 
 // Define the current date and time
@@ -269,10 +268,8 @@ const fetchAndFilterData = async () => {
     if (!response.ok) throw new Error("Failed to fetch CSV data");
 
     const csvText = await response.text();
-    console.log("UPDATED CSV Data:", csvText);
 
     const parsedData = parseCSV(csvText);
-    console.log("Parsed CSV Data:", parsedData);
 
     // Ensure parsed arrays are initialized
     const WaterMeasurementData = parsedData.waterMeasurements || [];
@@ -443,7 +440,6 @@ onMounted(() => {
   });
   window.addEventListener('resize', handleResize);
   updateInterval = setInterval(() => {
-    console.log("Fetching and updating chart data...");
     fetchAndFilterData().then(() => {
       missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value]);
     });

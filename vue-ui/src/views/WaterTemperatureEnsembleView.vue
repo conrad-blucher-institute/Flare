@@ -30,7 +30,6 @@ const csvURL = ref(`${window.location.origin}/flare/csv-data/MRE_Bird-Island_Wat
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-console.log("User's Time Zone:", userTimeZone);
 
 
 // Define the current date and time
@@ -235,7 +234,7 @@ const buildChart = (isSmallScreen) => {
         // Dynamically creating the tooltip based on what series are present
         // Bounds are a special case since they are a range
         var displayInfo = ``;
-        this.points.forEach(line => {
+        this.points?.forEach(line => {
           if (line.series.name === "Ribbon Water Temperature Predictions") {
             displayInfo += `
               <span style="color:${line.color}">\u25CF</span> 95th Percentile: <b>${line.high.toFixed(1)}°F</b><br>
@@ -278,10 +277,8 @@ const fetchAndFilterData = async () => {
     if (!response.ok) throw new Error("Failed to fetch CSV data");
 
     const csvText = await response.text();
-    console.log("UPDATED CSV Data:", csvText);
 
     const parsedData = parseCSV(csvText);
-    console.log("Parsed CSV Data:", parsedData);
 
     // Ensure parsed arrays are initialized
     const mean = parsedData.means || [];
@@ -468,7 +465,6 @@ onMounted(() => {
     missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value]);
   });
   updateInterval = setInterval(() => {
-    console.log("Fetching and updating chart data...");
     fetchAndFilterData().then(() => {
     missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value]);
   });
