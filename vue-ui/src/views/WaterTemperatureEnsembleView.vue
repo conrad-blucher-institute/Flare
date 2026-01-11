@@ -367,7 +367,8 @@ const fetchAndFilterData = async () => {
         name: "Air Temperature Predictions",
         data: AirPredictionMarkers,
         color: "green",
-        type: "scatter",
+        type: "line",
+        lineWidth: 0,   // No line, just markers
         marker: {
           enabled: true,
           radius: isSmallScreen ? 1.9 : 2.5,
@@ -377,7 +378,8 @@ const fetchAndFilterData = async () => {
         name: "Water Temperature Predictions",
         data: WaterTemperatureMarkers,
         color: "purple",
-        type: "scatter",
+        type: "line",
+        lineWidth: 0,   // No line, just markers
         marker: {
           enabled: true,
           radius: isSmallScreen ? 1.9 : 2.5,
