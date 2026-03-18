@@ -219,7 +219,5 @@ def test_add_data(response, name, expected_data):
         assert np.isnan(result_col.iloc[0])
     else:
         assert result_col.iloc[0] == expected_data
-    
-    print(f'\n\n\nResult DF: {result_df}\n result col: {result_col}\n\n\n')
 
 
