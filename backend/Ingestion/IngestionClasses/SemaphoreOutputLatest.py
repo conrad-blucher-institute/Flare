@@ -83,9 +83,9 @@ class SemaphoreOutputLatest(IDataIngestion):
         data = []
         expected_shapes = [(1, 100, 1), (1, 1, 1)]
         logger = thread_storage.logger
+
         for name in model_names:
             model_response  = response[name]
-
             data_point = model_response['_Series__data'][0]
 
             timeGenerated = datetime.strptime(data_point['timeGenerated'], '%Y-%m-%dT%H:%M:%S')
@@ -93,12 +93,14 @@ class SemaphoreOutputLatest(IDataIngestion):
             index.append(verifiedTime)
 
             value = data_point['dataValue']
+            shape = np.array(value).shape
+
             if value in (None, 'None', []):
                 data.append(np.nan)
             
-            elif np.array(value).shape not in expected_shapes:
+            elif shape not in expected_shapes:
                 # validate the response data matches one of the expected shapes
-                logger.log_error(f'Warning:: Model {name} returned data with unexpected shape {np.array(value).shape}!', include_traceback=False)
+                logger.log_error(f'Warning:: Model {name} returned data with unexpected shape {shape}!', include_traceback=False)
                 data.append(np.nan)
 
             elif 'MRE' in name:

@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-# test_Combine.py
+# test_SemaphoreOutputLatest.py
 #-------------------------------
 # Created By: Christian Quintero
+# 03/18/2026
 #----------------------------------
 """
 This file tests the SemaphoreOutputLatest data ingestion class.
-
-NOTE:: these tests don't actually call the SemaphoreOutputLatest class
-but instead use the same logic to test the parsing and validation of the API response
 
 docker exec flare-backend python3 -m pytest /app/backend/Tests/UnitTests/test_SemaphoreOutputLatest.py -v
 """ 
@@ -17,9 +15,9 @@ docker exec flare-backend python3 -m pytest /app/backend/Tests/UnitTests/test_Se
 import pytest
 import numpy as np
 from pandas import DataFrame
-from datetime import datetime, timedelta
-
-
+from unittest.mock import MagicMock
+from flareRunner import thread_storage
+from Ingestion.IngestionClasses.SemaphoreOutputLatest import SemaphoreOutputLatest
 
 # NOTE:: nulls were replaced with None, true was changed to True,
 # and the data value was changed to 1.0 for simplicity
@@ -115,7 +113,7 @@ missing_data_value = {
 
 # to test that bad shapes are caught and nan is appended
 # this case uses has a shape of (1)
-sinlge_list_value = {
+single_list_value = {
   "Bird-Island_Water-Temperature_120hr": {
     "description": {
       "modelName": "Bird-Island_Water-Temperature_120hr",
@@ -185,96 +183,43 @@ two_one_one = {
                 81.0, 82.0, 83.0, 84.0, 85.0, 86.0, 87.0, 88.0, 89.0, 90.0,
                 91.0, 92.0, 93.0, 94.0, 95.0, 96.0, 97.0, 98.0, 99.0, 100.00
             ]
-        )
+        ),
+        (missing_data_value, "Bird-Island_Water-Temperature_120hr", np.nan),
+        (single_list_value, "Bird-Island_Water-Temperature_120hr", np.nan),
+        (two_one_one, "Bird-Island_Water-Temperature_120hr", np.nan)
     ],
     ids = [
         "Legacy Model Response",
-        "MRE Model Response"
+        "MRE Model Response",
+        "Missing dataValue",
+        "Bad Shape: Single List",
+        "Bad Shape: (2, 1, 1)"
     ]
 )
 def test_add_data(response, name, expected_data):
     """
     tests the __add_data function for the new parsing logic from the semaphore CRPS refactor
 
-    NOTE:: This test doesn't actually call the __add_data function, but uses the same logic
-
     docker exec flare-backend python3 -m pytest /app/backend/Tests/UnitTests/test_SemaphoreOutputLatest.py::test_add_data -v
     """
-    index = []
-    data = []
-    expected_shapes = [(1, 100, 1), (1, 1, 1)]
+    nan_tests = [missing_data_value, single_list_value, two_one_one]
+    ingestor = SemaphoreOutputLatest()
+    thread_storage.logger = MagicMock()
 
-    model_response  = response[name]
-    data_point = model_response['_Series__data'][0]
+    result_df = ingestor._SemaphoreOutputLatest__add_data(
+        df = DataFrame(),
+        response = response,
+        model_names = [name],
+        col_name = 'test_col'
+    )
 
-    timeGenerated = datetime.strptime(data_point['timeGenerated'], '%Y-%m-%dT%H:%M:%S')
-    verifiedTime = timeGenerated + timedelta(seconds=data_point['leadTime'])
-    index.append(verifiedTime)
-    value = data_point['dataValue']
+    result_col = result_df['test_col']
 
-    # assert regular responses pass the expected shape check
-    assert np.array(value).shape in expected_shapes
-
-    # test the flattening
-    # the array should have the shape of [1.0, 2.0, ..., 100.0]
-    if 'MRE' in name:
-        flat_array = np.asarray(value[0], dtype=float).flatten().tolist()
-        data.append(flat_array)
-    
-    # test the single value parsing
-    # the data appended should be a scalar such as 1.0, not an array
+    if response in nan_tests:
+        assert np.isnan(result_col.iloc[0])
     else:
-        single_value = float(value[0][0][0])
-        data.append(single_value)
+        assert result_col.iloc[0] == expected_data
     
-    assert data[0] == expected_data
+    print(f'\n\n\nResult DF: {result_df}\n result col: {result_col}\n\n\n')
 
-@pytest.mark.parametrize(
-    "response, name",
-    [
-        (missing_data_value, "Bird-Island_Water-Temperature_120hr"),
-        (sinlge_list_value, "Bird-Island_Water-Temperature_120hr"),
-        (two_one_one, "Bird-Island_Water-Temperature_120hr")
-    ],
-    ids = [
-        "Missing Data Value",
-        "Bad Shape",
-        "2x1x1 Shape"
-    ]
-)
-def test_add_data_nan_cases(response, name):
-    """
-    test the nan cases for __add_data, such as missing data values and bad shapes
-
-    NOTE:: this test doesn't actually call the __add_data function, but uses the same logic
-
-    docker exec flare-backend python3 -m pytest /app/backend/Tests/UnitTests/test_SemaphoreOutputLatest.py::test_add_data_nan_cases -v
-    """
-    index = []
-    data = []
-    expected_shapes = [(1, 100, 1), (1, 1, 1)]
-    bad_shapes = [sinlge_list_value, two_one_one]
-
-    model_response  = response[name]
-    data_point = model_response['_Series__data'][0]
-
-    timeGenerated = datetime.strptime(data_point['timeGenerated'], '%Y-%m-%dT%H:%M:%S')
-    verifiedTime = timeGenerated + timedelta(seconds=data_point['leadTime'])
-    index.append(verifiedTime)
-    value = data_point['dataValue']
-
-    
-    if response == missing_data_value:
-        # test that when dataValue is missing, nan is appended
-        assert value in (None, 'None', [])
-        data.append(np.nan)
-    else:
-        # test that the bad shape cases are caught and nan is appended
-        assert np.array(value).shape not in expected_shapes
-        data.append(np.nan)
-
-    # assert that the data looks like [nan]
-    assert np.isnan(data[0])
-
-        
 
