@@ -15,8 +15,8 @@ from datetime import datetime, timedelta
 from Ingestion.Ingestion_Utility import api_request, add_empty_column
 from flareRunner import thread_storage 
 from pandas import DataFrame
-from numpy import nan
 from os import getenv
+import numpy as np
 
 
 class SemaphoreOutputLatest(IDataIngestion):
@@ -71,14 +71,39 @@ class SemaphoreOutputLatest(IDataIngestion):
             index.append(verifiedTime)
 
             value = data_point['dataValue']
-            if value is None or value == 'None': value = nan
+            if value is None or value == 'None':
+                value = np.nan
+                data.append(value)
             
-            elif isinstance(value, list):
-                # Convert all elements to float
-                value = [float(v) for v in value]
-            
-            else: value = float(value)
-            data.append(value)
+            elif 'MRE' in name:
+                """
+                MRE models (1, 100, 1) have the structure of
+                [
+                    [
+                        [20.776033401489258],
+                        [20.255704879760742],
+                        [20.67584228515625],
+                        ...
+                        [21.035802841186523]
+                    ]
+                ]
+                """
+                # flatten MRE models into 1 array with the structure of [1.0, 2.0, ...]
+                # then append the array
+                flat_array = np.array(value[0]).flatten().tolist()
+                data.append(flat_array)
+
+            else:
+                """
+                (1, 1, 1) models have the structure of
+                [
+                    [
+                        [22.00688934326172]
+                    ]
+                ]
+                """
+                # append the single value
+                data.append(value[0][0][0])
 
         # Add this to the collation df with an outerjoin to ensure all data is preserved
         return df.join(DataFrame({col_name: data}, index=index), how='outer')
