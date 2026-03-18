@@ -57,10 +57,32 @@ class SemaphoreOutputLatest(IDataIngestion):
     
     
     def __add_data(self, df: DataFrame, response: dict[any], model_names: list[str], col_name: str) -> DataFrame:
-        '''Takes the data returned by the semaphore API, parses it into a pandas series, and adds it to the
-        dataframe with all the other data.'''
+        '''
+        Takes the data returned by the semaphore API, parses it into a pandas series, and adds it to the
+        dataframe with all the other data.
+
+        MRE models (1, 100, 1) have the structure of
+        [
+            [
+                [20.776033401489258],
+                [20.255704879760742],
+                [20.67584228515625],
+                ...
+                [21.035802841186523]
+            ]
+        ]
+
+        Legacy models (1, 1, 1) have the structure of
+        [
+            [
+                [22.00688934326172]
+            ]
+        ]        
+        '''
         index = []
         data = []
+        expected_shapes = [(1, 100, 1), (1, 1, 1)]
+        logger = thread_storage.logger
         for name in model_names:
             model_response  = response[name]
 
@@ -71,39 +93,26 @@ class SemaphoreOutputLatest(IDataIngestion):
             index.append(verifiedTime)
 
             value = data_point['dataValue']
-            if value is None or value == 'None':
-                value = np.nan
-                data.append(value)
+            if value in (None, 'None', []):
+                data.append(np.nan)
             
+            elif np.array(value).shape not in expected_shapes:
+                # validate the response data matches one of the expected shapes
+                logger.log_error(f'Warning:: Model {name} returned data with unexpected shape {np.array(value).shape}!', include_traceback=False)
+                data.append(np.nan)
+
             elif 'MRE' in name:
-                """
-                MRE models (1, 100, 1) have the structure of
-                [
-                    [
-                        [20.776033401489258],
-                        [20.255704879760742],
-                        [20.67584228515625],
-                        ...
-                        [21.035802841186523]
-                    ]
-                ]
-                """
-                # flatten MRE models into 1 array with the structure of [1.0, 2.0, ...]
-                # then append the array
-                flat_array = np.array(value[0]).flatten().tolist()
+                # flatten MRE models into 1 array and convert to floats
+                # the flat array has the structure of [1.0, 2.0, ...]
+                # then append the flattened array
+                flat_array = np.asarray(value[0], dtype=float).flatten().tolist()
                 data.append(flat_array)
 
             else:
-                """
-                (1, 1, 1) models have the structure of
-                [
-                    [
-                        [22.00688934326172]
-                    ]
-                ]
-                """
                 # append the single value
-                data.append(value[0][0][0])
+                # the appended value is a scalar such as 1.0, not an array
+                single_value = float(value[0][0][0])
+                data.append(single_value)
 
         # Add this to the collation df with an outerjoin to ensure all data is preserved
         return df.join(DataFrame({col_name: data}, index=index), how='outer')
