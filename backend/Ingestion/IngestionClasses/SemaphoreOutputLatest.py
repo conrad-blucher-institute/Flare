@@ -15,8 +15,8 @@ from datetime import datetime, timedelta
 from Ingestion.Ingestion_Utility import api_request, add_empty_column
 from flareRunner import thread_storage 
 from pandas import DataFrame
-from numpy import nan
 from os import getenv
+import numpy as np
 
 
 class SemaphoreOutputLatest(IDataIngestion):
@@ -57,13 +57,34 @@ class SemaphoreOutputLatest(IDataIngestion):
     
     
     def __add_data(self, df: DataFrame, response: dict[any], model_names: list[str], col_name: str) -> DataFrame:
-        '''Takes the data returned by the semaphore API, parses it into a pandas series, and adds it to the
-        dataframe with all the other data.'''
+        '''
+        Takes the data returned by the semaphore API, parses it into a pandas series, and adds it to the
+        dataframe with all the other data.
+
+        MRE models (1, 100, 1) have the structure of
+        [
+            [
+                [20.776033401489258],
+                [20.255704879760742],
+                [20.67584228515625],
+                ...
+                [21.035802841186523]
+            ]
+        ]
+
+        Legacy models (1, 1, 1) have the structure of
+        [
+            [
+                [22.00688934326172]
+            ]
+        ]        
+        '''
         index = []
         data = []
+        logger = thread_storage.logger
+
         for name in model_names:
             model_response  = response[name]
-
             data_point = model_response['_Series__data'][0]
 
             timeGenerated = datetime.strptime(data_point['timeGenerated'], '%Y-%m-%dT%H:%M:%S')
@@ -71,14 +92,29 @@ class SemaphoreOutputLatest(IDataIngestion):
             index.append(verifiedTime)
 
             value = data_point['dataValue']
-            if value is None or value == 'None': value = nan
+            shape = np.array(value).shape
+
+            if value in (None, 'None', []):
+                data.append(np.nan)
+
+            elif shape == (1, 100, 1):
+                # flatten MRE models into 1 array and convert to floats
+                # the flat array has the structure of [1.0, 2.0, ...]
+                # then append the flattened array
+                flat_array = np.asarray(value[0], dtype=float).flatten().tolist()
+                data.append(flat_array)
+
+            elif shape == (1, 1, 1):
+                # append the single value
+                # the appended value is a scalar such as 1.0, not an array
+                single_value = float(value[0][0][0])
+                data.append(single_value)
             
-            elif isinstance(value, list):
-                # Convert all elements to float
-                value = [float(v) for v in value]
-            
-            else: value = float(value)
-            data.append(value)
+            else:
+                # if not an expected shape, log an error and append NaN
+                logger.log_error(f'Warning:: Model {name} returned data with unexpected shape {shape}!', include_traceback=False)
+                data.append(np.nan)
+
 
         # Add this to the collation df with an outerjoin to ensure all data is preserved
         return df.join(DataFrame({col_name: data}, index=index), how='outer')
