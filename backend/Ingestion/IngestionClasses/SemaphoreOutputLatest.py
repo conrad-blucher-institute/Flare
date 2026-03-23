@@ -81,7 +81,6 @@ class SemaphoreOutputLatest(IDataIngestion):
         '''
         index = []
         data = []
-        expected_shapes = [(1, 100, 1), (1, 1, 1)]
         logger = thread_storage.logger
 
         for name in model_names:
@@ -97,24 +96,25 @@ class SemaphoreOutputLatest(IDataIngestion):
 
             if value in (None, 'None', []):
                 data.append(np.nan)
-            
-            elif shape not in expected_shapes:
-                # validate the response data matches one of the expected shapes
-                logger.log_error(f'Warning:: Model {name} returned data with unexpected shape {shape}!', include_traceback=False)
-                data.append(np.nan)
 
-            elif 'MRE' in name:
+            elif shape == (1, 100, 1):
                 # flatten MRE models into 1 array and convert to floats
                 # the flat array has the structure of [1.0, 2.0, ...]
                 # then append the flattened array
                 flat_array = np.asarray(value[0], dtype=float).flatten().tolist()
                 data.append(flat_array)
 
-            else:
+            elif shape == (1, 1, 1):
                 # append the single value
                 # the appended value is a scalar such as 1.0, not an array
                 single_value = float(value[0][0][0])
                 data.append(single_value)
+            
+            else:
+                # if not an expected shape, log an error and append NaN
+                logger.log_error(f'Warning:: Model {name} returned data with unexpected shape {shape}!', include_traceback=False)
+                data.append(np.nan)
+
 
         # Add this to the collation df with an outerjoin to ensure all data is preserved
         return df.join(DataFrame({col_name: data}, index=index), how='outer')
