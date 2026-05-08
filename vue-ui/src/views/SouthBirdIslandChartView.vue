@@ -26,11 +26,6 @@ const csvURL = ref(`${window.location.origin}/flare/csv-data/Laguna-Madre_Water-
 const isExportMenuVisible = ref(false);
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-
-// Define the current date and time
-const nowDate = new Date();// Current timestamp
-const nowTime = nowDate.getTime();
-
 const chartOptions = ref({});
 
 // Creating a single chart function that changes based on screen size
@@ -118,7 +113,7 @@ const buildChart = (isSmallScreen) => {
         {
           color: "red",
           width: 2,
-          value: nowTime,
+          value: Date.now(),
           dashStyle: "Solid",
           label: {
             text: "Now",
@@ -268,18 +263,30 @@ const fetchAndFilterData = async () => {
     const InterpolatedAirPredictionData = parsedData.airPredictions || [];
     const InterpolatedWaterPredictionData = parsedData.waterPredictions || [];
 
-     // Filter `InterpolatedAirPrediction` to only include hourly data
-     const hoursToFilter = [3, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 102, 114, 120];
+    // Filter `InterpolatedAirPrediction` to only include hourly data
+    const hoursToFilter = [3, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120];
+    const referenceTime = new Date();
+
+    // if it's before the 20 minute mark, we use the previous top of the hour to 
+    // calculate the hours difference correctly (aka lead time)
+    if (referenceTime.getMinutes() < 20) {
+      referenceTime.setHours(referenceTime.getHours() - 1, 0, 0, 0); // set to the previous top of the hour
+    }
+    // if it's past the 20 minute mark, we use the current top of the hour
+    else {
+      referenceTime.setMinutes(0, 0, 0); // set to the current top of the hour
+    }
+
     const AirPredictionData = InterpolatedAirPredictionData.filter((point) => {
       const pointTime = new Date(point[0]);
-      const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
+      const hoursDifference = Math.round((pointTime - referenceTime) / (1000 * 60 * 60)); // Calculate hours difference
       return hoursToFilter.includes(hoursDifference);
     });
 
     // Filter `InterpolatedWaterPrediction` for specific intervals
     const WaterPredictionData = InterpolatedWaterPredictionData.filter((point) => {
       const pointTime = new Date(point[0]);
-      const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
+      const hoursDifference = Math.round((pointTime - referenceTime) / (1000 * 60 * 60)); // Calculate hours difference
       return hoursToFilter.includes(hoursDifference);
     });
 
