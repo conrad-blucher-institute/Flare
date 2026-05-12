@@ -27,7 +27,7 @@ services:
       context: .   
       dockerfile: Dockerfile.frontend
       args:
-        - VITE_MODEL_RUN_TIME=${VITE_MODEL_RUN_TIME} # pass the model run time to the frontend build
+        VITE_MODEL_RUN_TIME: ${VITE_MODEL_RUN_TIME} # pass the model run time to the frontend build
     restart: always
     ports:
       - "${FRONTEND_HOST_PORT}:80"  # Host Port:Container Port

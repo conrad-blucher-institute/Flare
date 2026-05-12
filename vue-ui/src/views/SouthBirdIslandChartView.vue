@@ -269,12 +269,12 @@ const fetchAndFilterData = async () => {
     const InterpolatedWaterPredictionData = parsedData.waterPredictions || [];
     let referenceTime = new Date();
 
-    // if models haven't ran this hour then we use the 
+    // if models haven't run this hour then we use the 
     // previous top of the hour to calculate the hours difference correctly (aka lead times)
     if (referenceTime.getMinutes() < MODEL_RUN_TIME) {
       referenceTime.setHours(referenceTime.getHours() - 1, 0, 0, 0); // set to the previous top of the hour
     }
-    // if models have ran this hour then we can just use
+    // if models have run this hour then we can just use
     // the current time to calculate the hours difference and filter the data
     else {
       referenceTime.setMinutes(0, 0, 0); // set to the current top of the hour
