@@ -1,6 +1,10 @@
 #Build node 22 image under the build name
 FROM node:22.10.0-slim AS build
 
+# get the model run time from the build args
+ARG VITE_MODEL_RUN_TIME
+ENV VITE_MODEL_RUN_TIME=$VITE_MODEL_RUN_TIME
+
 #Set the working directory 
 WORKDIR /app
 

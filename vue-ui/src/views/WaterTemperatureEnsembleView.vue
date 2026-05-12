@@ -26,11 +26,14 @@ const missingDataWarningBanner = ref(MissingDataWarningBanner);
 const isSmallScreen = window.innerWidth <= 600;
 const csvURL = ref(`${window.location.origin}/flare/csv-data/MRE_Bird-Island_Water-Temperature.csv`);
 
+// the amount of minutes past the hour semaphore runs models
+const MODEL_RUN_TIME = import.meta.env.VITE_MODEL_RUN_TIME;
+// the lead times we actually predict to filter by
+const LEAD_TIMES = [3, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120];
 
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
 
 const chartOptions = ref({});
 
@@ -294,14 +297,17 @@ const fetchAndFilterData = async () => {
     const forecastAirTempsFahrenheit = forecastAirTemps.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
 
     
-    const filterNonInterpolated = (data, hourFilter) => {
-      const referenceTime = new Date();
-      // if it's before the 20 minute mark, we use the previous top of the hour to 
-      // calculate the hours difference correctly (aka lead time)
-      if (referenceTime.getMinutes() < 20) {
+    const filterNonInterpolated = (data) => {
+      // get the current time
+      let referenceTime = new Date();
+
+      // if models haven't ran this hour then we use the 
+      // previous top of the hour to calculate the hours difference correctly (aka lead times)
+      if (referenceTime.getMinutes() < MODEL_RUN_TIME) {
         referenceTime.setHours(referenceTime.getHours() - 1, 0, 0, 0); // set to the previous top of the hour
       }
-      // if it's past the 20 minute mark, we use the current top of the hour
+      // if models have ran this hour then we can just use
+      // the current time to calculate the hours difference and filter the data
       else {
         referenceTime.setMinutes(0, 0, 0); // set to the current top of the hour
       }
@@ -309,12 +315,11 @@ const fetchAndFilterData = async () => {
       return data.filter((point) => {
         const pointTime = new Date(point[0]);
         const hoursDifference = Math.round((pointTime - referenceTime) / (1000 * 60 * 60)); // Calculate hours difference
-        return hourFilter.includes(hoursDifference);
+        return LEAD_TIMES.includes(hoursDifference);
       });
     };
-    const hoursToFilter = [3, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120];
-    const AirPredictionMarkers = filterNonInterpolated(forecastAirTempsFahrenheit, hoursToFilter);
-    const WaterTemperatureMarkers = filterNonInterpolated(meanFahrenheit, hoursToFilter);
+    const AirPredictionMarkers = filterNonInterpolated(forecastAirTempsFahrenheit);
+    const WaterTemperatureMarkers = filterNonInterpolated(meanFahrenheit);
 
 
     // For highcharts to do a shaded range, it wants the range in the format of [date_index, lower_bound, upper_bound]
