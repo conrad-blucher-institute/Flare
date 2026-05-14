@@ -22,14 +22,14 @@ const missingDataWarningBanner = ref(MissingDataWarningBanner);
 const isSmallScreen = window.innerWidth <= 600;
 const csvURL = ref(`${window.location.origin}/flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv`);
 
+// the amount of minutes past the hour semaphore runs models
+const MODEL_RUN_TIME = import.meta.env.VITE_MODEL_RUN_TIME;
+// the lead times we actually predict to filter by
+const LEAD_TIMES = [3, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120];
+
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-
-// Define the current date and time
-const nowDate = new Date();// Current timestamp
-const nowTime = nowDate.getTime();
 
 const chartOptions = ref({});
 
@@ -118,7 +118,7 @@ const buildChart = (isSmallScreen) => {
         {
           color: "red",
           width: 2,
-          value: nowTime,
+          value: Date.now(),
           dashStyle: "Solid",
           label: {
             text: "Now",
@@ -267,20 +267,30 @@ const fetchAndFilterData = async () => {
     const AirMeasurementData = parsedData.airMeasurements || [];
     const InterpolatedAirPredictionData = parsedData.airPredictions || [];
     const InterpolatedWaterPredictionData = parsedData.waterPredictions || [];
+    let referenceTime = new Date();
 
-     // Filter `InterpolatedAirPrediction` to only include hourly data
-     const hoursToFilter = [3, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 102, 114, 120];
+    // if models haven't run this hour then we use the 
+    // previous top of the hour to calculate the hours difference correctly (aka lead times)
+    if (referenceTime.getMinutes() < MODEL_RUN_TIME) {
+      referenceTime.setHours(referenceTime.getHours() - 1, 0, 0, 0); // set to the previous top of the hour
+    }
+    // if models have run this hour then we can just use
+    // the current time to calculate the hours difference and filter the data
+    else {
+      referenceTime.setMinutes(0, 0, 0); // set to the current top of the hour
+    }
+
     const AirPredictionData = InterpolatedAirPredictionData.filter((point) => {
       const pointTime = new Date(point[0]);
-      const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
-      return hoursToFilter.includes(hoursDifference);
+      const hoursDifference = Math.round((pointTime - referenceTime) / (1000 * 60 * 60)); // Calculate hours difference
+      return LEAD_TIMES.includes(hoursDifference);
     });
 
     // Filter `InterpolatedWaterPrediction` for specific intervals
     const WaterPredictionData = InterpolatedWaterPredictionData.filter((point) => {
       const pointTime = new Date(point[0]);
-      const hoursDifference = Math.round((pointTime - nowTime) / (1000 * 60 * 60)); // Calculate hours difference
-      return hoursToFilter.includes(hoursDifference);
+      const hoursDifference = Math.round((pointTime - referenceTime) / (1000 * 60 * 60)); // Calculate hours difference
+      return LEAD_TIMES.includes(hoursDifference);
     });
 
     // Convert all data to Fahrenheit
