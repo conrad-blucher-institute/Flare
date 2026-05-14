@@ -11,7 +11,6 @@
             "interval": 3600,
             "range": [-144, 0]
          }
-            
         },
         {  "key": "SemaphoreInputs",
          "args": {
@@ -22,7 +21,6 @@
             "interval": 3600,
             "range": [-144, 0]
          }
-            
         },
         {  "key": "SemaphoreInputs",
          "args": {
@@ -33,7 +31,6 @@
             "interval": 3600,
             "range": [0, 120]
          }
-            
         },
         {  "key": "SemaphoreOutputLatest",
          "args": {
@@ -62,7 +59,6 @@
               "MRE_Bird-Island_Water-Temperature_120hr"
             ] 
           }
-            
         }
     ],
     "post_processing" : [
@@ -98,7 +94,7 @@
         "args": {
             "col_name": "Water Temperature Prediction 95th Percentile",
             "interpolation_interval": 3600,
-            "limit": 10800
+            "limit": 21600
         }
       },
       {
@@ -107,7 +103,7 @@
         "args": {
             "col_name": "Water Temperature Prediction 5th Percentile",
             "interpolation_interval": 3600,
-            "limit": 10800
+            "limit": 21600
         }
       },
       {
@@ -116,7 +112,7 @@
         "args": {
             "col_name": "Water Temperature Prediction Max",
             "interpolation_interval": 3600,
-            "limit": 10800
+            "limit": 21600
         }
       },
       {
@@ -125,7 +121,7 @@
         "args": {
             "col_name": "Water Temperature Prediction Min",
             "interpolation_interval": 3600,
-            "limit": 10800
+            "limit": 21600
         }
       },
       {
@@ -134,7 +130,7 @@
         "args": {
             "col_name": "Water Temperature Prediction Median",
             "interpolation_interval": 3600,
-            "limit": 10800
+            "limit": 21600
         }
       },
       {
@@ -143,7 +139,7 @@
         "args": {
             "col_name": "Air Temperature Prediction",
             "interpolation_interval": 3600,
-            "limit": 10800
+            "limit": 21600
         }
       }
     ],
