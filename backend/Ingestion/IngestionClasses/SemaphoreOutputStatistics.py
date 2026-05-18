@@ -140,7 +140,7 @@ class SemaphoreOutputStatistics(IDataIngestion):
                 ...
             }
 
-        :returns: dataframe - the dataframe with the new data added
+        :returns: dataframe - the ongoing dataframe with the new data joined to it
         '''
         logger = thread_storage.logger
 
@@ -154,7 +154,15 @@ class SemaphoreOutputStatistics(IDataIngestion):
                 to the time generated to get the verified time which is used as the index for the data
             '''
             model_name = value['modelName']
-            lead_time = int(re.search(r'(\d+)hr', model_name).group(1))
+            match = re.search(r'(\d+)hr', model_name)
+            if match:
+                lead_time = int(match.group(1))
+            else:
+                # in the case that a lead time isn't able to be extracted
+                # return the unmodified dataframe and log a warning
+                logger.log_info(f'Warning:: Could not extract lead time from model name {model_name}')
+                return df
+            
             timeGenerated = datetime.strptime(value['timeGenerated'], '%Y-%m-%dT%H:%M:%S')
             verifiedTime = timeGenerated + timedelta(hours=lead_time)
 
