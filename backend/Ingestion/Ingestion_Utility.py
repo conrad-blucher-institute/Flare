@@ -4,10 +4,9 @@ from numpy import nan
 from pandas import DataFrame
 import json
 from runtimeContext import thread_storage
-import ssl
 
 
-def api_request( url: str) -> dict[any] | None:
+def api_request(url: str) -> dict | None:
     """
     Execute a web get request returning the response or None if the request fails
 

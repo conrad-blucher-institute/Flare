@@ -20,8 +20,10 @@ from Ingestion.IngestionClasses.SemaphoreOutputStatistics import SemaphoreOutput
 # fixture for the logger
 @pytest.fixture(autouse=True)
 def mock_logger():
-    with patch('Ingestion.IngestionClasses.SemaphoreOutputStatistics.thread_storage') as mock_storage:
+    with patch('Ingestion.IngestionClasses.SemaphoreOutputStatistics.thread_storage') as mock_storage, \
+        patch('Ingestion.Ingestion_Utility.thread_storage') as mock_utility_storage:
         mock_storage.logger = MagicMock()
+        mock_utility_storage.logger = MagicMock()
         yield mock_storage
 
 @pytest.mark.parametrize("response, expected", [
@@ -273,9 +275,10 @@ def test_validate_response(response, expected):
     (
         # ongoing
         DataFrame({
+            'verifiedTime': [datetime(2026, 1, 1, 12, 0, tzinfo=None)],
             'Air Temperature Prediction': [50],
         },
-        index=[datetime(2026, 1, 1, 12, 0, tzinfo=None)]
+        index=['verifiedTime']
         ),
         # response
         {
@@ -297,11 +300,25 @@ def test_validate_response(response, expected):
                 "std_dev": 13
             }
         },
-        # expected df - should be unchanged
+        # expected df now has empty columns for each stat
         DataFrame({
+            'verifiedTime': [datetime(2026, 1, 1, 12, 0, tzinfo=None)],
             'Air Temperature Prediction': [50],
+            'Water Temperature Prediction p1': [nan],
+            'Water Temperature Prediction p5': [nan],
+            'Water Temperature Prediction p10': [nan],
+            'Water Temperature Prediction p25': [nan],
+            'Water Temperature Prediction p50': [nan],
+            'Water Temperature Prediction p75': [nan],
+            'Water Temperature Prediction p90': [nan],
+            'Water Temperature Prediction p95': [nan],
+            'Water Temperature Prediction p99': [nan],
+            'Water Temperature Prediction min': [nan],
+            'Water Temperature Prediction max': [nan],
+            'Water Temperature Prediction mean': [nan],
+            'Water Temperature Prediction std_dev': [nan]
         },
-        index=[datetime(2026, 1, 1, 12, 0, tzinfo=None)]
+        index=['verifiedTime']
         )
     )],
     ids=[

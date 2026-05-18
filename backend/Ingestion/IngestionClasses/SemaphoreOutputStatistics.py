@@ -35,7 +35,9 @@ class SemaphoreOutputStatistics(IDataIngestion):
         validated_response = self.__validate_response(response)
 
         if validated_response is None:
-            return add_empty_column(data, "Water Temperature Prediction Statistics")
+            for stat in self.STATISTICS:
+                data = add_empty_column(data, f"Water Temperature Prediction {stat}")
+            return data
 
         return self.__add_data(df= data, response=validated_response)
 
@@ -158,10 +160,8 @@ class SemaphoreOutputStatistics(IDataIngestion):
             if match:
                 lead_time = int(match.group(1))
             else:
-                # in the case that a lead time isn't able to be extracted
-                # return the unmodified dataframe and log a warning
                 logger.log_info(f'Warning:: Could not extract lead time from model name {model_name}')
-                return df
+                continue
             
             timeGenerated = datetime.strptime(value['timeGenerated'], '%Y-%m-%dT%H:%M:%S')
             verifiedTime = timeGenerated + timedelta(hours=lead_time)
@@ -170,6 +170,14 @@ class SemaphoreOutputStatistics(IDataIngestion):
             for stat in self.STATISTICS:
                 row[f'Water Temperature Prediction {stat}'] = value.get(stat, np.nan)
             rows.append(row)
+        
+        df_stats = DataFrame(rows)
+
+        # catch cases where models do give a valid response but all regex extractions fail
+        if df_stats.empty:
+            for stat in self.STATISTICS:
+                df = add_empty_column(df, f"Water Temperature Prediction {stat}")
+            return df
 
         df_stats = DataFrame(rows).set_index('verifiedTime')
 
