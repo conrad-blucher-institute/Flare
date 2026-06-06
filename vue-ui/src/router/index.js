@@ -42,6 +42,11 @@ const router = createRouter({
       path: '/water-temperature-ensemble',
       name: 'waterTemperatureEnsemble',
       component: () => import('../views/WaterTemperatureEnsembleView.vue'), // Lazy-loaded component
+    },
+    {
+      path: '/crps',
+      name: 'crps',
+      component: () => import('../views/CrpsView.vue'), // Lazy-loaded component
     }
     
   ],

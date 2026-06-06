@@ -580,6 +580,14 @@ onUnmounted(() => {
           </router-link>
         </li>
         <li>
+          CRPS DATA
+          <router-link 
+            to="/crps" 
+            class="underline text-blue-600 hover:text-blue-800">
+            here
+          </router-link>
+        </li>
+        <li>
           Wind predictions for the Laguna Madre available
           <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">
             here
