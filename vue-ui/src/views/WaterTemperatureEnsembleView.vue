@@ -350,9 +350,9 @@ const fetchAndFilterData = async () => {
         marker: { enabled: false },
       },
       {
-        name: "Air Temperature Predictions",
-        data: AirPredictionMarkers,
-        color: "var(--Air-Temperature-Predictions)",
+        name: "Water Temperature Predictions",
+        data: WaterTemperatureMarkers,
+        color: "var(--Water-Temperature-Predictions)",
         type: "line",
         lineWidth: 0,   // No line, just markers
         marker: {
@@ -361,9 +361,9 @@ const fetchAndFilterData = async () => {
         },
       },
       {
-        name: "Water Temperature Predictions",
-        data: WaterTemperatureMarkers,
-        color: "var(--Water-Temperature-Predictions)",
+        name: "Air Temperature Predictions",
+        data: AirPredictionMarkers,
+        color: "var(--Air-Temperature-Predictions)",
         type: "line",
         lineWidth: 0,   // No line, just markers
         marker: {

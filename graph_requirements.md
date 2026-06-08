@@ -12,6 +12,7 @@
 - Interpolated Air Temperature Predictions[dashStyle: "2.5, 2.5"]: `#FFA500`
 - Air Temperature Predictions[type: "line"]: `#008000`
 - Water Temperature Predictions[type: "line"]: `#800080`
+- Box Plot 'Series'[]:
 
 #### Threshold Names and Colors
 

@@ -589,6 +589,7 @@ const fetchAndFilterSecondData = async () => {
         name: "NDFD Air Temperature Predictions",
         data: NDFPredictionsFahrenheit,
         type: "line",
+        zIndex: 1,
         color: "var(--NDFD-Air-Temperature-Predictions)",
         lineWidth: isSmallScreen ? 2 : 4,
         marker: {
@@ -665,21 +666,7 @@ const fetchAndFilterThirdData = async () => {
     });
 
     thirdChartOptions.value.series = [
-      {
-        name: "Box Plot Air Temperature Predictions",
-        data: boxplotData,
-        type: "boxplot",
-        color: Highcharts.getOptions().colors[0],
-      },
-      {
-        name: "Median Air Temperature Predictions",
-        data: mediansFahrenheit,
-        type: "line",
-        color: "blue",
-        zIndex: 1,                                    // Ensure this line is in front of the box plot
-        marker: { enabled: false },
-      },
-      {
+     {
         name: "NDFD Air Temperature Predictions",
         data: NDFPredictionsFahrenheit,
         type: "line",
@@ -690,7 +677,22 @@ const fetchAndFilterThirdData = async () => {
           enabled: false,
           radius: isSmallScreen ? 1 : 2,
         },
-      }
+      },
+     {
+        name: "Box Plot Air Temperature Predictions",
+        data: boxplotData,
+        type: "boxplot",
+        color: "var(--Box-Plot)",
+      },
+      {
+        name: "Median (50th Percentile)",
+        data: mediansFahrenheit,
+        type: "line",
+        color: "var(--Median-50th-Percentile)",
+        zIndex: 1,                                    // Ensure this line is in front of the box plot
+        marker: { enabled: false },
+      },
+  
     ]
   }
   catch (error) {

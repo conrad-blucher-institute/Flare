@@ -48,7 +48,7 @@ const buildChart = (isSmallScreen) => {
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
-        color: "#0f4f66" 
+        color: "var(--Primary-Blue)" 
       },
     },
     exporting: {
@@ -59,7 +59,7 @@ const buildChart = (isSmallScreen) => {
         fontSize: isSmallScreen ? "12px" : "19px",
         fontWeight: "bold",
         fontFamily: "Arial",
-        color: "#0f4f66",
+        color: "var(--Primary-Blue)",
       },
     },
     xAxis: {
@@ -81,7 +81,7 @@ const buildChart = (isSmallScreen) => {
         style: {
           fontSize: isSmallScreen ? "12px" : "16px", 
           fontFamily: "Arial",
-          color: "#0f4f66",
+          color: "var(--Primary-Blue)",
           whiteSpace: "nowrap",
         },
       },
@@ -334,7 +334,7 @@ const fetchAndFilterData = async () => {
       {
         name: "Air Temperature Measurements",
         data: AirMeasurementDataFahrenheit,
-        color: "#var(--Air-Temperature-Measurements)",
+        color: "var(--Air-Temperature-Measurements)",
         lineWidth: isSmallScreen ? 2 : 4,
         marker: { enabled: false },
       },
