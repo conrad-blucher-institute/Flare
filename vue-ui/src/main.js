@@ -23,6 +23,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import './assets/tailwind.css'
+import './assets/global_colors.css'
 
 
 

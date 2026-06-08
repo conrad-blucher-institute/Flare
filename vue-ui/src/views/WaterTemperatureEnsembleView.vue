@@ -24,7 +24,7 @@ import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue"
 const missingDataWarningBanner = ref(MissingDataWarningBanner);
 
 const isSmallScreen = window.innerWidth <= 600;
-const csvURL = ref(`${window.location.origin}/flare/csv-data/MRE_Bird-Island_Water-Temperature.csv`);
+const csvURL = ref(`http://localhost:8080/flare/csv-data/MRE_Bird-Island_Water-Temperature.csv`);
 
 // the amount of minutes past the hour semaphore runs models
 const MODEL_RUN_TIME = import.meta.env.VITE_MODEL_RUN_TIME;
@@ -52,7 +52,7 @@ const buildChart = (isSmallScreen) => {
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
-        color: "#0f4f66" 
+        color: "var(--Primary-Blue)" 
       },
     },
     exporting: {
@@ -63,7 +63,7 @@ const buildChart = (isSmallScreen) => {
         fontSize: isSmallScreen ? "12px" : "19px",
         fontWeight: "bold",
         fontFamily: "Arial",
-        color: "#0f4f66",
+        color: "var(--Primary-Blue)",
       },
     },
     xAxis: {
@@ -85,7 +85,7 @@ const buildChart = (isSmallScreen) => {
         style: {
           fontSize: isSmallScreen ? "12px" : "16px", 
           fontFamily: "Arial",
-          color: "#0f4f66",
+          color: "var(--Primary-Blue)",
           whiteSpace: "nowrap",
         },
       },
@@ -115,12 +115,12 @@ const buildChart = (isSmallScreen) => {
         style: {
           fontSize: isSmallScreen ? "14px" : "20px",
           fontFamily: "Arial",
-          color: "#0f4f66",
+          color: "var(--Primary-Blue)",
         },
       },
       plotLines: [
         {
-          color: "red",
+          color: "var(--Now-Line)",
           width: 2,
           value: Date.now(),
           dashStyle: "Solid",
@@ -128,7 +128,7 @@ const buildChart = (isSmallScreen) => {
             text: "Now",
             y:20,
             style: {
-              color: "#0f4f66",
+              color: "var(--Primary-Blue)",
               fontSize: isSmallScreen ? "12px" : "14px", 
               fontFamily: "Arial",
             },
@@ -160,7 +160,7 @@ const buildChart = (isSmallScreen) => {
                 rotation: 0,
                 y: 15, 
                 style: {
-                  color: "#0f4f66",
+                  color: "var(--Primary-Blue)",
                   fontSize: isSmallScreen ? "10px" : "12px", 
                   fontFamily: "Arial",
                 },
@@ -177,14 +177,14 @@ const buildChart = (isSmallScreen) => {
       labels: {
           style: {
             fontSize: isSmallScreen ? "12px" : "26px",
-            color: '#0f4f66',
+            color: 'var(--Primary-Blue)',
             fontFamily: 'Arial', 
           },
         },
       title: {
         text: "Temperature (°F)",
         style: { 
-          color: "#0f4f66", 
+          color: "var(--Primary-Blue)", 
           fontSize: isSmallScreen ? "12px" : "20px", 
         },
       },
@@ -194,28 +194,28 @@ const buildChart = (isSmallScreen) => {
       maxPadding: 0.05, // Add padding only when data exceeds 90°F
       plotLines: [
         {
-          color: "red",
+          color: "var(--Sea-Turtle-Threshold)",
           width: 2,
           value: 46.4,
           dashStyle: "Dash",
           label: {
             text: "Sea Turtle Water Temperature Threshold",
             style: {
-              color: "#0f4f66",
+              color: "var(--Primary-Blue)",
               fontSize: isSmallScreen ? "12px" : "16px",
               fontWeight: "bold",
             },
           },
         },
         {
-          color: "#720000",
+          color: "var(--Fisheries-Threshold)",
           width: 2,
           value: 40,
           dashStyle: "Dash",
           label: {
             text: "Fisheries Water Temperature Threshold",
             style: {
-              color: "#0f4f66",
+              color: "var(--Primary-Blue)",
               fontSize: isSmallScreen ? "12px" : "16px",
               fontFamily: "Arial",
               fontWeight: "bold",
@@ -261,7 +261,7 @@ const buildChart = (isSmallScreen) => {
       style: {
         fontSize: isSmallScreen ? "12px" : "14px", 
         padding: isSmallScreen ? "5px" : "8px", 
-        color: "#0f4f66",
+        color: "0f4f66",
         fontFamily: "Arial",
       },
     },
@@ -334,51 +334,25 @@ const fetchAndFilterData = async () => {
     // Update chart series with filtered data
     chartOptions.value.series = [
       {
-        name: "Interpolated Median Water Temperature Predictions",
-        data: meanFahrenheit,
-        color: "black",
-        dashStyle: "Dash",
-        lineWidth: isSmallScreen ? 1.9 : 2.5,
-        zIndex: 1, // Ensure this is in front of the bounds
-        marker: { enabled: false },
-      },
-      {
-        name: "Ribbon Water Temperature Predictions",
-        data: boundsFahrenheit,
-        type: 'arearange',
-        //linkedTo: "Water Temperature Predictions", //not sure why we wanted to linked them but it does not seem necessary and was not allowing the ribbon to be toggled on and off
-        lineWidth: 1.9, // No line for bounds
-        color: "#00a0ff",
-        fillOpacity: 0.3,
-        zIndex: 0, // Ensure this is underneath the mean line
-        marker: { enabled: false },
-      },
-      {
         name: "Water Temperature Measurements",
         data: pastWaterTempsFahrenheit,
-        color: "black",
+        color: "var(--Water-Temperature-Measurements)",
+        type: "line",
         lineWidth: isSmallScreen ? 1.9 : 2.5,
         marker: { enabled: false },
       },
       {
         name: "Air Temperature Measurements",
         data: pastAirTempsFahrenheit,
-        color: "#73c5da",
-        lineWidth: isSmallScreen ? 1.9 : 2.5,
-        marker: { enabled: false },
-      },
-      {
-        name: "Interpolated Predicted Air Temperature",
-        data: forecastAirTempsFahrenheit,
-        color: "orange",
-        dashStyle: "Dash", // Shorter dashes
+        color: "var(--Air-Temperature-Measurements)",
+        type: "line",
         lineWidth: isSmallScreen ? 1.9 : 2.5,
         marker: { enabled: false },
       },
       {
         name: "Air Temperature Predictions",
         data: AirPredictionMarkers,
-        color: "green",
+        color: "var(--Air-Temperature-Predictions)",
         type: "line",
         lineWidth: 0,   // No line, just markers
         marker: {
@@ -389,7 +363,7 @@ const fetchAndFilterData = async () => {
       {
         name: "Water Temperature Predictions",
         data: WaterTemperatureMarkers,
-        color: "purple",
+        color: "var(--Water-Temperature-Predictions)",
         type: "line",
         lineWidth: 0,   // No line, just markers
         marker: {
@@ -397,6 +371,35 @@ const fetchAndFilterData = async () => {
           radius: isSmallScreen ? 1.9 : 2.5,
         },
       },
+      {
+        name: "Interpolated Air Temperature Predictions",
+        data: forecastAirTempsFahrenheit,
+        color: "var(--Interpolated-Air-Temperature-Predictions)",
+        dashStyle: "Dash", // Shorter dashes
+        lineWidth: isSmallScreen ? 1.9 : 2.5,
+        marker: { enabled: false },
+      },
+      {
+        name: "Interpolated Median (50th Percentile)",
+        data: meanFahrenheit,
+        color: "var(--Median-50th-Percentile)",
+        dashStyle: "Dash",
+        lineWidth: isSmallScreen ? 1.9 : 2.5,
+        zIndex: 1, // Ensure this is in front of the bounds
+        marker: { enabled: false },
+      },
+      {
+        name: "5th-95th Percentile",
+        data: boundsFahrenheit,
+        type: 'arearange',
+        //linkedTo: "Water Temperature Predictions", //not sure why we wanted to linked them but it does not seem necessary and was not allowing the ribbon to be toggled on and off
+        lineWidth: 1.9, // No line for bounds
+        color: "var(--Percentile-5th-95th)",
+        fillOpacity: 0.3,
+        zIndex: 0, // Ensure this is underneath the mean line
+        marker: { enabled: false },
+      }
+      
     ];
   } catch (error) {
     console.error("Error fetching or processing data:", error);

@@ -1,62 +1,57 @@
-### Interpolation Rules
-
-For prediction data, interpolation gap limits should be based on the expected update frequency of each data source rather than assuming hourly data:
-
-    - NDFD Predictions: Maximum interpolation gap of **3 hours** (recommended by Dr. Tissot).
-
-    - CRPS Predictions: Maximum interpolation gap of **6 hours**.
-
-    - Measured Data: Maximum interpolation gap of **1 data point** (pending confirmation).
-
-### Legend Requirements
-    - Use consistent naming: 
-        - Median(50th Percentile)
-        - 25th-75th Percentile
-        - 5th-95th Percentile
-        - Water Temperature Measurements
-        - Air Temperature Measurements
-        - Air Temperature Predictions
-        - Interpolated Predicted Water Temperature
-        - Interpolated Predicted Air Temperature
-        - Interpolated Predicted Air Temperature
-        - Water Temperature Predictions
-        - Water Temperature Predictions
-        - Ribbon Water Temperature Predictions
-
-    - Use consistent colors:
-        - Median(50th Percentile)
-        - 25th-75th Percentile
-        - 5th-95th Percentile
-        - Water Temperature Measurements
-        - Air Temperature Measurements
-        - Air Temperature Predictions
-        - Interpolated Predicted Water Temperature
-        - Interpolated Predicted Air Temperature
-        - Interpolated Predicted Air Temperature
-        - Water Temperature Predictions
-        - Water Temperature Predictions
-        - Ribbon Water Temperature Predictions
-
-
 ### Global Graph Requirements
 
-    The following rules should apply to all graphs unless explicitly overridden:
+#### Graph Series Names, Colors and Line Type
 
-    == Y-Axis Minimum ==
+- Median (50th Percentile) [dashStyle: "Dash"]: `#5F98CA`
+- 25th–75th Percentile [type: 'arearange']: `#9ACDFF`
+- 5th–95th Percentile[type: 'arearange']: `#DDEEFF`
+- Water Temperature Measurements[type: "line"]: `#000000`
+- Air Temperature Measurements[type: "line"]: `#73C5DA`
+- NDFD Air Temperature Predictions[type: "line"]: `#800080`
+- Interpolated Water Temperature Predictions[dashStyle: "2.5, 2.5"]: `#000000`
+- Interpolated Air Temperature Predictions[dashStyle: "2.5, 2.5"]: `#FFA500`
+- Air Temperature Predictions[type: "line"]: `#008000`
+- Water Temperature Predictions[type: "line"]: `#800080`
 
-    Use the greater of:
+#### Threshold Names and Colors
 
-        - 30°F, or Minimum air temperature − 5°F
+- Sea Turtle Threshold[dashStyle: "Dash"]: `#FF0000`
+- Fisheries Threshold[dashStyle: "Dash"]: `#720000`
+- Now Line[dashStyle: "Solid"]: `#FF0000`
 
-    == Y-Axis Maximum ==
+#### Y-Axis Minimum
 
-        - Follow the maximum value calculation currently used by the **MRE model** code.
+Use the greater of:
 
-    == Thresholds ==
+- `30°F`
+- `Minimum Air Temperature − 5°F`
 
-        - If a graph has a threshold, it must always be visibile even when zoomed into the graph
+#### Y-Axis Maximum
 
-    == Degrees ==
-        - Fahrenheit is the only dwegree used by graphs
+- Use the same calculation as the MRE model.
+- All graphs must use the same calculation.
 
+#### Thresholds
 
+- Threshold lines must remain visible when zooming.
+
+#### Temperature Units
+
+- Display all temperatures in Fahrenheit (`°F`).
+
+#### Time
+
+- Display timestamps in the user's local timezone.
+- The "Now" line should use the client's current time.
+
+#### Legends
+
+- Use consistent naming across all graphs.
+- Display historical measurements before predictions.
+- Display median lines before percentile ranges.
+
+#### Graph Behavior
+
+- Historical and predicted values must be visually distinct.
+- Zooming must not alter data or calculations.
+- Missing data must be handled by displaying a "missing data banner".

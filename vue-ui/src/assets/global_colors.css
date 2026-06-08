@@ -1,0 +1,29 @@
+:root {
+  /* Graph Series Colors */
+
+  --Median-50th-Percentile: #5F98CA;
+  --Percentile-25th-75th: #9ACDFF;
+  --Percentile-5th-95th: #DDEEFF;
+
+  --Water-Temperature-Measurements: #000000;
+  --Air-Temperature-Measurements: #73C5DA;
+
+  --NDFD-Air-Temperature-Predictions: #800080;
+
+  --Interpolated-Water-Temperature-Predictions: #000000;
+  --Interpolated-Air-Temperature-Predictions: #FFA500;
+
+  --Air-Temperature-Predictions: #008000;
+  --Water-Temperature-Predictions: #800080;
+
+
+  /* Threshold Colors */
+
+  --Sea-Turtle-Threshold: #FF0000;
+  --Fisheries-Threshold: #720000;
+  --Now-Line: #FF0000;
+
+  /* Primary Colors */
+    --Primary-Blue: #0f4f66;
+
+}
