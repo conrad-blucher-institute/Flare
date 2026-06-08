@@ -65,7 +65,7 @@ const buildChart = (isSmallScreen) => {
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
-        color: "#0f4f66"
+        color: "var(--Primary-Blue)"
       },
       useHTML: true,
       align: 'center',
@@ -94,7 +94,7 @@ const buildChart = (isSmallScreen) => {
         style: {
           fontSize: isSmallScreen ? "12px" : "16px", 
           fontFamily: "Arial",
-          color: "#0f4f66",
+          color: "var(--Primary-Blue)",
           whiteSpace: "nowrap",
         },
       },
@@ -124,7 +124,7 @@ const buildChart = (isSmallScreen) => {
         style: {
           fontSize: isSmallScreen ? "14px" : "20px",
           fontFamily: "Arial",
-          color: "#0f4f66",
+          color: "var(--Primary-Blue)",
         },
       },
 
@@ -154,7 +154,7 @@ const buildChart = (isSmallScreen) => {
                 rotation: 0,
                 y: 15,
                 style: {
-                  color: "#0f4f66",
+                  color: "var(--Primary-Blue)",
                   fontSize: isSmallScreen ? "10px" : "12px", 
                   fontFamily: "Arial",
                 },
@@ -171,14 +171,14 @@ const buildChart = (isSmallScreen) => {
     labels: {
       style: {
         fontSize: isSmallScreen ? "12px" : "26px",
-        color: '#0f4f66',
+        color: 'var(--Primary-Blue)',
         fontFamily: 'Arial',
       },
     },
     title: {
       text: "Temperature (°F)",
       style: { 
-          color: "#0f4f66", 
+          color: "var(--Primary-Blue)", 
           fontSize: isSmallScreen ? "12px" : "20px", 
         },
     },
@@ -209,7 +209,7 @@ const buildChart = (isSmallScreen) => {
       style: {
         fontSize: isSmallScreen ? "12px" : "14px", 
         padding: isSmallScreen ? "5px" : "8px", 
-        color: "#0f4f66",
+        color: "var(--Primary-Blue)",
         fontFamily: "Arial",
       },
     },
@@ -233,7 +233,7 @@ const buildSecondChart = (isSmallScreen) => {
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
-        color: "#0f4f66" 
+        color: "var(--Primary-Blue)" 
       },
       useHTML: true,
       align: 'center',
@@ -247,7 +247,7 @@ const buildSecondChart = (isSmallScreen) => {
       verticalAlign: 'bottom',
       layout: 'horizontal',
       itemStyle: {
-        color: "#0f4f66",
+        color: "var(--Primary-Blue)",
         fontWeight: 'normal',
         fontSize: isSmallScreen ? "12px" : "14px"
       }
@@ -270,7 +270,7 @@ const buildSecondChart = (isSmallScreen) => {
         style: {
           fontSize: isSmallScreen ? "12px" : "16px", 
           fontFamily: "Arial",
-          color: "#0f4f66",
+          color: "var(--Primary-Blue)",
           whiteSpace: "nowrap",
         },
       },
@@ -280,7 +280,7 @@ const buildSecondChart = (isSmallScreen) => {
         style: {
           fontSize: isSmallScreen ? "14px" : "20px",
           fontFamily: "Arial",
-          color: "#0f4f66",
+          color: "var(--Primary-Blue)",
         },
       },
     },
@@ -288,14 +288,14 @@ const buildSecondChart = (isSmallScreen) => {
       labels: {
         style: {
           fontSize: isSmallScreen ? "12px" : "26px",
-          color: '#0f4f66',
+          color: 'var(--Primary-Blue)',
           fontFamily: 'Arial',
         },
       },
       title: {
         text: "Temperature (°F)",
         style: { 
-            color: "#0f4f66", 
+            color: "var(--Primary-Blue)", 
             fontSize: isSmallScreen ? "12px" : "20px", 
         },
       },
@@ -360,7 +360,7 @@ const buildSecondChart = (isSmallScreen) => {
       style: {
         fontSize: isSmallScreen ? "12px" : "14px", 
         padding: isSmallScreen ? "5px" : "8px", 
-        color: "#0f4f66",
+        color: "var(--Primary-Blue)",
         fontFamily: "Arial",
       },
     },
@@ -384,7 +384,7 @@ const buildThirdChart = (isSmallScreen) => {
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
-        color: "#0f4f66"
+        color: "var(--Primary-Blue)"
       },
       useHTML: true,
       align: 'center'
@@ -398,7 +398,7 @@ const buildThirdChart = (isSmallScreen) => {
       verticalAlign: 'bottom',
       layout: 'horizontal',
       itemStyle: {
-        color: "#0f4f66",
+        color: "var(--Primary-Blue)",
         fontWeight: 'normal',
         fontSize: isSmallScreen ? "12px" : "14px"
       }
@@ -421,7 +421,7 @@ const buildThirdChart = (isSmallScreen) => {
         style: {
           fontSize: isSmallScreen ? "12px" : "16px", 
           fontFamily: "Arial",
-          color: "#0f4f66",
+          color: "var(--Primary-Blue)",
           whiteSpace: "nowrap",
         },
       },
@@ -431,7 +431,7 @@ const buildThirdChart = (isSmallScreen) => {
         style: {
           fontSize: isSmallScreen ? "14px" : "20px",
           fontFamily: "Arial",
-          color: "#0f4f66",
+          color: "var(--Primary-Blue)",
         },
       },
     },
@@ -439,14 +439,14 @@ const buildThirdChart = (isSmallScreen) => {
       labels: {
         style: {
           fontSize: isSmallScreen ? "12px" : "26px",
-          color: '#0f4f66',
+          color: 'var(--Primary-Blue)',
           fontFamily: 'Arial',
         },
       },
       title: {
         text: "Temperature (°F)",
         style: { 
-            color: "#0f4f66", 
+            color: "var(--Primary-Blue)", 
             fontSize: isSmallScreen ? "12px" : "20px", 
         },
       },
@@ -495,7 +495,7 @@ const buildThirdChart = (isSmallScreen) => {
       style: {
         fontSize: isSmallScreen ? "12px" : "14px", 
         padding: isSmallScreen ? "5px" : "8px", 
-        color: "#0f4f66",
+        color: "var(--Primary-Blue)",
         fontFamily: "Arial",
       },
     },
@@ -586,35 +586,37 @@ const fetchAndFilterSecondData = async () => {
     // Update chart series with filtered data
     secondChartOptions.value.series = [
       {
-        name: "Median Air Temperature Predictions",
-        data: mediansFahrenheit,
-        type: "line",
-        color: "blue",
-        lineWidth: isSmallScreen ? 2 : 4,
-        zIndex: 1, // Ensure this is in front of the bounds
-        marker: { enabled: false },
-      },
-      {
-        name: "Bounds",
-        data: boundsFahrenheit,
-        type: "arearange",
-        lineWidth: 0, // No line for bounds
-        color: Highcharts.getOptions().colors[0],
-        fillOpacity: 0.3,
-        zIndex: 0, // Ensure this is behind the mean line
-        marker: { enabled: false },
-      },
-      {
         name: "NDFD Air Temperature Predictions",
         data: NDFPredictionsFahrenheit,
         type: "line",
-        color: "purple",
+        zIndex: 1,
+        color: "var(--NDFD-Air-Temperature-Predictions)",
         lineWidth: isSmallScreen ? 2 : 4,
         marker: {
           enabled: false,
           radius: isSmallScreen ? 1 : 2,
         },
       },
+      {
+        name: "Median (50th Percentile)",
+        data: mediansFahrenheit,
+        type: "line",
+        color: "var(--Median-50th-Percentile)",
+        lineWidth: isSmallScreen ? 2 : 4,
+        zIndex: 1, // Ensure this is in front of the bounds
+        marker: { enabled: false },
+      },
+      {
+        name: "5th-95th Percentile",
+        data: boundsFahrenheit,
+        type: "arearange",
+        lineWidth: 0, // No line for bounds
+        color: "var(--Percentile-5th-95th)",
+        fillOpacity: 0.3,
+        zIndex: 0, // Ensure this is behind the mean line
+        marker: { enabled: false },
+      },
+      
     ];
   } catch (error) {
     console.error("Error fetching or processing data:", error);
@@ -664,21 +666,7 @@ const fetchAndFilterThirdData = async () => {
     });
 
     thirdChartOptions.value.series = [
-      {
-        name: "Box Plot Air Temperature Predictions",
-        data: boxplotData,
-        type: "boxplot",
-        color: Highcharts.getOptions().colors[0],
-      },
-      {
-        name: "Median Air Temperature Predictions",
-        data: mediansFahrenheit,
-        type: "line",
-        color: "blue",
-        zIndex: 1,                                    // Ensure this line is in front of the box plot
-        marker: { enabled: false },
-      },
-      {
+     {
         name: "NDFD Air Temperature Predictions",
         data: NDFPredictionsFahrenheit,
         type: "line",
@@ -689,7 +677,22 @@ const fetchAndFilterThirdData = async () => {
           enabled: false,
           radius: isSmallScreen ? 1 : 2,
         },
-      }
+      },
+     {
+        name: "Box Plot Air Temperature Predictions",
+        data: boxplotData,
+        type: "boxplot",
+        color: "var(--Box-Plot)",
+      },
+      {
+        name: "Median (50th Percentile)",
+        data: mediansFahrenheit,
+        type: "line",
+        color: "var(--Median-50th-Percentile)",
+        zIndex: 1,                                    // Ensure this line is in front of the box plot
+        marker: { enabled: false },
+      },
+  
     ]
   }
   catch (error) {

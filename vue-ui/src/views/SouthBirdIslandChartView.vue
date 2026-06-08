@@ -48,7 +48,7 @@ const buildChart = (isSmallScreen) => {
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
-        color: "#0f4f66" 
+        color: "var(--Primary-Blue)" 
       },
     },
     exporting: {
@@ -59,7 +59,7 @@ const buildChart = (isSmallScreen) => {
         fontSize: isSmallScreen ? "12px" : "19px",
         fontWeight: "bold",
         fontFamily: "Arial",
-        color: "#0f4f66",
+        color: "var(--Primary-Blue)",
       },
     },
     xAxis: {
@@ -81,7 +81,7 @@ const buildChart = (isSmallScreen) => {
         style: {
           fontSize: isSmallScreen ? "12px" : "16px", 
           fontFamily: "Arial",
-          color: "#0f4f66",
+          color: "var(--Primary-Blue)",
           whiteSpace: "nowrap",
         },
       },
@@ -111,7 +111,7 @@ const buildChart = (isSmallScreen) => {
         style: {
           fontSize: isSmallScreen ? "14px" : "20px",
           fontFamily: "Arial",
-          color: "#0f4f66",
+          color: "var(--Primary-Blue)",
         },
       },
       plotLines: [
@@ -124,7 +124,7 @@ const buildChart = (isSmallScreen) => {
             text: "Now",
             y:20,
             style: {
-              color: "#0f4f66",
+              color: "var(--Now-Line)",
               fontSize: isSmallScreen ? "12px" : "14px", 
               fontFamily: "Arial",
             },
@@ -156,7 +156,7 @@ const buildChart = (isSmallScreen) => {
                 rotation: 0,
                 y: 15, 
                 style: {
-                  color: "#0f4f66",
+                  color: "var(--Primary-Blue)",
                   fontSize: isSmallScreen ? "10px" : "12px", 
                   fontFamily: "Arial",
                 },
@@ -173,14 +173,14 @@ const buildChart = (isSmallScreen) => {
       labels: {
           style: {
             fontSize: isSmallScreen ? "12px" : "26px",
-            color: '#0f4f66',
+            color: 'var(--Primary-Blue)',
             fontFamily: 'Arial', 
           },
         },
       title: {
         text: "Temperature (°F)",
         style: { 
-          color: "#0f4f66", 
+          color: "var(--Primary-Blue)", 
           fontSize: isSmallScreen ? "12px" : "20px", 
         },
       },
@@ -197,21 +197,21 @@ const buildChart = (isSmallScreen) => {
           label: {
             text: "Sea Turtle Water Temperature Threshold",
             style: {
-              color: "#0f4f66",
+              color: "var(--Primary-Blue)",
               fontSize: isSmallScreen ? "12px" : "16px",
               fontWeight: "bold",
             },
           },
         },
         {
-          color: "#720000",
+          color: "var(--Fisheries-Threshold)",
           width: 2,
           value: 40,
           dashStyle: "Dash",
           label: {
             text: "Fisheries Water Temperature Threshold",
             style: {
-              color: "#0f4f66",
+              color: "var(--Primary-Blue)",
               fontSize: isSmallScreen ? "12px" : "16px",
               fontFamily: "Arial",
               fontWeight: "bold",
@@ -241,7 +241,7 @@ const buildChart = (isSmallScreen) => {
       style: {
         fontSize: isSmallScreen ? "12px" : "14px", 
         padding: isSmallScreen ? "5px" : "8px", 
-        color: "#0f4f66",
+        color: "var(--Primary-Blue)",
         fontFamily: "Arial",
       },
     },
@@ -327,37 +327,32 @@ const fetchAndFilterData = async () => {
       {
         name: "Water Temperature Measurements",
         data: WaterMeasurementDataFahrenheit,
-        color: "black",
+        color: "var(--Water-Temperature-Measurements)",
         lineWidth: isSmallScreen ? 2 : 4,
-        marker: { enabled: false },
-      },
-      {
-        name: "Interpolated Predicted Water Temperature",
-        data: InterpolatedWaterPredictionDataFahrenheit,
-        color: "black",
-        dashStyle: "2.5, 2.5", // Shorter dashes
-        lineWidth: isSmallScreen ? 2 : 5,
         marker: { enabled: false },
       },
       {
         name: "Air Temperature Measurements",
         data: AirMeasurementDataFahrenheit,
-        color: "#73c5da",
+        color: "var(--Air-Temperature-Measurements)",
         lineWidth: isSmallScreen ? 2 : 4,
         marker: { enabled: false },
       },
       {
-        name: "Interpolated Predicted Air Temperature",
-        data: InterpolatedAirPredictionDataFahrenheit,
-        color: "orange",
-        dashStyle: "2.5, 2.5", // Shorter dashes
-        lineWidth: isSmallScreen ? 2 : 5,
-        marker: { enabled: false },
+        name: "Water Temperature Predictions",
+        data: WaterPredictionDataFahrenheit,
+        color: "var(--Water-Temperature-Predictions)",
+        dashStyle: "Dash",
+        lineWidth: 0,
+        marker: {
+          enabled: true,
+          radius: isSmallScreen ? 2 : 4,
+        },
       },
       {
         name: "Air Temperature Predictions",
         data: AirPredictionDataFahrenheit,
-        color: "green",
+        color: "var(--Air-Temperature-Predictions)",
         dashStyle: "Dash",
         lineWidth: 0,
         marker: {
@@ -366,16 +361,24 @@ const fetchAndFilterData = async () => {
         },
       },
       {
-        name: "Water Temperature Predictions",
-        data: WaterPredictionDataFahrenheit,
-        color: "purple",
-        dashStyle: "Dash",
-        lineWidth: 0,
-        marker: {
-          enabled: true,
-          radius: isSmallScreen ? 2 : 4,
-        },
+        name: "Interpolated Water Temperature Predictions",
+        data: InterpolatedWaterPredictionDataFahrenheit,
+        color: "var(--Interpolated-Water-Temperature-Predictions)",
+        dashStyle: "2.5, 2.5", // Shorter dashes
+        lineWidth: isSmallScreen ? 2 : 5,
+        marker: { enabled: false },
       },
+      
+      {
+        name: "Interpolated Air Temperature Predictions",
+        data: InterpolatedAirPredictionDataFahrenheit,
+        color: "var(--Interpolated-Air-Temperature-Predictions)",
+        dashStyle: "2.5, 2.5", // Shorter dashes
+        lineWidth: isSmallScreen ? 2 : 5,
+        marker: { enabled: false },
+      },
+      
+      
     ];
   } catch (error) {
     console.error("Error fetching or processing data:", error);
