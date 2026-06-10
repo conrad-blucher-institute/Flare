@@ -580,7 +580,7 @@ onUnmounted(() => {
           </router-link>
         </li>
         <li>
-          CRPS DATA
+          CRPS (Continuous Ranked Probability Score) ensemble model from Semaphore available
           <router-link 
             to="/crps" 
             class="underline text-blue-600 hover:text-blue-800">
