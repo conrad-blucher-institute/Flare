@@ -55,7 +55,7 @@ const buildRibbonChart = (isSmallScreen) => {
   return {
     chart: {
       type: "areaspline",
-      zoomType: "y",
+      zoomType: "xy",
       backgroundColor: "white",
       style: { fontFamily: "Arial" },
       marginRight: 30,
@@ -154,7 +154,7 @@ const buildRibbonChart = (isSmallScreen) => {
       endOnTick: true,
       tickInterval:15, // Major ticks every 5 units
       min: 30, // Minimum value for y-axis
-      max: 100,
+      softMax: 90,
       plotLines: [
         {
           color: "red",
@@ -413,43 +413,29 @@ const fetchAndFilterData = async () => {
     const parsedData = parseCSV(csvText);
 
     // Ensure parsed arrays are initialized
-    const airMeasurements = parsedData.airMeasurements || [];
     const waterMeasurements = parsedData.waterMeasurements || [];
     const airPredictions = parsedData.airPredictions || [];
-    const waterPredictionsPercentile1 = parsedData.waterPredictionsPercentile1 || [];
     const waterPredictionsPercentile5 = parsedData.waterPredictionsPercentile5 || [];
-    const waterPredictionsPercentile10 = parsedData.waterPredictionsPercentile10 || [];
     const waterPredictionsPercentile25 = parsedData.waterPredictionsPercentile25 || [];
     const waterPredictionsPercentile50 = parsedData.waterPredictionsPercentile50 || [];
     const waterPredictionsPercentile75 = parsedData.waterPredictionsPercentile75 || [];
-    const waterPredictionsPercentile90 = parsedData.waterPredictionsPercentile90 || [];
     const waterPredictionsPercentile95 = parsedData.waterPredictionsPercentile95 || [];
-    const waterPredictionsPercentile99 = parsedData.waterPredictionsPercentile99 || [];
     const waterPredictionsPercentileMin = parsedData.waterPredictionsPercentileMin || [];
     const waterPredictionsPercentileMax = parsedData.waterPredictionsPercentileMax || [];
-    const waterPredictionsMean = parsedData.waterPredictionsMean || [];
-    const waterPredictionsStdDev = parsedData.waterPredictionsStdDev || [];
+
 
     // Convert to Fahrenheit
     // and round to 1 decimal
     const toFahrenheit = (celsius) => (celsius * 9/5) + 32;
-    const airMeasurementsFahrenheit = airMeasurements.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const waterMeasurementsFahrenheit = waterMeasurements.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const airPredictionsFahrenheit = airPredictions.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
-    const waterPredictionsPercentile1Fahrenheit = waterPredictionsPercentile1.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const waterPredictionsPercentile5Fahrenheit = waterPredictionsPercentile5.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
-    const waterPredictionsPercentile10Fahrenheit = waterPredictionsPercentile10.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const waterPredictionsPercentile25Fahrenheit = waterPredictionsPercentile25.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const waterPredictionsPercentile50Fahrenheit = waterPredictionsPercentile50.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const waterPredictionsPercentile75Fahrenheit = waterPredictionsPercentile75.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
-    const waterPredictionsPercentile90Fahrenheit = waterPredictionsPercentile90.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const waterPredictionsPercentile95Fahrenheit = waterPredictionsPercentile95.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
-    const waterPredictionsPercentile99Fahrenheit = waterPredictionsPercentile99.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const waterPredictionsPercentileMinFahrenheit = waterPredictionsPercentileMin.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const waterPredictionsPercentileMaxFahrenheit = waterPredictionsPercentileMax.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
-    const waterPredictionsMeanFahrenheit = waterPredictionsMean.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
-    const waterPredictionsStdDevFahrenheit = waterPredictionsStdDev.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
-
     // === Calculate bounds for the ribbon chart ===
     // Outer Ribbon(5th-95th)
     const outerBoundsFahrenheit = waterPredictionsPercentile5Fahrenheit.map((point, index) => {
@@ -487,19 +473,10 @@ const fetchAndFilterData = async () => {
     ribbonChartOptions.value.series = [
 
       {
-        name: "Historical Water Temperature Measurements",
+        name: "Water Temperature Measurements",
         data: waterMeasurementsFahrenheit,
         type: "line",
         color: "black",
-        lineWidth: isSmallScreen ? 2 : 4,
-        zIndex: 1, // Ensure this is in front of the bounds
-        marker: { enabled: false },
-      },
-      {
-        name: "Median (50th Percentile)",
-        data: waterPredictionsPercentile50Fahrenheit,
-        type: "line",
-        color: "#5F98CA",
         lineWidth: isSmallScreen ? 2 : 4,
         zIndex: 1, // Ensure this is in front of the bounds
         marker: { enabled: false },
@@ -513,6 +490,16 @@ const fetchAndFilterData = async () => {
         zIndex: 1, // Ensure this is in front of the bounds
         marker: { enabled: false },
       },
+      {
+        name: "Median (50th Percentile) Water Temperature Predictions",
+        data: waterPredictionsPercentile50Fahrenheit,
+        type: "line",
+        color: "#5F98CA",
+        lineWidth: isSmallScreen ? 2 : 4,
+        zIndex: 1, // Ensure this is in front of the bounds
+        marker: { enabled: false },
+      },
+      
       {
         name: '25th-75th Percentile',
         type: 'arearange',
@@ -567,23 +554,15 @@ const fetchAndFilterData = async () => {
 // CSV parsing function for ribbon chart
 const parseCSV = (csvText) => {
   const rows = csvText.split("\n").map((row) => row.split(","));
-
-  const airMeasurements = [];
   const waterMeasurements = [];
   const airPredictions = [];
-  const waterPredictionsPercentile1 = [];
   const waterPredictionsPercentile5= [];
-  const waterPredictionsPercentile10 = [];
   const waterPredictionsPercentile25 = [];
   const waterPredictionsPercentile50 = [];
   const waterPredictionsPercentile75 = [];
-  const waterPredictionsPercentile90 = [];
   const waterPredictionsPercentile95 = [];
-  const waterPredictionsPercentile99 = [];
   const waterPredictionsPercentileMin = [];
   const waterPredictionsPercentileMax = [];
-  const waterPredictionsMean = [];
-  const waterPredictionsStdDev = [];
 
 
   rows.forEach((row, index) => {
@@ -592,22 +571,15 @@ const parseCSV = (csvText) => {
 
     const [
       timestamp,
-      airMeasurementValue,
       waterMeasurementValue,
       airPredictionValue,
-      percentile1Value,
       percentile5Value,
-      percentile10Value,
       percentile25Value,
       percentile50Value,
       percentile75Value,
-      percentile90Value,
       percentile95Value,
-      percentile99Value,
       minValue,
-      maxValue,
-      meanValue,
-      stdDevValue
+      maxValue
     ] = row;
     // Parse timestamp as UTC
     const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
@@ -618,23 +590,14 @@ const parseCSV = (csvText) => {
     const localDate = new Date(localTimestamp);
 
     if (!isNaN(localDate)) {
-      if (airMeasurementValue && !isNaN(+airMeasurementValue)) {
-        airMeasurements.push([localDate.getTime(), +airMeasurementValue]);
-      }
       if (waterMeasurementValue && !isNaN(+waterMeasurementValue)) {
         waterMeasurements.push([localDate.getTime(), +waterMeasurementValue]);
       }
       if (airPredictionValue && !isNaN(+airPredictionValue)) {
         airPredictions.push([localDate.getTime(), +airPredictionValue]);
       }
-      if (percentile1Value && !isNaN(+percentile1Value)) {
-        waterPredictionsPercentile1.push([localDate.getTime(), +percentile1Value]);
-      }
       if (percentile5Value && !isNaN(+percentile5Value)) {
         waterPredictionsPercentile5.push([localDate.getTime(), +percentile5Value]);
-      }
-      if (percentile10Value && !isNaN(+percentile10Value)) {
-        waterPredictionsPercentile10.push([localDate.getTime(), +percentile10Value]);
       }
       if (percentile25Value && !isNaN(+percentile25Value)) {
         waterPredictionsPercentile25.push([localDate.getTime(), +percentile25Value]);
@@ -645,14 +608,8 @@ const parseCSV = (csvText) => {
       if (percentile75Value && !isNaN(+percentile75Value)) {
         waterPredictionsPercentile75.push([localDate.getTime(), +percentile75Value]);
       }
-      if (percentile90Value && !isNaN(+percentile90Value)) {
-        waterPredictionsPercentile90.push([localDate.getTime(), +percentile90Value]);
-      }
       if (percentile95Value && !isNaN(+percentile95Value)) {
         waterPredictionsPercentile95.push([localDate.getTime(), +percentile95Value]);
-      }
-       if (percentile99Value && !isNaN(+percentile99Value)) {
-        waterPredictionsPercentile99.push([localDate.getTime(), +percentile99Value]);
       }
       if (minValue && !isNaN(+minValue)) {
         waterPredictionsPercentileMin.push([localDate.getTime(), +minValue]);
@@ -660,33 +617,20 @@ const parseCSV = (csvText) => {
       if (maxValue && !isNaN(+maxValue)) {
         waterPredictionsPercentileMax.push([localDate.getTime(), +maxValue]);
       }
-      if (meanValue && !isNaN(+meanValue)) {
-        waterPredictionsMean.push([localDate.getTime(), +meanValue]);
-      }
-      if (stdDevValue && !isNaN(+stdDevValue)) {
-        waterPredictionsStdDev.push([localDate.getTime(), +stdDevValue]);
-      }
 
     }
   });
 
   return {
-    airMeasurements,
     waterMeasurements,
     airPredictions,
-    waterPredictionsPercentile1,
     waterPredictionsPercentile5,
-    waterPredictionsPercentile10,
     waterPredictionsPercentile25,
     waterPredictionsPercentile50,
     waterPredictionsPercentile75,
-    waterPredictionsPercentile90,
     waterPredictionsPercentile95,
-    waterPredictionsPercentile99,
     waterPredictionsPercentileMin,
-    waterPredictionsPercentileMax,
-    waterPredictionsMean,
-    waterPredictionsStdDev
+    waterPredictionsPercentileMax
   };
 }; // end parseRibbonCSV
 
@@ -705,30 +649,19 @@ const toggleThirdExportMenu = () => {
 };
 
 ///Fetch and update chart data every 15 minutes
-let updateInterval;
 onMounted(() => {
   Promise.all([
     fetchAndFilterData()
   ]).then(() => {
     missingDataWarningBanner.value.checkForMissingDataAndWarn([ribbonChartOptions.value, boxChartOptions.value]);
   });
-  
-  updateInterval = setInterval(() => {
-    Promise.all([
-      fetchAndFilterRibbonData(),
-      fetchAndFilterBoxData(),
-    ]).then(() => {
-      missingDataWarningBanner.value.checkForMissingDataAndWarn([ribbonChartOptions.value, boxChartOptions.value]);
-    });
-  }, 900000); 
+
 });
 
 
-onUnmounted(() => {
-  clearInterval(updateInterval);
-});
+
 </script>
-
+ 
 <template>
     <div class="overflow-hidden bg-primary-bg text-dark-text font-main">
 
@@ -866,23 +799,15 @@ onUnmounted(() => {
             Why Use a CRPS AI Model?
             </h2>
                 <p class="text-md lg:text-xl text-dark-text mb-4">
-                Traditional forecasting models typically provide a single predicted value for a future event. While this approach can be useful, it does not communicate how confident the model is in that prediction or how likely alternative outcomes may be. Environmental systems such as coastal water temperatures are influenced by numerous atmospheric and oceanic factors, making uncertainty an important part of the forecasting process.
+                  The CRPS (Continuous Ranked Probability Score) model provides probabilistic water temperature forecasts rather than a single predicted value, allowing users to understand both the expected conditions and the uncertainty surrounding them.
                 </p>
 
                 <p class="text-md lg:text-xl text-dark-text mb-4">
-                The CRPS (Continuously Ranked Probability Score) model addresses this challenge by generating a distribution of possible outcomes rather than a single forecast value. Instead of predicting that the water temperature will be exactly 80°F, the model may indicate that temperatures are most likely to fall between 78°F and 82°F while also showing the probability of warmer or cooler conditions occurring.
+                  To estimate this uncertainty, the CRPS system combines 10 ensemble AI models, 100 weather prototypes, and 100 forecast realizations per prototype, generating 100,000 predictions for each of 212 forecast lead times. These predictions are used to calculate the median forecast and percentile ranges displayed in the charts above.
                 </p>
 
                 <p class="text-md lg:text-xl text-dark-text mb-4">
-                To produce these probability distributions, the CRPS system uses 10 ensemble AI models, each of which receives 100 unique weather prototypes from The Weather Company. Every prototype generates 100 possible forecast outputs, resulting in 100,000 total predictions for a single forecast lead time. These predictions are combined to create the statistical summaries and uncertainty ranges displayed in the charts above.
-                </p>
-
-                <p class="text-md lg:text-xl text-dark-text mb-4">
-                By examining thousands of potential outcomes rather than a single prediction, the CRPS model provides calibrated uncertainty quantification. This allows users to understand not only what conditions are expected, but also how much confidence the model has in those expectations. Percentile ranges, median forecasts, and probability distributions offer a more complete picture of future conditions than deterministic forecasts alone.
-                </p>
-
-                <p class="text-md lg:text-xl text-dark-text mb-4">
-                For researchers, resource managers, and coastal stakeholders, this additional uncertainty information supports more informed decision-making. Whether planning environmental monitoring activities, evaluating potential cold-stunning events, or assessing changing water conditions, CRPS forecasts provide both the expected outcome and the range of plausible alternatives, helping users better account for uncertainty in the natural environment.
+                  By visualizing both the expected outcome and the range of possible alternatives, CRPS forecasts help researchers, resource managers, and coastal stakeholders make more informed decisions under uncertain environmental conditions.
                 </p>
 
         </div>
