@@ -154,6 +154,8 @@ class SemaphoreOutputStatistics(IDataIngestion):
             
             Ex) CRPS_6hr has a lead time of 6 hours, so the 6 is extracted and 6 hours are added
                 to the time generated to get the verified time which is used as the index for the data
+
+            TODO  Remove this once the API returns the lead time
             '''
             model_name = value['modelName']
             match = re.search(r'(\d+)hr', model_name)
