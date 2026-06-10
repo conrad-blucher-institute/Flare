@@ -67,7 +67,7 @@
         "args": {
             "col_name": "Air Temperature Prediction",
             "interpolation_interval": 3600,
-            "limit": 21600
+            "limit": 10800
         }
       },
       {
