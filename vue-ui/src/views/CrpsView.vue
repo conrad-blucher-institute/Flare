@@ -482,7 +482,7 @@ const fetchAndFilterData = async () => {
         marker: { enabled: false },
       },
       {
-        name: "NDFD Air Temperature Predictions",
+        name: "Interpolated NDFD Air Temperature Predictions",
         data: airPredictionsFahrenheit,
         type: "line",
         color: "purple",
@@ -496,8 +496,8 @@ const fetchAndFilterData = async () => {
         type: "line",
         color: "#5F98CA",
         lineWidth: isSmallScreen ? 2 : 4,
-        zIndex: 1, // Ensure this is in front of the bounds
-        marker: { enabled: false },
+        zIndex: 3, // Ensure this is in front of the bounds
+        marker: { enabled: true},
       },
       
       {
@@ -521,7 +521,6 @@ const fetchAndFilterData = async () => {
     ];
 
     boxChartOptions.value.series = [
-      
       {
         name: "Median (50th Percentile) Water Temperature Predictions",
         data: waterPredictionsPercentile50Fahrenheit,
@@ -796,18 +795,22 @@ onMounted(() => {
         <section class="bg-white py-10 px-6 md:px-20 text-center lg:text-left">
         <div class="max-w-5xl mx-auto">
             <h2 class="text-lg lg:text-3xl font-extrabold text-dark-text mb-6 text-center">
-            Why Use a CRPS AI Model?
+            Understanding the CRPS AI Emsemble Model
             </h2>
-                <p class="text-md lg:text-xl text-dark-text mb-4">
-                  The CRPS (Continuous Ranked Probability Score) model provides probabilistic water temperature forecasts rather than a single predicted value, allowing users to understand both the expected conditions and the uncertainty surrounding them.
+                 <p class="text-md lg:text-xl text-dark-text mb-4">
+                  The CRPS (Continuous Ranked Probability Score) ensemble model provides probabilistic water temperature forecasts rather than a single predicted value. Instead of producing one forecasted temperature, the model generates a distribution of possible water temperatures, allowing users to view both the median forecast and the uncertainty surrounding it.
                 </p>
 
                 <p class="text-md lg:text-xl text-dark-text mb-4">
-                  To estimate this uncertainty, the CRPS system combines 10 ensemble AI models, 100 weather prototypes, and 100 forecast realizations per prototype, generating 100,000 predictions for each of 212 forecast lead times. These predictions are used to calculate the median forecast and percentile ranges displayed in the charts above.
+                  To estimate this uncertainty, the system combines predictions from 10 CRPS AI models with 100 future air temperature forecast scenarios provided by The Weather Company. Each CRPS AI model generates 100 water temperature predictions for every air temperature scenario, resulting in a large collection of possible water temperature outcomes across 21 forecast lead times.
                 </p>
 
                 <p class="text-md lg:text-xl text-dark-text mb-4">
-                  By visualizing both the expected outcome and the range of possible alternatives, CRPS forecasts help researchers, resource managers, and coastal stakeholders make more informed decisions under uncertain environmental conditions.
+                  These outcomes are combined to produce a forecast distribution for water temperature in the Laguna Madre. The charts above display the median forecast along with percentile ranges that summarize the spread of possible outcomes. Narrower ranges indicate greater agreement among predictions, while wider ranges indicate greater forecast uncertainty.
+                </p>
+
+                <p class="text-md lg:text-xl text-dark-text mb-4">
+                  By visualizing both the median forecast and the range of possible water temperatures, the CRPS model helps coastal stakeholders involved with managing ecological and economic cold-stunning event impacts better understand water temperature forecast uncertainty when planning for changing environmental conditions.
                 </p>
 
         </div>
