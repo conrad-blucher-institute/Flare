@@ -29,16 +29,10 @@ class SemaphoreOutputStatistics(IDataIngestion):
 
         :returns: dataframe - a new dataframe with the ingested data added
         '''
-        url = self.__prepare_url(model_names)
 
+        url = self.__prepare_url(model_names)
         response = api_request(url)
         validated_response = self.__validate_response(response)
-
-        if validated_response is None:
-            for stat in self.STATISTICS:
-                data = add_empty_column(data, f"Water Temperature Prediction {stat}")
-            return data
-
         return self.__add_data(df= data, response=validated_response)
 
 
@@ -65,7 +59,8 @@ class SemaphoreOutputStatistics(IDataIngestion):
     def __validate_response(self, response: dict) -> dict[str, dict] | None:
         '''
         This function validates the response from the semaphore API by checking for
-        empty responses and missing data
+        empty responses and missing data then retuns a dictionary containing only valid data
+        that has statistics or None if no valid data is present
 
         :params response: dict - the response from the API request
             the response will look like 
@@ -91,18 +86,19 @@ class SemaphoreOutputStatistics(IDataIngestion):
                 ...
             }
 
-        :returns dict[str, dict] - a dictionary containing only valid data that has statistics or None if no valid data is present
+        :returns dict[str, dict] | None - a dictionary containing only valid data that has statistics or None if no valid data is present
         '''
         logger = thread_storage.logger
         validated_response = {}
 
-        if response is None: 
+        if response is None:
+            logger.log_info('Warning:: Failed to ingest statistics response from the Semaphore API!')
             return None
         
         # filter out nulls in the response to only include models that compute statistics
         for key, value in response.items():
             if value is None:
-                logger.log_info(f'Warning:: Model {key} missing in returned data!')
+                logger.log_info(f'Warning:: Model statistics for key: {key} missing in returned data!')
                 continue
             else:
                 validated_response[key] = value
@@ -119,7 +115,7 @@ class SemaphoreOutputStatistics(IDataIngestion):
         Takes the validated response dict and adds it into the dataframe
 
         :param df: dataframe - the dataframe to add the data to
-        :param response: dict[str, dict] - the validated response from the API request
+        :param response: dict[str, dict] | None - the validated response from the API request or None if the response was invalid
             the response will look like 
             {
                 "CRPS_6hr": {
@@ -145,6 +141,11 @@ class SemaphoreOutputStatistics(IDataIngestion):
         :returns: dataframe - the ongoing dataframe with the new data joined to it
         '''
         logger = thread_storage.logger
+
+        # if there is no valid data to add, then add empty columns into the dataframe and return it
+        if response is None:
+            df[[f"Water Temperature Prediction {stat}" for stat in self.STATISTICS]] = np.nan
+            return df
 
         rows = []
         for _, value in response.items():
@@ -177,8 +178,7 @@ class SemaphoreOutputStatistics(IDataIngestion):
 
         # catch cases where models do give a valid response but all regex extractions fail
         if df_stats.empty:
-            for stat in self.STATISTICS:
-                df = add_empty_column(df, f"Water Temperature Prediction {stat}")
+            df[[f"Water Temperature Prediction {stat}" for stat in self.STATISTICS]] = np.nan
             return df
 
         df_stats = DataFrame(rows).set_index('verifiedTime')
