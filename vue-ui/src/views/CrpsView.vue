@@ -423,7 +423,7 @@ const fetchAndFilterData = async () => {
     const waterPredictionsPercentileMin = parsedData.waterPredictionsPercentileMin || [];
     const waterPredictionsPercentileMax = parsedData.waterPredictionsPercentileMax || [];
 
-
+    
     // Convert to Fahrenheit
     // and round to 1 decimal
     const toFahrenheit = (celsius) => (celsius * 9/5) + 32;
@@ -436,6 +436,10 @@ const fetchAndFilterData = async () => {
     const waterPredictionsPercentile95Fahrenheit = waterPredictionsPercentile95.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const waterPredictionsPercentileMinFahrenheit = waterPredictionsPercentileMin.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const waterPredictionsPercentileMaxFahrenheit = waterPredictionsPercentileMax.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+
+    const futureAirPredictionsFahrenheit =
+      airPredictionsFahrenheit.filter(([time]) => time >= Date.now());
+
     // === Calculate bounds for the ribbon chart ===
     // Outer Ribbon(5th-95th)
     const outerBoundsFahrenheit = waterPredictionsPercentile5Fahrenheit.map((point, index) => {
@@ -482,8 +486,8 @@ const fetchAndFilterData = async () => {
         marker: { enabled: false },
       },
       {
-        name: "Interpolated NDFD Air Temperature Predictions",
-        data: airPredictionsFahrenheit,
+        name: "NDFD Air Temperature Predictions",
+        data: futureAirPredictionsFahrenheit,
         type: "line",
         color: "purple",
         lineWidth: isSmallScreen ? 2 : 4,
@@ -522,6 +526,15 @@ const fetchAndFilterData = async () => {
 
     boxChartOptions.value.series = [
       {
+        name: "NDFD Air Temperature Predictions",
+        data: airPredictionsFahrenheit,
+        type: "line",
+        color: "purple",
+        lineWidth: isSmallScreen ? 2 : 4,
+        zIndex: 1, // Ensure this is in front of the bounds
+        marker: { enabled: false },
+      },
+      {
         name: "Median (50th Percentile) Water Temperature Predictions",
         data: waterPredictionsPercentile50Fahrenheit,
         type: "line",
@@ -530,7 +543,6 @@ const fetchAndFilterData = async () => {
         zIndex: 1, // Ensure this is in front of the bounds
         marker: { enabled: false },
       },
-    
       {
         name: 'Prediction Range (Box: 25th-75th Percentiles; Fence: Min/Max)',
         type: 'boxplot',
@@ -643,9 +655,6 @@ const toggleSecondExportMenu = () => {
   isSecondExportMenuVisible.value = !isSecondExportMenuVisible.value;
 }
 
-const toggleThirdExportMenu = () => {
-  isThirdExportMenuVisible.value = !isThirdExportMenuVisible.value;
-};
 
 ///Fetch and update chart data every 15 minutes
 onMounted(() => {
@@ -795,14 +804,14 @@ onMounted(() => {
         <section class="bg-white py-10 px-6 md:px-20 text-center lg:text-left">
         <div class="max-w-5xl mx-auto">
             <h2 class="text-lg lg:text-3xl font-extrabold text-dark-text mb-6 text-center">
-            Understanding the CRPS AI Emsemble Model
+            Understanding the CRPS AI Ensemble Model
             </h2>
                  <p class="text-md lg:text-xl text-dark-text mb-4">
                   The CRPS (Continuous Ranked Probability Score) ensemble model provides probabilistic water temperature forecasts rather than a single predicted value. Instead of producing one forecasted temperature, the model generates a distribution of possible water temperatures, allowing users to view both the median forecast and the uncertainty surrounding it.
                 </p>
 
                 <p class="text-md lg:text-xl text-dark-text mb-4">
-                  To estimate this uncertainty, the system combines predictions from 10 CRPS AI models with 100 future air temperature forecast scenarios provided by The Weather Company. Each CRPS AI model generates 100 water temperature predictions for every air temperature scenario, resulting in a large collection of possible water temperature outcomes across 21 forecast lead times.
+                 To estimate this uncertainty, the CRPS Ensemble system uses 100 air temperature forecast scenarios provided by The Weather Company. For each scenario, an ensemble of 10 CRPS AI models generates water temperature forecasts, with each model producing 100 possible water temperature outcomes. These predictions are combined across atmospheric scenarios, AI models, and 21 forecast lead times to create a probabilistic forecast of water temperature for the Laguna Madre.
                 </p>
 
                 <p class="text-md lg:text-xl text-dark-text mb-4">

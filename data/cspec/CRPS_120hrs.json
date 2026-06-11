@@ -55,7 +55,6 @@
             "limit": 21600
         }
       }
-
     ],
     "csv_config": {
       "csv_name": "CRPS_120hrs.csv",
