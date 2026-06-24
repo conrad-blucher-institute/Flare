@@ -8,7 +8,7 @@
                   - Instructions for interacting with the chart.
                   - Information on the data of the chart.
                   - Additional links
-     Author: Anointiyae Beasley, Savannah Stephenson, Christian Quintero
+     Author: Anointiyae Beasley
 
      Last Updated: 07/27/2025
 
@@ -27,8 +27,8 @@ const isSmallScreen = window.innerWidth <= 600;
 
 // ribbon graph
 // box plot graph
-const csvURL = ref(`http://localhost:8080/flare/csv-data/CRPS_120hrs.csv`);
-console.log("CSV URL:", csvURL.value);
+const csvURL = ref(`${window.location.origin}/flare/csv-data/CRPS_120hrs.csv`);
+
 
 
 
@@ -36,12 +36,7 @@ console.log("CSV URL:", csvURL.value);
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
 const isSecondExportMenuVisible = ref(false);
-const isThirdExportMenuVisible = ref(false);
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone; 
-
-
-// Define the current date and time
-const nowDate = new Date(); // Current timestamp
 
 const ribbonChartOptions = ref({});
 const boxChartOptions = ref({});
@@ -152,7 +147,7 @@ const buildRibbonChart = (isSmallScreen) => {
       // Let Highcharts auto-calculate range with some padding
       startOnTick: true,
       endOnTick: true,
-      tickInterval:15, // Major ticks every 5 units
+      tickInterval: 10, // Major ticks every 10 units
       min: 30, // Minimum value for y-axis
       softMax: 90,
       plotLines: [
@@ -407,7 +402,7 @@ const fetchAndFilterData = async () => {
     if (!response.ok) throw new Error("Failed to fetch ribbon CSV data");
 
     const csvText = await response.text();
-    console.log("Fetched CSV data:", csvText); // Debug log`
+
 
     // Parse the CSV data for the ribbon chart
     const parsedData = parseCSV(csvText);
