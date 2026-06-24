@@ -28,17 +28,26 @@
             "key": "SemaphoreOutputStatistics",
             "args": {
                 "model_names": [
+                    "CRPS_3hr",
                     "CRPS_6hr",
                     "CRPS_12hr",
                     "CRPS_18hr",
                     "CRPS_24hr",
+                    "CRPS_30hr",
                     "CRPS_36hr",
+                    "CRPS_42hr",
                     "CRPS_48hr",
+                    "CRPS_54hr",
                     "CRPS_60hr",
+                    "CRPS_66hr",
                     "CRPS_72hr",
+                    "CRPS_78hr",
                     "CRPS_84hr",
+                    "CRPS_90hr",
                     "CRPS_96hr",
+                    "CRPS_102hr",
                     "CRPS_108hr",
+                    "CRPS_114hr",
                     "CRPS_120hr"
                 ] 
             }
