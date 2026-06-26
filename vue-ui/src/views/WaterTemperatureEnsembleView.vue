@@ -339,7 +339,7 @@ const fetchAndFilterData = async () => {
         color: "black",
         dashStyle: "Dash",
         lineWidth: isSmallScreen ? 1.9 : 2.5,
-        zIndex: 1, // Ensure this is in front of the bounds
+        zIndex: 2, // Ensure this is in front of the bounds
         marker: { enabled: false },
       },
       {
@@ -349,8 +349,8 @@ const fetchAndFilterData = async () => {
         //linkedTo: "Water Temperature Predictions", //not sure why we wanted to linked them but it does not seem necessary and was not allowing the ribbon to be toggled on and off
         lineWidth: 1.9, // No line for bounds
         color: "#00a0ff",
-        fillOpacity: 0.3,
-        zIndex: 0, // Ensure this is underneath the mean line
+        fillOpacity: .78,
+        zIndex: 1, // Ensure this is underneath the mean line
         marker: { enabled: false },
       },
       {
@@ -371,6 +371,7 @@ const fetchAndFilterData = async () => {
         name: "Interpolated Predicted Air Temperature",
         data: forecastAirTempsFahrenheit,
         color: "orange",
+        zIndex: 0,
         dashStyle: "Dash", // Shorter dashes
         lineWidth: isSmallScreen ? 1.9 : 2.5,
         marker: { enabled: false },
