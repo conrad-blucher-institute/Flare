@@ -16,17 +16,6 @@
         {  
             "key": "SemaphoreInputs",
             "args": {
-                "column_name": "Air Temperature Measurement",
-                "location": "SBI",
-                "source": "NOAATANDC",
-                "series": "dAirTmp",
-                "interval": 3600,
-                "range": [-144, 0]
-            }  
-        },
-        {  
-            "key": "SemaphoreInputs",
-            "args": {
                 "column_name": "Air Temperature Prediction",
                 "location": "SBirdIsland", 
                 "source": "NDFD_JSON",
@@ -39,178 +28,55 @@
             "key": "SemaphoreOutputStatistics",
             "args": {
                 "model_names": [
-                    "MRE_Bird-Island_Water-Temperature_3hr",
-                    "MRE_Bird-Island_Water-Temperature_6hr",
-                    "MRE_Bird-Island_Water-Temperature_12hr",
-                    "MRE_Bird-Island_Water-Temperature_18hr",
-                    "MRE_Bird-Island_Water-Temperature_24hr",
-                    "MRE_Bird-Island_Water-Temperature_30hr",
-                    "MRE_Bird-Island_Water-Temperature_36hr",
-                    "MRE_Bird-Island_Water-Temperature_42hr",
-                    "MRE_Bird-Island_Water-Temperature_48hr",
-                    "MRE_Bird-Island_Water-Temperature_54hr",
-                    "MRE_Bird-Island_Water-Temperature_60hr",
-                    "MRE_Bird-Island_Water-Temperature_66hr",
-                    "MRE_Bird-Island_Water-Temperature_72hr",
-                    "MRE_Bird-Island_Water-Temperature_78hr",
-                    "MRE_Bird-Island_Water-Temperature_84hr",
-                    "MRE_Bird-Island_Water-Temperature_90hr",
-                    "MRE_Bird-Island_Water-Temperature_96hr",
-                    "MRE_Bird-Island_Water-Temperature_102hr",
-                    "MRE_Bird-Island_Water-Temperature_108hr",
-                    "MRE_Bird-Island_Water-Temperature_114hr",
-                    "MRE_Bird-Island_Water-Temperature_120hr"
+                    "CRPS_3hr",
+                    "CRPS_6hr",
+                    "CRPS_12hr",
+                    "CRPS_18hr",
+                    "CRPS_24hr",
+                    "CRPS_30hr",
+                    "CRPS_36hr",
+                    "CRPS_42hr",
+                    "CRPS_48hr",
+                    "CRPS_54hr",
+                    "CRPS_60hr",
+                    "CRPS_66hr",
+                    "CRPS_72hr",
+                    "CRPS_78hr",
+                    "CRPS_84hr",
+                    "CRPS_90hr",
+                    "CRPS_96hr",
+                    "CRPS_102hr",
+                    "CRPS_108hr",
+                    "CRPS_114hr",
+                    "CRPS_120hr"
                 ] 
             }
         }
     ],
     "post_processing" : [
+     
       {
-        "_comment": "Interpolates the 1st percentile statistic between the 21 lead time values",
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction p1",
-            "interpolation_interval": 3600,
-            "limit": 21600
-        }
-      },
-      {
-        "_comment": "Interpolates the 5th percentile statistic between the 21 lead time values",
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction p5",
-            "interpolation_interval": 3600,
-            "limit": 21600
-        }
-      },
-      {
-        "_comment": "Interpolates the 10th percentile statistic between the 21 lead time values",
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction p10",
-            "interpolation_interval": 3600,
-            "limit": 21600
-        }
-      },
-      {
-        "_comment": "Interpolates the 25th percentile statistic between the 21 lead time values",
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction p25",
-            "interpolation_interval": 3600,
-            "limit": 21600
-        }
-      },
-      {
-        "_comment": "Interpolates the 50th percentile statistic between the 21 lead time values",
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction p50",
-            "interpolation_interval": 3600,
-            "limit": 21600
-        }
-      },
-      {
-        "_comment": "Interpolates the 75th percentile statistic between the 21 lead time values",
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction p75",
-            "interpolation_interval": 3600,
-            "limit": 21600
-        }
-      },
-      {
-        "_comment": "Interpolates the 90th percentile statistic between the 21 lead time values",
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction p90",
-            "interpolation_interval": 3600,
-            "limit": 21600
-        }
-      },
-      {
-        "_comment": "Interpolates the 95th percentile statistic between the 21 lead time values",
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction p95",
-            "interpolation_interval": 3600,
-            "limit": 21600
-        }
-      },
-      {
-        "_comment": "Interpolates the 99th percentile statistic between the 21 lead time values",
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction p99",
-            "interpolation_interval": 3600,
-            "limit": 21600
-        }
-      },
-      {
-        "_comment": "Interpolates min values",
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction min",
-            "interpolation_interval": 3600,
-            "limit": 21600
-        }
-      },
-      {
-        "_comment": "Interpolates max values",
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction max",
-            "interpolation_interval": 3600,
-            "limit": 21600
-        }
-      },
-      {
-        "_comment": "Interpolates mean values",
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction mean",
-            "interpolation_interval": 3600,
-            "limit": 21600
-        }
-      },
-      {
-        "_comment": "Interpolates std_dev values",
-        "key": "LinearInterpolation",
-        "args": {
-            "col_name": "Water Temperature Prediction std_dev",
-            "interpolation_interval": 3600,
-            "limit": 21600
-        }
-      },
-      {
-        "_comment": "Interpolates air temperature predictions between the 21 lead time values",
+        "_comment": "Interpolates air temperature predictions",
         "key": "LinearInterpolation",
         "args": {
             "col_name": "Air Temperature Prediction",
             "interpolation_interval": 3600,
-            "limit": 10800
+            "limit": 21600
         }
       }
     ],
     "csv_config": {
       "csv_name": "CRPS_120hrs.csv",
       "included_columns": [
-        "Air Temperature Measurement",
         "Water Temperature Measurement",
         "Air Temperature Prediction",
-        "Water Temperature Prediction p1",
         "Water Temperature Prediction p5",
-        "Water Temperature Prediction p10",
         "Water Temperature Prediction p25",
         "Water Temperature Prediction p50",
         "Water Temperature Prediction p75",
-        "Water Temperature Prediction p90",
         "Water Temperature Prediction p95",
-        "Water Temperature Prediction p99",
         "Water Temperature Prediction min",
-        "Water Temperature Prediction max",
-        "Water Temperature Prediction mean",
-        "Water Temperature Prediction std_dev"
+        "Water Temperature Prediction max"
       ]
     }
   }
