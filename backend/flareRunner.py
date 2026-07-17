@@ -90,8 +90,29 @@ def generate_csv(cspec_file_path: str, verbose: bool = False) -> None:
         df[CSPEC.included_columns].to_csv(export_path)
     except FileNotFoundError as e:
         raise FileNotFoundError(f"CSV export failed for path={export_path}") from e
+    
+    export_df = df[CSPEC.included_columns]
+
+    missing_columns = []
+
+    for column in export_df.columns:
+        if export_df[column].isna().all():
+            missing_columns.append(column)
+
+    if missing_columns:
+        logger.log_error(
+            message=(
+                "CSV generated with missing data.\n"
+                f"Export Path: {export_path}\n"
+                f"Empty Columns: {', '.join(missing_columns)}"
+            ),
+            error_type="DATA VALIDATION ERROR",
+            include_traceback=False,
+        )
+
     logger.log_info(f"CSV successfully generated at {export_path}")
     logger.log_info("============ CSV Export Complete ===================")
+    
        
     
 
