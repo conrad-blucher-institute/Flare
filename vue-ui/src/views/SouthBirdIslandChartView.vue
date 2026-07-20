@@ -705,16 +705,16 @@ onUnmounted(() => {
         <a href="https://www.coastaldynamicslab.org/" target="_blank" class="hover:scale-110 transition-transform">
           <img src="@/assets/images/CDL-Logo.png" alt="Coastal Dynamics Lab Logo" class="max-w-[80px] lg:max-w-[150px]">
         </a>
-        <a href="https://www.nps.gov/index.htm" target="_blank">
+        <a href="https://www.nps.gov/index.htm" target="_blank" class="hover:scale-110 transition-transform">
           <img class="footer-logo" src="@/assets/images/NPS-Logo.png" alt="National Park Service Logo">
         </a>
-        <a href="https://www.weather.gov/" target="_blank">
+        <a href="https://www.weather.gov/" target="_blank" class="hover:scale-110 transition-transform">
           <img src="@/assets/images/NWS-Logo.png" alt="National Weather Service Logo" class="max-w-[80px] lg:max-w-[150px]">
         </a>
-        <a href="https://www.uscg.mil/" target="_blank">
+        <a href="https://www.uscg.mil/" target="_blank" class="hover:scale-110 transition-transform">
           <img  src="@/assets/images/CG-Logo.png" alt="USA Coast Guard Logo" class="max-w-[80px] lg:max-w-[150px]">
         </a>
-        <a href="https://www.joincca.org/" target="_blank">
+        <a href="https://www.joincca.org/" target="_blank" class="hover:scale-110 transition-transform">
           <img src="@/assets/images/CCA-Logo.png" alt="Coastal Conservation Association Logo" class="max-w-[80px] lg:max-w-[150px]">
         </a>
       </div>
