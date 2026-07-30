@@ -14,7 +14,7 @@
 // Date: 11/05/2024
 // ===================================================
 import { defineStore } from 'pinia';
-import TurtleImage from '@/assets/images/Turtle.png';
+import TurtleImage from '@/assets/images/turtle_and_fish.png';
 //Ensure names match the route names in router/index.js for proper navigation.
 export const useMenuStore = defineStore('menu', {
   state: () => ({
