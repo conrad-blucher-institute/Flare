@@ -15,14 +15,44 @@
 // ===================================================
 import { defineStore } from 'pinia';
 import TurtleImage from '@/assets/images/Turtle.png';
-
+//Ensure names match the route names in router/index.js for proper navigation.
 export const useMenuStore = defineStore('menu', {
   state: () => ({
     dropDownMenuOptions: [
-      { label: 'Home', link: { name: 'home' }}
+      {
+        label: 'Home',
+        link: { name: 'home' }
+      },
+      {
+        label: 'About Flare',
+        link: { name: 'about' }
+      },
+      {
+        label: 'ColdStunning Model',
+        link: { name: 'crps' },
+        children: [
+          {
+            label: 'Laguna Madre',
+            link: { name: 'crps' }
+          }
+        ]
+      }
     ],
     slidingMenuOptions: [
-      { label: 'South Bird Island Chart', link: { name: 'southBirdIsland' }, image: TurtleImage, location: 'South Bird Island, Texas', message: '120 hour predictions of water and air temperature'}
-    ]
-  })
+    {
+      label: 'Coldstunning Group',
+      link: { name: 'coldstunning' },
+      image: TurtleImage,
+      location: 'Cold-Stunning Models',
+      message: '120-hour predictions of water and air temperature',
+
+      children: [
+        {
+          label: 'Laguna Madre',
+          link: { name: 'crps' }
+        }
+      ]
+    }
+  ]
+    })
 });

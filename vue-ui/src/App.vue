@@ -21,17 +21,23 @@
      Author: Anointiyae Beasley
      Date: 11/04/2024
 ======================================================= -->
-<script setup>import DropDownMenu from './components/DropDownMenu.vue';</script>
+<script setup>
+import DropDownMenu from './components/DropDownMenu.vue';
+import { RouterLink } from 'vue-router';
+
+</script>
 
 <template>
   <!-- Header Section -->
-  <header class="fixed top-0 left-0 w-full bg-navy-blue shadow-lg z-50 flex items-center justify-between px-4 py-3 sm:px-8 sm:py-4">
+  <header class="fixed top-0 left-0 z-[100] w-full bg-navy-blue shadow-lg flex items-center justify-between px-4 py-3 sm:px-8 sm:py-4">
     <!-- Logo -->
-    <img 
-      class="h-12 sm:h-16 transition-all duration-300 ease-in-out" 
-      src="@/assets/images/Flare-Logo.png" 
-      alt="Flare Logo"
-    />
+    <RouterLink to="/">
+      <img
+        class="h-12 sm:h-16 transition-all duration-300 ease-in-out"
+        src="@/assets/images/Flare-Logo.png"
+        alt="Flare Logo"
+      />
+    </RouterLink>
     
     <!-- Dropdown Menu -->
     <DropDownMenu />

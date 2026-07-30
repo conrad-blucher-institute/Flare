@@ -90,7 +90,7 @@ function childRight(key) {
     <!-- Main Slider -->
     <div
       ref="menuContainer"
-      class="flex overflow-x-auto scroll-smooth w-full justify-center py-6 no-scrollbar"
+      class="flex w-full justify-center py-6"
     >
       <ul class="flex gap-10">
 
@@ -108,24 +108,25 @@ function childRight(key) {
             <img
               :src="option.image"
               :alt="option.label"
-              class="w-[250px] h-[250px] rounded-full object-cover transition-transform duration-300 hover:scale-105 cursor-pointer"
+              class="w-[200px] h-[200px] lg:w-[400px] lg:h-[400px] rounded-full object-cover transition-transform duration-300 hover:scale-105 cursor-pointer"
             >
           </button>
 
-          <h2 class="mt-4 text-xl lg:text-2xl font-semibold text-dark-text">
+          <h2 class="mt-4 text-xl lg:text-4xl font-semibold text-dark-text">
             {{ option.location }}
           </h2>
 
-          <p class="text-md lg:text-lg text-gray-600">
+          <p class="text-md lg:text-3xl text-gray-600 pt-2">
             {{ option.message }}
           </p>
 
-          <!-- Mini Menu -->
+          <div class=" scale-75 lg:origin-top lg:scale-[1.5] "> 
+              <!-- Mini Menu -->
           <Transition name="fade">
 
             <div
               v-if="selectedOption === option && option.children?.length"
-              class="mt-6 flex justify-center w-full"
+              class="mt-2 flex justify-center w-full"
             >
 
               <div class="flex items-center">
@@ -189,7 +190,8 @@ function childRight(key) {
             </div>
 
           </Transition>
-
+          </div>
+       
         </li>
 
       </ul>
