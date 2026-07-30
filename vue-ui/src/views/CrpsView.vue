@@ -25,7 +25,7 @@ const isSmallScreen = window.innerWidth <= 600;
 
 // ribbon graph
 // box plot graph
-const csvURL = ref(`${window.location.origin}/flare/csv-data/Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv`);
+const csvURL = ref(`${window.location.origin}/flare/csv-data/CRPS_120hrs.csv`);
 const showChartHelp = ref(false);
 
 
