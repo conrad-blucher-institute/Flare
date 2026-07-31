@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Semaphore Timeline Dashboard</title>
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+<style>
+body{
+    font-family:Arial,sans-serif;
+    background:#f2f4f7;
+    margin:20px;
+}
+.card{
+    background:#fff;
+    border-radius:10px;
+    padding:18px;
+    margin-bottom:28px;
+    box-shadow:0 2px 8px rgba(0,0,0,.12);
+}
+.chart{
+    width:100%;
+    height:700px;
+}
+.stats{
+    display:flex;
+    gap:30px;
+    margin-bottom:10px;
+    font-weight:bold;
+}
+</style>
+</head>
+<body>
+
+<h1>Semaphore Success/Error Dashboard</h1>
+<div id="charts"></div>
+
+<script>
+
+Promise.all([
+new Promise(r=>Papa.parse("successes.csv",{download:true,header:true,complete:x=>r(x.data.filter(a=>a.Timestamp))})),
+new Promise(r=>Papa.parse("flare_errors.csv",{download:true,header:true,complete:x=>r(x.data.filter(a=>a.Timestamp))}))
+]).then(([successes,errors])=>{
+
+const chartNames=[...new Set(successes.map(x=>x.Chart).concat(errors.map(x=>x.Chart)))].sort();
+const errorTypes=[...new Set(errors.map(x=>x["Error Type"]))].sort();
+
+const categories=["Success",...errorTypes];
+const lookup={"Success":0};
+errorTypes.forEach((e,i)=>lookup[e]=i+1);
+
+const palette=["#d62728","#ff7f0e","#9467bd","#1f77b4","#17becf","#bcbd22","#8c564b","#e377c2","#7f7f7f"];
+const colors={"Success":"#2ca02c"};
+errorTypes.forEach((e,i)=>colors[e]=palette[i%palette.length]);
+
+function jitter(row){
+    return row+(Math.random()-0.5)*0.45;
+}
+
+const root=document.getElementById("charts");
+
+chartNames.forEach(chart=>{
+
+    const s=successes.filter(x=>x.Chart===chart);
+    const e=errors.filter(x=>x.Chart===chart);
+
+    const card=document.createElement("div");
+    card.className="card";
+
+    const title=document.createElement("h2");
+    title.textContent=chart;
+    card.appendChild(title);
+
+    const stats=document.createElement("div");
+    stats.className="stats";
+    const total=s.length+e.length;
+    stats.innerHTML=`
+        <div>Successes: ${s.length}</div>
+        <div>Errors: ${e.length}</div>
+        <div>Success Rate: ${total?((100*s.length/total).toFixed(1)):0}%</div>`;
+    card.appendChild(stats);
+
+    const div=document.createElement("div");
+    div.className="chart";
+    card.appendChild(div);
+    root.appendChild(card);
+
+    const series=[];
+
+    series.push({
+        name:"Success",
+        color:colors.Success,
+        data:s.map(r=>({
+            x:new Date(r.Timestamp).getTime(),
+            y:jitter(0)
+        }))
+    });
+
+    errorTypes.forEach(type=>{
+        const rows=e.filter(r=>r["Error Type"]===type);
+        if(!rows.length) return;
+
+        series.push({
+            name:type,
+            color:colors[type],
+            data:rows.map(r=>({
+                x:new Date(r.Timestamp).getTime(),
+                y:jitter(lookup[type]),
+                location:r.Location||"",
+                message:r.Message||""
+            }))
+        });
+    });
+
+    Highcharts.chart(div,{
+        chart:{
+            type:"scatter",
+            height:700,
+            zoomType:"x",
+            backgroundColor:"#ffffff",
+            panning:true,
+            panKey:"shift"
+        },
+        title:{text:null},
+        credits:{enabled:false},
+        xAxis:{
+            type:"datetime",
+            lineColor:"#444",
+            tickColor:"#444",
+            labels:{style:{color:"#222"}}
+        },
+        yAxis:{
+            categories:categories,
+            min:-0.5,
+            max:categories.length-0.5,
+            tickInterval:1,
+            gridLineColor:"#ddd",
+            title:{text:null},
+            labels:{style:{color:"#222"}}
+        },
+        legend:{
+            itemStyle:{color:"#222"}
+        },
+        tooltip:{
+            formatter:function(){
+                let txt="<b>"+this.series.name+"</b><br>"+Highcharts.dateFormat("%Y-%m-%d %H:%M",this.x);
+                if(this.point.location) txt+="<br><b>Location:</b> "+this.point.location;
+                if(this.point.message) txt+="<br><b>Message:</b> "+this.point.message;
+                return txt;
+            }
+        },
+        plotOptions:{
+            scatter:{
+                turboThreshold:0,
+                marker:{
+                    radius:5,
+                    symbol:"circle"
+                }
+            }
+        },
+        series:series
+    });
+
+});
+
+});
+</script>
+
+</body>
+</html>
