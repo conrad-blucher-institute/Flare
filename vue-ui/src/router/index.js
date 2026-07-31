@@ -29,6 +29,11 @@ const router = createRouter({
       component: HomeView,
     },
     {
+      path: '/about',
+      name: 'about',
+      component: () => import('../views/AboutView.vue'),
+    },
+    {
       path: '/south-bird-island',
       name: 'southBirdIsland',
       component: () => import('../views/SouthBirdIslandChartView.vue'), // Lazy-loaded component

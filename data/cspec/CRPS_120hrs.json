@@ -13,6 +13,16 @@
                 "range": [-144, 0]
             }    
         },
+        {  "key": "SemaphoreInputs",
+         "args": {
+            "column_name": "Air Temperature Measurement",
+            "location": "SBI",
+            "source": "NOAATANDC",
+            "series": "dAirTmp",
+            "interval": 3600,
+            "range": [-144, 0]
+         }
+        },
         {  
             "key": "SemaphoreInputs",
             "args": {
@@ -69,6 +79,7 @@
       "csv_name": "CRPS_120hrs.csv",
       "included_columns": [
         "Water Temperature Measurement",
+        "Air Temperature Measurement",
         "Air Temperature Prediction",
         "Water Temperature Prediction p5",
         "Water Temperature Prediction p25",
