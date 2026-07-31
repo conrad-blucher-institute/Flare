@@ -15,8 +15,9 @@
 ======================================================= -->
 <script setup>
 import { Chart } from "highcharts-vue";
-
-import { ref, onMounted, reactive } from "vue";
+import Highcharts from "highcharts";
+import HighchartsMore from "highcharts/highcharts-more";
+import { ref, onMounted, onUnmounted, reactive } from "vue";
 
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
 const missingDataWarningBanner = ref(MissingDataWarningBanner);
@@ -830,15 +831,31 @@ const toggleSecondExportMenu = () => {
 
 
 ///Fetch and update chart data every 15 minutes
-onMounted(() => {
-  Promise.all([
-    fetchAndFilterData()
-  ]).then(() => {
-    missingDataWarningBanner.value.checkForMissingDataAndWarn([ribbonChartOptions.value, boxChartOptions.value]);
-  });
+let updateInterval;
 
+onMounted(() => {
+  const loadCharts = () => {
+    Promise.all([
+      fetchAndFilterData()
+    ]).then(() => {
+      missingDataWarningBanner.value.checkForMissingDataAndWarn([
+        ribbonChartOptions.value,
+        secondRibbonChartOptions.value,
+        boxChartOptions.value
+      ]);
+    });
+  };
+
+  // Initial load
+  loadCharts();
+
+  // Refresh every 15 minutes
+  updateInterval = setInterval(loadCharts, 900000);
 });
 
+onUnmounted(() => {
+  clearInterval(updateInterval);
+});
 
 
 </script>
@@ -1480,7 +1497,6 @@ onMounted(() => {
     </div>
 
 
-
     <!-- Footer -->
     <footer class="bg-navy-blue py-10 text-dark-text space-y-2">
         <div class="flex flex-col justify-center items-center text-white text-sm lg:text-lg">
@@ -1520,7 +1536,7 @@ onMounted(() => {
             <img src="@/assets/images/CDL-Logo.png" alt="Coastal Dynamics Lab Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
           <a href="https://www.nps.gov/index.htm" target="_blank" class="hover:scale-110 transition-transform">
-            <img class="footer-logo" src="@/assets/images/NPS-Logo.png" alt="National Park Service Logo">
+            <img class="max-w-[80px] lg:max-w-[150px]" src="@/assets/images/NPS-Logo.png" alt="National Park Service Logo">
           </a>
           <a href="https://www.weather.gov/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/NWS-Logo.png" alt="National Weather Service Logo" class="max-w-[80px] lg:max-w-[150px]">
