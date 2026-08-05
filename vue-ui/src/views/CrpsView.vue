@@ -92,13 +92,14 @@ const buildRibbonChart = (isSmallScreen, chartTitle) => {
           const localDate = new Date(this.value);
           const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
           const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+          const time = localDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }); 
           return `<span style="display: block; text-align: center; font-family: Arial;">
-                    <b>${day}</b><br>${date}
+                    <b>${day}</b><br>${date}<br><i>${time}</i>
                   </span>`;
         },
         useHTML: true,
         style: {
-          fontSize: isSmallScreen ? "12px" : "16px", 
+          fontSize: isSmallScreen ? "10px" : "16px", 
           fontFamily: "Arial",
           color: "#0f4f66",
           whiteSpace: "nowrap",
@@ -318,8 +319,9 @@ const buildBoxChart = (isSmallScreen) => {
           const localDate = new Date(this.value);
           const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
           const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+          const time = localDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }); 
           return `<span style="display: block; text-align: center; font-family: Arial;">
-                    <b>${day}</b><br>${date}
+                    <b>${day}</b><br>${date}<br><i>${time}</i>
                   </span>`;
         },
         useHTML: true,
@@ -694,13 +696,22 @@ const fetchAndFilterData = async () => {
         marker: { enabled: false },
       },
       {
+        name: 'Prediction Range Max',
+        data: waterPredictionsPercentileMaxFahrenheit,
+        type: "line",
+        color: "#4A90E2",
+        lineWidth: 0,
+        zIndex: 1, // Ensure this is in front of the bounds
+        marker: { enabled: true,symbol: 'triangle-down', radius: 3.5},
+      },
+      {
         name: 'Predicition Range Min',
         data: waterPredictionsPercentileMinFahrenheit,
         type: "line",
         color: "#4A90E2",
         lineWidth: 0,
         zIndex: 1, // Ensure this is in front of the bounds
-        marker: { enabled: true, symbol: 'triangle-down', radius: 3.5},
+        marker: { enabled: true, symbol: 'triangle', radius: 3.5},
       },
       {
         name: 'Prediction Range (Box: 25th-75th Percentiles; Fence: 5th-95th)',
@@ -711,6 +722,7 @@ const fetchAndFilterData = async () => {
         medianColor: '#000000',
         stemColor: '#4A90E2',
         whiskerColor: '#4A90E2',
+        whiskerLength: '150%',
         color: '#4A90E2',
         fillColor: 'rgba(74,144,226,0.35)'
       },
@@ -721,7 +733,7 @@ const fetchAndFilterData = async () => {
         color: "#4A90E2",
         lineWidth: 0,
         zIndex: 1, // Ensure this is in front of the bounds
-        marker: { enabled: true,symbol: 'triangle', radius: 3.5},
+        marker: { enabled: true,symbol: 'triangle-down', radius: 3.5},
       }
     ];
   } catch (error) {
@@ -765,10 +777,7 @@ const parseCSV = (csvText) => {
     // Parse timestamp as UTC
     const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
     const utcTimestamp = Date.UTC(year, month - 1, day, hour, minute, second); // Parse as UTC (subtract 1 from month as Date.UTC expects 0-based months)
-    const localTimestamp = new Date(utcTimestamp).toLocaleString("en-US", {
-      timeZone: userTimeZone,
-    });
-    const localDate = new Date(localTimestamp);
+    const localDate = new Date(utcTimestamp);
 
     if (!isNaN(localDate)) {
       if (waterMeasurementValue && !isNaN(+waterMeasurementValue)) {
@@ -864,7 +873,7 @@ onUnmounted(() => {
     <div class="overflow-hidden  text-dark-text font-main">
 
       <!-- Banner Section -->
-      <section class="bg-banner-gradient-2 w-full text-white h-[200px] lg:h-[300px]">
+      <section class="bg-banner-gradient-2 w-full text-white h-[200px] lg:h-[250px]">
       <!-- Overlay image on the left -->
       <div class="relative w-full h-full" >
         <img
@@ -947,7 +956,7 @@ onUnmounted(() => {
         <!-- Chart -->
         <div class="chart lg:col-span-4 relative border sm:w-full ">
           <div class="w-full overflow-x-auto">
-            <div class="min-w-[600px] lg:min-w-[1000px] lg:h-[700px] lg:min-h-[650px]">
+            <div class="min-w-[600px]  min-h-[350px] lg:min-w-[1000px] lg:h-[700px] lg:min-h-[650px]">
               <Chart class="w-full h-full p-4" :options="ribbonChartOptions" />
             </div>
           </div>
@@ -986,9 +995,7 @@ onUnmounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Compares recent observed temperatures with the median (most likely)
-                forecast, making it easy to see how water temperatures are expected to
-                change over time.
+                Displays the median (50th percentile) water temperature predictions for the next 120 hours, along with the most recent water and air temperature measurements. 
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -999,10 +1006,19 @@ onUnmounted(() => {
                 Limitations
               </h3>
 
-              <p class="leading-relaxed">
-                Shows only the most likely forecast. It does not show how certain the
-                prediction is or the range of other possible temperatures.
-              </p>
+              <ul class="list-disc list-inside space-y-2 text-dark-text">
+                <li>
+                  Shows only the most likely forecast. It does not display the uncertainty
+                  or the range of other possible temperature predictions.
+                </li>
+                <li>
+                  Semaphore water temperature predictions are generated every six hours.
+                </li>
+                <li>
+                  National Digital Forecast Database (NDFD) air temperature predictions are
+                  interpolated as needed.
+                </li>
+              </ul>
             </div>
             <hr class="border-t border-dark-text">
 
@@ -1086,11 +1102,19 @@ onUnmounted(() => {
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 Limitations
               </h3>
-
-              <p class="leading-relaxed">
-                The shaded bands show likely temperature ranges, not guaranteed outcomes.
+              <ul class="list-disc list-inside space-y-2 text-dark-text">
+                <li>
+                  The shaded bands show likely temperature ranges, not guaranteed outcomes.
                 Actual temperatures may still fall outside these ranges.
-              </p>
+                </li>
+                <li>
+                  Semaphore water temperature predictions are generated every six hours.
+                </li>
+                <li>
+                  National Digital Forecast Database (NDFD) air temperature predictions are
+                  interpolated as needed.
+                </li>
+              </ul>
             </div>
             <hr class="border-t border-dark-text">
 
@@ -1185,10 +1209,18 @@ onUnmounted(() => {
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 Limitations
               </h3>
-
-              <p class="leading-relaxed">
-                Shows a summary of the predictions instead of every individual forecast.
-              </p>
+              <ul class="list-disc list-inside space-y-2 text-dark-text">
+                <li>
+                  Shows a summary of the predictions instead of every individual forecast.
+                </li>
+                <li>
+                  Semaphore water temperature predictions are generated every six hours.
+                </li>
+                <li>
+                  National Digital Forecast Database (NDFD) air temperature predictions are
+                  interpolated as needed.
+                </li>
+              </ul>
             </div>
             <hr class="border-t border-dark-text">
 
@@ -1261,116 +1293,10 @@ onUnmounted(() => {
      <!-- Information Section -->
 
 
-    <!--  Desktop -->
-    <section
-      v-if="!isSmallScreen"
-      class="chart-info-section
-            sticky bottom-0 z-20
-            bg-primary-bg
-            border-t border-gray-300
-            shadow-2xl
-            h-[350px]
-            overflow-y-auto
-            scroll-mt-8"
-    >
-
-      <!-- Drag Handle -->
-      <div class="sticky top-0 z-10 h-[20px] flex justify-center bg-blue-50 pt-3 pb-3">
-      </div>
-
-      <!-- Existing content -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 bg-blue-50 gap-8 px-10 pb-10">
-
-        <!-- LEFT COLUMN -->
-        <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
-          <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
-            Data on this Graph:
-          </h3>
-          <ul class="list-disc list-inside space-y-2 text-md lg:text-l text-dark-text">
-            <li>
-              Past six-day air/water temperature from
-              <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8776139" 
-                class="underline text-blue-600 hover:text-blue-800" target="_blank">NOAA's South Bird Island Station</a>
-            </li>
-            <li>
-              Backup water temperature data from
-              <a href="https://lighthouse.tamucc.edu/overview/171" 
-                class="underline text-blue-600 hover:text-blue-800" target="_blank">National Park Service</a>
-            </li>
-            <li>Air temperature predictions from the National Digital Forecast Database (points)</li>
-            <li>Cubic interpolation of predicted air temperature (dashed line)</li>
-            <li>Water temperature predictions from Semaphore (dashed line)</li>
-          </ul>
-        </div>
-
-        <!-- Right Column -->
-        <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
-          <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
-            Additional Information
-          </h3>
-          <ul class="list-disc space-y-2 pl-5 text-dark-text">
-            <li>
-              Wind speed graph available 
-              <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">here</a>
-            </li>
-            <li>
-              Ensemble air temperature predictions from The Weather Company available 
-              <router-link 
-                to="/air-temperature-ensemble" 
-                class="underline text-blue-600 hover:text-blue-800">
-                here
-              </router-link>
-            </li>
-            <li>
-              Ensemble water temperature predictions from Semaphore available 
-              <router-link 
-                to="/water-temperature-ensemble" 
-                class="underline text-blue-600 hover:text-blue-800">
-                here
-              </router-link>
-            </li>
-            <li>
-              CRPS (Continuous Ranked Probability Score) ensemble model from Semaphore available
-              <router-link 
-                to="/crps" 
-                class="underline text-blue-600 hover:text-blue-800">
-                here
-              </router-link>
-            </li>
-            <li>
-              Wind predictions for the Laguna Madre available
-              <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">
-                here
-              </a>
-            </li>
-            <li>
-              Ensemble air temperature predictions for Bird Island Basin available 
-              <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">
-                here
-              </a>
-            </li>
-            <li>
-              AI water temperature prediction models performance available
-              <a href="https://lighthouse.tamucc.edu/supertool.php?stnid=013&elev=mwl&mode=nnwtp" target="_blank" class="underline text-blue-600 hover:text-blue-800">
-                here
-              </a>
-            </li>
-            <li>
-              NOAA Sea Turtle Stranding and Salvage Network water temperature measurements
-              <a href="https://connect.fisheries.noaa.gov/content/c0773132-9590-4e21-bb42-676e2140fbaa/" target="_blank" class="underline text-blue-600 hover:text-blue-800">
-                here
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-    </section>
 
     <!--  MOBILE -->
 
     <div
-      v-else
       class="fixed inset-x-0 bottom-0 z-50"
     >
 
@@ -1403,14 +1329,14 @@ onUnmounted(() => {
                 p-5"
         >
 
-          <div class="grid grid-cols-1 gap-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
             <!-- LEFT CARD -->
               <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
           <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
             Data on this Graph:
           </h3>
-          <ul class="list-disc list-inside space-y-2 text-md lg:text-l text-dark-text">
+          <ul class="list-disc list-inside space-y-2 text-md lg:text-xl text-dark-text">
             <li>
               Past six-day air/water temperature from
               <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8776139" 
@@ -1430,9 +1356,9 @@ onUnmounted(() => {
         <!-- Right Column -->
         <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
           <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
-            Additional Information
+            Additional Information:
           </h3>
-          <ul class="list-disc space-y-2 pl-5 text-dark-text">
+          <ul class="list-disc space-y-2 pl-5 text-md lg:text-xl text-dark-text">
             <li>
               Wind speed graph available 
               <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">here</a>
@@ -1590,13 +1516,14 @@ onUnmounted(() => {
 .chart{
   background-color: rgba(15, 130, 245, 0.06);
   border-radius: 20px;
-  border: 3px solid rgb(15, 130, 245);
+  border: 1px solid rgba(44, 128, 255, 0.497);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .graph-info {
   background-color: rgba(15, 130, 245, 0.06);
-  border: 3px solid  rgb(15, 130, 245);
+  border-radius: 20px;
+  border: 1px solid rgba(44, 128, 255, 0.497);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
@@ -1620,7 +1547,7 @@ onUnmounted(() => {
 .chart-2{
   background-color: #ffc27d49;
   border-radius: 20px;
-  border: 3px solid rgb(255, 171, 44);
+  border: 1px solid rgba(255, 171, 44, 0.446);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 /* Hide scrollbar but keep scrolling */
@@ -1635,20 +1562,22 @@ onUnmounted(() => {
 
 .graph-info-2{
   background-color: #ffc27d49;
-   border: 3px solid rgb(255, 171, 44);
+  border-radius: 20px;
+   border: 1px solid rgba(255, 171, 44, 0.446);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   
 }
 .chart-3{
   background-color: rgba(25, 167, 0, 0.09);
   border-radius: 20px;
-  border: 3px solid rgb(26, 167, 71);
+  border: 1px solid rgba(26, 167, 71, 0.497);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .graph-info-3{
   background-color: rgba(25, 167, 0, 0.09);
-  border: 3px solid rgb(26, 167, 71);
+  border: 1px solid rgba(26, 167, 71, 0.497);
+  border-radius: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
   </style>
