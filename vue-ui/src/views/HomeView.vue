@@ -45,8 +45,20 @@
       <div class="flex justify-center gap-2 lg:gap-10">
         <img src="@/assets/images/Semaphore-Logo.png" alt="Semaphore Logo" class="w-[100px] lg:w-[200px] lg:h-[200px]">
         <img src="@/assets/images/CBI-Logo.png" alt="Conrad Blutcher Institute Logo" class="w-[230px] h-[75px] pt-5 lg:pt-10 lg:w-[550px] lg:h-[150px]">
+         <img src="@/assets/images/CDL-Logo.png" alt="Coastal Dynamics Lab Logo" class=" lg:pt-3 lg:w-[190px] lg:h-[200px]">
       </div>
-      <p class="mt-4 text-sm text-gray-300">&copy; 2024 Flare. All rights reserved.</p>
+      <p class="mt-4 text-sm text-gray-300">
+        &copy; 2024 Flare. Powered by
+        <a
+          href="https://www.coastaldynamicslab.org/livepredictions"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-blue-400 hover:text-blue-300 underline"
+        >
+          CDL
+        </a>.
+        All rights reserved.
+      </p>
     </footer>
   </div>
 </template>
