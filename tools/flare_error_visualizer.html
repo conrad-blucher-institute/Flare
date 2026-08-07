@@ -1,172 +1,502 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Semaphore Timeline Dashboard</title>
+<title>Flare PROD Timeline Dashboard</title>
 
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 <style>
-body{
-    font-family:Arial,sans-serif;
-    background:#f2f4f7;
-    margin:20px;
+body {
+    font-family: Arial, sans-serif;
+    background: #f2f4f7;
+    margin: 20px;
 }
-.card{
-    background:#fff;
-    border-radius:10px;
-    padding:18px;
-    margin-bottom:28px;
-    box-shadow:0 2px 8px rgba(0,0,0,.12);
+
+.card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 28px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
-.chart{
-    width:100%;
-    height:700px;
+
+.chart {
+    width: 100%;
+    height: 700px;
 }
-.stats{
-    display:flex;
-    gap:30px;
-    margin-bottom:10px;
-    font-weight:bold;
+
+.stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 30px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.stats > div {
+    background: #f5f7fa;
+    border-radius: 6px;
+    padding: 8px 12px;
 }
 </style>
 </head>
+
 <body>
 
-<h1>Semaphore Success/Error Dashboard</h1>
+<h1>Flare PROD Success/Error Dashboard</h1>
 <div id="charts"></div>
 
 <script>
+const DISPLAY_START = Date.parse("2026-07-29T07:45:00Z");
+const RUN_INTERVAL_MINUTES = 15;
+const RUN_INTERVAL_MS = RUN_INTERVAL_MINUTES * 60 * 1000;
 
-Promise.all([
-new Promise(r=>Papa.parse("successes.csv",{download:true,header:true,complete:x=>r(x.data.filter(a=>a.Timestamp))})),
-new Promise(r=>Papa.parse("flare_errors.csv",{download:true,header:true,complete:x=>r(x.data.filter(a=>a.Timestamp))}))
-]).then(([successes,errors])=>{
-
-const chartNames=[...new Set(successes.map(x=>x.Chart).concat(errors.map(x=>x.Chart)))].sort();
-const errorTypes=[...new Set(errors.map(x=>x["Error Type"]))].sort();
-
-const categories=["Success",...errorTypes];
-const lookup={"Success":0};
-errorTypes.forEach((e,i)=>lookup[e]=i+1);
-
-const palette=["#d62728","#ff7f0e","#9467bd","#1f77b4","#17becf","#bcbd22","#8c564b","#e377c2","#7f7f7f"];
-const colors={"Success":"#2ca02c"};
-errorTypes.forEach((e,i)=>colors[e]=palette[i%palette.length]);
-
-function jitter(row){
-    return row+(Math.random()-0.5)*0.45;
+function getTimestamp(row) {
+    return new Date(row.Timestamp).getTime();
 }
 
-const root=document.getElementById("charts");
+function isDataValidationError(row) {
+    /*
+     * Normalization recognizes labels such as:
+     *
+     * Data Validation
+     * Data Validation Error
+     * DataValidationError
+     * data-validation-error
+     */
+    const normalizedType = (row["Error Type"] || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "");
 
-chartNames.forEach(chart=>{
+    return normalizedType.startsWith("datavalidation");
+}
 
-    const s=successes.filter(x=>x.Chart===chart);
-    const e=errors.filter(x=>x.Chart===chart);
+Promise.all([
+    new Promise(resolve =>
+        Papa.parse("successes.csv", {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: result => {
+                resolve(
+                    result.data.filter(row => row.Timestamp)
+                );
+            }
+        })
+    ),
 
-    const card=document.createElement("div");
-    card.className="card";
+    new Promise(resolve =>
+        Papa.parse("flare_errors.csv", {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: result => {
+                resolve(
+                    result.data.filter(row => row.Timestamp)
+                );
+            }
+        })
+    )
+]).then(([allSuccesses, allErrors]) => {
+    /*
+     * Only show and calculate records beginning at:
+     * 2026-07-29 07:45 UTC
+     */
+    const successes = allSuccesses.filter(row => {
+        const timestamp = getTimestamp(row);
 
-    const title=document.createElement("h2");
-    title.textContent=chart;
-    card.appendChild(title);
-
-    const stats=document.createElement("div");
-    stats.className="stats";
-    const total=s.length+e.length;
-    stats.innerHTML=`
-        <div>Successes: ${s.length}</div>
-        <div>Errors: ${e.length}</div>
-        <div>Success Rate: ${total?((100*s.length/total).toFixed(1)):0}%</div>`;
-    card.appendChild(stats);
-
-    const div=document.createElement("div");
-    div.className="chart";
-    card.appendChild(div);
-    root.appendChild(card);
-
-    const series=[];
-
-    series.push({
-        name:"Success",
-        color:colors.Success,
-        data:s.map(r=>({
-            x:new Date(r.Timestamp).getTime(),
-            y:jitter(0)
-        }))
+        return (
+            Number.isFinite(timestamp) &&
+            timestamp >= DISPLAY_START
+        );
     });
 
-    errorTypes.forEach(type=>{
-        const rows=e.filter(r=>r["Error Type"]===type);
-        if(!rows.length) return;
+    const errors = allErrors.filter(row => {
+        const timestamp = getTimestamp(row);
+
+        return (
+            Number.isFinite(timestamp) &&
+            timestamp >= DISPLAY_START
+        );
+    });
+
+    /*
+     * The monitoring period ends at the latest timestamp found
+     * in either filtered CSV.
+     */
+    let monitoringEnd = DISPLAY_START;
+
+    successes.forEach(row => {
+        const timestamp = getTimestamp(row);
+
+        if (timestamp > monitoringEnd) {
+            monitoringEnd = timestamp;
+        }
+    });
+
+    errors.forEach(row => {
+        const timestamp = getTimestamp(row);
+
+        if (timestamp > monitoringEnd) {
+            monitoringEnd = timestamp;
+        }
+    });
+
+    /*
+     * Determine how many 15-minute runs were expected per chart.
+     *
+     * The "+ 1" includes the scheduled run at DISPLAY_START.
+     */
+    const expectedSuccessesPerChart =
+        Math.floor(
+            (monitoringEnd - DISPLAY_START) /
+            RUN_INTERVAL_MS
+        ) + 1;
+
+    const chartNames = [
+        ...new Set(
+            successes
+                .map(row => row.Chart)
+                .concat(errors.map(row => row.Chart))
+                .filter(Boolean)
+        )
+    ].sort();
+
+    const errorTypes = [
+        ...new Set(
+            errors
+                .map(row => row["Error Type"])
+                .filter(Boolean)
+        )
+    ].sort();
+
+    const categories = ["Success", ...errorTypes];
+    const lookup = {
+        "Success": 0
+    };
+
+    errorTypes.forEach((type, index) => {
+        lookup[type] = index + 1;
+    });
+
+    const palette = [
+        "#d62728",
+        "#ff7f0e",
+        "#9467bd",
+        "#1f77b4",
+        "#17becf",
+        "#bcbd22",
+        "#8c564b",
+        "#e377c2",
+        "#7f7f7f"
+    ];
+
+    const colors = {
+        "Success": "#2ca02c"
+    };
+
+    errorTypes.forEach((type, index) => {
+        colors[type] =
+            palette[index % palette.length];
+    });
+
+    function jitter(row) {
+        return row + (Math.random() - 0.5) * 0.45;
+    }
+
+    const root = document.getElementById("charts");
+
+    chartNames.forEach(chart => {
+        const s = successes.filter(
+            row => row.Chart === chart
+        );
+
+        const e = errors.filter(
+            row => row.Chart === chart
+        );
+
+        /*
+         * Errors at the exact same timestamp count as one
+         * unique error, regardless of error type.
+         *
+         * All original error rows remain displayed.
+         */
+        const uniqueErrorTimes = new Set(
+            e.map(getTimestamp)
+        );
+
+        /*
+         * Identify timestamps containing at least one
+         * Data Validation error.
+         */
+        const dataValidationErrorTimes = new Set(
+            e
+                .filter(isDataValidationError)
+                .map(getTimestamp)
+        );
+
+        /*
+         * A success has no missing data only when the same
+         * chart has no Data Validation error at the exact
+         * same timestamp.
+         */
+        const successesWithNoMissingData = s.filter(
+            success =>
+                !dataValidationErrorTimes.has(
+                    getTimestamp(success)
+                )
+        );
+
+        const calculatedErrorCount =
+            uniqueErrorTimes.size;
+
+        /*
+         * Total success rate:
+         *
+         * Actual successes divided by the number of
+         * expected 15-minute runs.
+         */
+        const totalSuccessRate =
+            expectedSuccessesPerChart
+                ? (
+                    100 *
+                    s.length /
+                    expectedSuccessesPerChart
+                ).toFixed(1)
+                : "0.0";
+
+        /*
+         * Success rate without missing data:
+         *
+         * Successes without a matching Data Validation
+         * error divided by expected 15-minute runs.
+         */
+        const noMissingDataSuccessRate =
+            expectedSuccessesPerChart
+                ? (
+                    100 *
+                    successesWithNoMissingData.length /
+                    expectedSuccessesPerChart
+                ).toFixed(1)
+                : "0.0";
+
+        const successGap =
+            expectedSuccessesPerChart - s.length;
+
+        const card =
+            document.createElement("div");
+
+        card.className = "card";
+
+        const title =
+            document.createElement("h2");
+
+        title.textContent = chart;
+        card.appendChild(title);
+
+        const stats =
+            document.createElement("div");
+
+        stats.className = "stats";
+
+        stats.innerHTML = `
+            <div>
+                Expected Successes:
+                ${expectedSuccessesPerChart}
+            </div>
+
+            <div>
+                Actual Successes:
+                ${s.length}
+            </div>
+
+            <div>
+                Gap From Expected:
+                ${successGap}
+            </div>
+
+            <div>
+                Successes Without Missing Data:
+                ${successesWithNoMissingData.length}
+            </div>
+
+            <div>
+                Errors Displayed:
+                ${e.length}
+            </div>
+
+            <div>
+                Unique Error Times:
+                ${calculatedErrorCount}
+            </div>
+
+            <div>
+                Total Success Rate:
+                ${totalSuccessRate}%
+            </div>
+
+            <div>
+                Success Rate With No Missing Data:
+                ${noMissingDataSuccessRate}%
+            </div>
+        `;
+
+        card.appendChild(stats);
+
+        const div =
+            document.createElement("div");
+
+        div.className = "chart";
+
+        card.appendChild(div);
+        root.appendChild(card);
+
+        const series = [];
 
         series.push({
-            name:type,
-            color:colors[type],
-            data:rows.map(r=>({
-                x:new Date(r.Timestamp).getTime(),
-                y:jitter(lookup[type]),
-                location:r.Location||"",
-                message:r.Message||""
+            name: "Success",
+            color: colors.Success,
+
+            data: s.map(row => ({
+                x: getTimestamp(row),
+                y: jitter(0)
             }))
         });
-    });
 
-    Highcharts.chart(div,{
-        chart:{
-            type:"scatter",
-            height:700,
-            zoomType:"x",
-            backgroundColor:"#ffffff",
-            panning:true,
-            panKey:"shift"
-        },
-        title:{text:null},
-        credits:{enabled:false},
-        xAxis:{
-            type:"datetime",
-            lineColor:"#444",
-            tickColor:"#444",
-            labels:{style:{color:"#222"}}
-        },
-        yAxis:{
-            categories:categories,
-            min:-0.5,
-            max:categories.length-0.5,
-            tickInterval:1,
-            gridLineColor:"#ddd",
-            title:{text:null},
-            labels:{style:{color:"#222"}}
-        },
-        legend:{
-            itemStyle:{color:"#222"}
-        },
-        tooltip:{
-            formatter:function(){
-                let txt="<b>"+this.series.name+"</b><br>"+Highcharts.dateFormat("%Y-%m-%d %H:%M",this.x);
-                if(this.point.location) txt+="<br><b>Location:</b> "+this.point.location;
-                if(this.point.message) txt+="<br><b>Message:</b> "+this.point.message;
-                return txt;
+        errorTypes.forEach(type => {
+            const rows = e.filter(
+                row => row["Error Type"] === type
+            );
+
+            if (!rows.length) {
+                return;
             }
-        },
-        plotOptions:{
-            scatter:{
-                turboThreshold:0,
-                marker:{
-                    radius:5,
-                    symbol:"circle"
+
+            series.push({
+                name: type,
+                color: colors[type],
+
+                data: rows.map(row => ({
+                    x: getTimestamp(row),
+                    y: jitter(lookup[type]),
+                    location: row.Location || "",
+                    message: row.Message || ""
+                }))
+            });
+        });
+
+        Highcharts.chart(div, {
+            chart: {
+                type: "scatter",
+                height: 700,
+                zoomType: "x",
+                backgroundColor: "#ffffff",
+                panning: true,
+                panKey: "shift"
+            },
+
+            title: {
+                text: null
+            },
+
+            credits: {
+                enabled: false
+            },
+
+            xAxis: {
+                type: "datetime",
+                min: DISPLAY_START,
+                lineColor: "#444",
+                tickColor: "#444",
+
+                labels: {
+                    style: {
+                        color: "#222"
+                    }
                 }
-            }
-        },
-        series:series
+            },
+
+            yAxis: {
+                categories: categories,
+                min: -0.5,
+                max: categories.length - 0.5,
+                tickInterval: 1,
+                gridLineColor: "#ddd",
+
+                title: {
+                    text: null
+                },
+
+                labels: {
+                    style: {
+                        color: "#222"
+                    }
+                }
+            },
+
+            legend: {
+                itemStyle: {
+                    color: "#222"
+                }
+            },
+
+            tooltip: {
+                formatter: function () {
+                    let text =
+                        "<b>" +
+                        this.series.name +
+                        "</b><br>" +
+                        Highcharts.dateFormat(
+                            "%Y-%m-%d %H:%M:%S UTC",
+                            this.x
+                        );
+
+                    if (this.point.location) {
+                        text +=
+                            "<br><b>Location:</b> " +
+                            this.point.location;
+                    }
+
+                    if (this.point.message) {
+                        text +=
+                            "<br><b>Message:</b> " +
+                            this.point.message;
+                    }
+
+                    return text;
+                }
+            },
+
+            plotOptions: {
+                scatter: {
+                    turboThreshold: 0,
+
+                    marker: {
+                        radius: 5,
+                        symbol: "circle"
+                    }
+                }
+            },
+
+            series: series
+        });
     });
+}).catch(error => {
+    console.error(error);
 
-});
-
+    document.getElementById("charts").innerHTML = `
+        <div class="card">
+            <h2>Unable to load dashboard</h2>
+            <p>
+                Make sure successes.csv and flare_errors.csv
+                are available in the same folder as this HTML file.
+            </p>
+        </div>
+    `;
 });
 </script>
 
