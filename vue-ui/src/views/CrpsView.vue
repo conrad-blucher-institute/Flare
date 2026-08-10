@@ -106,6 +106,19 @@ const buildRibbonChart = (isSmallScreen, chartTitle) => {
         },
       },
       tickInterval: 24 * 3600 * 1000, // Main ticks every day
+      // Ensure ticks align to 12 AM
+      tickPositioner: function () {
+        let positions = [];
+        let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+        let start = Math.floor((this.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset;
+        let end = this.max;
+        
+        while (start <= end) {
+          positions.push(start);
+          start += 2 * 24 * 3600 * 1000; // Increment by 2 days
+        }
+        return positions;
+      },
       title: {
         text: "Time",
         style: {
@@ -333,6 +346,19 @@ const buildBoxChart = (isSmallScreen) => {
         },
       },
       tickInterval: 24 * 3600 * 1000, // Main ticks every day
+      // Ensure ticks align to 12 AM
+      tickPositioner: function () {
+        let positions = [];
+        let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+        let start = Math.floor((this.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset;
+        let end = this.max;
+        
+        while (start <= end) {
+          positions.push(start);
+          start += 2 * 24 * 3600 * 1000; // Increment by 2 days
+        }
+        return positions;
+      },
       title: {
         text: "Time",
         style: {
@@ -1516,14 +1542,13 @@ onUnmounted(() => {
 .chart{
   background-color: rgba(15, 130, 245, 0.06);
   border-radius: 20px;
-  border: 1px solid rgba(44, 128, 255, 0.497);
+
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .graph-info {
   background-color: rgba(15, 130, 245, 0.06);
   border-radius: 20px;
-  border: 1px solid rgba(44, 128, 255, 0.497);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
@@ -1547,7 +1572,7 @@ onUnmounted(() => {
 .chart-2{
   background-color: #ffc27d49;
   border-radius: 20px;
-  border: 1px solid rgba(255, 171, 44, 0.446);
+
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 /* Hide scrollbar but keep scrolling */
@@ -1563,20 +1588,18 @@ onUnmounted(() => {
 .graph-info-2{
   background-color: #ffc27d49;
   border-radius: 20px;
-   border: 1px solid rgba(255, 171, 44, 0.446);
+
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   
 }
 .chart-3{
   background-color: rgba(25, 167, 0, 0.09);
   border-radius: 20px;
-  border: 1px solid rgba(26, 167, 71, 0.497);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .graph-info-3{
   background-color: rgba(25, 167, 0, 0.09);
-  border: 1px solid rgba(26, 167, 71, 0.497);
   border-radius: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
