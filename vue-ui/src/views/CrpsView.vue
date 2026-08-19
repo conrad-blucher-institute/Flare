@@ -735,7 +735,7 @@ const fetchAndFilterData = async () => {
         marker: { enabled: true,symbol: 'triangle-down', radius: 3.5},
       },
       {
-        name: 'Predicition Range Min',
+        name: 'Prediction Range Min',
         data: waterPredictionsPercentileMinFahrenheit,
         type: "line",
         color: "#4A90E2",
