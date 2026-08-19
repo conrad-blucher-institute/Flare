@@ -277,7 +277,7 @@ const buildRibbonChart = (isSmallScreen, chartTitle) => {
                 
       },
       style: {
-        fontSize: isSmallScreen ? "10px" : "12px", 
+        fontSize: isSmallScreen ? "10px" : "16px", 
         padding: isSmallScreen ? "5px" : "8px", 
         color: "#0f4f66",
         fontFamily: "Arial",
@@ -397,7 +397,7 @@ const buildBoxChart = (isSmallScreen) => {
       endOnTick: true,
       tickInterval: 10, // Major ticks every 10 units
       min: 30, // Minimum value for y-axis
-      max: 100,
+      softMax: 90,
       title: {
         text: "Temperature (°F)",
         style: { 
@@ -476,7 +476,7 @@ const buildBoxChart = (isSmallScreen) => {
                 
       },
       style: {
-        fontSize: isSmallScreen ? "12px" : "14px", 
+        fontSize: isSmallScreen ? "12px" : "16px", 
         padding: isSmallScreen ? "5px" : "8px", 
         color: "#0f4f66",
         fontFamily: "Arial",
@@ -540,8 +540,12 @@ const fetchAndFilterData = async () => {
     const waterPredictionsPercentileMinFahrenheit = waterPredictionsPercentileMin.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const waterPredictionsPercentileMaxFahrenheit = waterPredictionsPercentileMax.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
 
-    const futureAirPredictionsFahrenheit =
-      airPredictionsFahrenheit.filter(([time]) => time >= Date.now());
+    /*
+    filter NDFD predictions to only include hours that align with CRPS lead time intervals
+    so the tooltip displays correctly
+    */
+    const crpsTimestamps = waterPredictionsPercentile50Fahrenheit.map(([time]) => time);
+    const futureAirPredictionsFahrenheit = airPredictionsFahrenheit.filter(([time]) => crpsTimestamps.includes(time) && time >= Date.now());
 
     // === Calculate bounds for the ribbon chart ===
     // Outer Ribbon(5th-95th)
@@ -702,7 +706,7 @@ const fetchAndFilterData = async () => {
       },
       {
         name: "NDFD Air Temperature Predictions",
-        data: airPredictionsFahrenheit,
+        data: futureAirPredictionsFahrenheit,
         type: "line",
         color: "orange",
         dashStyle: "LongDash",
@@ -751,15 +755,6 @@ const fetchAndFilterData = async () => {
         whiskerLength: '150%',
         color: '#4A90E2',
         fillColor: 'rgba(74,144,226,0.35)'
-      },
-      {
-        name: 'Prediction Range Max',
-        data: waterPredictionsPercentileMaxFahrenheit,
-        type: "line",
-        color: "#4A90E2",
-        lineWidth: 0,
-        zIndex: 1, // Ensure this is in front of the bounds
-        marker: { enabled: true,symbol: 'triangle-down', radius: 3.5},
       }
     ];
   } catch (error) {
@@ -1329,11 +1324,11 @@ onUnmounted(() => {
       <!-- Always-visible Handle -->
       <button
         @click="showInfoDrawer = !showInfoDrawer"
-        class="w-full bg-navy-blue text-white shadow-xl py-3"
+        class="w-[calc(100%-2rem)] mx-4 rounded-lg bg-[#1895a3] text-white border-4 border-black shadow-xl py-3"
       >
         <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-2"></div>
 
-        <div class="font-semibold">
+        <div class="font-semibold text-xl">
           {{ showInfoDrawer ? "Hide Additional Information ▼" : "Additional Information ▲" }}
         </div>
       </button>
