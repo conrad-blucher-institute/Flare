@@ -1428,12 +1428,6 @@ onUnmounted(() => {
                     here
                   </a>
                 </li>
-                <li>
-                  Fog Prediction Model coming soon
-                </li>
-                <li>
-                  Inundation Prediction Model coming soon
-                </li>
               </ul>
             </div> <!-- End Right Card -->
           </div> <!-- End Card Grid -->
