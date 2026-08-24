@@ -10,7 +10,7 @@
                   - Additional links
      Author: Anointiyae Beasley
 
-     Last Updated: 07/29/2026
+     Last Updated: 08/24/2026
 
 ======================================================= -->
 <script setup>
@@ -30,8 +30,6 @@ const csvURL = ref(`${window.location.origin}/flare/csv-data/CRPS_120hrs.csv`);
 const showChartHelp = ref(false);
 
 
-
-
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
 const isSecondExportMenuVisible = ref(false);
@@ -42,8 +40,6 @@ const ribbonChartOptions = ref({});
 const secondRibbonChartOptions = ref({});
 const boxChartOptions = ref({});
 const showInfoDrawer = ref(false);
-
-
 
 
 // Chart function for first chart that changes based on screen size
@@ -164,8 +160,8 @@ const buildRibbonChart = (isSmallScreen, chartTitle) => {
       startOnTick: true,
       endOnTick: true,
       tickInterval: 10, // Major ticks every 10 units
-      min: 30, // Minimum value for y-axis
-      softMax: 90,
+      softMin: 30,  // softMin for y axis
+      softMax: 90,  // softMax for y axis
       plotLines: [
         {
           color: "red",
@@ -396,7 +392,7 @@ const buildBoxChart = (isSmallScreen) => {
       startOnTick: true,
       endOnTick: true,
       tickInterval: 10, // Major ticks every 10 units
-      min: 30, // Minimum value for y-axis
+      softMin: 30,
       softMax: 90,
       title: {
         text: "Temperature (°F)",
@@ -540,12 +536,20 @@ const fetchAndFilterData = async () => {
     const waterPredictionsPercentileMinFahrenheit = waterPredictionsPercentileMin.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const waterPredictionsPercentileMaxFahrenheit = waterPredictionsPercentileMax.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
 
+    // filter air predictions to only include future predictions
+    const futureAirPredictionsFahrenheit = airPredictionsFahrenheit.filter(([time]) => time >= Date.now());
+
     /*
-    filter NDFD predictions to only include hours that align with CRPS lead time intervals
-    so the tooltip displays correctly
+      We do not interpolate min and max since they are only for the box plot,
+      so those timestamps are genuine lead times. For the box plot, we want to
+      filter to remove the interpolated values.
     */
-    const crpsTimestamps = waterPredictionsPercentile50Fahrenheit.map(([time]) => time);
-    const futureAirPredictionsFahrenheit = airPredictionsFahrenheit.filter(([time]) => crpsTimestamps.includes(time) && time >= Date.now());
+    const boxplotTimestamps = waterPredictionsPercentileMaxFahrenheit.map(([time]) => time);
+    const boxplotWaterPredictionsPercentile5Fahrenheit = waterPredictionsPercentile5Fahrenheit.filter(([time]) => boxplotTimestamps.includes(time));
+    const boxplotWaterPredictionsPercentile25Fahrenheit = waterPredictionsPercentile25Fahrenheit.filter(([time]) => boxplotTimestamps.includes(time));
+    const boxplotWaterPredictionsPercentile50Fahrenheit = waterPredictionsPercentile50Fahrenheit.filter(([time]) => boxplotTimestamps.includes(time));
+    const boxplotWaterPredictionsPercentile75Fahrenheit = waterPredictionsPercentile75Fahrenheit.filter(([time]) => boxplotTimestamps.includes(time));
+    const boxplotWaterPredictionsPercentile95Fahrenheit = waterPredictionsPercentile95Fahrenheit.filter(([time]) => boxplotTimestamps.includes(time));
 
     // === Calculate bounds for the ribbon chart ===
     // Outer Ribbon(5th-95th)
@@ -569,20 +573,17 @@ const fetchAndFilterData = async () => {
     // Fences from min to max
     const boxPlotBoundsFahrenheit = waterPredictionsPercentileMinFahrenheit.map((point, index) => {
       const time = point[0];
-      const low = waterPredictionsPercentile5Fahrenheit[index][1];
-      const q1 = waterPredictionsPercentile25Fahrenheit[index][1];
-      const median = waterPredictionsPercentile50Fahrenheit[index][1];
-      const q3 = waterPredictionsPercentile75Fahrenheit[index][1];
-      const high = waterPredictionsPercentile95Fahrenheit[index][1];
+      const low = boxplotWaterPredictionsPercentile5Fahrenheit[index][1];
+      const q1 = boxplotWaterPredictionsPercentile25Fahrenheit[index][1];
+      const median = boxplotWaterPredictionsPercentile50Fahrenheit[index][1];
+      const q3 = boxplotWaterPredictionsPercentile75Fahrenheit[index][1];
+      const high = boxplotWaterPredictionsPercentile95Fahrenheit[index][1];
 
       return [time, low, q1, median, q3, high];
     });
-
-
    
     // Update chart series with filtered data
     ribbonChartOptions.value.series = [
-
       {
         name: "Water Temperature Measurements",
         data: waterMeasurementsFahrenheit,
@@ -606,7 +607,7 @@ const fetchAndFilterData = async () => {
         data: futureAirPredictionsFahrenheit,
         type: "line",
         color: "orange",
-        dashStyle: "LongDash",
+        dashStyle: "Dash",
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1, // Ensure this is in front of the bounds
         marker: { enabled: false },
@@ -615,17 +616,14 @@ const fetchAndFilterData = async () => {
         name: "Median (50th Percentile) Water Temperature Predictions",
         data: waterPredictionsPercentile50Fahrenheit,
         type: "line",
-        dashStyle: "LongDash",
+        dashStyle: "Dash",
         color: "black",
         lineWidth: isSmallScreen ? 1 : 2,
-        zIndex: 3, // Ensure this is in front of the bounds
+        zIndex: 3, // Ensure median is in front of the other lines
         marker: { enabled: false},
       }
-      
     ];
-
      secondRibbonChartOptions.value.series = [
-
       {
         name: "Water Temperature Measurements",
         data: waterMeasurementsFahrenheit,
@@ -649,7 +647,7 @@ const fetchAndFilterData = async () => {
         data: futureAirPredictionsFahrenheit,
         type: "line",
         color: "orange",
-        dashStyle: "LongDash",
+        dashStyle: "Dash",
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1, // Ensure this is in front of the bounds
         marker: { enabled: false },
@@ -658,13 +656,12 @@ const fetchAndFilterData = async () => {
         name: "Median (50th Percentile) Water Temperature Predictions",
         data: waterPredictionsPercentile50Fahrenheit,
         type: "line",
-        dashStyle: "LongDash",
+        dashStyle: "Dash",
         color: "black",
         lineWidth: isSmallScreen ? 1 : 2,
-        zIndex: 3, // Ensure this is in front of the bounds
+        zIndex: 3, // Ensure the median is in front of the other lines
         marker: { enabled: false},
       },
-      
       {
         name: '25th-75th Percentile',
         type: 'arearange',
@@ -709,7 +706,7 @@ const fetchAndFilterData = async () => {
         data: futureAirPredictionsFahrenheit,
         type: "line",
         color: "orange",
-        dashStyle: "LongDash",
+        dashStyle: "Dash",
         zIndex: 0,
         findnearestPoint: false,
         enablemouseTracking: false, // Disable tooltip for this series
@@ -718,7 +715,7 @@ const fetchAndFilterData = async () => {
       },
       {
         name: "Median (50th Percentile) Water Temperature Predictions",
-        data: waterPredictionsPercentile50Fahrenheit,
+        data: boxplotWaterPredictionsPercentile50Fahrenheit,
         type: "line",
         color: "#4A90E2",
         lineWidth: isSmallScreen ? 1 : 2,
@@ -732,7 +729,7 @@ const fetchAndFilterData = async () => {
         color: "#4A90E2",
         lineWidth: 0,
         zIndex: 1, // Ensure this is in front of the bounds
-        marker: { enabled: true,symbol: 'triangle-down', radius: 3.5},
+        marker: { enabled: true, symbol: 'triangle-down', radius: 3.5 },
       },
       {
         name: 'Prediction Range Min',
@@ -741,7 +738,7 @@ const fetchAndFilterData = async () => {
         color: "#4A90E2",
         lineWidth: 0,
         zIndex: 1, // Ensure this is in front of the bounds
-        marker: { enabled: true, symbol: 'triangle', radius: 3.5},
+        marker: { enabled: true, symbol: 'triangle', radius: 3.5 },
       },
       {
         name: 'Prediction Range (Box: 25th-75th Percentiles; Fence: 5th-95th)',
