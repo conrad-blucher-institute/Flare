@@ -10,16 +10,18 @@
      Date: 11/04/2024
 ======================================================= -->
 <script setup>
+  import { ref } from 'vue';
   import SlidingMenu from '@/components/SlidingMenu.vue';
   import { useMenuStore } from '@/stores/menuStore'; 
 
   const menuStore = useMenuStore(); // Instance of useMenuStore
+  const showDropdown = ref(false); // State to track dropdown visibility
 </script>
 
 <template>
   <div class="overflow-hidden">
     <!-- Banner Section -->
-    <section class="relative flex items-center justify-center h-[200px] lg:h-[400px] bg-banner-gradient">
+    <section class="relative flex flex-col items-center justify-center h-[200px] lg:h-[400px] bg-banner-gradient">
       <!-- Overlay Image -->
       <div class="absolute inset-y-0 left-0 w-full opacity-20">
         <img src="@/assets/images/StatisticsOverlay.png" alt="Statistics Overlay" class="w-full h-full object-cover">
@@ -28,6 +30,32 @@
       <div class="relative text-center">
         <h1 class="text-4xl font-bold text-white leading-tight lg:text-8xl">Flare</h1>
         <h2 class="mt-4 text-md font-medium text-gray-200 lg:text-2xl">Showcasing the visualization of AI models operationalized by Semaphore</h2>
+      </div>
+      <!-- Dropdown menu -->
+      <div class="relative text-center mt-8">
+        <button
+          @click="showDropdown = !showDropdown"
+          class="bg-navy-blue hover:bg-opacity-80 text-white font-semibold text-xl px-6 py-2 rounded-md mb-4 transition-colors"
+        >
+          {{ showDropdown ? "Hide Additional CDL Resources ▲" : "Additional CDL Resources ▼" }}
+        </button>
+
+        <!-- Dropdown menu contents -->
+        <ul
+          v-if="showDropdown"
+          class="absolute left-1/2 -translate-x-1/2 mt-2 w-96 bg-white text-navy-blue text-left rounded-md shadow-lg py-4 px-6 list-disc list-inside z-10"
+        >
+          <li class="py-2 text-lg">
+            <a
+              href="https://www.coastaldynamicslab.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-blue-800 hover:text-blue-400 underline"
+            >Coastal Dynamics Lab (CDL) Homepage</a>
+          </li>
+          <li class="py-2 text-lg">Inundation Prediction Models coming soon</li>
+          <li class="py-2 text-lg">Fog Prediction Models coming soon</li>
+        </ul>
       </div>
     </section>
 
