@@ -1,0 +1,619 @@
+{
+  "master_name": "Master_CSPEC",
+  "CSPEC_version": "1.0.0",
+  "charts": [
+    {
+      "chart_name": "CRPS_120hrs",
+      "CSPEC_version": "1.0.0",
+      "data_requests": [
+        {
+          "key": "SemaphoreInputs",
+          "args": {
+            "column_name": "Water Temperature Measurement",
+            "location": "SBI",
+            "source": "NOAATANDC",
+            "series": "dWaterTmp",
+            "interval": 3600,
+            "range": [
+              -144,
+              0
+            ]
+          }
+        },
+        {
+          "key": "SemaphoreInputs",
+          "args": {
+            "column_name": "Air Temperature Measurement",
+            "location": "SBI",
+            "source": "NOAATANDC",
+            "series": "dAirTmp",
+            "interval": 3600,
+            "range": [
+              -144,
+              0
+            ]
+          }
+        },
+        {
+          "key": "SemaphoreInputs",
+          "args": {
+            "column_name": "Air Temperature Prediction",
+            "location": "SBirdIsland",
+            "source": "NDFD_JSON",
+            "series": "pAirTemp",
+            "interval": 3600,
+            "range": [
+              0,
+              120
+            ]
+          }
+        },
+        {
+          "key": "SemaphoreOutputStatistics",
+          "args": {
+            "model_names": [
+              "MRE_Bird-Island_Water-Temperature_3hr",
+              "MRE_Bird-Island_Water-Temperature_6hr",
+              "MRE_Bird-Island_Water-Temperature_12hr",
+              "MRE_Bird-Island_Water-Temperature_18hr",
+              "MRE_Bird-Island_Water-Temperature_24hr",
+              "MRE_Bird-Island_Water-Temperature_30hr",
+              "MRE_Bird-Island_Water-Temperature_36hr",
+              "MRE_Bird-Island_Water-Temperature_42hr",
+              "MRE_Bird-Island_Water-Temperature_48hr",
+              "MRE_Bird-Island_Water-Temperature_54hr",
+              "MRE_Bird-Island_Water-Temperature_60hr",
+              "MRE_Bird-Island_Water-Temperature_66hr",
+              "MRE_Bird-Island_Water-Temperature_72hr",
+              "MRE_Bird-Island_Water-Temperature_78hr",
+              "MRE_Bird-Island_Water-Temperature_84hr",
+              "MRE_Bird-Island_Water-Temperature_90hr",
+              "MRE_Bird-Island_Water-Temperature_96hr",
+              "MRE_Bird-Island_Water-Temperature_102hr",
+              "MRE_Bird-Island_Water-Temperature_108hr",
+              "MRE_Bird-Island_Water-Temperature_114hr",
+              "MRE_Bird-Island_Water-Temperature_120hr"
+            ]
+          }
+        }
+      ],
+      "post_processing": [
+        {
+          "_comment": "Interpolates the 1st percentile statistic between the 21 lead time values",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction p1",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates the 5th percentile statistic between the 21 lead time values",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction p5",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates the 10th percentile statistic between the 21 lead time values",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction p10",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates the 25th percentile statistic between the 21 lead time values",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction p25",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates the 50th percentile statistic between the 21 lead time values",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction p50",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates the 75th percentile statistic between the 21 lead time values",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction p75",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates the 90th percentile statistic between the 21 lead time values",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction p90",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates the 95th percentile statistic between the 21 lead time values",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction p95",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates the 99th percentile statistic between the 21 lead time values",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction p99",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates min values",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction min",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates max values",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction max",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates mean values",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction mean",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates std_dev values",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction std_dev",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates air temperature predictions between the 21 lead time values",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Air Temperature Prediction",
+            "interpolation_interval": 3600,
+            "limit": 10800
+          }
+        }
+      ]
+    },
+    {
+      "chart_name": "Laguna_Madre",
+      "CSPEC_version": "1.0.0",
+      "data_requests": [
+        {
+          "key": "SemaphoreInputs",
+          "args": {
+            "column_name": "Water Temperature Measurement",
+            "location": "SBI",
+            "source": "NOAATANDC",
+            "series": "dWaterTmp",
+            "interval": 3600,
+            "range": [
+              -144,
+              0
+            ]
+          }
+        },
+        {
+          "key": "SemaphoreInputs",
+          "args": {
+            "column_name": "Air Temperature Measurement",
+            "location": "SBI",
+            "source": "NOAATANDC",
+            "series": "dAirTmp",
+            "interval": 3600,
+            "range": [
+              -144,
+              0
+            ]
+          }
+        },
+        {
+          "key": "SemaphoreInputs",
+          "args": {
+            "column_name": "Air Temperature Prediction",
+            "location": "SBirdIsland",
+            "source": "NDFD_JSON",
+            "series": "pAirTemp",
+            "interval": 3600,
+            "range": [
+              0,
+              120
+            ]
+          }
+        },
+        {
+          "key": "SemaphoreOutputLatest",
+          "args": {
+            "column_name": "Water Temperature Prediction",
+            "model_names": [
+              "Bird-Island_Water-Temperature_3hr",
+              "Bird-Island_Water-Temperature_6hr",
+              "Bird-Island_Water-Temperature_12hr",
+              "Bird-Island_Water-Temperature_18hr",
+              "Bird-Island_Water-Temperature_24hr",
+              "Bird-Island_Water-Temperature_30hr",
+              "Bird-Island_Water-Temperature_36hr",
+              "Bird-Island_Water-Temperature_42hr",
+              "Bird-Island_Water-Temperature_48hr",
+              "Bird-Island_Water-Temperature_54hr",
+              "Bird-Island_Water-Temperature_60hr",
+              "Bird-Island_Water-Temperature_66hr",
+              "Bird-Island_Water-Temperature_72hr",
+              "Bird-Island_Water-Temperature_78hr",
+              "Bird-Island_Water-Temperature_84hr",
+              "Bird-Island_Water-Temperature_90hr",
+              "Bird-Island_Water-Temperature_96hr",
+              "Bird-Island_Water-Temperature_102hr",
+              "Bird-Island_Water-Temperature_108hr",
+              "Bird-Island_Water-Temperature_114hr",
+              "Bird-Island_Water-Temperature_120hr"
+            ]
+          }
+        }
+      ],
+      "post_processing": [
+        {
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Air Temperature Prediction",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        }
+      ]
+    },
+    {
+      "chart_name": "MRE_Bird-Island_Water-Temperature",
+      "CSPEC_version": "1.0.0",
+      "data_requests": [
+        {
+          "key": "SemaphoreInputs",
+          "args": {
+            "column_name": "Water Temperature Measurement",
+            "location": "SBI",
+            "source": "NOAATANDC",
+            "series": "dWaterTmp",
+            "interval": 3600,
+            "range": [
+              -144,
+              0
+            ]
+          }
+        },
+        {
+          "key": "SemaphoreInputs",
+          "args": {
+            "column_name": "Air Temperature Measurement",
+            "location": "SBI",
+            "source": "NOAATANDC",
+            "series": "dAirTmp",
+            "interval": 3600,
+            "range": [
+              -144,
+              0
+            ]
+          }
+        },
+        {
+          "key": "SemaphoreInputs",
+          "args": {
+            "column_name": "Air Temperature Prediction",
+            "location": "SBirdIsland",
+            "source": "NDFD_JSON",
+            "series": "pAirTemp",
+            "interval": 3600,
+            "range": [
+              0,
+              120
+            ]
+          }
+        },
+        {
+          "key": "SemaphoreOutputLatest",
+          "args": {
+            "column_name": "Water Temperature Prediction",
+            "model_names": [
+              "MRE_Bird-Island_Water-Temperature_3hr",
+              "MRE_Bird-Island_Water-Temperature_6hr",
+              "MRE_Bird-Island_Water-Temperature_12hr",
+              "MRE_Bird-Island_Water-Temperature_18hr",
+              "MRE_Bird-Island_Water-Temperature_24hr",
+              "MRE_Bird-Island_Water-Temperature_30hr",
+              "MRE_Bird-Island_Water-Temperature_36hr",
+              "MRE_Bird-Island_Water-Temperature_42hr",
+              "MRE_Bird-Island_Water-Temperature_48hr",
+              "MRE_Bird-Island_Water-Temperature_54hr",
+              "MRE_Bird-Island_Water-Temperature_60hr",
+              "MRE_Bird-Island_Water-Temperature_66hr",
+              "MRE_Bird-Island_Water-Temperature_72hr",
+              "MRE_Bird-Island_Water-Temperature_78hr",
+              "MRE_Bird-Island_Water-Temperature_84hr",
+              "MRE_Bird-Island_Water-Temperature_90hr",
+              "MRE_Bird-Island_Water-Temperature_96hr",
+              "MRE_Bird-Island_Water-Temperature_102hr",
+              "MRE_Bird-Island_Water-Temperature_108hr",
+              "MRE_Bird-Island_Water-Temperature_114hr",
+              "MRE_Bird-Island_Water-Temperature_120hr"
+            ]
+          }
+        }
+      ],
+      "post_processing": [
+        {
+          "_comment": "Calculates 95th percentile for each of the 21 lead times",
+          "key": "Percentile",
+          "args": {
+            "col_key": "Water Temperature Prediction",
+            "percentile": 95,
+            "output_col_key": "Water Temperature Prediction 95th Percentile"
+          }
+        },
+        {
+          "_comment": "Calculates 5th percentile for each of the 21 lead times",
+          "key": "Percentile",
+          "args": {
+            "col_key": "Water Temperature Prediction",
+            "percentile": 5,
+            "output_col_key": "Water Temperature Prediction 5th Percentile"
+          }
+        },
+        {
+          "_comment": "Calculates max, min, and median statistics in one call",
+          "key": "RowStatistics",
+          "args": {
+            "metrics": "all",
+            "col_name": "Water Temperature Prediction"
+          }
+        },
+        {
+          "_comment": "Interpolates 95th percentile - From the 21 percentile values (taken from lead times)",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction 95th Percentile",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates 5th percentile - From the 21 percentile values (taken from lead times)",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction 5th Percentile",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates max values",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction Max",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates min values",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction Min",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates median values",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Water Temperature Prediction Median",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "_comment": "Interpolates air temperature",
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "Air Temperature Prediction",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        }
+      ]
+    },
+    {
+      "chart_name": "TWC_Laguna-Madre_Air-Temperature-Predictions",
+      "CSPEC_version": "1.0.0",
+      "data_requests": [
+        {
+          "key": "SemaphoreInputs",
+          "args": {
+            "column_name": "Air Temperature Predictions",
+            "location": "SBirdIsland",
+            "source": "TWC",
+            "series": "pAirTemp",
+            "interval": 3600,
+            "range": [
+              0,
+              240
+            ]
+          }
+        }
+      ],
+      "post_processing": []
+    },
+    {
+      "chart_name": "TWC_Laguna-Madre_Air-Temperature-Predictions",
+      "CSPEC_version": "1.0.0",
+      "data_requests": [
+        {
+          "key": "SemaphoreInputs",
+          "args": {
+            "column_name": "TWC Air Temperature Predictions",
+            "location": "SBirdIsland",
+            "source": "TWC",
+            "series": "pAirTemp",
+            "interval": 3600,
+            "range": [
+              0,
+              240
+            ]
+          }
+        },
+        {
+          "key": "SemaphoreInputs",
+          "args": {
+            "column_name": "NDFD Air Temperature Predictions",
+            "location": "SBirdIsland",
+            "source": "NDFD_JSON",
+            "series": "pAirTemp",
+            "interval": 3600,
+            "range": [
+              0,
+              168
+            ]
+          }
+        }
+      ],
+      "post_processing": [
+        {
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "NDFD Air Temperature Predictions",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "key": "RowStatistics",
+          "args": {
+            "metrics": "median",
+            "col_name": "TWC Air Temperature Predictions"
+          }
+        },
+        {
+          "key": "Percentile",
+          "args": {
+            "col_key": "TWC Air Temperature Predictions",
+            "percentile": 5,
+            "output_col_key": "TWC Air Temperature Predictions 5th Percentile"
+          }
+        },
+        {
+          "key": "Percentile",
+          "args": {
+            "col_key": "TWC Air Temperature Predictions",
+            "percentile": 95,
+            "output_col_key": "TWC Air Temperature Predictions 95th Percentile"
+          }
+        }
+      ]
+    },
+    {
+      "chart_name": "TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs",
+      "CSPEC_version": "1.0.0",
+      "data_requests": [
+        {
+          "key": "SemaphoreInputs",
+          "args": {
+            "column_name": "TWC Air Temperature Predictions",
+            "location": "SBirdIsland",
+            "source": "TWC",
+            "series": "pAirTemp",
+            "interval": 3600,
+            "range": [
+              0,
+              240
+            ]
+          }
+        },
+        {
+          "key": "SemaphoreInputs",
+          "args": {
+            "column_name": "NDFD Air Temperature Predictions",
+            "location": "SBirdIsland",
+            "source": "NDFD_JSON",
+            "series": "pAirTemp",
+            "interval": 3600,
+            "range": [
+              0,
+              168
+            ]
+          }
+        }
+      ],
+      "post_processing": [
+        {
+          "key": "LinearInterpolation",
+          "args": {
+            "col_name": "NDFD Air Temperature Predictions",
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        },
+        {
+          "key": "RowStatistics",
+          "args": {
+            "metrics": "all",
+            "col_name": "TWC Air Temperature Predictions"
+          }
+        },
+        {
+          "key": "Percentile",
+          "args": {
+            "col_key": "TWC Air Temperature Predictions",
+            "percentile": 25,
+            "output_col_key": "TWC Air Temperature Predictions 25th Percentile"
+          }
+        },
+        {
+          "key": "Percentile",
+          "args": {
+            "col_key": "TWC Air Temperature Predictions",
+            "percentile": 75,
+            "output_col_key": "TWC Air Temperature Predictions 75th Percentile"
+          }
+        }
+      ]
+    }
+  ]
+}

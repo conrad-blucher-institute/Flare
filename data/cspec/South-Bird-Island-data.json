@@ -1,0 +1,125 @@
+{
+  "dataset_name": "South-Bird-Island",
+  "CSPEC_version": "2.0.0",
+  "location_aliases": ["SBI", "SBirdIsland"],
+  "data_requests": [
+    {
+      "key": "SemaphoreInputs",
+      "args": {
+        "column_name": "Water Temperature Measurement",
+        "location": "SBI",
+        "source": "NOAATANDC",
+        "series": "dWaterTmp",
+        "interval": 3600,
+        "range": [-144, 0]
+      },
+      "post_processing": []
+    },
+    {
+      "key": "SemaphoreInputs",
+      "args": {
+        "column_name": "Air Temperature Measurement",
+        "location": "SBI",
+        "source": "NOAATANDC",
+        "series": "dAirTmp",
+        "interval": 3600,
+        "range": [-144, 0]
+      },
+      "post_processing": []
+    },
+    {
+      "key": "SemaphoreInputs",
+      "args": {
+        "column_name": "NDFD Air Temperature Predictions",
+        "location": "SBirdIsland",
+        "source": "NDFD_JSON",
+        "series": "pAirTemp",
+        "interval": 3600,
+        "range": [0, 168]
+      },
+      "post_processing": [
+        {
+          "key": "LinearInterpolation",
+          "in_key": "NDFD Air Temperature Predictions",
+          "out_key": "NDFD Air Temperature Predictions Interpolated",
+          "args": {"interpolation_interval": 3600, "limit": 21600}
+        }
+      ]
+    },
+    {
+      "key": "SemaphoreOutputLatest",
+      "args": {
+        "column_name": "Water Temperature Prediction",
+        "model_names": [
+          "Bird-Island_Water-Temperature_3hr",
+          "Bird-Island_Water-Temperature_6hr",
+          "Bird-Island_Water-Temperature_12hr",
+          "Bird-Island_Water-Temperature_18hr",
+          "Bird-Island_Water-Temperature_24hr",
+          "Bird-Island_Water-Temperature_30hr",
+          "Bird-Island_Water-Temperature_36hr",
+          "Bird-Island_Water-Temperature_42hr",
+          "Bird-Island_Water-Temperature_48hr",
+          "Bird-Island_Water-Temperature_54hr",
+          "Bird-Island_Water-Temperature_60hr",
+          "Bird-Island_Water-Temperature_66hr",
+          "Bird-Island_Water-Temperature_72hr",
+          "Bird-Island_Water-Temperature_78hr",
+          "Bird-Island_Water-Temperature_84hr",
+          "Bird-Island_Water-Temperature_90hr",
+          "Bird-Island_Water-Temperature_96hr",
+          "Bird-Island_Water-Temperature_102hr",
+          "Bird-Island_Water-Temperature_108hr",
+          "Bird-Island_Water-Temperature_114hr",
+          "Bird-Island_Water-Temperature_120hr"
+        ]
+      },
+      "post_processing": [
+        {
+          "key": "LinearInterpolation",
+          "in_key": "Water Temperature Prediction",
+          "out_key": "Water Temperature Prediction Interpolated",
+          "args": {"interpolation_interval": 3600, "limit": 21600}
+        }
+      ]
+    },
+    {
+      "key": "SemaphoreOutputStatistics",
+      "args": {
+        "model_names": [
+          "CRPS_3hr", "CRPS_6hr", "CRPS_12hr", "CRPS_18hr", "CRPS_24hr",
+          "CRPS_30hr", "CRPS_36hr", "CRPS_42hr", "CRPS_48hr", "CRPS_54hr",
+          "CRPS_60hr", "CRPS_66hr", "CRPS_72hr", "CRPS_78hr", "CRPS_84hr",
+          "CRPS_90hr", "CRPS_96hr", "CRPS_102hr", "CRPS_108hr", "CRPS_114hr",
+          "CRPS_120hr"
+        ]
+      },
+      "post_processing": []
+    },
+    {
+      "key": "SemaphoreInputs",
+      "args": {
+        "column_name": "TWC Air Temperature Predictions",
+        "location": "SBirdIsland",
+        "source": "TWC",
+        "series": "pAirTemp",
+        "interval": 3600,
+        "range": [0, 240]
+      },
+      "post_processing": [
+        {"key": "RowStatistics", "in_key": "TWC Air Temperature Predictions", "out_key": "TWC Air Temperature Predictions Median", "args": {"metric": "median"}},
+        {"key": "RowStatistics", "in_key": "TWC Air Temperature Predictions", "out_key": "TWC Air Temperature Predictions Min", "args": {"metric": "min"}},
+        {"key": "RowStatistics", "in_key": "TWC Air Temperature Predictions", "out_key": "TWC Air Temperature Predictions Max", "args": {"metric": "max"}},
+        {"key": "Percentile", "in_key": "TWC Air Temperature Predictions", "out_key": "TWC Air Temperature Predictions 5th Percentile", "args": {"percentile": 5}},
+        {"key": "Percentile", "in_key": "TWC Air Temperature Predictions", "out_key": "TWC Air Temperature Predictions 25th Percentile", "args": {"percentile": 25}},
+        {"key": "Percentile", "in_key": "TWC Air Temperature Predictions", "out_key": "TWC Air Temperature Predictions 75th Percentile", "args": {"percentile": 75}},
+        {"key": "Percentile", "in_key": "TWC Air Temperature Predictions", "out_key": "TWC Air Temperature Predictions 95th Percentile", "args": {"percentile": 95}}
+      ]
+    }
+  ],
+  "dataset_config": {
+    "dataset_name": "South-Bird-Island-data.csv",
+    "join_on": "timeVerified",
+    "write_mode": "replace_atomic"
+  }
+}

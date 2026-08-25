@@ -1,0 +1,67 @@
+{
+  "chart_group": "South-Bird-Island",
+  "CSPEC_version": "2.0.0",
+  "data_file": "South-Bird-Island-data.csv",
+  "charts": [
+    {
+      "chart_name": "CRPS_120hrs",
+      "range": [-144, 120],
+      "csv_name": "CRPS_120hrs.csv",
+      "columns": [
+        {"in_key": "Water Temperature Measurement", "out_key": "Water Temperature Measurement"},
+        {"in_key": "Air Temperature Measurement", "out_key": "Air Temperature Measurement"},
+        {"in_key": "NDFD Air Temperature Predictions Interpolated", "out_key": "Air Temperature Prediction"},
+        {"in_key": "Water Temperature Prediction p5", "out_key": "Water Temperature Prediction p5"},
+        {"in_key": "Water Temperature Prediction p25", "out_key": "Water Temperature Prediction p25"},
+        {"in_key": "Water Temperature Prediction p50", "out_key": "Water Temperature Prediction p50"},
+        {"in_key": "Water Temperature Prediction p75", "out_key": "Water Temperature Prediction p75"},
+        {"in_key": "Water Temperature Prediction p95", "out_key": "Water Temperature Prediction p95"},
+        {"in_key": "Water Temperature Prediction min", "out_key": "Water Temperature Prediction min"},
+        {"in_key": "Water Temperature Prediction max", "out_key": "Water Temperature Prediction max"}
+      ]
+    },
+    {
+      "chart_name": "Laguna_Madre",
+      "range": [-144, 120],
+      "csv_name": "Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv",
+      "columns": [
+        {"in_key": "Water Temperature Measurement", "out_key": "Water Temperature Measurement"},
+        {"in_key": "Water Temperature Prediction Interpolated", "out_key": "Water Temperature Prediction"},
+        {"in_key": "Air Temperature Measurement", "out_key": "Air Temperature Measurement"},
+        {"in_key": "NDFD Air Temperature Predictions Interpolated", "out_key": "Air Temperature Prediction"}
+      ]
+    },
+    {
+      "chart_name": "TWC_Laguna-Madre_Air-Temperature-Predictions",
+      "range": [0, 240],
+      "csv_name": "TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv",
+      "columns": [
+        {"in_key": "TWC Air Temperature Predictions", "out_key": "Air Temperature Predictions"}
+      ]
+    },
+    {
+      "chart_name": "TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs",
+      "range": [0, 240],
+      "csv_name": "TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv",
+      "columns": [
+        {"in_key": "TWC Air Temperature Predictions 5th Percentile", "out_key": "TWC Air Temperature Predictions 5th Percentile"},
+        {"in_key": "TWC Air Temperature Predictions Median", "out_key": "TWC Air Temperature Predictions Median"},
+        {"in_key": "TWC Air Temperature Predictions 95th Percentile", "out_key": "TWC Air Temperature Predictions 95th Percentile"},
+        {"in_key": "NDFD Air Temperature Predictions Interpolated", "out_key": "NDFD Air Temperature Predictions"}
+      ]
+    },
+    {
+      "chart_name": "TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs",
+      "range": [0, 240],
+      "csv_name": "TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs.csv",
+      "columns": [
+        {"in_key": "TWC Air Temperature Predictions Min", "out_key": "TWC Air Temperature Predictions Min"},
+        {"in_key": "TWC Air Temperature Predictions 25th Percentile", "out_key": "TWC Air Temperature Predictions 25th Percentile"},
+        {"in_key": "TWC Air Temperature Predictions Median", "out_key": "TWC Air Temperature Predictions Median"},
+        {"in_key": "TWC Air Temperature Predictions 75th Percentile", "out_key": "TWC Air Temperature Predictions 75th Percentile"},
+        {"in_key": "TWC Air Temperature Predictions Max", "out_key": "TWC Air Temperature Predictions Max"},
+        {"in_key": "NDFD Air Temperature Predictions Interpolated", "out_key": "NDFD Air Temperature Predictions"}
+      ]
+    }
+  ]
+}

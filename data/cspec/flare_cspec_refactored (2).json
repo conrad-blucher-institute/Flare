@@ -1,0 +1,232 @@
+{
+  "master_name": "Master_CSPEC",
+  "CSPEC_version": "2.0.0",
+  "model_groups": {
+    "crps_lead_times": {
+      "name_template": "CRPS_{lead_time}hr",
+      "lead_times": [3, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120]
+    },
+    "bird_island_lead_times": {
+      "name_template": "Bird-Island_Water-Temperature_{lead_time}hr",
+      "lead_times": [3, 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120]
+    }
+  },
+  "data_requests": [
+    {
+      "key": "SemaphoreInputs",
+      "args": {
+        "column_name": "Water Temperature Measurement",
+        "location": "SBI",
+        "source": "NOAATANDC",
+        "series": "dWaterTmp",
+        "interval": 3600,
+        "range": [-144, 0]
+      },
+      "post_processing": []
+    },
+    {
+      "key": "SemaphoreInputs",
+      "args": {
+        "column_name": "Air Temperature Measurement",
+        "location": "SBI",
+        "source": "NOAATANDC",
+        "series": "dAirTmp",
+        "interval": 3600,
+        "range": [-144, 0]
+      },
+      "post_processing": []
+    },
+    {
+      "key": "SemaphoreInputs",
+      "args": {
+        "column_name": "NDFD Air Temperature Predictions",
+        "location": "SBirdIsland",
+        "source": "NDFD_JSON",
+        "series": "pAirTemp",
+        "interval": 3600,
+        "range": [0, 168]
+      },
+      "post_processing": [
+        {
+          "key": "LinearInterpolation",
+          "in_key": "NDFD Air Temperature Predictions",
+          "out_key": "NDFD Air Temperature Predictions Interpolated",
+          "args": {
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        }
+      ]
+    },
+    {
+      "key": "SemaphoreOutputLatest",
+      "args": {
+        "column_name": "Water Temperature Prediction",
+        "model_group": "bird_island_lead_times"
+      },
+      "post_processing": [
+        {
+          "key": "LinearInterpolation",
+          "in_key": "Water Temperature Prediction",
+          "out_key": "Water Temperature Prediction Interpolated",
+          "args": {
+            "interpolation_interval": 3600,
+            "limit": 21600
+          }
+        }
+      ]
+    },
+    {
+      "key": "SemaphoreOutputStatistics",
+      "args": {
+        "model_group": "crps_lead_times"
+      },
+      "post_processing": []
+    },
+    {
+      "key": "SemaphoreInputs",
+      "args": {
+        "column_name": "TWC Air Temperature Predictions",
+        "location": "SBirdIsland",
+        "source": "TWC",
+        "series": "pAirTemp",
+        "interval": 3600,
+        "range": [0, 240]
+      },
+      "post_processing": [
+        {
+          "key": "RowStatistics",
+          "in_key": "TWC Air Temperature Predictions",
+          "out_key": "TWC Air Temperature Predictions Median",
+          "args": {"metric": "median"}
+        },
+        {
+          "key": "RowStatistics",
+          "in_key": "TWC Air Temperature Predictions",
+          "out_key": "TWC Air Temperature Predictions Min",
+          "args": {"metric": "min"}
+        },
+        {
+          "key": "RowStatistics",
+          "in_key": "TWC Air Temperature Predictions",
+          "out_key": "TWC Air Temperature Predictions Max",
+          "args": {"metric": "max"}
+        },
+        {
+          "key": "Percentile",
+          "in_key": "TWC Air Temperature Predictions",
+          "out_key": "TWC Air Temperature Predictions 5th Percentile",
+          "args": {"percentile": 5}
+        },
+        {
+          "key": "Percentile",
+          "in_key": "TWC Air Temperature Predictions",
+          "out_key": "TWC Air Temperature Predictions 25th Percentile",
+          "args": {"percentile": 25}
+        },
+        {
+          "key": "Percentile",
+          "in_key": "TWC Air Temperature Predictions",
+          "out_key": "TWC Air Temperature Predictions 75th Percentile",
+          "args": {"percentile": 75}
+        },
+        {
+          "key": "Percentile",
+          "in_key": "TWC Air Temperature Predictions",
+          "out_key": "TWC Air Temperature Predictions 95th Percentile",
+          "args": {"percentile": 95}
+        }
+      ]
+    }
+  ],
+  "post_processing": [
+      {
+        "key": "ArithmeticOperation",
+        "in_keys": [
+          "TWC Air Temperature Predictions Median",
+          "NDFD Air Temperature Prediction Interpolated"
+        ],
+        "out_key": "TWC NDFD Temperature Difference",
+        "args": {
+          "operation": "subtraction"
+        }
+      }
+    ],
+  "charts": [
+    {
+      "chart_name": "CRPS",
+      "CSPEC_version": "2.0.0",
+      "range": [0, 120],
+      "csv_config": {
+        "csv_name": "CRPS_120hrs.csv",
+        "included_columns": [
+           {
+              "key": "Water Temperature Measurement",
+              "clip_range": [-144, 0]
+            },
+            {
+              "key": "Water Temperature Prediction Interpolated",
+              "clip_range": [0, 120]
+            },
+            {
+              "key": "Air Temperature Measurement",
+              "clip_range": [-144, 0]
+            },
+            {
+              "key": "NDFD Air Temperature Predictions Interpolated",
+              "clip_range": [0, 120]
+            }
+        ]
+      }
+    },
+    {
+      "chart_name": "Laguna_Madre",
+      "CSPEC_version": "2.0.0",
+      "csv_config": {
+        "csv_name": "Laguna-Madre_Water-Level_Air-Temperature_120hrs.csv",
+        "included_columns": [
+          "Water Temperature Measurement",
+          "Water Temperature Prediction Interpolated",
+          "Air Temperature Measurement",
+          "NDFD Air Temperature Predictions Interpolated"
+        ]
+      }
+    },
+    {
+      "chart_name": "TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs",
+      "CSPEC_version": "2.0.0",
+      "csv_config": {
+        "csv_name": "TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv",
+        "included_columns": ["TWC Air Temperature Predictions"]
+      }
+    },
+    {
+      "chart_name": "TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs",
+      "CSPEC_version": "2.0.0",
+      "csv_config": {
+        "csv_name": "TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv",
+        "included_columns": [
+          "TWC Air Temperature Predictions 5th Percentile",
+          "TWC Air Temperature Predictions Median",
+          "TWC Air Temperature Predictions 95th Percentile",
+          "NDFD Air Temperature Predictions Interpolated"
+        ]
+      }
+    },
+    {
+      "chart_name": "TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs",
+      "CSPEC_version": "2.0.0",
+      "csv_config": {
+        "csv_name": "TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs.csv",
+        "included_columns": [
+          "TWC Air Temperature Predictions Min",
+          "TWC Air Temperature Predictions 25th Percentile",
+          "TWC Air Temperature Predictions Median",
+          "TWC Air Temperature Predictions 75th Percentile",
+          "TWC Air Temperature Predictions Max",
+          "NDFD Air Temperature Predictions Interpolated"
+        ]
+      }
+    }
+  ]
+}
