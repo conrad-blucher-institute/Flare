@@ -47,7 +47,7 @@ const showInfoDrawer = ref(false);
 const buildRibbonChart = (isSmallScreen, chartTitle) => {
   return {
     chart: {
-      type: "areaspline",
+      type: "line",
       zoomType: "xy",
       backgroundColor: "white",
       style: { fontFamily: "Arial" },
@@ -195,7 +195,7 @@ const buildRibbonChart = (isSmallScreen, chartTitle) => {
       ],
     },
     plotOptions: {
-      areaspline: {
+      line: {
         fillOpacity: 0.3,
         marker: {
           enabled: false,
@@ -205,11 +205,11 @@ const buildRibbonChart = (isSmallScreen, chartTitle) => {
               enabled: true
             }
           }
-        },
+        }
+      },
+      series: {
         states: {
-          hover: {
-            lineWidth: 3
-          }
+          inactive: { opacity: 1 } // do not dim other series when hovering over one
         }
       }
     },
@@ -482,10 +482,12 @@ const buildBoxChart = (isSmallScreen) => {
       line: {
         lineWidth: 3
       },
-      spline: {
-      lineWidth: 3,
-      },
-    },
+      series: {
+        states: {
+          inactive: { opacity: 1 } // do not dim other series when hovering over one
+        }
+      }
+    }
   }
 } // end buildBoxChart (box plot graph)
 
