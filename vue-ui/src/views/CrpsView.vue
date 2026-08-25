@@ -546,12 +546,12 @@ const fetchAndFilterData = async () => {
       so those timestamps are genuine lead times. For the box plot, we want to
       filter to remove the interpolated values.
     */
-    const boxplotTimestamps = waterPredictionsPercentileMaxFahrenheit.map(([time]) => time);
-    const boxplotWaterPredictionsPercentile5Fahrenheit = waterPredictionsPercentile5Fahrenheit.filter(([time]) => boxplotTimestamps.includes(time));
-    const boxplotWaterPredictionsPercentile25Fahrenheit = waterPredictionsPercentile25Fahrenheit.filter(([time]) => boxplotTimestamps.includes(time));
-    const boxplotWaterPredictionsPercentile50Fahrenheit = waterPredictionsPercentile50Fahrenheit.filter(([time]) => boxplotTimestamps.includes(time));
-    const boxplotWaterPredictionsPercentile75Fahrenheit = waterPredictionsPercentile75Fahrenheit.filter(([time]) => boxplotTimestamps.includes(time));
-    const boxplotWaterPredictionsPercentile95Fahrenheit = waterPredictionsPercentile95Fahrenheit.filter(([time]) => boxplotTimestamps.includes(time));
+    const boxplotTimestampSet = new Set(waterPredictionsPercentileMaxFahrenheit.map(([time]) => time));
+    const boxplotWaterPredictionsPercentile5Fahrenheit = waterPredictionsPercentile5Fahrenheit.filter(([time]) => boxplotTimestampSet.has(time));
+    const boxplotWaterPredictionsPercentile25Fahrenheit = waterPredictionsPercentile25Fahrenheit.filter(([time]) => boxplotTimestampSet.has(time));
+    const boxplotWaterPredictionsPercentile50Fahrenheit = waterPredictionsPercentile50Fahrenheit.filter(([time]) => boxplotTimestampSet.has(time));
+    const boxplotWaterPredictionsPercentile75Fahrenheit = waterPredictionsPercentile75Fahrenheit.filter(([time]) => boxplotTimestampSet.has(time));
+    const boxplotWaterPredictionsPercentile95Fahrenheit = waterPredictionsPercentile95Fahrenheit.filter(([time]) => boxplotTimestampSet.has(time));
 
     // === Calculate bounds for the ribbon chart ===
     // Outer Ribbon(5th-95th)
