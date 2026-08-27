@@ -1,0 +1,109 @@
+{
+    "chart_name": "espiritu-santo-bay",
+    "CSPEC_version": "1.0.0",
+    "data_requests" : [
+        {  
+            "key": "SemaphoreInputs",
+            "args": {
+                "column_name": "Seadrift Water Temperature Measurement",
+                "location": "Seadrift", 
+                "source": "NOAATANDC",
+                "series": "dWaterTmp",
+                "interval": 3600,
+                "range": [-24, 0]
+            }    
+        },
+        {  
+            "key": "SemaphoreInputs",
+            "args": {
+                "column_name": "Port O'Conner Water Temperature Measurement",
+                "location": "PortOConner", 
+                "source": "NOAATANDC",
+                "series": "dWaterTmp",
+                "interval": 3600,
+                "range": [-24, 0]
+            }    
+        },
+        {  
+            "key": "SemaphoreInputs",
+            "args": {
+                "column_name": "Port Lavaca Water Temperature Measurement",
+                "location": "PortLavaca", 
+                "source": "NOAATANDC",
+                "series": "dWaterTmp",
+                "interval": 3600,
+                "range": [-24, 0]
+            }    
+        },
+        {  
+            "key": "SemaphoreInputs",
+            "args": {
+                "column_name": "Aransas Wildlife Refuge Water Temperature Measurements",
+                "location": "WildlifeRefuge", 
+                "source": "NOAATANDC",
+                "series": "dWaterTmp",
+                "interval": 3600,
+                "range": [-24, 0]
+            }    
+        },
+        {
+            "key": "SemaphoreOutputStatistics",
+            "args": {
+                "model_names": [
+                    "ESB_3hr"
+                ] 
+            }
+        }
+    ],
+    "post_processing" : [
+     
+      {
+        "_comment": "Interpolates Seadrift water temperature measurements ",
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Seadrift Water Temperature Measurement",
+            "interpolation_interval": 3600,
+            "limit": 21600
+        }
+      },
+      {
+        "_comment": "Interpolates Port O'Connor water temperature measurements ",
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Port O'Connor Water Temperature Measurement",
+            "interpolation_interval": 3600,
+            "limit": 21600
+        }
+      },
+      {
+        "_comment": "Interpolates Port Lavaca water temperature measurements ",
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Port Lavaca Water Temperature Measurement",
+            "interpolation_interval": 3600,
+            "limit": 21600
+        }
+      },
+      {
+        "_comment": "Interpolates Aransas Wildlife Refuge water temperature measurements ",
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Aransas Wildlife Refueg Water Temperature Measurement",
+            "interpolation_interval": 3600,
+            "limit": 21600
+        }
+      }
+      
+      
+    ],
+    "csv_config": {
+      "csv_name": "espiritu-santo-bay.csv",
+      "included_columns": [
+        "Seadrift Water Temperature Measurement",
+        "Port O'Connor Water Temperature Measurement",
+        "Port Lavaca Water Temperature Measurement",
+        "Aransas Wildlife Refuge Water Temperature Measurement",
+        "Water Temperature Prediction"
+      ]
+    }
+  }
