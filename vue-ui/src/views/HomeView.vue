@@ -33,29 +33,14 @@
       </div>
       <!-- Dropdown menu -->
       <div class="relative text-center mt-8">
-        <button
-          @click="showDropdown = !showDropdown"
-          class="bg-navy-blue hover:bg-opacity-80 text-white font-semibold text-xl px-6 py-2 rounded-md mb-4 transition-colors"
+        <select
+          class="bg-navy-blue hover:bg-opacity-80 text-white font-semibold text-xl px-6 py-2 rounded-md mb-4 transition-colors text-center"
         >
-          {{ showDropdown ? "Hide Additional CDL Resources ▲" : "Additional CDL Resources ▼" }}
-        </button>
-
-        <!-- Dropdown menu contents -->
-        <ul
-          v-if="showDropdown"
-          class="absolute left-1/2 -translate-x-1/2 mt-2 w-96 bg-white text-navy-blue text-left rounded-md shadow-lg py-4 px-6 list-disc list-inside z-10"
-        >
-          <li class="py-2 text-lg">
-            <a
-              href="https://www.coastaldynamicslab.org/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-blue-800 hover:text-blue-400 underline"
-            >Coastal Dynamics Lab (CDL) Homepage</a>
-          </li>
-          <li class="py-2 text-lg">Inundation Prediction Models coming soon</li>
-          <li class="py-2 text-lg">Fog Prediction Models coming soon</li>
-        </ul>
+          <option value="">Additional CDL Products</option>
+          <option value="cold-stunning">Cold Stunning Prediction Models</option>
+          <option value="inundation">Inundation Prediction Models (coming soon!)</option>
+          <option value="fog">Fog Prediction Models (coming soon!)</option>
+        </select>
       </div>
     </section>
 
