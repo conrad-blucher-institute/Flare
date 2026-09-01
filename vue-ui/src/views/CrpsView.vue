@@ -904,7 +904,7 @@ onUnmounted(() => {
         <!-- Text content overlay -->
         <div class="absolute  inset-0 flex items-center justify-center">
           <h1 class=" max-w-[1500px] text-lg md:text-3xl lg:text-5xl font-bold text-center pr-5 pl-5">
-            Water Temperature Trends and Forecasts for the Texas Upper Laguna Madre
+            Water Temperature Trends and Forecasts for Laguna Madre, TX
           </h1>
         </div>
       </div>
@@ -1015,43 +1015,44 @@ onUnmounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Displays the median (50th percentile) water temperature predictions for the next 120 hours, along with the most recent water and air temperature measurements. 
+                Shows recent temperature measurements alongside a central (median) AI water temperature forecast and air temperature forecasts from The Weather Company (TWC) and National Weather Service National Digital Forecast Database (NWS-NDFD). This provides a simple view of how water temperatures are expected to change over the next five days.
+              </p>
+            </div>
+            <hr class="border-t border-dark-text">
+            
+            <!-- How to Read -->
+            <div>
+              <h3 class="text-lg lg:text-xl font-bold mb-2">
+                How to Read (what each graphical element represents)
+              </h3>
+
+              <p class="leading-relaxed">
+                The black dashed line shows the central water temperature forecast from the AI ensemble model predictions. This line represents the median, or middle, of the possible predictions. The vertical “Now” line separates recent temperature measurements from future predictions. 
               </p>
             </div>
             <hr class="border-t border-dark-text">
 
-            <!-- Limitations -->
+            <!-- What to Look For -->
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
-                Limitations
-              </h3>
-
-              <ul class="list-disc list-inside space-y-2 text-dark-text">
-                <li>
-                  Shows only the most likely forecast. It does not display the uncertainty
-                  or the range of other possible temperature predictions.
-                </li>
-                <li>
-                  Semaphore water temperature predictions are generated every six hours.
-                </li>
-                <li>
-                  National Digital Forecast Database (NDFD) air temperature predictions are
-                  interpolated as needed.
-                </li>
-              </ul>
-            </div>
-            <hr class="border-t border-dark-text">
-
-            <!-- Key Insight -->
-            <div>
-              <h3 class="text-lg lg:text-xl font-bold mb-2">
-                Key Insight
+                What to Look For
               </h3>
 
               <p class="leading-relaxed">
-                Use this graph for a quick view of the expected temperature trend.
-                For forecast confidence and possible temperature ranges, view the
-                Ribbon or Box Plot graphs.
+                Best for tracking the predicted water temperature trend and observing whether it approaches, crosses, or remains below critical cold-stunning thresholds.
+              </p>
+            </div>
+            </div>
+            <hr class="border-t border-dark-text">
+
+            <!-- Keep in Mind -->
+            <div>
+              <h3 class="text-lg lg:text-xl font-bold mb-2">
+                Keep in Mind
+              </h3>
+
+              <p class="leading-relaxed">
+                This forecast shows only one possible outcome and does not display the uncertainty of the AI water temperature predictions. Use the Fan Plot or Percentile Box Plot to see the range of water temperatures predicted by the AI ensemble model.
               </p>
             </div>
 
