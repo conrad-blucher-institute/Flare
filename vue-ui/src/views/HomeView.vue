@@ -38,8 +38,8 @@
         >
           <option value="">Additional CDL Products</option>
           <option value="cold-stunning">Cold Stunning Prediction Models</option>
-          <option value="inundation">Inundation Prediction Models (coming soon!)</option>
-          <option value="fog">Fog Prediction Models (coming soon!)</option>
+          <option value="inundation" disabled>Inundation Prediction Models (coming soon!)</option>
+          <option value="fog" disabled>Fog Prediction Models (coming soon!)</option>
         </select>
       </div>
     </section>
