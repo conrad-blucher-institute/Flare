@@ -295,7 +295,7 @@ const buildBoxChart = (isSmallScreen) => {
       marginTop: 100,
     },
     title: {
-      text: "Water Temperature Predictions Box Plot for Laguna Madre",
+      text: "Water Temperature Predictions with Uncertainty Estimates (Percentile Box Plot)",
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
@@ -491,8 +491,8 @@ const buildBoxChart = (isSmallScreen) => {
   }
 } // end buildBoxChart (box plot graph)
 
-ribbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen, "Water Temperature Predictions for Laguna Madre"));
-secondRibbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen , "Water Temperature Predictions with Uncertainty Estimates for Laguna Madre"));
+ribbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen, "Water Temperature Predictions"));
+secondRibbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen , "Water Temperature Predictions with Uncertainty Estimates (Fan Plot)"));
 boxChartOptions.value = reactive(buildBoxChart(isSmallScreen));
 
 
@@ -1012,6 +1012,7 @@ onUnmounted(() => {
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 Purpose
+                <span class="text-sm font-normal">(why the visual exists)</span>
               </h3>
 
               <p class="leading-relaxed">
@@ -1023,7 +1024,8 @@ onUnmounted(() => {
             <!-- How to Read -->
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
-                How to Read (what each graphical element represents)
+                How to Read
+                <span class="text-sm font-normal">(what each graphical element represents)</span>
               </h3>
 
               <p class="leading-relaxed">
@@ -1036,12 +1038,12 @@ onUnmounted(() => {
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 What to Look For
+                <span class="text-sm font-normal">(operational interpretation and useful patterns)</span>
               </h3>
 
               <p class="leading-relaxed">
                 Best for tracking the predicted water temperature trend and observing whether it approaches, crosses, or remains below critical cold-stunning thresholds.
               </p>
-            </div>
             </div>
             <hr class="border-t border-dark-text">
 
@@ -1049,6 +1051,7 @@ onUnmounted(() => {
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 Keep in Mind
+                <span class="text-sm font-normal">(important caveats and context for interpretation)</span>
               </h3>
 
               <p class="leading-relaxed">
@@ -1056,12 +1059,12 @@ onUnmounted(() => {
               </p>
             </div>
 
-          </div>
-        </div>
-      </section>
+          </div> <!-- End Scrollable Content -->
+        </div> <!-- End Graph Information -->
+      </section> <!-- End First Chart Section -->
       <div class="h-[30px] bg-gray-100"></div>
 
-       <!-- Second Chart Section-->
+      <!-- Second Chart Section-->
       <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 px-2 lg:py-8 lg:px-4  bg-white items-stretch">
         <!-- Chart -->
         <div class="chart-2 lg:col-span-4 relative border sm:w-full ">
@@ -1098,60 +1101,63 @@ onUnmounted(() => {
           <!-- Scrollable Content -->
           <div class="graph-scroll flex-1 overflow-y-auto space-y-8 text-dark-text pr-2">
 
-            <!-- Uncertainty Meaning -->
+            <!-- Purpose -->
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
-                Uncertainty Meaning
+                Purpose
+                <span class="text-sm font-normal">(why the visual exists)</span>
               </h3>
 
               <p class="leading-relaxed mb-3">
-                The model predicts many possible temperatures. The shaded bands show how closely those predictions agree.
+                Shows recent temperature measurements alongside the central (median) AI water temperature forecast,
+                a range of possible water temperature outcomes, and air temperature forecasts from TWC and NWS-NDFD. 
+                This provides information about the central predicted trend with forecast uncertainty over the next five days.
               </p>
-
-              <ul class="space-y-2 ml-5 list-disc leading-relaxed">
-                <li><strong>Black line:</strong> Most likely predicted temperature.</li>
-                <li><strong>Dark blue band:</strong> Where most predictions fall.</li>
-                <li><strong>Light blue band:</strong> A wider range of possible temperatures.</li>
-                <li><strong>Narrow bands:</strong> Higher confidence.</li>
-                <li><strong>Wide bands:</strong> Lower confidence.</li>
-              </ul>
             </div>
             <hr class="border-t border-dark-text">
 
-            <!-- Limitations -->
+            <!-- How to Read -->
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
-                Limitations
+                How to Read
+                <span class="text-sm font-normal">(what each graphical element represents)</span>
               </h3>
-              <ul class="list-disc list-inside space-y-2 text-dark-text">
-                <li>
-                  The shaded bands show likely temperature ranges, not guaranteed outcomes.
-                Actual temperatures may still fall outside these ranges.
-                </li>
-                <li>
-                  Semaphore water temperature predictions are generated every six hours.
-                </li>
-                <li>
-                  National Digital Forecast Database (NDFD) air temperature predictions are
-                  interpolated as needed.
-                </li>
-              </ul>
+              
+              <p class="leading-relaxed mb-3">
+                The black dashed line shows the central, or median, water temperature forecast. 
+                The darker shaded area (25th [lower temperature] - 75th [higher temperature] percentile range) shows the most likely range, 
+                containing the middle 50% of AI water temperature predictions. The lighter shaded area 
+                (5th [lower temperature] - 95th [higher temperature percentile range]) shows a broader range of less likely but possible temperatures, 
+                containing 90% of AI water temperature predictions.
+              </p>
             </div>
             <hr class="border-t border-dark-text">
 
-            <!-- Key Insight -->
+            <!-- What to Look For -->
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
-                Key Insight
+                What to Look For
+                <span class="text-sm font-normal">(operational interpretation and useful patterns)</span>
               </h3>
 
               <p class="leading-relaxed">
-                Narrow bands mean the forecast is more certain, while wider bands indicate
-                greater uncertainty. Use this graph to understand both the expected
-                forecast and its confidence.
+                Look at where the central forecast and shaded ranges fall relative to critical cold-stunning thresholds. 
+                Also watch how the shaded ranges widen or narrow over time. Wider ranges indicate greater predictive uncertainty, 
+                while narrower ranges indicate greater confidence on future water temperatures.
               </p>
             </div>
+            
+            <!-- Keep in Mind -->
+            <div>
+              <h3 class="text-lg lg:text-xl font-bold mb-2">
+                Keep in Mind
+                <span class="text-sm font-normal">(important caveats and context for interpretation)</span>
+              </h3>
 
+              <p class="leading-relaxed">
+                Actual water temperatures may occur anywhere within or occasionally outside the displayed ranges (about 10% of the time).
+              </p>
+            </div>
           </div>
         </div>  
       </section>
@@ -1201,59 +1207,58 @@ onUnmounted(() => {
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 Purpose
+                <span class="text-sm font-normal">(why the visual exists)</span>
               </h3>
 
               <p class="leading-relaxed">
-                Summarizes the range of predicted temperatures at each forecast time,
-                making it easy to compare forecast uncertainty.
+                Summarizes how possible water temperature predictions are distributed at each forecast time, 
+                making it easier to compare the central forecast and forecast uncertainty across the next five days.
               </p>
             </div>
             <hr class="border-t border-dark-text">
 
-            <!-- Understanding the Box Plot -->
+            <!-- How to Read -->
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
-                Understanding the Box Plot
-              </h3>
-
-              <ul class="space-y-2 ml-5 list-disc leading-relaxed">
-                <li><strong>—</strong> Center line: Most likely predicted temperature.</li>
-                <li><strong>▭</strong> Box: Middle 50% of predictions.</li>
-                <li><strong>│</strong> Whiskers: Typical prediction range.</li>
-                <li><strong>▲ / ▼</strong> Highest and lowest predicted temperatures.</li>
-              </ul>
-            </div>
-            <hr class="border-t border-dark-text">
-
-            <!-- Limitations -->
-            <div>
-              <h3 class="text-lg lg:text-xl font-bold mb-2">
-                Limitations
-              </h3>
-              <ul class="list-disc list-inside space-y-2 text-dark-text">
-                <li>
-                  Shows a summary of the predictions instead of every individual forecast.
-                </li>
-                <li>
-                  Semaphore water temperature predictions are generated every six hours.
-                </li>
-                <li>
-                  National Digital Forecast Database (NDFD) air temperature predictions are
-                  interpolated as needed.
-                </li>
-              </ul>
-            </div>
-            <hr class="border-t border-dark-text">
-
-            <!-- Key Insight -->
-            <div>
-              <h3 class="text-lg lg:text-xl font-bold mb-2">
-                Key Insight
+                How to Read
+                <span class="text-sm font-normal">(what each graphical element represents)</span>
               </h3>
 
               <p class="leading-relaxed">
-                Taller boxes and longer whiskers indicate greater uncertainty, while
-                shorter ones indicate higher confidence.
+                The center blue line shows the central, or median, water temperature forecast.
+                The box (25th-75th percentiles) shows the most likely range, containing the middle 50% of AI water temperature predictions.
+                The whiskers (5th-95th percentiles) show a wider range of possible temperatures, containing 90% of predictions.
+                The points beyond the whiskers show the minimum and maximum predicted temperatures.
+              </p>
+            </div>
+            <hr class="border-t border-dark-text">
+
+            <!-- What to Look For -->
+            <div>
+              <h3 class="text-lg lg:text-xl font-bold mb-2">
+                What to Look For
+                <span class="text-sm font-normal">(operational interpretation and useful patterns)</span>
+              </h3>
+              
+              <p class="leading-relaxed">
+                Compare the central forecast and ranges with critical cold-stunning thresholds.
+                Taller boxes and longer whiskers indicate greater predictive uncertainty, 
+                while shorter ones indicate greater confidence on future water temperatures.
+              </p>
+            </div>
+            <hr class="border-t border-dark-text">
+
+            <!-- Keep in Mind -->
+            <div>
+              <h3 class="text-lg lg:text-xl font-bold mb-2">
+                Keep in Mind
+                <span class="text-sm font-normal">(important caveats and context for interpretation)</span>
+              </h3>
+
+              <p class="leading-relaxed">
+                The minimum and maximum points represent the most extreme AI predictions and may be influenced by only
+                a small number of predictions and are driven also by future air temperature conditions. 
+                Interpret these points alongside the ranges displayed by the boxes rather than on their own.
               </p>
             </div>
 
@@ -1285,29 +1290,57 @@ onUnmounted(() => {
         <!-- Text Content Section -->
         <div class="text-center lg:text-left">
           <h2 class="text-lg lg:text-3xl font-extrabold text-center text-dark-text mb-6">
-            ColdStunning AI Model
+            Laguna Madre AI Ensemble Water Temperature Model
           </h2>
           <p class="text-md lg:text-xl text-dark-text mb-4">
-            In the Laguna Madre, the longest hypersaline lagoon in the United States, the passage of cold fronts can lower air temperature by more than 
-            10°C in less than 24 hours. This rapid drop can lead to significant decreases in water temperature. Some of these cold-water events have caused large-scale fish kills and cold-stunning of sea turtles.
+            The Laguna Madre is a shallow, hypersaline lagoon where strong winter cold fronts can lower air temperatures
+            by more than 10°C in less than 24 hours. These rapid changes can cause substantial declines in water temperature, 
+            creating hazardous conditions for marine life. Past extreme cold-water events have resulted in large-scale fish
+            kills and the cold-stunning of sea turtles.
           </p>
           <p class="text-md lg:text-xl text-dark-text mb-4">
-            To mitigate the impact of these cold events, members of the Texas Marine Coldwater Response Collaboration (TCRC) — including local agencies, private-sector companies, and other stakeholders (logos below) — voluntarily interrupt activities such as fishing, navigation, and dredging in the Laguna Madre. Dredging, which involves the removal of sediments to maintain navigational channels, can contribute to changes in water circulation and temperature distribution. During extreme cold events, suspending dredging operations helps minimize further disturbances to the ecosystem and allows marine life to seek refuge in deeper, more stable waters. These proactive measures help protect marine life and mobilize resources during critical times.
+            During these events, members of the Texas Marine Coldwater Response Collaboration (TCRC)—including government agencies,
+            researchers, private-sector organizations, and other coastal stakeholders—coordinate preparations and response activities. 
+            These efforts may include mobilizing sea turtle rescue resources and voluntarily modifying or suspending activities such as 
+            fishing, navigation, and dredging to reduce additional risks to marine life.
           </p>
           <p class="text-md lg:text-xl text-dark-text mb-4">
-            Accurate temperature predictions are essential for managing these interruptions effectively. The live-updating graph above displays the latest air and water temperature measurements, along with predicted air and water temperatures for the Laguna Madre. Research and development of improved model predictions are ongoing for improved collaborative decision-making during cold weather and cold-stunning events.
+            Accurate and timely temperature predictions help TCRC members determine when preparations may be needed and how long hazardous 
+            conditions could persist. The live-updating graph above displays recent air and water temperature observations alongside 
+            predicted conditions for the Laguna Madre. The water temperature predictions extend up to 120 hours, or five days, into the future.
           </p>
           <p class="text-md lg:text-xl text-dark-text mb-4">
-            This AI model was originally developed by Dr. Robyn Ball during her master's studies at Texas A&M University–Corpus Christi. Responsibility for the model has since been entrusted to the Cool Turtles team at the Coastal Dynamics Lab. The Cool Turtles team is led by PhD student 
-            <a href="https://www.linkedin.com/in/miranda-white-859b2414a/" target="_blank" class="text-blue-500 hover:underline">Miranda White</a>, 
+            Users should pay particular attention to how quickly water temperatures are predicted to decrease, 
+            whether they approach important cold-stunning thresholds, and how long hazardous conditions may persist. 
+            Predictions should be interpreted as decision-support guidance rather than exact guarantees. 
+            Because forecast conditions can change, users should review the latest model update alongside current observations,
+            official weather information, and local operational expertise.
+          </p>
+          <p class="text-md lg:text-xl text-dark-text mb-4">
+            By providing advance notice of potentially hazardous water temperatures, 
+            the model supports coordinated decisions about monitoring, resource mobilization, 
+            rescue preparations, and temporary operational changes. Research and development are ongoing to 
+            improve the accuracy, reliability, and usefulness of the predictions during extreme cold-weather events.
+          </p>
+          <p class="text-md lg:text-xl text-dark-text mb-4">
+            The original AI water temperature model was developed by Dr. Robyn Ball during her master's research at 
+            Texas A&M University-Corpus Christi (TAMU-CC). Responsibility for its continued development and maintenance was later 
+            entrusted to the Cool Turtles team within the Coastal Dynamics Lab at TAMU-CC.
+          </p>
+          <h3 class="text-lg lg:text-xl font-bold mb-2">
+            Model Development and Maintenance
+          </h3>
+          <p class="text-md lg:text-xl text-dark-text mb-4">
+            The Cool Turtles team is led by
+            <a href="https://www.linkedin.com/in/miranda-white-859b2414a/" target="_blank" class="text-blue-500 hover:underline">Dr. Miranda White</a>, 
             alongside her talented teammates 
             <a href="https://www.linkedin.com/in/jarett-woodall-mba-8a3696224/" target="_blank" class="text-blue-500 hover:underline">Jarett Woodall</a>, 
             <a href="https://www.linkedin.com/in/christian-duff-898103211/" target="_blank" class="text-blue-500 hover:underline">Christian Duff</a>, 
             <a href="https://www.facebook.com/watch/?v=740721718150868" target="_blank" class="text-blue-500 hover:underline">Hector Marrero-Colominas</a>,
             <a href="https://www.linkedin.com/in/andrew-desimone-00170b24b/" target="_blank" class="text-blue-500 hover:underline">Andrew DeSimone</a>, 
-            and Elisa Flores. 
+            and Elisa Flores. The team works with TCRC members and other collaborators to evaluate and improve the model
+            and its accompanying visualizations for operational decision-making.
           </p>
-
         </div>
     </section>
 
@@ -1468,8 +1501,8 @@ onUnmounted(() => {
           <a href="https://www.usace.army.mil/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/USACE-Logo.jpg" alt="US Army Corps Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
-          <a href="https://www.nsf.gov/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/NSF-Logo.png" alt="National Science Foundation Logo" class="max-w-[80px] lg:max-w-[150px]">
+          <a href="https://www.ai2es.org/" target="_blank" class="hover:scale-110 transition-transform">
+            <img src="@/assets/images/ai2es-logo.png" alt="Artificial Intelligence 2 Environmental Science" class="max-w-[80px] lg:max-w-[150px]">
           </a>
           <a href="https://www.gicaonline.com/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/GICA-Logo.png" alt="Gulf Intracoastal Canal Association Logo" class="max-w-[80px] lg:max-w-[150px]">
@@ -1491,6 +1524,9 @@ onUnmounted(() => {
           </a>
           <a href="https://www.joincca.org/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/CCA-Logo.png" alt="Coastal Conservation Association Logo" class="max-w-[80px] lg:max-w-[150px]">
+          </a>
+          <a href="https://www.weathercompany.com/" target="_blank" class="hover:scale-110 transition-transform">
+            <img src="@/assets/images/TWC-Logo.png" alt="The Weather Company Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
         </div>
         <p class="text-center text-sm text-light-text">(Click on the logos to visit each contributor's website)</p>
