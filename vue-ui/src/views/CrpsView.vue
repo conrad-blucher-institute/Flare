@@ -295,7 +295,7 @@ const buildBoxChart = (isSmallScreen) => {
       marginTop: 100,
     },
     title: {
-      text: "Water Temperature Predictions with Uncertainty Estimates (Percentile Box Plot)",
+      text: "Water Temperature Predictions with Uncertainty Estimates<br/>(Percentile Box Plot) for Laguna Madre",
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
@@ -491,8 +491,8 @@ const buildBoxChart = (isSmallScreen) => {
   }
 } // end buildBoxChart (box plot graph)
 
-ribbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen, "Water Temperature Predictions"));
-secondRibbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen , "Water Temperature Predictions with Uncertainty Estimates (Fan Plot)"));
+ribbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen, "Water Temperature Predictions for Laguna Madre"));
+secondRibbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen , "Water Temperature Predictions with Uncertainty Estimates<br/>(Fan Plot) for Laguna Madre"));
 boxChartOptions.value = reactive(buildBoxChart(isSmallScreen));
 
 
@@ -615,7 +615,7 @@ const fetchAndFilterData = async () => {
         marker: { enabled: false },
       },
       {
-        name: "Median (50th Percentile) Water Temperature Predictions",
+        name: "Water Temperature Predictions",
         data: waterPredictionsPercentile50Fahrenheit,
         type: "line",
         dashStyle: "Dash",
@@ -655,7 +655,7 @@ const fetchAndFilterData = async () => {
         marker: { enabled: false },
       },
       {
-        name: "Median (50th Percentile) Water Temperature Predictions",
+        name: "Water Temperature Median Predictions (50th percentile)",
         data: waterPredictionsPercentile50Fahrenheit,
         type: "line",
         dashStyle: "Dash",
@@ -716,7 +716,7 @@ const fetchAndFilterData = async () => {
         marker: { enabled: false },
       },
       {
-        name: "Median (50th Percentile) Water Temperature Predictions",
+        name: "Water Temperature Median Predictions (50th percentile)",
         data: boxplotWaterPredictionsPercentile50Fahrenheit,
         type: "line",
         color: "#4A90E2",
@@ -1012,11 +1012,13 @@ onUnmounted(() => {
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 Purpose
-                <span class="text-sm font-normal">(why the visual exists)</span>
               </h3>
 
               <p class="leading-relaxed">
-                Shows recent temperature measurements alongside a central (median) AI water temperature forecast and air temperature forecasts from The Weather Company (TWC) and National Weather Service National Digital Forecast Database (NWS-NDFD). This provides a simple view of how water temperatures are expected to change over the next five days.
+                Shows recent temperature measurements alongside a central (median) AI water temperature
+                forecast and air temperature forecasts from The Weather Company (TWC) and 
+                National Weather Service National Digital Forecast Database (NWS-NDFD). 
+                This provides a simple view of how water temperatures are expected to change over the next five days.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -1025,11 +1027,12 @@ onUnmounted(() => {
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 How to Read
-                <span class="text-sm font-normal">(what each graphical element represents)</span>
               </h3>
 
               <p class="leading-relaxed">
-                The black dashed line shows the central water temperature forecast from the AI ensemble model predictions. This line represents the median, or middle, of the possible predictions. The vertical “Now” line separates recent temperature measurements from future predictions. 
+                The black dashed line shows the central water temperature forecast from the AI ensemble model predictions.
+                This line represents the median, or middle, of the possible predictions. The vertical “Now” line separates
+                recent temperature measurements from future predictions. 
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -1038,11 +1041,11 @@ onUnmounted(() => {
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 What to Look For
-                <span class="text-sm font-normal">(operational interpretation and useful patterns)</span>
               </h3>
 
               <p class="leading-relaxed">
-                Best for tracking the predicted water temperature trend and observing whether it approaches, crosses, or remains below critical cold-stunning thresholds.
+                Best for tracking the predicted water temperature trend and observing whether it approaches,
+                crosses, or remains below critical cold-stunning thresholds.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -1051,11 +1054,12 @@ onUnmounted(() => {
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 Keep in Mind
-                <span class="text-sm font-normal">(important caveats and context for interpretation)</span>
               </h3>
 
               <p class="leading-relaxed">
-                This forecast shows only one possible outcome and does not display the uncertainty of the AI water temperature predictions. Use the Fan Plot or Percentile Box Plot to see the range of water temperatures predicted by the AI ensemble model.
+                This forecast shows only one possible outcome and does not display the uncertainty of the AI water
+                temperature predictions. Use the Fan Plot or Percentile Box Plot to see the range of water
+                temperatures predicted by the AI ensemble model.
               </p>
             </div>
 
@@ -1105,12 +1109,11 @@ onUnmounted(() => {
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 Purpose
-                <span class="text-sm font-normal">(why the visual exists)</span>
               </h3>
 
               <p class="leading-relaxed mb-3">
                 Shows recent temperature measurements alongside the central (median) AI water temperature forecast,
-                a range of possible water temperature outcomes, and air temperature forecasts from TWC and NWS-NDFD. 
+                a range of possible water temperature outcomes, and air temperature forecasts from TWC and NWS-NDFD.
                 This provides information about the central predicted trend with forecast uncertainty over the next five days.
               </p>
             </div>
@@ -1120,15 +1123,14 @@ onUnmounted(() => {
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 How to Read
-                <span class="text-sm font-normal">(what each graphical element represents)</span>
               </h3>
               
               <p class="leading-relaxed mb-3">
-                The black dashed line shows the central, or median, water temperature forecast. 
-                The darker shaded area (25th [lower temperature] - 75th [higher temperature] percentile range) shows the most likely range, 
-                containing the middle 50% of AI water temperature predictions. The lighter shaded area 
-                (5th [lower temperature] - 95th [higher temperature percentile range]) shows a broader range of less likely but possible temperatures, 
-                containing 90% of AI water temperature predictions.
+                The black dashed line shows the central, or median, water temperature forecast.
+                The darker shaded area (25th [lower temperature] - 75th [higher temperature] percentile range)
+                shows the most likely range, containing the middle 50% of AI water temperature predictions.
+                The lighter shaded area (5th [lower temperature] - 95th [higher temperature] percentile range])
+                shows a broader range of less likely but possible temperatures, containing 90% of AI water temperature predictions.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -1137,12 +1139,11 @@ onUnmounted(() => {
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 What to Look For
-                <span class="text-sm font-normal">(operational interpretation and useful patterns)</span>
               </h3>
 
               <p class="leading-relaxed">
-                Look at where the central forecast and shaded ranges fall relative to critical cold-stunning thresholds. 
-                Also watch how the shaded ranges widen or narrow over time. Wider ranges indicate greater predictive uncertainty, 
+                Look at where the central forecast and shaded ranges fall relative to critical cold-stunning thresholds.
+                Also watch how the shaded ranges widen or narrow over time. Wider ranges indicate greater predictive uncertainty,
                 while narrower ranges indicate greater confidence on future water temperatures.
               </p>
             </div>
@@ -1151,7 +1152,6 @@ onUnmounted(() => {
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 Keep in Mind
-                <span class="text-sm font-normal">(important caveats and context for interpretation)</span>
               </h3>
 
               <p class="leading-relaxed">
@@ -1207,11 +1207,10 @@ onUnmounted(() => {
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 Purpose
-                <span class="text-sm font-normal">(why the visual exists)</span>
               </h3>
 
               <p class="leading-relaxed">
-                Summarizes how possible water temperature predictions are distributed at each forecast time, 
+                Summarizes how possible water temperature predictions are distributed at each forecast time,
                 making it easier to compare the central forecast and forecast uncertainty across the next five days.
               </p>
             </div>
@@ -1221,7 +1220,6 @@ onUnmounted(() => {
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 How to Read
-                <span class="text-sm font-normal">(what each graphical element represents)</span>
               </h3>
 
               <p class="leading-relaxed">
@@ -1237,12 +1235,11 @@ onUnmounted(() => {
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 What to Look For
-                <span class="text-sm font-normal">(operational interpretation and useful patterns)</span>
               </h3>
               
               <p class="leading-relaxed">
                 Compare the central forecast and ranges with critical cold-stunning thresholds.
-                Taller boxes and longer whiskers indicate greater predictive uncertainty, 
+                Taller boxes and longer whiskers indicate greater predictive uncertainty,
                 while shorter ones indicate greater confidence on future water temperatures.
               </p>
             </div>
@@ -1252,12 +1249,11 @@ onUnmounted(() => {
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 Keep in Mind
-                <span class="text-sm font-normal">(important caveats and context for interpretation)</span>
               </h3>
 
               <p class="leading-relaxed">
                 The minimum and maximum points represent the most extreme AI predictions and may be influenced by only
-                a small number of predictions and are driven also by future air temperature conditions. 
+                a small number of predictions and are driven also by future air temperature conditions.
                 Interpret these points alongside the ranges displayed by the boxes rather than on their own.
               </p>
             </div>
@@ -1501,8 +1497,11 @@ onUnmounted(() => {
           <a href="https://www.usace.army.mil/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/USACE-Logo.jpg" alt="US Army Corps Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
+          <a href="https://www.nsf.gov/" target="_blank" class="hover:scale-110 transition-transform">
+            <img src="@/assets/images/NSF-Logo.png" alt="NSF Logo" class="max-w-[80px] lg:max-w-[150px]">
+          </a>
           <a href="https://www.ai2es.org/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/ai2es-logo.png" alt="Artificial Intelligence 2 Environmental Science" class="max-w-[80px] lg:max-w-[150px]">
+            <img src="@/assets/images/ai2es-logo.png" alt="AI2ES Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
           <a href="https://www.gicaonline.com/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/GICA-Logo.png" alt="Gulf Intracoastal Canal Association Logo" class="max-w-[80px] lg:max-w-[150px]">
@@ -1527,6 +1526,9 @@ onUnmounted(() => {
           </a>
           <a href="https://www.weathercompany.com/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/TWC-Logo.png" alt="The Weather Company Logo" class="max-w-[80px] lg:max-w-[150px]">
+          </a>
+          <a href="https://ccme.famu.edu/" target="_blank" class="hover:scale-110 transition-transform">
+            <img src="@/assets/images/CCME-Logo.png" alt="Florida A&M University Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
         </div>
         <p class="text-center text-sm text-light-text">(Click on the logos to visit each contributor's website)</p>
