@@ -10,18 +10,18 @@
                 "source": "NOAATANDC",
                 "series": "dWaterTmp",
                 "interval": 3600,
-                "range": [-144, 0]
+                "range": [-120, 0]
             }    
         },
         {  "key": "SemaphoreInputs",
-         "args": {
-            "column_name": "Air Temperature Measurement",
-            "location": "SBI",
-            "source": "NOAATANDC",
-            "series": "dAirTmp",
-            "interval": 3600,
-            "range": [-144, 0]
-         }
+            "args": {
+                "column_name": "Air Temperature Measurement",
+                "location": "SBI",
+                "source": "NOAATANDC",
+                "series": "dAirTmp",
+                "interval": 3600,
+                "range": [-120, 0]
+            }
         },
         {  
             "key": "SemaphoreInputs",
@@ -31,7 +31,7 @@
                 "source": "NDFD_JSON",
                 "series": "pAirTemp",
                 "interval": 3600,
-                "range": [0, 120]
+                "range": [0, 144]
             }
         },
         {
