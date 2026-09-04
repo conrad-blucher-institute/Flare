@@ -265,6 +265,13 @@ const buildChart = (isSmallScreen) => {
         fontFamily: "Arial",
       },
     },
+    plotOptions: {
+      series: {
+        states: {
+          inactive: { opacity: 1 } // do not dim other series when hovering over one
+        }
+      }
+    }
   };
 };
 

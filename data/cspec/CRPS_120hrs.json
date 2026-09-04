@@ -10,18 +10,18 @@
                 "source": "NOAATANDC",
                 "series": "dWaterTmp",
                 "interval": 3600,
-                "range": [-144, 0]
+                "range": [-120, 0]
             }    
         },
         {  "key": "SemaphoreInputs",
-         "args": {
-            "column_name": "Air Temperature Measurement",
-            "location": "SBI",
-            "source": "NOAATANDC",
-            "series": "dAirTmp",
-            "interval": 3600,
-            "range": [-144, 0]
-         }
+            "args": {
+                "column_name": "Air Temperature Measurement",
+                "location": "SBI",
+                "source": "NOAATANDC",
+                "series": "dAirTmp",
+                "interval": 3600,
+                "range": [-120, 0]
+            }
         },
         {  
             "key": "SemaphoreInputs",
@@ -31,7 +31,7 @@
                 "source": "NDFD_JSON",
                 "series": "pAirTemp",
                 "interval": 3600,
-                "range": [0, 120]
+                "range": [0, 144]
             }
         },
         {
@@ -64,12 +64,56 @@
         }
     ],
     "post_processing" : [
-     
       {
         "_comment": "Interpolates air temperature predictions",
         "key": "LinearInterpolation",
         "args": {
             "col_name": "Air Temperature Prediction",
+            "interpolation_interval": 3600,
+            "limit": 21600
+        }
+      },
+      {
+        "_comment": "Interpolates water temperature predictions for p5",
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction p5",
+            "interpolation_interval": 3600,
+            "limit": 21600
+        }
+      },
+      {
+        "_comment": "Interpolates water temperature predictions for p25",
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction p25",
+            "interpolation_interval": 3600,
+            "limit": 21600
+        }
+      },
+      {
+        "_comment": "Interpolates water temperature predictions for p50",
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction p50",
+            "interpolation_interval": 3600,
+            "limit": 21600
+        }
+      },
+      {
+        "_comment": "Interpolates water temperature predictions for p75",
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction p75",
+            "interpolation_interval": 3600,
+            "limit": 21600
+        }
+      },
+      {
+        "_comment": "Interpolates water temperature predictions for p95",
+        "key": "LinearInterpolation",
+        "args": {
+            "col_name": "Water Temperature Prediction p95",
             "interpolation_interval": 3600,
             "limit": 21600
         }

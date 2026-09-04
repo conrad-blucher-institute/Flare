@@ -321,6 +321,11 @@ const buildSecondChart = (isSmallScreen) => {
             lineWidth: 3
           }
         }
+      },
+      series: {
+        states: {
+          inactive: { opacity: 1 } // do not dim other series when hovering over one
+        }
       }
     },
     series: [], // Placeholder for data, dynamically updated
@@ -506,6 +511,11 @@ const buildThirdChart = (isSmallScreen) => {
       spline: {
       lineWidth: 3,
       },
+      series: {
+        states: {
+          inactive: { opacity: 1 } // do not dim other series when hovering over one
+        }
+      }
     },
   }
 } // end buildThirdChart (box plot graph)
