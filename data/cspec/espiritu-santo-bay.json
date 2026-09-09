@@ -1,170 +1,171 @@
 {
-    "chart_name": "espiritu-santo-bay",
-    "CSPEC_version": "1.0.0",
-    "data_requests" : [
-        {  
-            "key": "SemaphoreInputs",
-            "args": {
-                "column_name": "Seadrift Water Temperature Measurement",
-                "location": "Seadrift", 
-                "source": "NOAATANDC",
-                "series": "dWaterTmp",
-                "interval": 3600,
-                "range": [-144, 0]
-            }    
-        },
-        {  
-            "key": "SemaphoreInputs",
-            "args": {
-                "column_name": "Port O'Conner Water Temperature Measurement",
-                "location": "PortOConner", 
-                "source": "NOAATANDC",
-                "series": "dWaterTmp",
-                "interval": 3600,
-                "range": [-144, 0]
-            }    
-        },
-        {  
-            "key": "SemaphoreInputs",
-            "args": {
-                "column_name": "Port Lavaca Water Temperature Measurement",
-                "location": "PortLavaca", 
-                "source": "NOAATANDC",
-                "series": "dWaterTmp",
-                "interval": 3600,
-                "range": [-144, 0]
-            }    
-        },
-        {  
-            "key": "SemaphoreInputs",
-            "args": {
-                "column_name": "Aransas Wildlife Refuge Water Temperature Measurements",
-                "location": "WildlifeRefuge", 
-                "source": "NOAATANDC",
-                "series": "dWaterTmp",
-                "interval": 3600,
-                "range": [-144, 0]
-            }    
-        },
-        {  
-            "key": "SemaphoreInputs",
-            "args": {
-                "column_name": "Seadrift Air Temperature Measurement",
-                "location": "Seadrift", 
-                "source": "NOAATANDC",
-                "series": "dAirTmp",
-                "interval": 3600,
-                "range": [-144, 0]
-            }    
-        },
-        {  
-            "key": "SemaphoreInputs",
-            "args": {
-                "column_name": "Port O'Conner Air Temperature Measurement",
-                "location": "PortOConner", 
-                "source": "NOAATANDC",
-                "series": "dAirTmp",
-                "interval": 3600,
-                "range": [-144, 0]
-            }    
-        },
-        {  
-            "key": "SemaphoreInputs",
-            "args": {
-                "column_name": "Port Lavaca Air Temperature Measurement",
-                "location": "PortLavaca", 
-                "source": "NOAATANDC",
-                "series": "dAirTmp",
-                "interval": 3600,
-                "range": [-144, 0]
-            }    
-        },
-        {  
-            "key": "SemaphoreInputs",
-            "args": {
-                "column_name": "Aransas Wildlife Refuge Air Temperature Measurements",
-                "location": "WildlifeRefuge", 
-                "source": "NOAATANDC",
-                "series": "dAirTmp",
-                "interval": 3600,
-                "range": [-144, 0]
-            }    
-        },
-        {  
-            "key": "SemaphoreInputs",
-            "args": {
-                "column_name": "Air Temperature Prediction",
-                "location": "EspirituSantoBay", 
-                "source": "NDFD_JSON",
-                "series": "pAirTemp",
-                "interval": 3600,
-                "range": [0, 120]
-            }
-        },
-        {
-            "key": "SemaphoreOutputStatistics",
-            "args": {
-                "model_names": [
-                    "ESB_3hr",
-                    "ESB_6hr",
-                    "ESB_12hr",
-                    "ESB_18hr",
-                    "ESB_24hr",
-                    "ESB_30hr",
-                    "ESB_36hr",
-                    "ESB_42hr",
-                    "ESB_48hr",
-                    "ESB_54hr",
-                    "ESB_60hr",
-                    "ESB_66hr",
-                    "ESB_72hr",
-                    "ESB_78hr",
-                    "ESB_84hr",
-                    "ESB_90hr",
-                    "ESB_96hr",
-                    "ESB_102hr",
-                    "ESB_108hr",
-                    "ESB_114hr",
-                    "ESB_120hr"
-                ] 
-            }
-        }
-    ],
-    "post_processing" : [
-     
-      {
-        "_comment": "Interpolates Espiritu Santo Bay Water Temperature Measurements ",
-        "key": "ComputeMean_Water_EspirituSantoBay",
-        "args": {
-            "col_name": "Espiritu Santo Bay Water Temperature Measurement",
-            "interpolation_interval": 3600,
-            "limit": 21600
-        }
-      },
-      {
-        "_comment": "Interpolates Espiritu Santo Bay Air Temperature Measurements ",
-        "key": "ComputeMean_Air_EspirituSantoBay",
-        "args": {
-            "col_name": "Espiritu Santo Bay Air Temperature Measurement",
-            "interpolation_interval": 3600,
-            "limit": 21600
-        }
+  "chart_name": "espiritu-santo-bay",
+  "CSPEC_version": "1.0.0",
+  "data_requests": [
+    {
+      "key": "SemaphoreInputs",
+      "args": {
+        "column_name": "Seadrift Water Temperature Measurement",
+        "location": "Seadrift",
+        "source": "NOAATANDC",
+        "series": "dWaterTmp",
+        "interval": 3600,
+        "range": [-168, 0]
       }
-    
-    ],
-    "csv_config": {
-      "csv_name": "espiritu-santo-bay_120hrs.csv",
-      "included_columns": [
-        "Seadrift Water Temperature Measurement",
-        "Port O'Connor Water Temperature Measurement",
-        "Port Lavaca Water Temperature Measurement",
-        "Aransas Wildlife Refuge Water Temperature Measurement",
-        "Seadrift Air Temperature Measurement",
-        "Port O'Connor Air Temperature Measurement",
-        "Port Lavaca Air Temperature Measurement",
-        "Aransas Wildlife Refuge Air Temperature Measurement",
-        "Air Temperature Prediction",
-        "Water Temperature Prediction"
-      ]
+    },
+    {
+      "key": "SemaphoreInputs",
+      "args": {
+        "column_name": "Port O'Conner Water Temperature Measurement",
+        "location": "PortOConner",
+        "source": "NOAATANDC",
+        "series": "dWaterTmp",
+        "interval": 3600,
+        "range": [-168, 0]
+      }
+    },
+    {
+      "key": "SemaphoreInputs",
+      "args": {
+        "column_name": "Port Lavaca Water Temperature Measurement",
+        "location": "PortLavaca",
+        "source": "NOAATANDC",
+        "series": "dWaterTmp",
+        "interval": 3600,
+        "range": [-168, 0]
+      }
+    },
+    {
+      "key": "SemaphoreInputs",
+      "args": {
+        "column_name": "Aransas Wildlife Refuge Water Temperature Measurements",
+        "location": "WildlifeRefuge",
+        "source": "NOAATANDC",
+        "series": "dWaterTmp",
+        "interval": 3600,
+        "range": [-168, 0]
+      }
+    },
+    {
+      "key": "SemaphoreInputs",
+      "args": {
+        "column_name": "Seadrift Air Temperature Measurement",
+        "location": "Seadrift",
+        "source": "NOAATANDC",
+        "series": "dAirTmp",
+        "interval": 3600,
+        "range": [-168, 0]
+      }
+    },
+    {
+      "key": "SemaphoreInputs",
+      "args": {
+        "column_name": "Port O'Conner Air Temperature Measurement",
+        "location": "PortOConner",
+        "source": "NOAATANDC",
+        "series": "dAirTmp",
+        "interval": 3600,
+        "range": [-168, 0]
+      }
+    },
+    {
+      "key": "SemaphoreInputs",
+      "args": {
+        "column_name": "Port Lavaca Air Temperature Measurement",
+        "location": "PortLavaca",
+        "source": "NOAATANDC",
+        "series": "dAirTmp",
+        "interval": 3600,
+        "range": [-168, 0]
+      }
+    },
+    {
+      "key": "SemaphoreInputs",
+      "args": {
+        "column_name": "Aransas Wildlife Refuge Air Temperature Measurements",
+        "location": "WildlifeRefuge",
+        "source": "NOAATANDC",
+        "series": "dAirTmp",
+        "interval": 3600,
+        "range": [-168, 0]
+      }
+    },
+    {
+      "key": "SemaphoreInputs",
+      "args": {
+        "column_name": "Air Temperature Prediction",
+        "location": "EspirituSantoBay",
+        "source": "NDFD_JSON",
+        "series": "pAirTemp",
+        "interval": 3600,
+        "range": [0, 168]
+      }
+    },
+    {
+      "key": "SemaphoreOutputLatest",
+      "args": {
+        "column_name": "Water Temperature Prediction",
+        "model_names": [
+          "ESB_3hr",
+          "ESB_6hr",
+          "ESB_12hr",
+          "ESB_18hr",
+          "ESB_24hr",
+          "ESB_30hr",
+          "ESB_36hr",
+          "ESB_42hr",
+          "ESB_48hr",
+          "ESB_54hr",
+          "ESB_60hr",
+          "ESB_66hr",
+          "ESB_72hr",
+          "ESB_78hr",
+          "ESB_84hr",
+          "ESB_90hr",
+          "ESB_96hr",
+          "ESB_102hr",
+          "ESB_108hr",
+          "ESB_114hr",
+          "ESB_120hr"
+        ]
+      }
     }
+  ],
+  "post_processing": [
+    {
+      "_comment": "Interpolates Espiritu Santo Bay Water Temperature Measurements ",
+      "key": "ComputeMean_Water_EspirituSantoBay",
+      "args": {
+        "col_name": "Espiritu Santo Bay Water Temperature Measurement",
+        "interpolation_interval": 3600,
+        "limit": 21600
+      }
+    },
+    {
+      "_comment": "Interpolates Espiritu Santo Bay Air Temperature Measurements ",
+      "key": "ComputeMean_Air_EspirituSantoBay",
+      "args": {
+        "col_name": "Espiritu Santo Bay Air Temperature Measurement",
+        "interpolation_interval": 3600,
+        "limit": 21600
+      }
+    }
+  ],
+  "csv_config": {
+    "csv_name": "espiritu-santo-bay_120hrs.csv",
+    "included_columns": [
+      "Espiritu Santo Bay Water Temperature Measurement",
+      "Espiritu Santo Bay Air Temperature Measurement",
+      "Seadrift Water Temperature Measurement",
+      "Port O'Connor Water Temperature Measurement",
+      "Port Lavaca Water Temperature Measurement",
+      "Aransas Wildlife Refuge Water Temperature Measurement",
+      "Seadrift Air Temperature Measurement",
+      "Port O'Connor Air Temperature Measurement",
+      "Port Lavaca Air Temperature Measurement",
+      "Aransas Wildlife Refuge Air Temperature Measurement",
+      "Air Temperature Prediction",
+      "Water Temperature Prediction"
+    ]
   }
+}
