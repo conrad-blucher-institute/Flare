@@ -1,0 +1,75 @@
+{
+    "_comment": "This cspec is to test the compute mean post processing class through the flare pipeline",
+    "chart_name": "test-compute-mean",
+    "CSPEC_version": "1.0.0",
+    "data_requests" : [
+        {  
+            "key": "SemaphoreInputs",
+            "args": {
+                "column_name": "Seadrift-Water-Temperature-Measurement",
+                "location": "Seadrift", 
+                "source": "NOAATANDC",
+                "series": "dWaterTmp",
+                "interval": 3600,
+                "range": [-144, 0]
+            }    
+        },
+        {  
+            "key": "SemaphoreInputs",
+            "args": {
+                "column_name": "PortOConnor-Water-Temperature-Measurement",
+                "location": "PortOConnor", 
+                "source": "NOAATANDC",
+                "series": "dWaterTmp",
+                "interval": 3600,
+                "range": [-144, 0]
+            }    
+        },
+        {  
+            "key": "SemaphoreInputs",
+            "args": {
+                "column_name": "PortLavaca-Water-Temperature-Measurement",
+                "location": "PortLavaca", 
+                "source": "NOAATANDC",
+                "series": "dWaterTmp",
+                "interval": 3600,
+                "range": [-144, 0]
+            }    
+        },
+        {  
+            "key": "SemaphoreInputs",
+            "args": {
+                "column_name": "Aransas-Wildlife-Refuge-Water-Temperature-Measurements",
+                "location": "AransasWildlifeRefuge", 
+                "source": "NOAATANDC",
+                "series": "dWaterTmp",
+                "interval": 3600,
+                "range": [-144, 0]
+            }    
+        }
+    ],
+    "post_processing" : [
+        {
+            "key": "ComputeMean",
+            "args": {
+                "targetSeries": [
+                    "Seadrift-Water-Temperature-Measurement",
+                    "PortOConnor-Water-Temperature-Measurement",
+                    "PortLavaca-Water-Temperature-Measurement",
+                    "Aransas-Wildlife-Refuge-Water-Temperature-Measurements"
+                ],
+                "outKey": "mean-water-measurements"
+            }
+        }
+    ],
+    "csv_config": {
+      "csv_name": "test-compute-mean.csv",
+      "included_columns": [
+        "Seadrift-Water-Temperature-Measurement",
+        "PortOConnor-Water-Temperature-Measurement",
+        "PortLavaca-Water-Temperature-Measurement",
+        "Aransas-Wildlife-Refuge-Water-Temperature-Measurements",
+        "mean-water-measurements"
+      ]
+    }
+}

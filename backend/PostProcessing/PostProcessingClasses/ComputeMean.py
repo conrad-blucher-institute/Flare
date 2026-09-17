@@ -40,36 +40,25 @@ class ComputeMean(IPostProcessing):
     def __init__(self):
         self.logger = thread_storage.logger
 
-    def post_process(self, data: DataFrame, args) -> DataFrame:
+    def post_process(self, data: DataFrame, targetSeries: list[str], outKey: str) -> DataFrame:
         """
         Computes the mean for each timestamp in a collection of series data and
         appends the new series to the dataframe.
 
         Args:
             data (DataFrame): The dataframe containing the collection of series data
-            args (dict): A dictionary containing the target series and output key.
-                {
-                    "targetSeries": [
-                        "series-one_air-temp_25",
-                        "series-two_air-temp_25",
-                        "series-three_air-temp_25",
-                        "series-four_air-temp_25"
-                    ],
-                    "outKey": "combined-air-temp"
-                }
+            targetSeries (list[str]): A list of input series column names to compute the mean from
+            outKey (str): The output column name for the computed mean series
         
         Returns:
-            DataFrame: The dataframe with the new computed mean series appended.
+            DataFrame: The dataframe with the new computed mean series appended
         """
 
         # validate cspec args
         # on bad arguments, log the error message and return the original dataframe
-        is_valid_args = self._validate_args(data, args)
+        is_valid_args = self._validate_args(data, targetSeries, outKey)
         if not is_valid_args:
             return data
-
-        targetSeries = args["targetSeries"]
-        outKey = args["outKey"]
 
         # compute the mean for each timestamp across the target series and append to the dataframe
         # values that fail to be casted to numeric are coerced to NaN and ignored in the mean calculation
@@ -79,29 +68,19 @@ class ComputeMean(IPostProcessing):
         return data
 
 
-    def _validate_args(self, df: DataFrame, args: dict) -> bool:
+    def _validate_args(self, df: DataFrame, targetSeries: list[str], outKey: str) -> bool:
         """
         Validates the arguments passed to the post process method by checking
         for cspec errors.
 
         Args:
             df (DataFrame): The dataframe containing the collection of series data
-            args (dict): A dictionary containing the target series and output key.
-                {
-                    "targetSeries": [
-                        "series-one_air-temp_25",
-                        "series-two_air-temp_25",
-                        "series-three_air-temp_25",
-                        "series-four_air-temp_25"
-                    ],
-                    "outKey": "combined-air-temp"
-                }
+            targetSeries (list[str]): A list of input series column names to compute the mean from
+            outKey (str): The output column name for the computed mean series
         
         Returns:
             bool - True if the arguments are valid, False otherwise. If invalid, logs a warning message and returns False.
         """
-        targetSeries = args.get("targetSeries", None)
-        outKey = args.get("outKey", None)
 
         if targetSeries is None or len(targetSeries) == 0:
             msg = "ComputeMean Warning: 'targetSeries' key is missing or empty in cspec args. No mean will be computed."

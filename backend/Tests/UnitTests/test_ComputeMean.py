@@ -21,8 +21,6 @@ from numpy import nan
 
 
 class FakeLogger():
-    def log_error(self, msg):
-        pass
     def log_info(self, msg):
         pass
 
@@ -35,70 +33,66 @@ def fake_thread_logger():
 
 class TestComputeMean():
     """
-    Test suite for the ComputeMean post processing class.
+    Test suite for the ComputeMean post processing class
+
+    docker exec flare-backend python3 -m pytest /app/backend/Tests/UnitTests/test_ComputeMean.py -v
     """
 
     @pytest.mark.parametrize(
-        "df, args",
+        "df, targetSeries, outKey",
         [
             # test None target series; df should remain unchanged
             (
                 DataFrame({
-                    "series-one",
-                    "series-two",
-                    "series-three",
-                    "series-four"
+                    "series-one": [1, 2, 3, 4],
+                    "series-two": [5, 6, 7, 8],
+                    "series-three": [9, 10, 11, 12],
+                    "series-four": [13, 14, 15, 16]
                 }),
-                {
-                    "outKey": "combined-series"
-                }
+                None, # targetSeries
+                "combined-series"
             ),
             # test None outKey; df should remain unchanged
             (
                 DataFrame({
+                    "series-one": [1, 2, 3, 4],
+                    "series-two": [5, 6, 7, 8],
+                    "series-three": [9, 10, 11, 12],
+                    "series-four": [13, 14, 15, 16]
+                }),
+                [
                     "series-one",
                     "series-two",
                     "series-three",
                     "series-four"
-                }),
-                {
-                    "targetSeries": [
-                        "series-one",
-                        "series-two",
-                        "series-three",
-                        "series-four"
-                    ]
-                }
+                ],
+                None # outKey
             ),
-            # test missing target series; df should remain unchanged
+            # test a missing target series; df should remain unchanged
             (
                 DataFrame({
+                    "series-one": [1, 2, 3, 4],
+                    "series-two": [5, 6, 7, 8],
+                    "series-three": [9, 10, 11, 12],
+                    "series-four": [13, 14, 15, 16]
+                }),
+                [
                     "series-one",
                     "series-two",
-                    "series-three",
-                    "series-four"
-                }),
-                {
-                    "targetSeries": [
-                        "series-one",
-                        "series-two",
-                        "series-five"
-                    ],
-                    "outKey": "combined-series"
-                }
+                    "series-three"
+                ],
+                "combined-series"
             ),
             # test empty target series; df should remain unchanged
             (
                 DataFrame({
-                    "series-one",
-                    "series-two",
-                    "series-three",
-                    "series-four"
+                    "series-one": [1, 2, 3, 4],
+                    "series-two": [5, 6, 7, 8],
+                    "series-three": [9, 10, 11, 12],
+                    "series-four": [13, 14, 15, 16]
                 }),
-                {
-                    "targetSeries": [],
-                    "outKey": "combined-series"
-                }
+                [], # empty targetSeries
+                "combined-series"
             )
         ],
         ids = [
@@ -108,19 +102,19 @@ class TestComputeMean():
             "Empty_target_series"
         ]
     )
-    def test_invalid_args(self, df: DataFrame, args: dict):
+    def test_invalid_args(self, df: DataFrame, targetSeries: list[str], outKey: str):
         """
         Test that the ComputeMean post processing class correctly handles invalid arguments.
         The input df should be unchanged.
         """
         compute_mean = ComputeMean()
-        result_df = compute_mean.post_process(df, args)
+        result_df = compute_mean.post_process(df, targetSeries, outKey)
         assert result_df is df, "DataFrame returned should be the same object as the input DataFrame for invalid arguments."
         assert result_df.equals(df), "DataFrame should remain unchanged for invalid arguments."
 
 
     @pytest.mark.parametrize(
-        "df, args, expected_df",
+        "df, targetSeries, outKey, expected_df",
         [
             # df should have new mean series appended
             (
@@ -130,15 +124,13 @@ class TestComputeMean():
                     "series-three": [9, 10, 11, 12],
                     "series-four": [13, 14, 15, 16]
                 }, index=date_range(datetime(2026, 1, 1, 0), datetime(2026, 1, 1, 3), freq='1h')),
-                {
-                    "targetSeries": [
-                        "series-one",
-                        "series-two",
-                        "series-three",
-                        "series-four"
-                    ],
-                    "outKey": "combined-series"
-                },
+                [
+                    "series-one",
+                    "series-two",
+                    "series-three",
+                    "series-four"
+                ],
+                "combined-series",
                 DataFrame({
                     "series-one": [1, 2, 3, 4],
                     "series-two": [5, 6, 7, 8],
@@ -155,15 +147,13 @@ class TestComputeMean():
                     "series-three": [nan, 10, 11, 12],
                     "series-four": [13, 14, 15, nan]
                 }, index=date_range(datetime(2026, 1, 1, 0), datetime(2026, 1, 1, 3), freq='1h')),
-                {
-                    "targetSeries": [
-                        "series-one",
-                        "series-two",
-                        "series-three",
-                        "series-four"
-                    ],
-                    "outKey": "combined-series"
-                },
+                [
+                    "series-one",
+                    "series-two",
+                    "series-three",
+                    "series-four"
+                ],
+                "combined-series",
                 DataFrame({
                     "series-one":      [1,   2,    nan, 4],
                     "series-two":      [5,   None, 7,   8],
@@ -180,15 +170,13 @@ class TestComputeMean():
                     "series-three": [nan, nan, nan, nan],
                     "series-four": [nan, nan, nan, nan]
                 }, index=date_range(datetime(2026, 1, 1, 0), datetime(2026, 1, 1, 3), freq='1h')),
-                {
-                    "targetSeries": [
-                        "series-one",
-                        "series-two",
-                        "series-three",
-                        "series-four"
-                    ],
-                    "outKey": "combined-series"
-                },
+                [
+                    "series-one",
+                    "series-two",
+                    "series-three",
+                    "series-four"
+                ],
+                "combined-series",
                 DataFrame({
                     "series-one":      [1, 2, 3, 4],
                     "series-two":      [None, None, None, None],
@@ -205,15 +193,13 @@ class TestComputeMean():
                     "series-three": ['', '', '', ''],
                     "series-four": ['', '', '', '']
                 }, index=date_range(datetime(2026, 1, 1, 0), datetime(2026, 1, 1, 3), freq='1h')),
-                {
-                    "targetSeries": [
-                        "series-one",
-                        "series-two",
-                        "series-three",
-                        "series-four"
-                    ],
-                    "outKey": "combined-series"
-                },
+                [
+                    "series-one",
+                    "series-two",
+                    "series-three",
+                    "series-four"
+                ],
+                "combined-series",
                 DataFrame({
                     "series-one": ['', '', '', ''],
                     "series-two": ['', '', '', ''],
@@ -230,14 +216,14 @@ class TestComputeMean():
             "all_invalid_series"
         ]
     )
-    def test_compute_mean(self, df, args, expected_df):
+    def test_compute_mean(self, df, targetSeries: list[str], outKey: str, expected_df):
         """
         Test that the ComputeMean post processing class correctly computes the mean of the target series.
         """
         expected_idx = date_range(datetime(2026, 1, 1, 0), datetime(2026, 1, 1, 3), freq='1h')
 
         compute_mean = ComputeMean()
-        result_df = compute_mean.post_process(df, args)
+        result_df = compute_mean.post_process(df, targetSeries, outKey)
         assert "combined-series" in result_df.columns, "The output DataFrame should contain the new mean series column."
         assert result_df.equals(expected_df), "The computed mean series does not match the expected values."
         assert result_df.index.equals(expected_idx), "The index of the output DataFrame should match the expected index."
