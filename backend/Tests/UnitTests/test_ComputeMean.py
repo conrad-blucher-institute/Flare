@@ -79,7 +79,7 @@ class TestComputeMean():
                 [
                     "series-one",
                     "series-two",
-                    "series-three"
+                    "series-five"   # doesn't exist in the input df
                 ],
                 "combined-series"
             ),
