@@ -15,6 +15,7 @@
 // ===================================================
 import { defineStore } from 'pinia';
 import TurtleImage from '@/assets/images/turtle_and_fish.png';
+import WaveImage from '@/assets/images/wave.png';
 //Ensure names match the route names in router/index.js for proper navigation.
 export const useMenuStore = defineStore('menu', {
   state: () => ({
@@ -50,6 +51,10 @@ export const useMenuStore = defineStore('menu', {
         {
           label: 'Laguna Madre',
           link: { name: 'crps' }
+        },
+        {
+          label: 'Espiritu Santo Bay',
+          link: { name: 'esb' }
         }
       ]
     }

@@ -967,6 +967,8 @@ onUnmounted(() => {
             <p>TAMUCC CBI Water Temperature Predictions Reports</p>
           </a>
         </div>
+
+
         <div class="flex flex-wrap justify-center items-center gap-8 lg:gap-16 mx-auto p-1 lg:p-4">
           <a href="https://www.conradblucherinstitute.org/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/CBI-Logo.png" alt="CBI Logo" class="max-w-[165px] lg:max-w-[250px] ">
@@ -978,6 +980,18 @@ onUnmounted(() => {
           
           <a href="https://www.instagram.com/sanantoniobaypartnership/p/DdclVrlEfHM/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/mid-coast-turtle-rescue.png" alt="Mid-Coast Sea Turtle Rescue" class="max-w-[165px] lg:max-w-[250px] ">
+          </a>
+
+          <a href="https://ccme.famu.edu/" target="_blank" class="hover:scale-110 transition-transform">
+            <img src="@/assets/images/noaa-ccme.png" alt="NOAA CCME" class="max-w-[165px] lg:max-w-[250px] ">
+          </a>
+
+          <a href="https://www.ai2es.org/" target="_blank" class="hover:scale-110 transition-transform">
+            <img src="@/assets/images/ai2es.png" alt="ai2es" class="max-w-[165px] lg:max-w-[250px] ">
+          </a>
+
+          <a href="https://www.fisheries.noaa.gov/" target="_blank" class="hover:scale-110 transition-transform">
+            <img src="@/assets/images/noaa-fisheries.png" alt="noaa-fisheries" class="max-w-[165px] lg:max-w-[250px] ">
           </a>
 
 
