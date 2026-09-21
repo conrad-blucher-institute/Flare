@@ -317,7 +317,7 @@ const fetchAndFilterData = async () => {
       parsedData.portLavacaMeasurements || [];
 
     const wildlifeRefugeMeasurements =
-      parsedData.wildlifeRefugeMeasurements || [];
+      parsedData.aransasWildlifeRefugeMeasurements || [];
 
     const waterPredictions =
       parsedData.waterPredictions || [];
@@ -960,12 +960,6 @@ onUnmounted(() => {
     <!-- Footer -->
     <footer class="bg-navy-blue py-10 text-dark-text space-y-2">
         <div class="flex flex-col justify-center items-center text-white text-sm lg:text-lg">
-          <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
-            <p>Texas Parks & Wildlife</p>
-          </a>
-          <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
-            <p>NPS Sea Turtle Science and Recovery</p>
-          </a>
           <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0173920" target="_blank" class="hover:scale-110 transition-transform">
             <p>PLOS One: Publication Defining Cold Stunning Threshold</p>
           </a>
@@ -977,36 +971,31 @@ onUnmounted(() => {
           <a href="https://www.conradblucherinstitute.org/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/CBI-Logo.png" alt="CBI Logo" class="max-w-[165px] lg:max-w-[250px] ">
           </a>
+
+
+
+
+          
+          <a href="https://www.instagram.com/sanantoniobaypartnership/p/DdclVrlEfHM/" target="_blank" class="hover:scale-110 transition-transform">
+            <img src="@/assets/images/mid-coast-turtle-rescue.png" alt="Mid-Coast Sea Turtle Rescue" class="max-w-[165px] lg:max-w-[250px] ">
+          </a>
+
+
+
           <a href="https://github.com/conrad-blucher-institute/semaphore" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/Semaphore-Logo.png" alt="Semaphore Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
-          <a href="https://www.usace.army.mil/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/USACE-Logo.jpg" alt="US Army Corps Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
+          
+
           <a href="https://www.nsf.gov/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/NSF-Logo.png" alt="National Science Foundation Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
-          <a href="https://www.gicaonline.com/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/GICA-Logo.png" alt="Gulf Intracoastal Canal Association Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-          <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/TPWD-Logo.gif" alt="Texas Parks and Wildlife Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
+          
+
           <a href="https://www.coastaldynamicslab.org/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/CDL-Logo.png" alt="Coastal Dynamics Lab Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
-          <a href="https://www.nps.gov/index.htm" target="_blank" class="hover:scale-110 transition-transform">
-            <img class="max-w-[80px] lg:max-w-[150px]" src="@/assets/images/NPS-Logo.png" alt="National Park Service Logo">
-          </a>
-          <a href="https://www.weather.gov/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/NWS-Logo.png" alt="National Weather Service Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-          <a href="https://www.uscg.mil/" target="_blank" class="hover:scale-110 transition-transform">
-            <img  src="@/assets/images/CG-Logo.png" alt="USA Coast Guard Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-          <a href="https://www.joincca.org/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/CCA-Logo.png" alt="Coastal Conservation Association Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
+
         </div>
         <p class="text-center text-sm text-light-text">(Click on the logos to visit each contributor's website)</p>
       </footer>
