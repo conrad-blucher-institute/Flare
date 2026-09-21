@@ -12,6 +12,7 @@ docker exec flare-backend python3 -m pytest /app/backend/Tests/UnitTests/test_Co
 #-------------------------------
 import pytest
 from datetime import datetime
+from unittest.mock import MagicMock, patch
 
 from runtimeContext import thread_storage
 from PostProcessing.PostProcessingClasses.ComputeMean import ComputeMean
@@ -20,15 +21,12 @@ from pandas import DataFrame, date_range
 from numpy import nan
 
 
-class FakeLogger():
-    def log_info(self, msg):
-        pass
-
-
 @pytest.fixture(autouse=True)
-def fake_thread_logger():
-    thread_storage.logger = FakeLogger()
-    yield thread_storage.logger
+def mock_logger():
+    with patch('PostProcessing.PostProcessingClasses.ComputeMean.thread_storage') as mock_thread_storage:
+        mock_logger = MagicMock()
+        mock_thread_storage.logger = mock_logger
+        yield mock_logger
 
 
 class TestComputeMean():
@@ -148,15 +146,23 @@ class TestComputeMean():
             "negative-threshold"
         ]
     )
-    def test_invalid_args(self, df: DataFrame, targetSeries: list[str], outKey: str, dropOutlierValues: bool, thresholdDeviationFromMedian: float):
+    def test_invalid_args(self, mock_logger, df, targetSeries, outKey, dropOutlierValues, thresholdDeviationFromMedian):
         """
         Test that the ComputeMean post processing class correctly handles invalid arguments.
         The input df should be unchanged.
         """
         compute_mean = ComputeMean()
-        result_df = compute_mean.post_process(df, targetSeries, outKey)
+        result_df = compute_mean.post_process(
+            data=df,
+            targetSeries=targetSeries,
+            outKey=outKey,
+            dropOutlierValues=dropOutlierValues,
+            thresholdDeviationFromMedian=thresholdDeviationFromMedian
+        )
         assert result_df is df, "DataFrame returned should be the same object as the input DataFrame for invalid arguments."
         assert result_df.equals(df), "DataFrame should remain unchanged for invalid arguments."
+        mock_logger.log_info.assert_called_once()
+
 
 
     @pytest.mark.parametrize(
@@ -264,7 +270,8 @@ class TestComputeMean():
     )
     def test_compute_mean_no_outliers(self, df, targetSeries: list[str], outKey: str, expected_df):
         """
-        Test that the ComputeMean post processing class correctly computes the mean of the target series.
+        Test that the ComputeMean post processing class correctly computes the mean of the target series
+        without dropping outlier values.
         """
         expected_idx = date_range(datetime(2026, 1, 1, 0), datetime(2026, 1, 1, 3), freq='1h')
 
@@ -415,21 +422,56 @@ class TestComputeMean():
                 True, # dropOutlierValues
                 0.5
             ),
+            (
+                DataFrame({
+                    "series-one":   [1, 5, 9, 13, 17],
+                    "series-two":   [2, 6, 10, 14, 18],
+                    "series-three": [3, 7, 11, 15, 19],
+                    "series-four":  [4, 8, 12, 16, 20],
+                    "series-five":  ['', '', '', '', '']
+                }, index=date_range(datetime(2026, 1, 1, 0), datetime(2026, 1, 1, 4), freq='1h')),
+                [
+                    "series-one",
+                    "series-two",
+                    "series-three",
+                    "series-four",
+                    "series-five"
+                ],
+                "combined-series",
+                DataFrame({
+                    "series-one":   [1, 5, 9, 13, 17],
+                    "series-two":   [2, 6, 10, 14, 18],
+                    "series-three": [3, 7, 11, 15, 19],
+                    "series-four":  [4, 8, 12, 16, 20],
+                    "series-five":  ['', '', '', '', ''],   # should be fully ignored since it only contains empty strings
+                    "combined-series": [2.5, 6.5, 10.5, 14.5, 18.5]
+                }, index=date_range(datetime(2026, 1, 1, 0), datetime(2026, 1, 1, 4), freq='1h')),
+                True,
+                5
+            )
         ],
         ids = [
             "basic_outlier",
             "exact_threshold",
             "no_outliers",
             "outliers_on_ends",
-            "all_outliers"
+            "all_outliers",
+            "empty_values"
         ]
     )
-    def test_compute_mean_with_outliers(self, df, targetSeries, outKey, expected_df, drop, threshold):
+    def test_compute_mean_with_outliers(self, mock_logger, df, targetSeries, outKey, expected_df, drop, threshold):
         """
         test the compute mean class with dropOutlierValues set to true and a thresholdDeviationFromMedian specified
         """
 
         compute_mean = ComputeMean()
-        result_df = compute_mean.post_process(df, targetSeries, outKey, dropOutlierValues=drop, thresholdDeviationFromMedian=threshold)
+        result_df = compute_mean.post_process(
+            data=df,
+            targetSeries=targetSeries,
+            outKey=outKey,
+            dropOutlierValues=drop,
+            thresholdDeviationFromMedian=threshold
+        )
         assert "combined-series" in result_df.columns, "The output DataFrame should contain the new mean series column."
         assert result_df.equals(expected_df), "The computed mean series does not match the expected values."
+        mock_logger.log_info.assert_not_called()
