@@ -16,8 +16,8 @@
     {
       "key": "SemaphoreInputs",
       "args": {
-        "column_name": "Port O'Conner Water Temperature Measurement",
-        "location": "PortOConner",
+        "column_name": "Port O'Connor Water Temperature Measurement",
+        "location": "PortOconnor",
         "source": "NOAATANDC",
         "series": "dWaterTmp",
         "interval": 3600,
@@ -39,7 +39,7 @@
       "key": "SemaphoreInputs",
       "args": {
         "column_name": "Aransas Wildlife Refuge Water Temperature Measurements",
-        "location": "WildlifeRefuge",
+        "location": "AransasWildlifeRefuge",
         "source": "NOAATANDC",
         "series": "dWaterTmp",
         "interval": 3600,
@@ -60,8 +60,8 @@
     {
       "key": "SemaphoreInputs",
       "args": {
-        "column_name": "Port O'Conner Air Temperature Measurement",
-        "location": "PortOConner",
+        "column_name": "Port O'connor Air Temperature Measurement",
+        "location": "PortOconnor",
         "source": "NOAATANDC",
         "series": "dAirTmp",
         "interval": 3600,
@@ -83,7 +83,7 @@
       "key": "SemaphoreInputs",
       "args": {
         "column_name": "Aransas Wildlife Refuge Air Temperature Measurements",
-        "location": "WildlifeRefuge",
+        "location": "AransasWildlifeRefuge",
         "source": "NOAATANDC",
         "series": "dAirTmp",
         "interval": 3600,
@@ -134,20 +134,31 @@
   "post_processing": [
     {
       "_comment": "Interpolates Espiritu Santo Bay Water Temperature Measurements ",
-      "key": "ComputeMean_Water_EspirituSantoBay",
+      "key": "ComputeMean",
       "args": {
-        "col_name": "Espiritu Santo Bay Water Temperature Measurement",
-        "interpolation_interval": 3600,
-        "limit": 21600
+        "dropOutlierValues": true,
+        "thresholdDeviationFromMedian": 3.5,
+        "targetSeries": [
+          "Seadrift Water Temperature Measurement",
+          "Port O'Connor Water Temperature Measurement",
+          "Port Lavaca Water Temperature Measurement",
+          "Aransas Wildlife Refuge Water Temperature Measurement"
+        ],
+        "outKey": "Espiritu Santo Bay Water Temperature Measurement"
       }
     },
     {
       "_comment": "Interpolates Espiritu Santo Bay Air Temperature Measurements ",
-      "key": "ComputeMean_Air_EspirituSantoBay",
+      "key": "ComputeMean",
       "args": {
-        "col_name": "Espiritu Santo Bay Air Temperature Measurement",
-        "interpolation_interval": 3600,
-        "limit": 21600
+        "dropOutlierValues": false,
+        "targetSeries": [
+          "Seadrift Air Temperature Measurement",
+          "Port O'Connor Air Temperature Measurement",
+          "Port Lavaca Air Temperature Measurement",
+          "Aransas Wildlife Refuge Air Temperature Measurement"
+        ],
+        "outKey": "Espiritu Santo Bay Air Temperature Measurement"
       }
     }
   ],
