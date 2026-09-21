@@ -93,7 +93,7 @@ class ComputeMean(IPostProcessing):
         for cspec errors.
 
         Args:
-            data (DataFrame): The dataframe containing the collection of series data
+            df (DataFrame): The dataframe containing the collection of series data
             targetSeries (list[str]): A list of input series column names to compute the mean from
             outKey (str): The output column name for the computed mean series
             dropOutlierValues (bool): Optional. If true, outlier values will be dropped from the target series before computing the mean.
