@@ -14,7 +14,9 @@
 // Date: 11/05/2024
 // ===================================================
 import { defineStore } from 'pinia';
-import TurtleImage from '@/assets/images/turtle_and_fish.png';
+import TurtleImage from '@/assets/images/Coldstunning.png';
+import InundationImage from '@/assets/images/Inundation.png';
+import FogImage from '@/assets/images/Fog.png';
 //Ensure names match the route names in router/index.js for proper navigation.
 export const useMenuStore = defineStore('menu', {
   state: () => ({
@@ -39,11 +41,43 @@ export const useMenuStore = defineStore('menu', {
       }
     ],
     slidingMenuOptions: [
+    
+    {
+      label: 'Inundation Group',
+      link: { name: 'inundation' },
+      image: InundationImage,
+      location: 'Inundation Models',
+      coming_soon: true,
+      message: '120-hour predictions of water and air temperature',
+
+      children: [
+        {
+          label: 'Laguna Madre',
+          link: { name: 'crps' }
+        }
+      ]
+    },
     {
       label: 'Coldstunning Group',
       link: { name: 'coldstunning' },
       image: TurtleImage,
       location: 'Cold-Stunning Models',
+      coming_soon: false,
+      message: '120-hour predictions of water and air temperature',
+
+      children: [
+        {
+          label: 'Laguna Madre',
+          link: { name: 'crps' }
+        }
+      ]
+    },
+    {
+      label: 'Fog Group',
+      link: { name: 'fog' },
+      image: FogImage,
+      location: 'Fog Models',
+      coming_soon: true,
       message: '120-hour predictions of water and air temperature',
 
       children: [

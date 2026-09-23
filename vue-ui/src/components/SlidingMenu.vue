@@ -101,24 +101,71 @@ function childRight(key) {
         >
 
           <!-- Main Button -->
+          
           <button
-            @click="selectOption(option)"
-            class="focus:outline-none"
+            @click="!option.coming_soon && selectOption(option)"
+            class="relative focus:outline-none rounded-full"
+            :class="option.coming_soon ? 'cursor-not-allowed' : 'cursor-pointer'"
           >
             <img
-              :src="option.image"
-              :alt="option.label"
-              class="w-[200px] h-[200px] lg:w-[400px] lg:h-[400px] rounded-full object-cover transition-transform duration-300 hover:scale-105 cursor-pointer"
+            :src="option.image"
+            :alt="option.label"
+            :class="[
+              'rounded-full object-cover transition-all duration-300',
+              option.coming_soon
+                ? 'w-[160px] h-[160px] lg:w-[280px] lg:h-[280px] opacity-30'
+                : 'w-[220px] h-[220px] lg:w-[420px] lg:h-[420px] hover:scale-105 cursor-pointer'
+            ]"
+          >
+
+            <!-- Coming Soon Bubble -->
+            <span
+              v-if="option.coming_soon"
+              class="
+                absolute
+                top-1/2
+                left-1/2
+                -translate-x-1/2
+                -translate-y-1/2
+                bg-white
+                text-dark-text
+                border-2
+                border-dark-text
+                rounded-full
+                px-6
+                py-3
+                text-lg
+                lg:text-2xl
+                font-semibold
+                shadow-lg
+                whitespace-nowrap
+              "
             >
+              Coming Soon
+            </span>
           </button>
 
-          <h2 class="mt-4 text-xl lg:text-4xl font-semibold text-dark-text">
-            {{ option.location }}
-          </h2>
+          <h2
+          :class="[
+            'mt-4 font-semibold text-dark-text',
+            option.coming_soon
+              ? 'text-lg lg:text-2xl'
+              : 'text-xl lg:text-4xl'
+          ]"
+        >
+          {{ option.location }}
+        </h2>
 
-          <p class="text-md lg:text-3xl text-gray-600 pt-2">
-            {{ option.message }}
-          </p>
+          <p
+          :class="[
+            'text-gray-600 pt-2',
+            option.coming_soon
+              ? 'text-sm lg:text-lg'
+              : 'text-md lg:text-3xl'
+          ]"
+        >
+          {{ option.message }}
+        </p>
 
           <div class=" scale-75 lg:origin-top lg:scale-[1.5] "> 
               <!-- Mini Menu -->
@@ -133,7 +180,7 @@ function childRight(key) {
 
                 <!-- Left Arrow -->
                 <button
-                  v-if="option.children.length > 3"
+                  v-if="option.children.length > 4"
                   @click="childLeft(option.location)"
                   class="text-3xl text-dark-text hover:text-blue-800 px-2"
                 >
@@ -145,7 +192,7 @@ function childRight(key) {
                   :ref="el => setChildContainer(el, option.location)"
                   :class="[
                     'py-3 px-2 no-scrollbar',
-                    option.children.length <= 3
+                    option.children.length <= 4
                       ? 'flex justify-center gap-5'
                       : 'flex gap-3 py-1 px-1 overflow-x-auto  scroll-smooth w-[540px]  no-scrollbar'
                   ]"
@@ -178,7 +225,7 @@ function childRight(key) {
 
                 <!-- Right Arrow -->
                 <button
-                  v-if="option.children.length > 3"
+                  v-if="option.children.length > 4"
                   @click="childRight(option.location)"
                   class="text-3xl text-dark-text hover:text-blue-800 px-2"
                 >
