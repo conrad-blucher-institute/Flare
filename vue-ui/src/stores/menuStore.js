@@ -15,7 +15,6 @@
 // ===================================================
 import { defineStore } from 'pinia';
 import TurtleImage from '@/assets/images/turtle_and_fish.png';
-import WaveImage from '@/assets/images/wave.png';
 //Ensure names match the route names in router/index.js for proper navigation.
 export const useMenuStore = defineStore('menu', {
   state: () => ({
@@ -40,24 +39,23 @@ export const useMenuStore = defineStore('menu', {
       }
     ],
     slidingMenuOptions: [
-    {
-      label: 'Coldstunning Group',
-      link: { name: 'coldstunning' },
-      image: TurtleImage,
-      location: 'Cold-Stunning Models',
-      message: '120-hour predictions of water and air temperature',
-
-      children: [
-        {
-          label: 'Laguna Madre',
-          link: { name: 'crps' }
-        },
-        {
-          label: 'Espiritu Santo Bay',
-          link: { name: 'esb' }
-        }
-      ]
-    }
-  ]
-    })
+      {
+        label: 'Coldstunning Group',
+        link: { name: 'coldstunning' },
+        image: TurtleImage,
+        location: 'Cold-Stunning Models',
+        message: '120-hour predictions of water and air temperatures',
+        children: [
+          {
+            label: 'Laguna Madre',
+            link: { name: 'crps' }
+          },
+          {
+            label: 'Espiritu Santo Bay',
+            link: { name: 'esb' }
+          }
+        ]
+      }
+    ]
+  })
 });
