@@ -1,5 +1,5 @@
 {
-  "chart_name": "espiritu-santo-bay",
+  "chart_name": "Espiritu-Santo-Bay_Water-Temperature_120hrs",
   "CSPEC_version": "1.0.0",
   "data_requests": [
     {
@@ -17,7 +17,7 @@
       "key": "SemaphoreInputs",
       "args": {
         "column_name": "Port O'Connor Water Temperature Measurement",
-        "location": "PortOconnor",
+        "location": "PortOConnor",
         "source": "NOAATANDC",
         "series": "dWaterTmp",
         "interval": 3600,
@@ -60,8 +60,8 @@
     {
       "key": "SemaphoreInputs",
       "args": {
-        "column_name": "Port O'connor Air Temperature Measurement",
-        "location": "PortOconnor",
+        "column_name": "Port O'Connor Air Temperature Measurement",
+        "location": "PortOConnor",
         "source": "NOAATANDC",
         "series": "dAirTmp",
         "interval": 3600,
@@ -106,34 +106,34 @@
       "args": {
         "column_name": "Water Temperature Prediction",
         "model_names": [
-          "ESB_3hr",
-          "ESB_6hr",
-          "ESB_12hr",
-          "ESB_18hr",
-          "ESB_24hr",
-          "ESB_30hr",
-          "ESB_36hr",
-          "ESB_42hr",
-          "ESB_48hr",
-          "ESB_54hr",
-          "ESB_60hr",
-          "ESB_66hr",
-          "ESB_72hr",
-          "ESB_78hr",
-          "ESB_84hr",
-          "ESB_90hr",
-          "ESB_96hr",
-          "ESB_102hr",
-          "ESB_108hr",
-          "ESB_114hr",
-          "ESB_120hr"
+          "Espiritu-Santo-Bay_Water-Temperature_3hr",
+          "Espiritu-Santo-Bay_Water-Temperature_6hr",
+          "Espiritu-Santo-Bay_Water-Temperature_12hr",
+          "Espiritu-Santo-Bay_Water-Temperature_18hr",
+          "Espiritu-Santo-Bay_Water-Temperature_24hr",
+          "Espiritu-Santo-Bay_Water-Temperature_30hr",
+          "Espiritu-Santo-Bay_Water-Temperature_36hr",
+          "Espiritu-Santo-Bay_Water-Temperature_42hr",
+          "Espiritu-Santo-Bay_Water-Temperature_48hr",
+          "Espiritu-Santo-Bay_Water-Temperature_54hr",
+          "Espiritu-Santo-Bay_Water-Temperature_60hr",
+          "Espiritu-Santo-Bay_Water-Temperature_66hr",
+          "Espiritu-Santo-Bay_Water-Temperature_72hr",
+          "Espiritu-Santo-Bay_Water-Temperature_78hr",
+          "Espiritu-Santo-Bay_Water-Temperature_84hr",
+          "Espiritu-Santo-Bay_Water-Temperature_90hr",
+          "Espiritu-Santo-Bay_Water-Temperature_96hr",
+          "Espiritu-Santo-Bay_Water-Temperature_102hr",
+          "Espiritu-Santo-Bay_Water-Temperature_108hr",
+          "Espiritu-Santo-Bay_Water-Temperature_114hr",
+          "Espiritu-Santo-Bay_Water-Temperature_120hr"
         ]
       }
     }
   ],
   "post_processing": [
     {
-      "_comment": "Interpolates Espiritu Santo Bay Water Temperature Measurements ",
+      "_comment": "Computes Espiritu Santo Bay Water Temperature Measurements using the 4 input stations",
       "key": "ComputeMean",
       "args": {
         "dropOutlierValues": true,
@@ -148,7 +148,7 @@
       }
     },
     {
-      "_comment": "Interpolates Espiritu Santo Bay Air Temperature Measurements ",
+      "_comment": "Computes Espiritu Santo Bay Air Temperature Measurements using the 4 input stations",
       "key": "ComputeMean",
       "args": {
         "dropOutlierValues": false,
@@ -163,7 +163,7 @@
     }
   ],
   "csv_config": {
-    "csv_name": "espiritu-santo-bay_120hrs.csv",
+    "csv_name": "Espiritu-Santo-Bay_Water-Temperature_120hrs.csv",
     "included_columns": [
       "Espiritu Santo Bay Water Temperature Measurement",
       "Espiritu Santo Bay Air Temperature Measurement",
