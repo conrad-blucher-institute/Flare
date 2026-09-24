@@ -38,7 +38,7 @@
     {
       "key": "SemaphoreInputs",
       "args": {
-        "column_name": "Aransas Wildlife Refuge Water Temperature Measurements",
+        "column_name": "Aransas Wildlife Refuge Water Temperature Measurement",
         "location": "AransasWildlifeRefuge",
         "source": "NOAATANDC",
         "series": "dWaterTmp",
@@ -82,7 +82,7 @@
     {
       "key": "SemaphoreInputs",
       "args": {
-        "column_name": "Aransas Wildlife Refuge Air Temperature Measurements",
+        "column_name": "Aransas Wildlife Refuge Air Temperature Measurement",
         "location": "AransasWildlifeRefuge",
         "source": "NOAATANDC",
         "series": "dAirTmp",
