@@ -10,7 +10,7 @@
         "source": "NOAATANDC",
         "series": "dWaterTmp",
         "interval": 3600,
-        "range": [-168, 0]
+        "range": [-120, 0]
       }
     },
     {
@@ -21,7 +21,7 @@
         "source": "NOAATANDC",
         "series": "dWaterTmp",
         "interval": 3600,
-        "range": [-168, 0]
+        "range": [-120, 0]
       }
     },
     {
@@ -32,7 +32,7 @@
         "source": "NOAATANDC",
         "series": "dWaterTmp",
         "interval": 3600,
-        "range": [-168, 0]
+        "range": [-120, 0]
       }
     },
     {
@@ -43,7 +43,7 @@
         "source": "NOAATANDC",
         "series": "dWaterTmp",
         "interval": 3600,
-        "range": [-168, 0]
+        "range": [-120, 0]
       }
     },
     {
@@ -54,7 +54,7 @@
         "source": "NOAATANDC",
         "series": "dAirTmp",
         "interval": 3600,
-        "range": [-168, 0]
+        "range": [-120, 0]
       }
     },
     {
@@ -65,7 +65,7 @@
         "source": "NOAATANDC",
         "series": "dAirTmp",
         "interval": 3600,
-        "range": [-168, 0]
+        "range": [-120, 0]
       }
     },
     {
@@ -76,7 +76,7 @@
         "source": "NOAATANDC",
         "series": "dAirTmp",
         "interval": 3600,
-        "range": [-168, 0]
+        "range": [-120, 0]
       }
     },
     {
@@ -87,7 +87,7 @@
         "source": "NOAATANDC",
         "series": "dAirTmp",
         "interval": 3600,
-        "range": [-168, 0]
+        "range": [-120, 0]
       }
     },
     {
@@ -98,7 +98,7 @@
         "source": "NDFD_JSON",
         "series": "pAirTemp",
         "interval": 3600,
-        "range": [0, 168]
+        "range": [0, 144]
       }
     },
     {
@@ -159,6 +159,15 @@
           "Aransas Wildlife Refuge Air Temperature Measurement"
         ],
         "outKey": "Espiritu Santo Bay Air Temperature Measurement"
+      }
+    },
+    {
+      "_comment": "Interpolates water temperature predictions for ESB",
+      "key": "LinearInterpolation",
+      "args": {
+        "col_name": "Water Temperature Prediction",
+        "interpolation_interval": 3600,
+        "limit": 21600
       }
     }
   ],
