@@ -10,7 +10,7 @@
                   - Additional links
      Author: Anointiyae Beasley
 
-     Last Updated: 07/29/2026
+     Last Updated: 08/24/2026
 
 ======================================================= -->
 <script setup>
@@ -30,8 +30,6 @@ const csvURL = ref(`${window.location.origin}/flare/csv-data/CRPS_120hrs.csv`);
 const showChartHelp = ref(false);
 
 
-
-
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
 const isSecondExportMenuVisible = ref(false);
@@ -44,14 +42,12 @@ const boxChartOptions = ref({});
 const showInfoDrawer = ref(false);
 
 
-
-
 // Chart function for first chart that changes based on screen size
 // ribbon graph
 const buildRibbonChart = (isSmallScreen, chartTitle) => {
   return {
     chart: {
-      type: "areaspline",
+      type: "line",
       zoomType: "xy",
       backgroundColor: "white",
       style: { fontFamily: "Arial" },
@@ -164,8 +160,8 @@ const buildRibbonChart = (isSmallScreen, chartTitle) => {
       startOnTick: true,
       endOnTick: true,
       tickInterval: 10, // Major ticks every 10 units
-      min: 30, // Minimum value for y-axis
-      softMax: 90,
+      softMin: 30,  // softMin for y axis
+      softMax: 90,  // softMax for y axis
       plotLines: [
         {
           color: "red",
@@ -199,7 +195,7 @@ const buildRibbonChart = (isSmallScreen, chartTitle) => {
       ],
     },
     plotOptions: {
-      areaspline: {
+      line: {
         fillOpacity: 0.3,
         marker: {
           enabled: false,
@@ -209,11 +205,11 @@ const buildRibbonChart = (isSmallScreen, chartTitle) => {
               enabled: true
             }
           }
-        },
+        }
+      },
+      series: {
         states: {
-          hover: {
-            lineWidth: 3
-          }
+          inactive: { opacity: 1 } // do not dim other series when hovering over one
         }
       }
     },
@@ -277,7 +273,7 @@ const buildRibbonChart = (isSmallScreen, chartTitle) => {
                 
       },
       style: {
-        fontSize: isSmallScreen ? "10px" : "12px", 
+        fontSize: isSmallScreen ? "10px" : "16px", 
         padding: isSmallScreen ? "5px" : "8px", 
         color: "#0f4f66",
         fontFamily: "Arial",
@@ -299,7 +295,7 @@ const buildBoxChart = (isSmallScreen) => {
       marginTop: 100,
     },
     title: {
-      text: "Water Temperature Predictions Box Plot for Laguna Madre",
+      text: "Water Temperature Predictions with Uncertainty Estimates<br/>(Percentile Box Plot) for Laguna Madre",
       style: { 
         fontSize: isSmallScreen ? "20px" : "28px", 
         fontWeight: "bold", 
@@ -396,8 +392,8 @@ const buildBoxChart = (isSmallScreen) => {
       startOnTick: true,
       endOnTick: true,
       tickInterval: 10, // Major ticks every 10 units
-      min: 30, // Minimum value for y-axis
-      max: 100,
+      softMin: 30,
+      softMax: 90,
       title: {
         text: "Temperature (°F)",
         style: { 
@@ -476,7 +472,7 @@ const buildBoxChart = (isSmallScreen) => {
                 
       },
       style: {
-        fontSize: isSmallScreen ? "12px" : "14px", 
+        fontSize: isSmallScreen ? "12px" : "16px", 
         padding: isSmallScreen ? "5px" : "8px", 
         color: "#0f4f66",
         fontFamily: "Arial",
@@ -486,15 +482,17 @@ const buildBoxChart = (isSmallScreen) => {
       line: {
         lineWidth: 3
       },
-      spline: {
-      lineWidth: 3,
-      },
-    },
+      series: {
+        states: {
+          inactive: { opacity: 1 } // do not dim other series when hovering over one
+        }
+      }
+    }
   }
 } // end buildBoxChart (box plot graph)
 
 ribbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen, "Water Temperature Predictions for Laguna Madre"));
-secondRibbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen , "Water Temperature Predictions with Uncertainty Estimates for Laguna Madre"));
+secondRibbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen , "Water Temperature Predictions with Uncertainty Estimates<br/>(Fan Plot) for Laguna Madre"));
 boxChartOptions.value = reactive(buildBoxChart(isSmallScreen));
 
 
@@ -540,8 +538,20 @@ const fetchAndFilterData = async () => {
     const waterPredictionsPercentileMinFahrenheit = waterPredictionsPercentileMin.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const waterPredictionsPercentileMaxFahrenheit = waterPredictionsPercentileMax.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
 
-    const futureAirPredictionsFahrenheit =
-      airPredictionsFahrenheit.filter(([time]) => time >= Date.now());
+    // filter air predictions to only include future predictions
+    const futureAirPredictionsFahrenheit = airPredictionsFahrenheit.filter(([time]) => time >= Date.now());
+
+    /*
+      We do not interpolate min and max since they are only for the box plot,
+      so those timestamps are genuine lead times. For the box plot, we want to
+      filter to remove the interpolated values.
+    */
+    const boxplotTimestampSet = new Set(waterPredictionsPercentileMaxFahrenheit.map(([time]) => time));
+    const boxplotWaterPredictionsPercentile5Fahrenheit = waterPredictionsPercentile5Fahrenheit.filter(([time]) => boxplotTimestampSet.has(time));
+    const boxplotWaterPredictionsPercentile25Fahrenheit = waterPredictionsPercentile25Fahrenheit.filter(([time]) => boxplotTimestampSet.has(time));
+    const boxplotWaterPredictionsPercentile50Fahrenheit = waterPredictionsPercentile50Fahrenheit.filter(([time]) => boxplotTimestampSet.has(time));
+    const boxplotWaterPredictionsPercentile75Fahrenheit = waterPredictionsPercentile75Fahrenheit.filter(([time]) => boxplotTimestampSet.has(time));
+    const boxplotWaterPredictionsPercentile95Fahrenheit = waterPredictionsPercentile95Fahrenheit.filter(([time]) => boxplotTimestampSet.has(time));
 
     // === Calculate bounds for the ribbon chart ===
     // Outer Ribbon(5th-95th)
@@ -565,20 +575,17 @@ const fetchAndFilterData = async () => {
     // Fences from min to max
     const boxPlotBoundsFahrenheit = waterPredictionsPercentileMinFahrenheit.map((point, index) => {
       const time = point[0];
-      const low = waterPredictionsPercentile5Fahrenheit[index][1];
-      const q1 = waterPredictionsPercentile25Fahrenheit[index][1];
-      const median = waterPredictionsPercentile50Fahrenheit[index][1];
-      const q3 = waterPredictionsPercentile75Fahrenheit[index][1];
-      const high = waterPredictionsPercentile95Fahrenheit[index][1];
+      const low = boxplotWaterPredictionsPercentile5Fahrenheit[index][1];
+      const q1 = boxplotWaterPredictionsPercentile25Fahrenheit[index][1];
+      const median = boxplotWaterPredictionsPercentile50Fahrenheit[index][1];
+      const q3 = boxplotWaterPredictionsPercentile75Fahrenheit[index][1];
+      const high = boxplotWaterPredictionsPercentile95Fahrenheit[index][1];
 
       return [time, low, q1, median, q3, high];
     });
-
-
    
     // Update chart series with filtered data
     ribbonChartOptions.value.series = [
-
       {
         name: "Water Temperature Measurements",
         data: waterMeasurementsFahrenheit,
@@ -602,26 +609,23 @@ const fetchAndFilterData = async () => {
         data: futureAirPredictionsFahrenheit,
         type: "line",
         color: "orange",
-        dashStyle: "LongDash",
+        dashStyle: "Dash",
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1, // Ensure this is in front of the bounds
         marker: { enabled: false },
       },
       {
-        name: "Median (50th Percentile) Water Temperature Predictions",
+        name: "Water Temperature Predictions",
         data: waterPredictionsPercentile50Fahrenheit,
         type: "line",
-        dashStyle: "LongDash",
+        dashStyle: "Dash",
         color: "black",
         lineWidth: isSmallScreen ? 1 : 2,
-        zIndex: 3, // Ensure this is in front of the bounds
+        zIndex: 3, // Ensure median is in front of the other lines
         marker: { enabled: false},
       }
-      
     ];
-
      secondRibbonChartOptions.value.series = [
-
       {
         name: "Water Temperature Measurements",
         data: waterMeasurementsFahrenheit,
@@ -645,22 +649,21 @@ const fetchAndFilterData = async () => {
         data: futureAirPredictionsFahrenheit,
         type: "line",
         color: "orange",
-        dashStyle: "LongDash",
+        dashStyle: "Dash",
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1, // Ensure this is in front of the bounds
         marker: { enabled: false },
       },
       {
-        name: "Median (50th Percentile) Water Temperature Predictions",
+        name: "Water Temperature Median Predictions (50th percentile)",
         data: waterPredictionsPercentile50Fahrenheit,
         type: "line",
-        dashStyle: "LongDash",
+        dashStyle: "Dash",
         color: "black",
         lineWidth: isSmallScreen ? 1 : 2,
-        zIndex: 3, // Ensure this is in front of the bounds
+        zIndex: 3, // Ensure the median is in front of the other lines
         marker: { enabled: false},
       },
-      
       {
         name: '25th-75th Percentile',
         type: 'arearange',
@@ -702,10 +705,10 @@ const fetchAndFilterData = async () => {
       },
       {
         name: "NDFD Air Temperature Predictions",
-        data: airPredictionsFahrenheit,
+        data: futureAirPredictionsFahrenheit,
         type: "line",
         color: "orange",
-        dashStyle: "LongDash",
+        dashStyle: "Dash",
         zIndex: 0,
         findnearestPoint: false,
         enablemouseTracking: false, // Disable tooltip for this series
@@ -713,8 +716,8 @@ const fetchAndFilterData = async () => {
         marker: { enabled: false },
       },
       {
-        name: "Median (50th Percentile) Water Temperature Predictions",
-        data: waterPredictionsPercentile50Fahrenheit,
+        name: "Water Temperature Median Predictions (50th percentile)",
+        data: boxplotWaterPredictionsPercentile50Fahrenheit,
         type: "line",
         color: "#4A90E2",
         lineWidth: isSmallScreen ? 1 : 2,
@@ -728,16 +731,16 @@ const fetchAndFilterData = async () => {
         color: "#4A90E2",
         lineWidth: 0,
         zIndex: 1, // Ensure this is in front of the bounds
-        marker: { enabled: true,symbol: 'triangle-down', radius: 3.5},
+        marker: { enabled: true, symbol: 'triangle-down', radius: 3.5 },
       },
       {
-        name: 'Predicition Range Min',
+        name: 'Prediction Range Min',
         data: waterPredictionsPercentileMinFahrenheit,
         type: "line",
         color: "#4A90E2",
         lineWidth: 0,
         zIndex: 1, // Ensure this is in front of the bounds
-        marker: { enabled: true, symbol: 'triangle', radius: 3.5},
+        marker: { enabled: true, symbol: 'triangle', radius: 3.5 },
       },
       {
         name: 'Prediction Range (Box: 25th-75th Percentiles; Fence: 5th-95th)',
@@ -751,15 +754,6 @@ const fetchAndFilterData = async () => {
         whiskerLength: '150%',
         color: '#4A90E2',
         fillColor: 'rgba(74,144,226,0.35)'
-      },
-      {
-        name: 'Prediction Range Max',
-        data: waterPredictionsPercentileMaxFahrenheit,
-        type: "line",
-        color: "#4A90E2",
-        lineWidth: 0,
-        zIndex: 1, // Ensure this is in front of the bounds
-        marker: { enabled: true,symbol: 'triangle-down', radius: 3.5},
       }
     ];
   } catch (error) {
@@ -910,7 +904,7 @@ onUnmounted(() => {
         <!-- Text content overlay -->
         <div class="absolute  inset-0 flex items-center justify-center">
           <h1 class=" max-w-[1500px] text-lg md:text-3xl lg:text-5xl font-bold text-center pr-5 pl-5">
-            Water Temperature Trends and Forecasts for the Texas Upper Laguna Madre
+            Water Temperature Trends and Forecasts for Laguna Madre, TX
           </h1>
         </div>
       </div>
@@ -1021,52 +1015,60 @@ onUnmounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Displays the median (50th percentile) water temperature predictions for the next 120 hours, along with the most recent water and air temperature measurements. 
+                Shows recent temperature measurements alongside a central (median) AI water temperature
+                forecast and air temperature forecasts from The Weather Company (TWC) and 
+                National Weather Service National Digital Forecast Database (NWS-NDFD). 
+                This provides a simple view of how water temperatures are expected to change over the next five days.
               </p>
             </div>
             <hr class="border-t border-dark-text">
-
-            <!-- Limitations -->
+            
+            <!-- How to Read -->
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
-                Limitations
-              </h3>
-
-              <ul class="list-disc list-inside space-y-2 text-dark-text">
-                <li>
-                  Shows only the most likely forecast. It does not display the uncertainty
-                  or the range of other possible temperature predictions.
-                </li>
-                <li>
-                  Semaphore water temperature predictions are generated every six hours.
-                </li>
-                <li>
-                  National Digital Forecast Database (NDFD) air temperature predictions are
-                  interpolated as needed.
-                </li>
-              </ul>
-            </div>
-            <hr class="border-t border-dark-text">
-
-            <!-- Key Insight -->
-            <div>
-              <h3 class="text-lg lg:text-xl font-bold mb-2">
-                Key Insight
+                How to Read
               </h3>
 
               <p class="leading-relaxed">
-                Use this graph for a quick view of the expected temperature trend.
-                For forecast confidence and possible temperature ranges, view the
-                Ribbon or Box Plot graphs.
+                The black dashed line shows the central water temperature forecast from the AI ensemble model predictions.
+                This line represents the median, or middle, of the possible predictions. The vertical “Now” line separates
+                recent temperature measurements from future predictions. 
+              </p>
+            </div>
+            <hr class="border-t border-dark-text">
+
+            <!-- What to Look For -->
+            <div>
+              <h3 class="text-lg lg:text-xl font-bold mb-2">
+                What to Look For
+              </h3>
+
+              <p class="leading-relaxed">
+                Best for tracking the predicted water temperature trend and observing whether it approaches,
+                crosses, or remains below critical cold-stunning thresholds.
+              </p>
+            </div>
+            <hr class="border-t border-dark-text">
+
+            <!-- Keep in Mind -->
+            <div>
+              <h3 class="text-lg lg:text-xl font-bold mb-2">
+                Keep in Mind
+              </h3>
+
+              <p class="leading-relaxed">
+                This forecast shows only one possible outcome and does not display the uncertainty of the AI water
+                temperature predictions. Use the Fan Plot or Percentile Box Plot to see the range of water
+                temperatures predicted by the AI ensemble model.
               </p>
             </div>
 
-          </div>
-        </div>
-      </section>
+          </div> <!-- End Scrollable Content -->
+        </div> <!-- End Graph Information -->
+      </section> <!-- End First Chart Section -->
       <div class="h-[30px] bg-gray-100"></div>
 
-       <!-- Second Chart Section-->
+      <!-- Second Chart Section-->
       <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 px-2 lg:py-8 lg:px-4  bg-white items-stretch">
         <!-- Chart -->
         <div class="chart-2 lg:col-span-4 relative border sm:w-full ">
@@ -1103,60 +1105,59 @@ onUnmounted(() => {
           <!-- Scrollable Content -->
           <div class="graph-scroll flex-1 overflow-y-auto space-y-8 text-dark-text pr-2">
 
-            <!-- Uncertainty Meaning -->
+            <!-- Purpose -->
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
-                Uncertainty Meaning
+                Purpose
               </h3>
 
               <p class="leading-relaxed mb-3">
-                The model predicts many possible temperatures. The shaded bands show how closely those predictions agree.
+                Shows recent temperature measurements alongside the central (median) AI water temperature forecast,
+                a range of possible water temperature outcomes, and air temperature forecasts from TWC and NWS-NDFD.
+                This provides information about the central predicted trend with forecast uncertainty over the next five days.
               </p>
-
-              <ul class="space-y-2 ml-5 list-disc leading-relaxed">
-                <li><strong>Black line:</strong> Most likely predicted temperature.</li>
-                <li><strong>Dark blue band:</strong> Where most predictions fall.</li>
-                <li><strong>Light blue band:</strong> A wider range of possible temperatures.</li>
-                <li><strong>Narrow bands:</strong> Higher confidence.</li>
-                <li><strong>Wide bands:</strong> Lower confidence.</li>
-              </ul>
             </div>
             <hr class="border-t border-dark-text">
 
-            <!-- Limitations -->
+            <!-- How to Read -->
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
-                Limitations
+                How to Read
               </h3>
-              <ul class="list-disc list-inside space-y-2 text-dark-text">
-                <li>
-                  The shaded bands show likely temperature ranges, not guaranteed outcomes.
-                Actual temperatures may still fall outside these ranges.
-                </li>
-                <li>
-                  Semaphore water temperature predictions are generated every six hours.
-                </li>
-                <li>
-                  National Digital Forecast Database (NDFD) air temperature predictions are
-                  interpolated as needed.
-                </li>
-              </ul>
+              
+              <p class="leading-relaxed mb-3">
+                The black dashed line shows the central, or median, water temperature forecast.
+                The darker shaded area (25th [lower temperature] - 75th [higher temperature] percentile range)
+                shows the most likely range, containing the middle 50% of AI water temperature predictions.
+                The lighter shaded area (5th [lower temperature] - 95th [higher temperature] percentile range])
+                shows a broader range of less likely but possible temperatures, containing 90% of AI water temperature predictions.
+              </p>
             </div>
             <hr class="border-t border-dark-text">
 
-            <!-- Key Insight -->
+            <!-- What to Look For -->
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
-                Key Insight
+                What to Look For
               </h3>
 
               <p class="leading-relaxed">
-                Narrow bands mean the forecast is more certain, while wider bands indicate
-                greater uncertainty. Use this graph to understand both the expected
-                forecast and its confidence.
+                Look at where the central forecast and shaded ranges fall relative to critical cold-stunning thresholds.
+                Also watch how the shaded ranges widen or narrow over time. Wider ranges indicate greater predictive uncertainty,
+                while narrower ranges indicate greater confidence on future water temperatures.
               </p>
             </div>
+            
+            <!-- Keep in Mind -->
+            <div>
+              <h3 class="text-lg lg:text-xl font-bold mb-2">
+                Keep in Mind
+              </h3>
 
+              <p class="leading-relaxed">
+                Actual water temperatures may occur anywhere within or occasionally outside the displayed ranges (about 10% of the time).
+              </p>
+            </div>
           </div>
         </div>  
       </section>
@@ -1209,56 +1210,51 @@ onUnmounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Summarizes the range of predicted temperatures at each forecast time,
-                making it easy to compare forecast uncertainty.
+                Summarizes how possible water temperature predictions are distributed at each forecast time,
+                making it easier to compare the central forecast and forecast uncertainty across the next five days.
               </p>
             </div>
             <hr class="border-t border-dark-text">
 
-            <!-- Understanding the Box Plot -->
+            <!-- How to Read -->
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
-                Understanding the Box Plot
-              </h3>
-
-              <ul class="space-y-2 ml-5 list-disc leading-relaxed">
-                <li><strong>—</strong> Center line: Most likely predicted temperature.</li>
-                <li><strong>▭</strong> Box: Middle 50% of predictions.</li>
-                <li><strong>│</strong> Whiskers: Typical prediction range.</li>
-                <li><strong>▲ / ▼</strong> Highest and lowest predicted temperatures.</li>
-              </ul>
-            </div>
-            <hr class="border-t border-dark-text">
-
-            <!-- Limitations -->
-            <div>
-              <h3 class="text-lg lg:text-xl font-bold mb-2">
-                Limitations
-              </h3>
-              <ul class="list-disc list-inside space-y-2 text-dark-text">
-                <li>
-                  Shows a summary of the predictions instead of every individual forecast.
-                </li>
-                <li>
-                  Semaphore water temperature predictions are generated every six hours.
-                </li>
-                <li>
-                  National Digital Forecast Database (NDFD) air temperature predictions are
-                  interpolated as needed.
-                </li>
-              </ul>
-            </div>
-            <hr class="border-t border-dark-text">
-
-            <!-- Key Insight -->
-            <div>
-              <h3 class="text-lg lg:text-xl font-bold mb-2">
-                Key Insight
+                How to Read
               </h3>
 
               <p class="leading-relaxed">
-                Taller boxes and longer whiskers indicate greater uncertainty, while
-                shorter ones indicate higher confidence.
+                The center blue line shows the central, or median, water temperature forecast.
+                The box (25th-75th percentiles) shows the most likely range, containing the middle 50% of AI water temperature predictions.
+                The whiskers (5th-95th percentiles) show a wider range of possible temperatures, containing 90% of predictions.
+                The points beyond the whiskers show the minimum and maximum predicted temperatures.
+              </p>
+            </div>
+            <hr class="border-t border-dark-text">
+
+            <!-- What to Look For -->
+            <div>
+              <h3 class="text-lg lg:text-xl font-bold mb-2">
+                What to Look For
+              </h3>
+              
+              <p class="leading-relaxed">
+                Compare the central forecast and ranges with critical cold-stunning thresholds.
+                Taller boxes and longer whiskers indicate greater predictive uncertainty,
+                while shorter ones indicate greater confidence on future water temperatures.
+              </p>
+            </div>
+            <hr class="border-t border-dark-text">
+
+            <!-- Keep in Mind -->
+            <div>
+              <h3 class="text-lg lg:text-xl font-bold mb-2">
+                Keep in Mind
+              </h3>
+
+              <p class="leading-relaxed">
+                The minimum and maximum points represent the most extreme AI predictions and may be influenced by only
+                a small number of predictions and are driven also by future air temperature conditions.
+                Interpret these points alongside the ranges displayed by the boxes rather than on their own.
               </p>
             </div>
 
@@ -1290,33 +1286,61 @@ onUnmounted(() => {
         <!-- Text Content Section -->
         <div class="text-center lg:text-left">
           <h2 class="text-lg lg:text-3xl font-extrabold text-center text-dark-text mb-6">
-            ColdStunning AI Model
+            Laguna Madre AI Ensemble Water Temperature Model
           </h2>
           <p class="text-md lg:text-xl text-dark-text mb-4">
-            In the Laguna Madre, the longest hypersaline lagoon in the United States, the passage of cold fronts can lower air temperature by more than 
-            10°C in less than 24 hours. This rapid drop can lead to significant decreases in water temperature. Some of these cold-water events have caused large-scale fish kills and cold-stunning of sea turtles.
+            The Laguna Madre is a shallow, hypersaline lagoon where strong winter cold fronts can lower air temperatures
+            by more than 10°C in less than 24 hours. These rapid changes can cause substantial declines in water temperature, 
+            creating hazardous conditions for marine life. Past extreme cold-water events have resulted in large-scale fish
+            kills and the cold-stunning of sea turtles.
           </p>
           <p class="text-md lg:text-xl text-dark-text mb-4">
-            To mitigate the impact of these cold events, members of the Texas Marine Coldwater Response Collaboration (TCRC) — including local agencies, private-sector companies, and other stakeholders (logos below) — voluntarily interrupt activities such as fishing, navigation, and dredging in the Laguna Madre. Dredging, which involves the removal of sediments to maintain navigational channels, can contribute to changes in water circulation and temperature distribution. During extreme cold events, suspending dredging operations helps minimize further disturbances to the ecosystem and allows marine life to seek refuge in deeper, more stable waters. These proactive measures help protect marine life and mobilize resources during critical times.
+            During these events, members of the Texas Marine Coldwater Response Collaboration (TCRC)—including government agencies,
+            researchers, private-sector organizations, and other coastal stakeholders—coordinate preparations and response activities. 
+            These efforts may include mobilizing sea turtle rescue resources and voluntarily modifying or suspending activities such as 
+            fishing, navigation, and dredging to reduce additional risks to marine life.
           </p>
           <p class="text-md lg:text-xl text-dark-text mb-4">
-            Accurate temperature predictions are essential for managing these interruptions effectively. The live-updating graph above displays the latest air and water temperature measurements, along with predicted air and water temperatures for the Laguna Madre. Research and development of improved model predictions are ongoing for improved collaborative decision-making during cold weather and cold-stunning events.
+            Accurate and timely temperature predictions help TCRC members determine when preparations may be needed and how long hazardous 
+            conditions could persist. The live-updating graph above displays recent air and water temperature observations alongside 
+            predicted conditions for the Laguna Madre. The water temperature predictions extend up to 120 hours, or five days, into the future.
           </p>
           <p class="text-md lg:text-xl text-dark-text mb-4">
-            This AI model was originally developed by Dr. Robyn Ball during her master's studies at Texas A&M University–Corpus Christi. Responsibility for the model has since been entrusted to the Cool Turtles team at the Coastal Dynamics Lab. The Cool Turtles team is led by PhD student 
-            <a href="https://www.linkedin.com/in/miranda-white-859b2414a/" target="_blank" class="text-blue-500 hover:underline">Miranda White</a>, 
+            Users should pay particular attention to how quickly water temperatures are predicted to decrease, 
+            whether they approach important cold-stunning thresholds, and how long hazardous conditions may persist. 
+            Predictions should be interpreted as decision-support guidance rather than exact guarantees. 
+            Because forecast conditions can change, users should review the latest model update alongside current observations,
+            official weather information, and local operational expertise.
+          </p>
+          <p class="text-md lg:text-xl text-dark-text mb-4">
+            By providing advance notice of potentially hazardous water temperatures, 
+            the model supports coordinated decisions about monitoring, resource mobilization, 
+            rescue preparations, and temporary operational changes. Research and development are ongoing to 
+            improve the accuracy, reliability, and usefulness of the predictions during extreme cold-weather events.
+          </p>
+          <p class="text-md lg:text-xl text-dark-text mb-4">
+            The original AI water temperature model was developed by Dr. Robyn Ball during her master's research at 
+            Texas A&M University-Corpus Christi (TAMU-CC). Responsibility for its continued development and maintenance was later 
+            entrusted to the Cool Turtles team within the Coastal Dynamics Lab at TAMU-CC.
+          </p>
+          <h3 class="text-lg lg:text-xl font-bold mb-2">
+            Model Development and Maintenance
+          </h3>
+          <p class="text-md lg:text-xl text-dark-text mb-4">
+            The Cool Turtles team is led by
+            <a href="https://www.linkedin.com/in/miranda-white-859b2414a/" target="_blank" class="text-blue-500 hover:underline">Dr. Miranda White</a>, 
             alongside her talented teammates 
             <a href="https://www.linkedin.com/in/jarett-woodall-mba-8a3696224/" target="_blank" class="text-blue-500 hover:underline">Jarett Woodall</a>, 
             <a href="https://www.linkedin.com/in/christian-duff-898103211/" target="_blank" class="text-blue-500 hover:underline">Christian Duff</a>, 
             <a href="https://www.facebook.com/watch/?v=740721718150868" target="_blank" class="text-blue-500 hover:underline">Hector Marrero-Colominas</a>,
             <a href="https://www.linkedin.com/in/andrew-desimone-00170b24b/" target="_blank" class="text-blue-500 hover:underline">Andrew DeSimone</a>, 
-            and Elisa Flores. 
+            and Elisa Flores. The team works with TCRC members and other collaborators to evaluate and improve the model
+            and its accompanying visualizations for operational decision-making.
           </p>
-
         </div>
     </section>
 
-     <!-- Information Section -->
+    <!-- Information Section -->
 
 
 
@@ -1329,11 +1353,11 @@ onUnmounted(() => {
       <!-- Always-visible Handle -->
       <button
         @click="showInfoDrawer = !showInfoDrawer"
-        class="w-full bg-navy-blue text-white shadow-xl py-3"
+        class="w-[calc(100%-2rem)] mx-4 rounded-lg bg-[#1895a3] text-white border-4 border-black shadow-xl py-3"
       >
         <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-2"></div>
 
-        <div class="font-semibold">
+        <div class="font-semibold text-xl">
           {{ showInfoDrawer ? "Hide Additional Information ▼" : "Additional Information ▲" }}
         </div>
       </button>
@@ -1356,91 +1380,89 @@ onUnmounted(() => {
         >
 
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-            <!-- LEFT CARD -->
+              <!-- Left Card -->
               <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
-          <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
-            Data on this Graph:
-          </h3>
-          <ul class="list-disc list-inside space-y-2 text-md lg:text-xl text-dark-text">
-            <li>
-              Past six-day air/water temperature from
-              <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8776139" 
-                class="underline text-blue-600 hover:text-blue-800" target="_blank">NOAA's South Bird Island Station</a>
-            </li>
-            <li>
-              Backup water temperature data from
-              <a href="https://lighthouse.tamucc.edu/overview/171" 
-                class="underline text-blue-600 hover:text-blue-800" target="_blank">National Park Service</a>
-            </li>
-            <li>Air temperature predictions from the National Digital Forecast Database (points)</li>
-            <li>Cubic interpolation of predicted air temperature (dashed line)</li>
-            <li>Water temperature predictions from Semaphore (dashed line)</li>
-          </ul>
-        </div>
+                <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
+                  Data on this Graph:
+                </h3>
+                <ul class="list-disc list-inside space-y-2 text-md lg:text-xl text-dark-text">
+                  <li>
+                    Past six-day air/water temperature from
+                    <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8776139" 
+                      class="underline text-blue-600 hover:text-blue-800" target="_blank">NOAA's South Bird Island Station</a>
+                  </li>
+                  <li>
+                    Backup water temperature data from
+                    <a href="https://lighthouse.tamucc.edu/overview/171" 
+                      class="underline text-blue-600 hover:text-blue-800" target="_blank">National Park Service</a>
+                  </li>
+                  <li>Air temperature predictions from the National Digital Forecast Database (points)</li>
+                  <li>Cubic interpolation of predicted air temperature (dashed line)</li>
+                  <li>Water temperature predictions from Semaphore (dashed line)</li>
+                </ul>
+              </div> <!-- End Left Card -->
 
-        <!-- Right Column -->
-        <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
-          <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
-            Additional Information:
-          </h3>
-          <ul class="list-disc space-y-2 pl-5 text-md lg:text-xl text-dark-text">
-            <li>
-              Wind speed graph available 
-              <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">here</a>
-            </li>
-            <li>
-              Ensemble air temperature predictions from The Weather Company available 
-              <router-link 
-                to="/air-temperature-ensemble" 
-                class="underline text-blue-600 hover:text-blue-800">
-                here
-              </router-link>
-            </li>
-            <li>
-              Ensemble water temperature predictions from Semaphore available 
-              <router-link 
-                to="/water-temperature-ensemble" 
-                class="underline text-blue-600 hover:text-blue-800">
-                here
-              </router-link>
-            </li>
-            <li>
-              CRPS (Continuous Ranked Probability Score) ensemble model from Semaphore available
-              <router-link 
-                to="/crps" 
-                class="underline text-blue-600 hover:text-blue-800">
-                here
-              </router-link>
-            </li>
-            <li>
-              Wind predictions for the Laguna Madre available
-              <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">
-                here
-              </a>
-            </li>
-            <li>
-              Ensemble air temperature predictions for Bird Island Basin available 
-              <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">
-                here
-              </a>
-            </li>
-            <li>
-              AI water temperature prediction models performance available
-              <a href="https://lighthouse.tamucc.edu/supertool.php?stnid=013&elev=mwl&mode=nnwtp" target="_blank" class="underline text-blue-600 hover:text-blue-800">
-                here
-              </a>
-            </li>
-            <li>
-              NOAA Sea Turtle Stranding and Salvage Network water temperature measurements
-              <a href="https://connect.fisheries.noaa.gov/content/c0773132-9590-4e21-bb42-676e2140fbaa/" target="_blank" class="underline text-blue-600 hover:text-blue-800">
-                here
-              </a>
-            </li>
-          </ul>
-        </div>
-
-          </div>
+            <!-- Right Card -->
+            <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
+              <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
+                Additional Information:
+              </h3>
+              <ul class="list-disc space-y-2 pl-5 text-md lg:text-xl text-dark-text">
+                <li>
+                  Wind speed graph available 
+                  <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">here</a>
+                </li>
+                <li>
+                  Ensemble air temperature predictions from The Weather Company available 
+                  <router-link 
+                    to="/air-temperature-ensemble" 
+                    class="underline text-blue-600 hover:text-blue-800">
+                    here
+                  </router-link>
+                </li>
+                <li>
+                  Ensemble water temperature predictions from Semaphore available 
+                  <router-link 
+                    to="/water-temperature-ensemble" 
+                    class="underline text-blue-600 hover:text-blue-800">
+                    here
+                  </router-link>
+                </li>
+                <li>
+                  CRPS (Continuous Ranked Probability Score) ensemble model from Semaphore available
+                  <router-link 
+                    to="/crps" 
+                    class="underline text-blue-600 hover:text-blue-800">
+                    here
+                  </router-link>
+                </li>
+                <li>
+                  Wind predictions for the Laguna Madre available
+                  <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">
+                    here
+                  </a>
+                </li>
+                <li>
+                  Ensemble air temperature predictions for Bird Island Basin available 
+                  <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">
+                    here
+                  </a>
+                </li>
+                <li>
+                  AI water temperature prediction models performance available
+                  <a href="https://lighthouse.tamucc.edu/supertool.php?stnid=013&elev=mwl&mode=nnwtp" target="_blank" class="underline text-blue-600 hover:text-blue-800">
+                    here
+                  </a>
+                </li>
+                <li>
+                  NOAA Sea Turtle Stranding and Salvage Network water temperature measurements
+                  <a href="https://connect.fisheries.noaa.gov/content/c0773132-9590-4e21-bb42-676e2140fbaa/" target="_blank" class="underline text-blue-600 hover:text-blue-800">
+                    here
+                  </a>
+                </li>
+              </ul>
+            </div> <!-- End Right Card -->
+          </div> <!-- End Card Grid -->
 
         </div>
 
@@ -1476,7 +1498,10 @@ onUnmounted(() => {
             <img src="@/assets/images/USACE-Logo.jpg" alt="US Army Corps Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
           <a href="https://www.nsf.gov/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/NSF-Logo.png" alt="National Science Foundation Logo" class="max-w-[80px] lg:max-w-[150px]">
+            <img src="@/assets/images/NSF-Logo.png" alt="NSF Logo" class="max-w-[80px] lg:max-w-[150px]">
+          </a>
+          <a href="https://www.ai2es.org/" target="_blank" class="hover:scale-110 transition-transform">
+            <img src="@/assets/images/ai2es-logo.png" alt="AI2ES Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
           <a href="https://www.gicaonline.com/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/GICA-Logo.png" alt="Gulf Intracoastal Canal Association Logo" class="max-w-[80px] lg:max-w-[150px]">
@@ -1498,6 +1523,12 @@ onUnmounted(() => {
           </a>
           <a href="https://www.joincca.org/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/CCA-Logo.png" alt="Coastal Conservation Association Logo" class="max-w-[80px] lg:max-w-[150px]">
+          </a>
+          <a href="https://www.weathercompany.com/" target="_blank" class="hover:scale-110 transition-transform">
+            <img src="@/assets/images/TWC-Logo.png" alt="The Weather Company Logo" class="max-w-[80px] lg:max-w-[150px]">
+          </a>
+          <a href="https://ccme.famu.edu/" target="_blank" class="hover:scale-110 transition-transform">
+            <img src="@/assets/images/CCME-Logo.png" alt="Florida A&M University Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
         </div>
         <p class="text-center text-sm text-light-text">(Click on the logos to visit each contributor's website)</p>
