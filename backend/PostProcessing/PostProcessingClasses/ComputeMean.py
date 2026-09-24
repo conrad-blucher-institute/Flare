@@ -61,13 +61,15 @@ class ComputeMean(IPostProcessing):
         """
 
         # validate cspec args
-        # on bad arguments, log the error message and return the original dataframe
+        # on bad arguments, log the error message and return the df with an empty post processing column
         is_valid_args = self._validate_args(data, targetSeries, outKey, dropOutlierValues, thresholdDeviationFromMedian)
         if not is_valid_args:
+            data[outKey] = None
             return data
 
         # extract the target series from the df and convert to numeric
-        values_df = data[targetSeries].apply(to_numeric, errors='coerce')
+        available_series = [key for key in targetSeries if key in data.columns]
+        values_df = data[available_series].apply(to_numeric, errors='coerce')
 
         # add the new mean series to the dataframe
         data[outKey] = values_df.apply(
@@ -90,7 +92,7 @@ class ComputeMean(IPostProcessing):
         ) -> bool:
         """
         Validates the arguments passed to the post process method by checking
-        for cspec errors.
+        for cspec errors and missing data in the dataframe that is required for computing the mean.
 
         Args:
             df (DataFrame): The dataframe containing the collection of series data
@@ -104,21 +106,29 @@ class ComputeMean(IPostProcessing):
             bool - True if the arguments are valid, False otherwise. If invalid, logs a warning message and returns False.
         """
 
+        # this is a special case since on bad arguments, we would return the df
+        # with the new column set to all None, but without the outKey we cannot do that
+        if outKey is None or outKey.strip() == "":
+            msg = "ComputeMean Error: 'outKey' key is missing or empty in cspec args."
+            raise KeyError(msg)
+
         if targetSeries is None or len(targetSeries) == 0:
             msg = "ComputeMean Warning: 'targetSeries' key is missing or empty in cspec args. No mean will be computed."
             self.logger.log_info(msg)
             return False
 
-        if outKey is None or outKey.strip() == "":
-            msg = "ComputeMean Warning: 'outKey' key is missing or empty in cspec args. No mean will be computed."
-            self.logger.log_info(msg)
-            return False
-
+        # if a key is missing from the columns, we can still try to compute the mean for the available series.
         for key in targetSeries:
             if key not in df.columns:
-                msg = f"ComputeMean Warning: Target series '{key}' not found in dataframe columns. No mean will be computed."
+                msg = f"ComputeMean Warning: Target series '{key}' not found in dataframe columns."
                 self.logger.log_info(msg)
-                return False
+
+        # if all keys are missing from the df, no mean can be computed
+        found_keys = [key for key in targetSeries if key in df.columns]
+        if len(found_keys) == 0:
+            msg = "ComputeMean Warning: No valid target series found in dataframe columns. No mean will be computed."
+            self.logger.log_info(msg)
+            return False
 
         if dropOutlierValues and thresholdDeviationFromMedian is None:
             msg = "ComputeMean Warning: 'thresholdDeviationFromMedian' key is missing in cspec args. No mean will be computed."

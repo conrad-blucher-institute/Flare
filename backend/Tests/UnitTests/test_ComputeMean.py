@@ -39,7 +39,7 @@ class TestComputeMean():
     @pytest.mark.parametrize(
         "df, targetSeries, outKey, dropOutlierValues, thresholdDeviationFromMedian",
         [
-            # test None target series; df should remain unchanged
+            # test None target series
             (
                 DataFrame({
                     "series-one": [1, 2, 3, 4],
@@ -52,42 +52,7 @@ class TestComputeMean():
                 False, # dropOutlierValues
                 None # thresholdDeviationFromMedian
             ),
-            # test None outKey; df should remain unchanged
-            (
-                DataFrame({
-                    "series-one": [1, 2, 3, 4],
-                    "series-two": [5, 6, 7, 8],
-                    "series-three": [9, 10, 11, 12],
-                    "series-four": [13, 14, 15, 16]
-                }),
-                [
-                    "series-one",
-                    "series-two",
-                    "series-three",
-                    "series-four"
-                ],
-                None, # outKey,
-                False, # dropOutlierValues
-                None # thresholdDeviationFromMedian
-            ),
-            # test a missing target series; df should remain unchanged
-            (
-                DataFrame({
-                    "series-one": [1, 2, 3, 4],
-                    "series-two": [5, 6, 7, 8],
-                    "series-three": [9, 10, 11, 12],
-                    "series-four": [13, 14, 15, 16]
-                }),
-                [
-                    "series-one",
-                    "series-two",
-                    "series-five"   # doesn't exist in the input df
-                ],
-                "combined-series",
-                False, # dropOutlierValues
-                None # thresholdDeviationFromMedian
-            ),
-            # test empty target series; df should remain unchanged
+            # test empty target series
             (
                 DataFrame({
                     "series-one": [1, 2, 3, 4],
@@ -100,7 +65,7 @@ class TestComputeMean():
                 False, # dropOutlierValues
                 None # thresholdDeviationFromMedian
             ),
-            # test a true dropOutlierValues with no threshold; df should remain unchanged
+            # test a true dropOutlierValues with no threshold
             (
                 DataFrame({
                     "series-one": [1, 2, 3, 4],
@@ -118,7 +83,7 @@ class TestComputeMean():
                 True, # dropOutlierValues
                 None # thresholdDeviationFromMedian
             ),
-            # test a true dropOutlierValues with a negative threshold; df should remain unchanged
+            # test a true dropOutlierValues with a negative threshold
             (
                 DataFrame({
                     "series-one": [1, 2, 3, 4],
@@ -139,17 +104,15 @@ class TestComputeMean():
         ],
         ids = [
             "None_target_series",
-            "None_outKey",
-            "Missing_target_series",
             "Empty_target_series",
             "no-threshold",
-            "negative-threshold"
+            "negative-threshold",
         ]
     )
     def test_invalid_args(self, mock_logger, df, targetSeries, outKey, dropOutlierValues, thresholdDeviationFromMedian):
         """
         Test that the ComputeMean post processing class correctly handles invalid arguments.
-        The input df should be unchanged.
+        The input df should have an empty column appended for the outKey.
         """
         compute_mean = ComputeMean()
         result_df = compute_mean.post_process(
@@ -159,11 +122,71 @@ class TestComputeMean():
             dropOutlierValues=dropOutlierValues,
             thresholdDeviationFromMedian=thresholdDeviationFromMedian
         )
-        assert result_df is df, "DataFrame returned should be the same object as the input DataFrame for invalid arguments."
-        assert result_df.equals(df), "DataFrame should remain unchanged for invalid arguments."
+        assert outKey in result_df.columns, "The output DataFrame should have the outKey column appended."
+        assert result_df[outKey].isna().all(), "The outKey column should be filled with NaN values for invalid arguments."
         mock_logger.log_info.assert_called_once()
 
 
+    def test_no_outKey_raises(self, mock_logger):
+        """
+        Test that the ComputeMean post processing class raises a KeyError when the outKey is missing.
+        """
+        compute_mean = ComputeMean()
+        df = DataFrame({
+            "series-one": [1, 2, 3, 4],
+            "series-two": [5, 6, 7, 8]
+        })
+        with pytest.raises(KeyError, match="ComputeMean Error: 'outKey' key is missing or empty in cspec args."):
+            compute_mean.post_process(
+                data=df,
+                targetSeries=["series-one", "series-two"],
+                outKey=None,
+                dropOutlierValues=False,
+                thresholdDeviationFromMedian=None
+            )
+
+
+    def test_all_missing_target_series(self, mock_logger):
+        """
+        Test that the ComputeMean post processing class correctly handles all missing target series.
+        This test is separate from the test_invalid_args test because it will call the logger many times.
+        """
+        compute_mean = ComputeMean()
+        df = DataFrame({
+            "series-one": [1, 2, 3, 4],
+            "series-two": [5, 6, 7, 8],
+            "series-three": [9, 10, 11, 12],
+            "series-four": [13, 14, 15, 16]
+        })
+        result_df = compute_mean.post_process(
+            data=df,
+            targetSeries=["series-five", "series-six"], # all missing target series
+            outKey="combined-series",
+            dropOutlierValues=False,
+            thresholdDeviationFromMedian=None
+        )
+        assert "combined-series" in result_df.columns, "The output DataFrame should have the outKey column appended."
+        assert result_df["combined-series"].isna().all(), "The outKey column should be filled with NaN values for all missing target series."
+        assert mock_logger.log_info.call_count == 3, "The logger should have been called 3 times for all missing target series."
+        assert "No valid target series" in mock_logger.log_info.call_args.args[0]
+
+
+    def test_partial_missing_target_series(self, mock_logger):
+        """
+        Test that the mean is computed from the available series when some target series are missing.
+        """
+        df = DataFrame({
+            "series-one": [1.0, 2.0],
+            "series-two": [3.0, 4.0]
+        })
+        result_df = ComputeMean().post_process(
+            df,
+            ["series-one", "series-two", "series-missing"],
+            "combined-series"
+        )
+        assert result_df["combined-series"].tolist() == [2.0, 3.0]
+        mock_logger.log_info.assert_called_once()
+        assert "series-missing" in mock_logger.log_info.call_args.args[0]
 
     @pytest.mark.parametrize(
         "df, targetSeries, outKey, expected_df",
@@ -475,3 +498,4 @@ class TestComputeMean():
         assert "combined-series" in result_df.columns, "The output DataFrame should contain the new mean series column."
         assert result_df.equals(expected_df), "The computed mean series does not match the expected values."
         mock_logger.log_info.assert_not_called()
+    
