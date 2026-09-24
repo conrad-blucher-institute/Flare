@@ -28,7 +28,7 @@ export const useMenuStore = defineStore('menu', {
         link: { name: 'about' }
       },
       {
-        label: 'ColdStunning Model',
+        label: 'Cold Stunning Model',
         link: { name: 'crps' },
         children: [
           {
@@ -40,7 +40,7 @@ export const useMenuStore = defineStore('menu', {
     ],
     slidingMenuOptions: [
       {
-        label: 'Coldstunning Group',
+        label: 'Cold Stunning Group',
         link: { name: 'coldstunning' },
         image: TurtleImage,
         location: 'Cold-Stunning Models',
