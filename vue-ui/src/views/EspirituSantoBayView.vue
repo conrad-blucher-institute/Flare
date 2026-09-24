@@ -87,26 +87,19 @@ const buildChart = (isSmallScreen, chartTitle) => {
           whiteSpace: "nowrap",
         },
       },
-      tickInterval: 12 * 3600 * 1000, // Main ticks every 12 hours
+      tickInterval: 24 * 3600 * 1000, // Main ticks every day
       // Align ticks to 12 AM and 12 PM
+      // Ensure ticks align to 12 AM
       tickPositioner: function () {
-        const positions = [];
-        const hours = 24 * 3600 * 1000;
-        const timezoneOffset =
-          new Date().getTimezoneOffset() * 60 * 1000;
-
-        let tick =
-          Math.ceil(
-            (this.min - timezoneOffset) / hours
-          ) *
-            hours +
-          timezoneOffset;
-
-        while (tick <= this.max) {
-          positions.push(tick);
-          tick += hours;
+        let positions = [];
+        let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+        let start = Math.floor((this.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset;
+        let end = this.max;
+        
+        while (start <= end) {
+          positions.push(start);
+          start += 2 * 24 * 3600 * 1000; // Increment by 2 days
         }
-
         return positions;
       },
       title: {
@@ -154,8 +147,8 @@ const buildChart = (isSmallScreen, chartTitle) => {
       startOnTick: true,
       endOnTick: true,
       tickInterval: 10, // Major ticks every 10 units
-      min: 30, // Minimum value for y-axis
-      softMax: 90,
+      softMin: 30, // softMin for y axis
+      softMax: 90, // softMax for y axis
       plotLines: [
         {
           color: "red",
@@ -205,6 +198,11 @@ const buildChart = (isSmallScreen, chartTitle) => {
             lineWidth: 3
           }
         }
+      },
+      series: {
+        states: {
+          inactive: { opacity: 1 } // do not dim other series when hovering over one
+        }
       }
     },
     series: [], // Placeholder for data, dynamically updated
@@ -232,7 +230,7 @@ const buildChart = (isSmallScreen, chartTitle) => {
                 ${displayInfo}`;
       },
       style: {
-        fontSize: isSmallScreen ? "10px" : "12px", 
+        fontSize: isSmallScreen ? "10px" : "16px", 
         padding: isSmallScreen ? "5px" : "8px", 
         color: "#0f4f66",
         fontFamily: "Arial",
