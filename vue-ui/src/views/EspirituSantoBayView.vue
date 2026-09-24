@@ -1,48 +1,35 @@
 <!-- ===================================================
-     View: CrpsView.vue
+     View: EspirituSantoBayView.vue
 
-     Description: This view displays the water temperature CRPS trends and predictions for South Bird Island.
+     Description: This view displays the water temperature trends and predictions for Espiritu Santo Bay.
 
                   Features include:
-                  - 3 dynamically updating charts
+                  - 1 dynamically updating chart
                   - Instructions for interacting with the chart.
                   - Information on the data of the chart.
                   - Additional links
      Author: Anointiyae Beasley
 
-     Last Updated: 07/29/2026
+     Created: 09/24/2026
 
 ======================================================= -->
 <script setup>
 import { Chart } from "highcharts-vue";
-import Highcharts from "highcharts";
-import HighchartsMore from "highcharts/highcharts-more";
 import { ref, onMounted, onUnmounted, reactive } from "vue";
 
+import AdditionalInfoButton from "@/components/AdditionalInfoButton.vue";
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
 const missingDataWarningBanner = ref(MissingDataWarningBanner);
 const isSmallScreen = window.innerWidth <= 600;
 
-
-// ribbon graph
-// box plot graph
-const csvURL = ref(`http://localhost:8080/flare/csv-data/espiritu-santo-bay.csv`);
+const csvURL = ref(`${window.location.origin}/flare/csv-data/Espiritu-Santo-Bay_Water-Temperature_120hrs.csv`);
 const showChartHelp = ref(false);
-
-
-
 
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
-const isSecondExportMenuVisible = ref(false);
-const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone; 
-let chartTitle = "";
-
 const chartOptions = ref({});
 
-
 // Chart function for first chart that changes based on screen size
-// ribbon graph
 const buildChart = (isSmallScreen, chartTitle) => {
   return {
     chart: {
@@ -101,28 +88,27 @@ const buildChart = (isSmallScreen, chartTitle) => {
         },
       },
       tickInterval: 12 * 3600 * 1000, // Main ticks every 12 hours
+      // Align ticks to 12 AM and 12 PM
+      tickPositioner: function () {
+        const positions = [];
+        const hours = 24 * 3600 * 1000;
+        const timezoneOffset =
+          new Date().getTimezoneOffset() * 60 * 1000;
 
-// Align ticks to 12 AM and 12 PM
-tickPositioner: function () {
-  const positions = [];
-  const hours = 24 * 3600 * 1000;
-  const timezoneOffset =
-    new Date().getTimezoneOffset() * 60 * 1000;
+        let tick =
+          Math.ceil(
+            (this.min - timezoneOffset) / hours
+          ) *
+            hours +
+          timezoneOffset;
 
-  let tick =
-    Math.ceil(
-      (this.min - timezoneOffset) / hours
-    ) *
-      hours +
-    timezoneOffset;
+        while (tick <= this.max) {
+          positions.push(tick);
+          tick += hours;
+        }
 
-  while (tick <= this.max) {
-    positions.push(tick);
-    tick += hours;
-  }
-
-  return positions;
-},
+        return positions;
+      },
       title: {
         text: "Time",
         style: {
@@ -227,45 +213,12 @@ tickPositioner: function () {
       crosshairs: true,
       formatter: function () {
         const localDate = new Date(this.x); 
-        // Dynamically creating the tooltip based on what series are present
-        // Bounds are a special case since they are a range
         let displayInfo = "";
-
         this.points.forEach(point => {
-
-            if (point.series.type === "arearange") {
-              if (point.series.name === "5th-95th Percentile") {  
-                displayInfo += `
-                    <span style="color:${point.color}">\u25CF</span>
-                    <b>${point.series.name}</b><br>
-                    &nbsp;&nbsp;High(95%): <b>${point.high.toFixed(1)}°F</b><br>
-                    &nbsp;&nbsp;Low(5%): <b>${point.low.toFixed(1)}°F</b><br> `;
-              }
-              else if (point.series.name === "25th-75th Percentile") {
-                displayInfo += `
-                    <span style="color:${point.color}">\u25CF</span>
-                    <b>${point.series.name}</b><br>
-                    &nbsp;&nbsp;High(75%): <b>${point.high.toFixed(1)}°F</b><br>
-                    &nbsp;&nbsp;Low(25%): <b>${point.low.toFixed(1)}°F</b><br> `;
-              }
-              else {
-                displayInfo += `
-                <span style="color:${point.color}">\u25CF</span>
-                    <b>${point.series.name}</b><br>
-                    &nbsp;&nbsp;High: <b>${point.high.toFixed(1)}°F</b><br>
-                    &nbsp;&nbsp;Low: <b>${point.low.toFixed(1)}°F</b><br> `;
-              }
-
-                
-
-            } else {
-
-                displayInfo += `
-                    <span style="color:${point.color}">\u25CF</span>
-                    ${point.series.name}: <b>${point.y.toFixed(1)}°F</b><br>`;
-            }
+          displayInfo += `
+              <span style="color:${point.color}">\u25CF</span>
+              ${point.series.name}: <b>${point.y.toFixed(1)}°F</b><br>`;
         });
-
         return `<b>Date: ${localDate.toLocaleDateString("en-US", {
                     weekday: "long",
                     month: "short",
@@ -277,8 +230,6 @@ tickPositioner: function () {
                     minute: "2-digit",
                 })}</b><br>
                 ${displayInfo}`;
-                
-                
       },
       style: {
         fontSize: isSmallScreen ? "10px" : "12px", 
@@ -290,76 +241,69 @@ tickPositioner: function () {
   };
 }; // end buildChart 
 
-chartOptions.value = reactive(buildChart(isSmallScreen, "Water Temperature Trends and Forecasts"));
+chartOptions.value = reactive(buildChart(isSmallScreen, "Water Temperature Predictions for Espiritu Santo Bay"));
 
 
-
-// Function to fetch and process second CSV data
+// Function to fetch and process CSV data
 const fetchAndFilterData = async () => {
   try {
     // Fetch CSV data
     const response = await fetch(csvURL.value);
-    if (!response.ok) throw new Error("Failed to fetch ribbon CSV data");
-
+    if (!response.ok) throw new Error("Failed to fetch CSV data");
     const csvText = await response.text();
-
-
-    // Parse the CSV data for the ribbon chart
-    const parsedData = parseCSV(csvText);
-
-    const seadriftMeasurements =
-      parsedData.seadriftMeasurements || [];
-
-    const portOConnorMeasurements =
-      parsedData.portOConnorMeasurements || [];
-
-    const portLavacaMeasurements =
-      parsedData.portLavacaMeasurements || [];
-
-    const wildlifeRefugeMeasurements =
-      parsedData.wildlifeRefugeMeasurements || [];
-
-    const waterPredictions =
-      parsedData.waterPredictions || [];
-
     
+    const parsedData = parseCSV(csvText);
+    
+    // water measurements
+    const seadriftWaterMeasurements = parsedData.seadriftWaterMeasurements || [];
+    const portOConnorWaterMeasurements = parsedData.portOConnorWaterMeasurements || [];
+    const portLavacaWaterMeasurements = parsedData.portLavacaWaterMeasurements || [];
+    const wildlifeRefugeWaterMeasurements = parsedData.wildlifeRefugeWaterMeasurements || [];
+    const esbWaterMeasurements = parsedData.esbWaterMeasurements || [];
+
+    // air measurements
+    const seadriftAirMeasurements = parsedData.seadriftAirMeasurements || [];
+    const portOConnorAirMeasurements = parsedData.portOConnorAirMeasurements || [];
+    const portLavacaAirMeasurements = parsedData.portLavacaAirMeasurements || [];
+    const wildlifeRefugeAirMeasurements = parsedData.wildlifeRefugeAirMeasurements || [];
+    const esbAirMeasurements = parsedData.esbAirMeasurements || [];
+
+    // predictions
+    const esbWaterPredictions = parsedData.esbWaterPredictions || [];
+    const ndfdAirPredictions = parsedData.ndfdAirPredictions || [];
+
     // Convert to Fahrenheit
     // and round to 1 decimal
-    const toFahrenheit = (celsius) => {
-      return (celsius * 9 / 5) + 32;
-    };
+    const toFahrenheit = (celsius) => (celsius * 9/5) + 32;
+    
+    // Convert water measurements to Fahrenheit
+    const seadriftWaterMeasurementsFahrenheit = seadriftWaterMeasurements.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const portOConnorWaterMeasurementsFahrenheit = portOConnorWaterMeasurements.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const portLavacaWaterMeasurementsFahrenheit = portLavacaWaterMeasurements.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const wildlifeRefugeWaterMeasurementsFahrenheit = wildlifeRefugeWaterMeasurements.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const esbWaterMeasurementsFahrenheit = esbWaterMeasurements.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    
+    // Convert air measurements to Fahrenheit
+    const seadriftAirMeasurementsFahrenheit = seadriftAirMeasurements.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const portOConnorAirMeasurementsFahrenheit = portOConnorAirMeasurements.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const portLavacaAirMeasurementsFahrenheit = portLavacaAirMeasurements.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const wildlifeRefugeAirMeasurementsFahrenheit = wildlifeRefugeAirMeasurements.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const esbAirMeasurementsFahrenheit = esbAirMeasurements.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
 
-    const convertSeriesToFahrenheit = (data) => {
-      return data.map(([time, celsius]) => [
-        time,
-        Number(toFahrenheit(celsius).toFixed(1))
-      ]);
-    };
+    // Convert predictions to Fahrenheit
+    const esbWaterPredictionsFahrenheit = esbWaterPredictions.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const ndfdAirPredictionsFahrenheit = ndfdAirPredictions.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
 
-    const seadriftMeasurementsFahrenheit =
-      convertSeriesToFahrenheit(seadriftMeasurements);
+    // filter air predictions to only include future predictions
+    const futureAirPredictionsFahrenheit = ndfdAirPredictionsFahrenheit.filter(([time]) => time >= Date.now());
 
-    const portOConnorMeasurementsFahrenheit =
-      convertSeriesToFahrenheit(portOConnorMeasurements);
-
-    const portLavacaMeasurementsFahrenheit =
-      convertSeriesToFahrenheit(portLavacaMeasurements);
-
-    const wildlifeRefugeMeasurementsFahrenheit =
-      convertSeriesToFahrenheit(wildlifeRefugeMeasurements);
-
-    const waterPredictionsFahrenheit =
-      convertSeriesToFahrenheit(waterPredictions);
-
-
-   
     // Update chart series with filtered data
     chartOptions.value.series = [
     {
       name: "Seadrift Water Temperature Measurements",
-      data: seadriftMeasurementsFahrenheit,
+      data: seadriftWaterMeasurementsFahrenheit,
       type: "line",
-      color: "#000000",
+      color: "#0072B2",  // blue,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       marker: {
@@ -368,9 +312,9 @@ const fetchAndFilterData = async () => {
     },
     {
       name: "Port O'Connor Water Temperature Measurements",
-      data: portOConnorMeasurementsFahrenheit,
+      data: portOConnorWaterMeasurementsFahrenheit,
       type: "line",
-      color: "#0072B2",
+      color: "#56B4E9",  // sky blue
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       marker: {
@@ -379,9 +323,9 @@ const fetchAndFilterData = async () => {
     },
     {
       name: "Port Lavaca Water Temperature Measurements",
-      data: portLavacaMeasurementsFahrenheit,
+      data: portLavacaWaterMeasurementsFahrenheit,
       type: "line",
-      color: "#009E73",
+      color: "#009E73",  // bluish green
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       marker: {
@@ -390,9 +334,9 @@ const fetchAndFilterData = async () => {
     },
     {
       name: "Aransas Wildlife Refuge Water Temperature Measurements",
-      data: wildlifeRefugeMeasurementsFahrenheit,
+      data: wildlifeRefugeWaterMeasurementsFahrenheit,
       type: "line",
-      color: "#CC79A7",
+      color: "#CC79A7",  // pinkish purple
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       marker: {
@@ -401,18 +345,29 @@ const fetchAndFilterData = async () => {
     },
     {
       name: "ESB Water Temperature Predictions",
-      data: waterPredictionsFahrenheit,
+      data: esbWaterPredictionsFahrenheit,
       type: "line",
-      color: "#D55E00",
-      dashStyle: "LongDash",
+      color: "#000000",
+      dashStyle: "Dash",
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 3,
       marker: {
         enabled: false
       }
+    },
+    {
+      name: "NDFD Air Temperature Predictions",
+      data: futureAirPredictionsFahrenheit,
+      type: "line",
+      color: "orange",
+      dashStyle: "Dash",
+      lineWidth: isSmallScreen ? 1 : 2,
+      zIndex: 1,
+      marker: {
+        enabled: false
+      }
     }
   ];
-    
   } catch (error) {
     console.error("Error fetching or processing data:", error);
   }
@@ -421,110 +376,101 @@ const fetchAndFilterData = async () => {
 
 // CSV parsing function 
 const parseCSV = (csvText) => {
-  // Split the CSV into rows and columns.
-  const rows = csvText
-    .trim()
-    .split("\n")
-    .map((row) => row.trim().split(","));
+  const rows = csvText.split("\n").map((row) => row.split(","));
+  const esbWaterMeasurements = [];
+  const esbAirMeasurements = [];
+  const seadriftWaterMeasurements = [];
+  const portOConnorWaterMeasurements = [];
+  const portLavacaWaterMeasurements = [];
+  const wildlifeRefugeWaterMeasurements = [];
+  const seadriftAirMeasurements = [];
+  const portOConnorAirMeasurements = [];
+  const portLavacaAirMeasurements = [];
+  const wildlifeRefugeAirMeasurements = [];
+  const ndfdAirPredictions = [];
+  const esbWaterPredictions = [];
 
-  // Arrays that will hold each chart series.
-  const seadriftMeasurements = [];
-  const portOConnorMeasurements = [];
-  const portLavacaMeasurements = [];
-  const wildlifeRefugeMeasurements = [];
-  const waterPredictions = [];
 
-  // Add a point only when the CSV cell contains a valid number.
-  const addDataPoint = (dataArray, timestamp, value) => {
-    const numericValue = Number(value);
+  rows.forEach((row, index) => {
+    // Skip the header row
+    if (index === 0) return;
 
-    if (value !== "" && !isNaN(numericValue)) {
-      dataArray.push([timestamp, numericValue]);
+    const [
+      timestamp,
+      esbWaterMeasurementValue,
+      esbAirMeasurementValue,
+      seadriftWaterMeasurementValue,
+      portOConnorWaterMeasurementValue,
+      portLavacaWaterMeasurementValue,
+      wildlifeRefugeWaterMeasurementValue,
+      seadriftAirMeasurementValue,
+      portOConnorAirMeasurementValue,
+      portLavacaAirMeasurementValue,
+      wildlifeRefugeAirMeasurementValue,
+      ndfdAirPredictionValue,
+      esbWaterPredictionValue
+    ] = row;
+
+    // Parse timestamp as UTC
+    const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
+    const utcTimestamp = Date.UTC(year, month - 1, day, hour, minute, second); // Parse as UTC (subtract 1 from month as Date.UTC expects 0-based months)
+    const localDate = new Date(utcTimestamp);
+
+    if (!isNaN(localDate)) {
+      if (esbWaterMeasurementValue && !isNaN(+esbWaterMeasurementValue)) {
+        esbWaterMeasurements.push([localDate.getTime(), +esbWaterMeasurementValue]);
+      }
+      if (esbAirMeasurementValue && !isNaN(+esbAirMeasurementValue)) {
+        esbAirMeasurements.push([localDate.getTime(), +esbAirMeasurementValue]);
+      }
+      if (seadriftWaterMeasurementValue && !isNaN(+seadriftWaterMeasurementValue)) {
+        seadriftWaterMeasurements.push([localDate.getTime(), +seadriftWaterMeasurementValue]);
+      }
+      if (portOConnorWaterMeasurementValue && !isNaN(+portOConnorWaterMeasurementValue)) {
+        portOConnorWaterMeasurements.push([localDate.getTime(), +portOConnorWaterMeasurementValue]);
+      }
+      if (portLavacaWaterMeasurementValue && !isNaN(+portLavacaWaterMeasurementValue)) {
+        portLavacaWaterMeasurements.push([localDate.getTime(), +portLavacaWaterMeasurementValue]);
+      }
+      if (wildlifeRefugeWaterMeasurementValue && !isNaN(+wildlifeRefugeWaterMeasurementValue)) {
+        wildlifeRefugeWaterMeasurements.push([localDate.getTime(), +wildlifeRefugeWaterMeasurementValue]);
+      }
+      if (seadriftAirMeasurementValue && !isNaN(+seadriftAirMeasurementValue)) {
+        seadriftAirMeasurements.push([localDate.getTime(), +seadriftAirMeasurementValue]);
+      }
+      if (portOConnorAirMeasurementValue && !isNaN(+portOConnorAirMeasurementValue)) {
+        portOConnorAirMeasurements.push([localDate.getTime(), +portOConnorAirMeasurementValue]);
+      }
+      if (portLavacaAirMeasurementValue && !isNaN(+portLavacaAirMeasurementValue)) {
+        portLavacaAirMeasurements.push([localDate.getTime(), +portLavacaAirMeasurementValue]);
+      }
+      if (wildlifeRefugeAirMeasurementValue && !isNaN(+wildlifeRefugeAirMeasurementValue)) {
+        wildlifeRefugeAirMeasurements.push([localDate.getTime(), +wildlifeRefugeAirMeasurementValue]);
+      }
+      if (ndfdAirPredictionValue && !isNaN(+ndfdAirPredictionValue)) {
+        ndfdAirPredictions.push([localDate.getTime(), +ndfdAirPredictionValue]);
+      }
+      if (esbWaterPredictionValue && !isNaN(+esbWaterPredictionValue)) {
+        esbWaterPredictions.push([localDate.getTime(), +esbWaterPredictionValue]);
+      }
     }
-  };
-
-  // Start at 1 to skip the header row.
-  for (let index = 1; index < rows.length; index++) {
-    const row = rows[index];
-
-    // Assign each CSV column based on its position.
-    const timestamp = row[0];
-    const seadriftValue = row[1];
-    const portOConnorValue = row[2];
-    const portLavacaValue = row[3];
-    const wildlifeRefugeValue = row[4];
-    const waterPredictionValue = row[5];
-
-    // Skip rows without a timestamp.
-    if (!timestamp) {
-      continue;
-    }
-
-    // Break "2026-08-27 10:30:00" into date parts.
-    const dateParts = timestamp.split(/[- :]/).map(Number);
-
-    const year = dateParts[0];
-    const month = dateParts[1];
-    const day = dateParts[2];
-    const hour = dateParts[3];
-    const minute = dateParts[4];
-    const second = dateParts[5];
-
-    // Create a UTC timestamp in milliseconds.
-    const utcTimestamp = Date.UTC(
-      year,
-      month - 1,
-      day,
-      hour,
-      minute,
-      second
-    );
-
-    // Skip rows with an invalid timestamp.
-    if (isNaN(utcTimestamp)) {
-      continue;
-    }
-
-    // Add the values to their matching chart arrays.
-    addDataPoint(
-      seadriftMeasurements,
-      utcTimestamp,
-      seadriftValue
-    );
-
-    addDataPoint(
-      portOConnorMeasurements,
-      utcTimestamp,
-      portOConnorValue
-    );
-
-    addDataPoint(
-      portLavacaMeasurements,
-      utcTimestamp,
-      portLavacaValue
-    );
-
-    addDataPoint(
-      wildlifeRefugeMeasurements,
-      utcTimestamp,
-      wildlifeRefugeValue
-    );
-
-    addDataPoint(
-      waterPredictions,
-      utcTimestamp,
-      waterPredictionValue
-    );
-  }
+  });
 
   return {
-    seadriftMeasurements,
-    portOConnorMeasurements,
-    portLavacaMeasurements,
-    wildlifeRefugeMeasurements,
-    waterPredictions
+    esbWaterMeasurements,
+    esbAirMeasurements,
+    seadriftWaterMeasurements,
+    portOConnorWaterMeasurements,
+    portLavacaWaterMeasurements,
+    wildlifeRefugeWaterMeasurements,
+    seadriftAirMeasurements,
+    portOConnorAirMeasurements,
+    portLavacaAirMeasurements,
+    wildlifeRefugeAirMeasurements,
+    ndfdAirPredictions,
+    esbWaterPredictions
   };
-};// end parseRibbonCSV
+}; // end parseCSV
 
 
 // Function to toggle the dropdown menu
@@ -557,8 +503,6 @@ onMounted(() => {
 onUnmounted(() => {
   clearInterval(updateInterval);
 });
-
-
 </script>
  
 <template>
@@ -633,9 +577,9 @@ onUnmounted(() => {
               </div>
 
               <div>
-                <h3 class="font-bold">👆Time</h3>
+                <h3 class="font-bold">🕒 Time</h3>
                 <p>
-                  Time is relevant to the user's local timezone.
+                  Times are shown in your local time zone.
                 </p>
               </div>
             </div>
@@ -687,41 +631,40 @@ onUnmounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Shows recent observed temperatures alongside an AI water temperature forecast and NWS-NDFD air temperature forecasts. This provides a simple view of how water temperatures are expected to change over the next five days.
+                Shows recent observed temperatures alongside an AI water temperature forecast and
+                NWS-NDFD air temperature forecasts. This provides a simple view of how water temperatures
+                are expected to change over the next five days.
               </p>
             </div>
             <hr class="border-t border-dark-text">
 
-            
+            <!-- How to Read -->
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 How to Read
               </h3>
 
-              <ul class="list-disc list-inside space-y-2 text-dark-text">
-                <li>
-                  The black dashed line shows the water temperature forecast from the AI model predictions.
-                </li>
-                <li>
-                  The vertical “Now” line separates recent temperature observations from future predictions.
-                </li>
-              </ul>
+              <p>
+                The black dashed line shows the water temperature forecast from the AI model predictions.
+                The vertical “Now” line separates recent temperature observations from future predictions. 
+              </p>
             </div>
             <hr class="border-t border-dark-text">
 
-           
+            <!-- What to Look For -->
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 What to Look For
               </h3>
 
               <p class="leading-relaxed">
-                Best for tracking the predicted water temperature trend and observing whether it approaches, crosses, or remains below critical cold-stunning thresholds.
+                Best for tracking the predicted water temperature trend and observing whether it approaches,
+                crosses, or remains below critical cold-stunning thresholds.
               </p>
             </div>
+            <hr class="border-t border-dark-text">
 
-             <hr class="border-t border-dark-text">
-
+            <!-- Keep in Mind -->
             <div>
               <h3 class="text-lg lg:text-xl font-bold mb-2">
                 Keep in Mind
@@ -731,7 +674,6 @@ onUnmounted(() => {
                 This forecast shows only one possible outcome and does not display the uncertainty of the AI water temperature predictions.
               </p>
             </div>
-
           </div>
         </div>
       </section>
@@ -748,7 +690,7 @@ onUnmounted(() => {
           <div class="flex justify-center">
             <img 
               src="@/assets/images/ESB.jpg" 
-              alt="Map of Laguna Madre, Texas" 
+              alt="Map of Espiritu Santo Bay, Texas" 
               class="w-[90%] h-auto rounded-lg shadow-lg"
             >
           </div>
@@ -802,8 +744,8 @@ onUnmounted(() => {
 
           <p class="text-md lg:text-xl text-dark-text mb-4">
             The Espiritu Santo Bay model was developed through the Coastal Dynamics Lab at
-            Texas A&amp;M University–Corpus Christi. Hector Marrero-Colominas and Ayesha
-            Khan led the model’s development, with assistance from Drs. Miranda White and
+            Texas A&amp;M University-Corpus Christi. Hector Marrero-Colominas and Ayesha
+            Khan led the model's development, with assistance from Drs. Miranda White and
             Philippe Tissot. The model is currently maintained by the CDL Semaphore Team.
           </p>
 
@@ -824,141 +766,12 @@ onUnmounted(() => {
         </div>
     </section>
 
-     <!-- Information Section -->
-
-
-
-    <!--  MOBILE -->
-
-    <div
-      class="fixed inset-x-0 bottom-0 z-50"
-    >
-
-      <!-- Always-visible Handle -->
-      <button
-        @click="showInfoDrawer = !showInfoDrawer"
-        class="w-full bg-navy-blue text-white shadow-xl py-3"
-      >
-        <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-2"></div>
-
-        <div class="font-semibold">
-          {{ showInfoDrawer ? "Hide Additional Information ▼" : "Additional Information ▲" }}
-        </div>
-      </button>
-
-      <transition
-        enter-active-class="transition-transform duration-300 ease-out"
-        leave-active-class="transition-transform duration-300 ease-in"
-        enter-from-class="translate-y-full"
-        enter-to-class="translate-y-0"
-        leave-from-class="translate-y-0"
-        leave-to-class="translate-y-full"
-      >
-        <div
-          v-if="showInfoDrawer"
-          class="bg-blue-50
-                max-h-[75vh]
-                overflow-y-auto
-                shadow-2xl
-                p-5"
-        >
-
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-            <!-- LEFT CARD -->
-              <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
-          <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
-            Data on this Graph:
-          </h3>
-          <ul class="list-disc list-inside space-y-2 text-md lg:text-xl text-dark-text">
-            <li>
-              Past six-day air/water temperature from
-              <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8776139" 
-                class="underline text-blue-600 hover:text-blue-800" target="_blank">NOAA's South Bird Island Station</a>
-            </li>
-            <li>
-              Backup water temperature data from
-              <a href="https://lighthouse.tamucc.edu/overview/171" 
-                class="underline text-blue-600 hover:text-blue-800" target="_blank">National Park Service</a>
-            </li>
-            <li>Air temperature predictions from the National Digital Forecast Database (points)</li>
-            <li>Cubic interpolation of predicted air temperature (dashed line)</li>
-            <li>Water temperature predictions from Semaphore (dashed line)</li>
-          </ul>
-        </div>
-
-        <!-- Right Column -->
-        <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
-          <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
-            Additional Information:
-          </h3>
-          <ul class="list-disc space-y-2 pl-5 text-md lg:text-xl text-dark-text">
-            <li>
-              Wind speed graph available 
-              <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">here</a>
-            </li>
-            <li>
-              Ensemble air temperature predictions from The Weather Company available 
-              <router-link 
-                to="/air-temperature-ensemble" 
-                class="underline text-blue-600 hover:text-blue-800">
-                here
-              </router-link>
-            </li>
-            <li>
-              Ensemble water temperature predictions from Semaphore available 
-              <router-link 
-                to="/water-temperature-ensemble" 
-                class="underline text-blue-600 hover:text-blue-800">
-                here
-              </router-link>
-            </li>
-            <li>
-              CRPS (Continuous Ranked Probability Score) ensemble model from Semaphore available
-              <router-link 
-                to="/crps" 
-                class="underline text-blue-600 hover:text-blue-800">
-                here
-              </router-link>
-            </li>
-            <li>
-              Wind predictions for the Laguna Madre available
-              <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">
-                here
-              </a>
-            </li>
-            <li>
-              Ensemble air temperature predictions for Bird Island Basin available 
-              <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">
-                here
-              </a>
-            </li>
-            <li>
-              AI water temperature prediction models performance available
-              <a href="https://lighthouse.tamucc.edu/supertool.php?stnid=013&elev=mwl&mode=nnwtp" target="_blank" class="underline text-blue-600 hover:text-blue-800">
-                here
-              </a>
-            </li>
-            <li>
-              NOAA Sea Turtle Stranding and Salvage Network water temperature measurements
-              <a href="https://connect.fisheries.noaa.gov/content/c0773132-9590-4e21-bb42-676e2140fbaa/" target="_blank" class="underline text-blue-600 hover:text-blue-800">
-                here
-              </a>
-            </li>
-          </ul>
-        </div>
-
-          </div>
-
-        </div>
-
-      </transition>
-
-    </div>
-
+    <!-- Information Section -->
+    <AdditionalInfoButton />
 
     <!-- Footer -->
     <footer class="bg-navy-blue py-10 text-dark-text space-y-2">
+      <!-- List of oraganizations -->
         <div class="flex flex-col justify-center items-center text-white text-sm lg:text-lg">
           <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
             <p>Texas Parks & Wildlife</p>
@@ -969,10 +782,12 @@ onUnmounted(() => {
           <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0173920" target="_blank" class="hover:scale-110 transition-transform">
             <p>PLOS One: Publication Defining Cold Stunning Threshold</p>
           </a>
-          <a href="https://www.coastaldynamicslab.org/water-temperature-predictionse" target="_blank" class="hover:scale-110 transition-transform">
+          <a href="https://www.coastaldynamicslab.org/water-temperature-predictions" target="_blank" class="hover:scale-110 transition-transform">
             <p>TAMUCC CBI Water Temperature Predictions Reports</p>
           </a>
         </div>
+
+        <!-- Stakeholder logos -->
         <div class="flex flex-wrap justify-center items-center gap-8 lg:gap-16 mx-auto p-1 lg:p-4">
           <a href="https://www.conradblucherinstitute.org/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/CBI-Logo.png" alt="CBI Logo" class="max-w-[165px] lg:max-w-[250px] ">
@@ -980,32 +795,17 @@ onUnmounted(() => {
           <a href="https://github.com/conrad-blucher-institute/semaphore" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/Semaphore-Logo.png" alt="Semaphore Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
-          <a href="https://www.usace.army.mil/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/USACE-Logo.jpg" alt="US Army Corps Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
           <a href="https://www.nsf.gov/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/NSF-Logo.png" alt="National Science Foundation Logo" class="max-w-[80px] lg:max-w-[150px]">
+            <img src="@/assets/images/NSF-Logo.png" alt="NSF Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
-          <a href="https://www.gicaonline.com/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/GICA-Logo.png" alt="Gulf Intracoastal Canal Association Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-          <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/TPWD-Logo.gif" alt="Texas Parks and Wildlife Logo" class="max-w-[80px] lg:max-w-[150px]">
+          <a href="https://www.ai2es.org/" target="_blank" class="hover:scale-110 transition-transform">
+            <img src="@/assets/images/ai2es-logo.png" alt="AI2ES Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
           <a href="https://www.coastaldynamicslab.org/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/CDL-Logo.png" alt="Coastal Dynamics Lab Logo" class="max-w-[80px] lg:max-w-[150px]">
+            <img src="@/assets/images/CDL-Logo.png" alt="CDL Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
-          <a href="https://www.nps.gov/index.htm" target="_blank" class="hover:scale-110 transition-transform">
-            <img class="max-w-[80px] lg:max-w-[150px]" src="@/assets/images/NPS-Logo.png" alt="National Park Service Logo">
-          </a>
-          <a href="https://www.weather.gov/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/NWS-Logo.png" alt="National Weather Service Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-          <a href="https://www.uscg.mil/" target="_blank" class="hover:scale-110 transition-transform">
-            <img  src="@/assets/images/CG-Logo.png" alt="USA Coast Guard Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-          <a href="https://www.joincca.org/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/CCA-Logo.png" alt="Coastal Conservation Association Logo" class="max-w-[80px] lg:max-w-[150px]">
+          <a href="https://ccme.famu.edu/" target="_blank" class="hover:scale-110 transition-transform">
+            <img src="@/assets/images/CCME-Logo.png" alt="NOAA CCME Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
         </div>
         <p class="text-center text-sm text-light-text">(Click on the logos to visit each contributor's website)</p>
