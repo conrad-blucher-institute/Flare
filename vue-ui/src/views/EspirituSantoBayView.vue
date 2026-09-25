@@ -4,7 +4,7 @@
      Description: This view displays the water temperature trends and predictions for Espiritu Santo Bay.
 
                   Features include:
-                  - 1 dynamically updating chart
+                  - 2 dynamically updating charts
                   - Instructions for interacting with the chart.
                   - Information on the data of the chart.
                   - Additional links
@@ -19,7 +19,7 @@ import { ref, onMounted, onUnmounted, reactive } from "vue";
 
 import AdditionalInfoButton from "@/components/AdditionalInfoButton.vue";
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
-const missingDataWarningBanner = ref(MissingDataWarningBanner);
+const missingDataWarningBanner = ref(null);
 const isSmallScreen = window.innerWidth <= 600;
 
 const csvURL = ref(`${window.location.origin}/flare/csv-data/Espiritu-Santo-Bay_Water-Temperature_120hrs.csv`);
@@ -27,13 +27,15 @@ const showChartHelp = ref(false);
 
 // Add reactive state for dropdown visibility
 const isExportMenuVisible = ref(false);
+const isSecondExportMenuVisible = ref(false);
 const chartOptions = ref({});
+const secondChartOptions = ref({});
 
 // Chart function for first chart that changes based on screen size
 const buildChart = (isSmallScreen, chartTitle) => {
   return {
     chart: {
-      type: "areaspline",
+      type: "line",
       zoomType: "xy",
       backgroundColor: "white",
       style: { fontFamily: "Arial" },
@@ -87,9 +89,7 @@ const buildChart = (isSmallScreen, chartTitle) => {
           whiteSpace: "nowrap",
         },
       },
-      tickInterval: 24 * 3600 * 1000, // Main ticks every day
-      // Align ticks to 12 AM and 12 PM
-      // Ensure ticks align to 12 AM
+      // Ticks at local midnight, every 2 days
       tickPositioner: function () {
         let positions = [];
         let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
@@ -182,8 +182,7 @@ const buildChart = (isSmallScreen, chartTitle) => {
       ],
     },
     plotOptions: {
-      areaspline: {
-        fillOpacity: 0.3,
+      line: {
         marker: {
           enabled: false,
           radius: 3,
@@ -191,11 +190,6 @@ const buildChart = (isSmallScreen, chartTitle) => {
             hover: {
               enabled: true
             }
-          }
-        },
-        states: {
-          hover: {
-            lineWidth: 3
           }
         }
       },
@@ -240,6 +234,7 @@ const buildChart = (isSmallScreen, chartTitle) => {
 }; // end buildChart 
 
 chartOptions.value = reactive(buildChart(isSmallScreen, "Water Temperature Predictions for Espiritu Santo Bay"));
+secondChartOptions.value = reactive(buildChart(isSmallScreen, "Water Temperature Predictions for Espiritu Santo Bay"));
 
 
 // Function to fetch and process CSV data
@@ -297,11 +292,60 @@ const fetchAndFilterData = async () => {
 
     // Update chart series with filtered data
     chartOptions.value.series = [
+      {
+        name: "Espiritu Santo Bay Water Temperature Measurements",
+        data: esbWaterMeasurementsFahrenheit,
+        type: "line",
+        color: "#000000", // solid black for ESB water measurements
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 1,
+        marker: {
+          enabled: false
+        }
+      },
+      {
+        name: "Espiritu Santo Bay Air Temperature Measurements",
+        data: esbAirMeasurementsFahrenheit,
+        type: "line",
+        color: "orange",  // solid orange for ESB air measurements
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 1,
+        marker: {
+          enabled: false
+        }
+      },
+      {
+        name: "Espiritu Santo Bay Water Temperature Predictions",
+        data: esbWaterPredictionsFahrenheit,
+        type: "line",
+        dashStyle: "Dash",
+        color: "#000000", // black dashes for ESB water predictions
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 3,
+        marker: {
+          enabled: false
+        }
+      },
+      {
+        name: "NDFD Air Temperature Predictions",
+        data: futureAirPredictionsFahrenheit,
+        type: "line",
+        color: "orange",  // orange dashes for NDFD air predictions
+        dashStyle: "Dash",
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 1,
+        marker: {
+          enabled: false
+        }
+      }
+    ]; // end chart 1
+
+    secondChartOptions.value.series = [
     {
       name: "Seadrift Water Temperature Measurements",
       data: seadriftWaterMeasurementsFahrenheit,
       type: "line",
-      color: "#0072B2",  // blue,
+      color: "#0072B2",  // blue
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       marker: {
@@ -312,7 +356,7 @@ const fetchAndFilterData = async () => {
       name: "Port O'Connor Water Temperature Measurements",
       data: portOConnorWaterMeasurementsFahrenheit,
       type: "line",
-      color: "#56B4E9",  // sky blue
+      color: "#CC79A7",  // reddish purple
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       marker: {
@@ -334,7 +378,7 @@ const fetchAndFilterData = async () => {
       name: "Aransas Wildlife Refuge Water Temperature Measurements",
       data: wildlifeRefugeWaterMeasurementsFahrenheit,
       type: "line",
-      color: "#CC79A7",  // pinkish purple
+      color: "#7F7F7F",  // gray
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       marker: {
@@ -365,7 +409,7 @@ const fetchAndFilterData = async () => {
         enabled: false
       }
     }
-  ];
+  ];  // end chart 2
   } catch (error) {
     console.error("Error fetching or processing data:", error);
   }
@@ -476,6 +520,9 @@ const toggleExportMenu = () => {
   isExportMenuVisible.value = !isExportMenuVisible.value;
 };
 
+const toggleSecondExportMenu = () => {
+  isSecondExportMenuVisible.value = !isSecondExportMenuVisible.value;
+}
 
 ///Fetch and update chart data every 15 minutes
 let updateInterval;
@@ -485,8 +532,13 @@ onMounted(() => {
     Promise.all([
       fetchAndFilterData()
     ]).then(() => {
+      // dynamically update the current time on the chart's x-axis plot lines
+      chartOptions.value.xAxis.plotLines[0].value = Date.now();
+      secondChartOptions.value.xAxis.plotLines[0].value = Date.now();
+
       missingDataWarningBanner.value.checkForMissingDataAndWarn([
         chartOptions.value,
+        secondChartOptions.value,
       ]);
     });
   };
@@ -546,7 +598,7 @@ onUnmounted(() => {
             v-show="showChartHelp"
             class="chart-help-popup absolute bottom-5 right-0 w-full max-h-[150px] lg:max-h-[250px] overflow-y-auto mb-3 lg:w-[450px] bg-white rounded-sm shadow-2xl border border-gray-300 p-6 z-50 "
           >
-            <h2 class=" text-l lg:text-xl font-semibold border-b pb-2 mb-4">
+            <h2 class="text-lg lg:text-xl font-semibold border-b pb-2 mb-4">
               How to Use the Interactive Chart
             </h2>
 
@@ -582,9 +634,9 @@ onUnmounted(() => {
               </div>
             </div>
           </div>
-
         </div>            
       </div>
+
       <!-- First Chart Section-->
       <section class="grid grid-cols-1 lg:grid-cols-5 gap-2  px-2 lg:py-8 lg:px-4 bg-white items-stretch">
         <!-- Chart -->
@@ -601,6 +653,97 @@ onUnmounted(() => {
               Download CSV Data
             </button>
             <ul v-if="isExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
+              <li>
+                <a 
+                  :href="csvURL"
+                  download="espiritu-santo-bay.csv"
+                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
+                  Download CSV
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Graph Information -->
+        <div class="graph-info max-h-[500px] lg:max-h-[750px] p-6 rounded-lg flex flex-col">
+          <h2 class="text-lg lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-dark-text pb-2 mb-6">
+            Graph-Specific Information
+          </h2>
+
+          <!-- Scrollable Content -->
+          <div class="graph-scroll flex-1 overflow-y-auto space-y-8 text-dark-text pr-2">
+
+            <!-- Purpose -->
+            <div>
+              <h3 class="text-lg lg:text-xl font-bold mb-2">
+                Purpose
+              </h3>
+
+              <p class="leading-relaxed">
+                Shows recent observed temperatures alongside an AI water temperature forecast and
+                NWS-NDFD air temperature forecasts. This provides a simple view of how water temperatures
+                are expected to change over the next five days.
+              </p>
+            </div>
+            <hr class="border-t border-dark-text">
+
+            <!-- How to Read -->
+            <div>
+              <h3 class="text-lg lg:text-xl font-bold mb-2">
+                How to Read
+              </h3>
+
+              <p>
+                The black dashed line shows the water temperature forecast from the AI model predictions.
+                The vertical “Now” line separates recent temperature observations from future predictions. 
+              </p>
+            </div>
+            <hr class="border-t border-dark-text">
+
+            <!-- What to Look For -->
+            <div>
+              <h3 class="text-lg lg:text-xl font-bold mb-2">
+                What to Look For
+              </h3>
+
+              <p class="leading-relaxed">
+                Best for tracking the predicted water temperature trend and observing whether it approaches,
+                crosses, or remains below critical cold-stunning thresholds.
+              </p>
+            </div>
+            <hr class="border-t border-dark-text">
+
+            <!-- Keep in Mind -->
+            <div>
+              <h3 class="text-lg lg:text-xl font-bold mb-2">
+                Keep in Mind
+              </h3>
+
+              <p class="leading-relaxed">
+                This forecast shows only one possible outcome and does not display the uncertainty of the AI water temperature predictions.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- graph 2 -->
+      <section class="grid grid-cols-1 lg:grid-cols-5 gap-2  px-2 lg:py-8 lg:px-4 bg-white items-stretch">
+        <!-- Chart -->
+        <div class="chart lg:col-span-4 relative border sm:w-full ">
+          <div class="w-full overflow-x-auto">
+            <div class="min-w-[600px]  min-h-[350px] lg:min-w-[1000px] lg:h-[700px] lg:min-h-[650px]">
+              <Chart class="w-full h-full p-4" :options="secondChartOptions" />
+            </div>
+          </div>
+
+          <!-- Custom Export Dropdown -->
+          <div class="hidden lg:block absolute top-5 right-4">
+            <button @click="toggleSecondExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
+              Download CSV Data
+            </button>
+            <ul v-if="isSecondExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
               <li>
                 <a 
                   :href="csvURL"
@@ -704,7 +847,7 @@ onUnmounted(() => {
             Espiritu Santo Bay AI Water Temperature Model
           </h2>
 
-          <p class="text-md lg:text-xl text-dark-text mb-4">
+          <p class="text-base lg:text-xl text-dark-text mb-4">
             Espiritu Santo Bay is a shallow coastal system connected to San Antonio Bay
             and the Gulf of Mexico. During the cold-front season, typically November
             through March, its shallow waters can cool rapidly and place green sea turtles
@@ -713,7 +856,7 @@ onUnmounted(() => {
             and vulnerable to prolonged cold exposure, vessel strikes, and predation.
           </p>
 
-          <p class="text-md lg:text-xl text-dark-text mb-4">
+          <p class="text-base lg:text-xl text-dark-text mb-4">
             Preparing for these events requires time to organize volunteers, deploy rescue
             boats, coordinate field operations, and arrange transportation to
             rehabilitation facilities. The Espiritu Santo Bay water temperature model was
@@ -727,7 +870,7 @@ onUnmounted(() => {
             Supporting Cold-Stunning Preparation
           </h3>
 
-          <p class="text-md lg:text-xl text-dark-text mb-4">
+          <p class="text-base lg:text-xl text-dark-text mb-4">
             By providing several days of advance notice, the model can help sea turtle
             responders determine when to increase monitoring, begin coordinating personnel
             and equipment, prepare vessels, and plan the transportation and rehabilitation
@@ -740,14 +883,14 @@ onUnmounted(() => {
             Development and Collaboration
           </h3>
 
-          <p class="text-md lg:text-xl text-dark-text mb-4">
+          <p class="text-base lg:text-xl text-dark-text mb-4">
             The Espiritu Santo Bay model was developed through the Coastal Dynamics Lab at
             Texas A&amp;M University-Corpus Christi. Hector Marrero-Colominas and Ayesha
             Khan led the model's development, with assistance from Drs. Miranda White and
             Philippe Tissot. The model is currently maintained by the CDL Semaphore Team.
           </p>
 
-          <p class="text-md lg:text-xl text-dark-text mb-4">
+          <p class="text-base lg:text-xl text-dark-text mb-4">
             Foundational field observations were made possible through collaboration with
             <strong>Mid-Coast Sea Turtle Rescue</strong> and
             <strong>NOAA Fisheries</strong>. These efforts included multiple boat trips to
@@ -755,7 +898,7 @@ onUnmounted(() => {
             preliminary measurements that informed the design of the model.
           </p>
 
-          <p class="text-md lg:text-xl text-dark-text mb-4">
+          <p class="text-base lg:text-xl text-dark-text mb-4">
             The resulting prediction system reflects a collaborative effort among
             university AI researchers, network partners, sea turtle responders, and other
             coastal stakeholders working to improve preparation for cold-stunning events.
@@ -774,7 +917,7 @@ onUnmounted(() => {
           <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
             <p>Texas Parks & Wildlife</p>
           </a>
-          <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
+          <a href="https://www.nps.gov/pais/learn/nature/stsr.htm" target="_blank" class="hover:scale-110 transition-transform">
             <p>NPS Sea Turtle Science and Recovery</p>
           </a>
           <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0173920" target="_blank" class="hover:scale-110 transition-transform">
@@ -806,7 +949,7 @@ onUnmounted(() => {
             <img src="@/assets/images/CCME-Logo.png" alt="NOAA CCME Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
           <a href="https://www.sabaypartnership.org/program/mid-coast-sea-turtle-rescue/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/Mid-Coast-Sea-Turtle-Rescue-Logo.png" alt="Mid Coast Sea Turtle Rescue-Logo" class="max-w-[80px] lg:max-w-[150px]">
+            <img src="@/assets/images/Mid-Coast-Sea-Turtle-Rescue-Logo.png" alt="Mid-Coast Sea Turtle Rescue Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
         </div>
         <p class="text-center text-sm text-light-text">(Click on the logos to visit each contributor's website)</p>
