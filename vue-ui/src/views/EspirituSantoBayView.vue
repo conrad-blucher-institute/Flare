@@ -805,6 +805,9 @@ onUnmounted(() => {
           <a href="https://ccme.famu.edu/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/CCME-Logo.png" alt="NOAA CCME Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
+          <a href="https://www.sabaypartnership.org/program/mid-coast-sea-turtle-rescue/" target="_blank" class="hover:scale-110 transition-transform">
+            <img src="@/assets/images/Mid-Coast-Sea-Turtle-Rescue-Logo.png" alt="Mid Coast Sea Turtle Rescue-Logo" class="max-w-[80px] lg:max-w-[150px]">
+          </a>
         </div>
         <p class="text-center text-sm text-light-text">(Click on the logos to visit each contributor's website)</p>
       </footer>
