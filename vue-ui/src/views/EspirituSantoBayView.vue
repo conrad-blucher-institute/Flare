@@ -731,7 +731,7 @@ onUnmounted(() => {
       <!-- graph 2 -->
       <section class="grid grid-cols-1 lg:grid-cols-5 gap-2  px-2 lg:py-8 lg:px-4 bg-white items-stretch">
         <!-- Chart -->
-        <div class="chart lg:col-span-4 relative border sm:w-full ">
+        <div class="chart-2 lg:col-span-4 relative border sm:w-full ">
           <div class="w-full overflow-x-auto">
             <div class="min-w-[600px]  min-h-[350px] lg:min-w-[1000px] lg:h-[700px] lg:min-h-[650px]">
               <Chart class="w-full h-full p-4" :options="secondChartOptions" />
@@ -757,7 +757,7 @@ onUnmounted(() => {
         </div>
 
         <!-- Graph Information -->
-        <div class="graph-info max-h-[500px] lg:max-h-[750px] p-6 rounded-lg flex flex-col">
+        <div class="graph-info-2 max-h-[500px] lg:max-h-[750px] p-6 rounded-lg flex flex-col">
           <h2 class="text-lg lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-dark-text pb-2 mb-6">
             Graph-Specific Information
           </h2>
@@ -787,7 +787,7 @@ onUnmounted(() => {
 
               <p>
                 The black dashed line shows the water temperature forecast from the AI model predictions.
-                The vertical “Now” line separates recent temperature observations from future predictions. 
+                The vertical “Now” line separates recent temperature observations from future predictions.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -1055,4 +1055,4 @@ onUnmounted(() => {
   border-radius: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
-  </style>
+</style>
