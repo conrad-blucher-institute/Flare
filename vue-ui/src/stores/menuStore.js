@@ -28,7 +28,7 @@ export const useMenuStore = defineStore('menu', {
         link: { name: 'about' }
       },
       {
-        label: 'ColdStunning Model',
+        label: 'Cold Stunning Model',
         link: { name: 'crps' },
         children: [
           {
@@ -39,20 +39,23 @@ export const useMenuStore = defineStore('menu', {
       }
     ],
     slidingMenuOptions: [
-    {
-      label: 'Coldstunning Group',
-      link: { name: 'coldstunning' },
-      image: TurtleImage,
-      location: 'Cold-Stunning Models',
-      message: '120-hour predictions of water and air temperature',
-
-      children: [
-        {
-          label: 'Laguna Madre',
-          link: { name: 'crps' }
-        }
-      ]
-    }
-  ]
-    })
+      {
+        label: 'Cold Stunning Group',
+        link: { name: 'coldstunning' },
+        image: TurtleImage,
+        location: 'Cold-Stunning Models',
+        message: '120-hour predictions of water and air temperatures',
+        children: [
+          {
+            label: 'Laguna Madre',
+            link: { name: 'crps' }
+          },
+          {
+            label: 'Espiritu Santo Bay',
+            link: { name: 'esb' }
+          }
+        ]
+      }
+    ]
+  })
 });

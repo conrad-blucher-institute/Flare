@@ -52,6 +52,11 @@ const router = createRouter({
       path: '/crps',
       name: 'crps',
       component: () => import('../views/CrpsView.vue'), // Lazy-loaded component
+    },
+    {
+      path: '/esb',
+      name: 'esb',
+      component: () => import('../views/EspirituSantoBayView.vue'), // Lazy-loaded component
     }
     
   ],
