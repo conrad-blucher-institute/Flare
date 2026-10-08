@@ -216,6 +216,7 @@ const buildRibbonChart = (isSmallScreen, chartTitle) => {
     },
     series: [], // Placeholder for data, dynamically updated
     tooltip: {
+      outside: true, // Ensures tooltip isn't cut off by chart boundaries
       shared: true,
       crosshairs: true,
       formatter: function () {
@@ -982,22 +983,6 @@ onUnmounted(() => {
             </div>
           </div>
 
-          <!-- Custom Export Dropdown -->
-          <div class="hidden lg:block absolute top-5 right-4">
-            <button @click="toggleExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
-              Download CSV Data
-            </button>
-            <ul v-if="isExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
-              <li>
-                <a 
-                  :href="csvURL"
-                  download="CRPS_120hrs.csv"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
-                  Download CSV
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
 
         <!-- Graph Information -->
@@ -1005,6 +990,7 @@ onUnmounted(() => {
           <h2 class="text-lg lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-dark-text pb-2 mb-6">
             Graph-Specific Information
           </h2>
+          
 
           <!-- Scrollable Content -->
           <div class="graph-scroll flex-1 overflow-y-auto space-y-8 text-dark-text pr-2">
@@ -1065,6 +1051,35 @@ onUnmounted(() => {
             </div>
 
           </div> <!-- End Scrollable Content -->
+          <!-- Download footer -->
+          <div class="shrink-0 mt-4 pt-3 border-t border-gray-300 flex justify-center">
+            <a
+              :href="csvURL"
+              download="CRPS_120hrs.csv"
+              class="inline-flex items-center gap-2 px-3 py-2 rounded-md
+                bg-navy-blue text-white text-sm font-medium shadow-md
+                hover:bg-blue-700 transition-colors
+                focus-visible:outline focus-visible:outline-2
+                focus-visible:outline-offset-2 focus-visible:outline-navy-blue"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                class="w-4 h-4"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 3v12m0 0 4-4m-4 4-4-4M4 16v4h16v-4"
+                />
+              </svg>
+              Download CSV
+            </a>
+          </div>
         </div> <!-- End Graph Information -->
       </section> <!-- End First Chart Section -->
       <div class="h-[30px] bg-gray-100"></div>
@@ -1078,27 +1093,11 @@ onUnmounted(() => {
               <Chart class="w-full h-full p-4" :options="secondRibbonChartOptions" />
             </div>
           </div>
-
-          <!-- Custom Export Dropdown -->
-          <div class="hidden lg:block absolute top-5 right-4">
-            <button @click="toggleExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
-              Download CSV Data
-            </button>
-            <ul v-if="isExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
-              <li>
-                <a 
-                  :href="csvURL"
-                  download="CRPS_120hrs.csv"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
-                  Download CSV
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
 
       <!-- Graph Information -->
         <div class="graph-info-2 max-h-[500px] lg:max-h-[750px] p-6 rounded-lg flex flex-col ">
+        
           <h2 class="text-lg lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-dark-text pb-2 mb-6">
             Graph-Specific Information
           </h2>
@@ -1148,6 +1147,7 @@ onUnmounted(() => {
                 while narrower ranges indicate greater confidence on future water temperatures.
               </p>
             </div>
+            <hr class="border-t border-dark-text">
             
             <!-- Keep in Mind -->
             <div>
@@ -1159,6 +1159,35 @@ onUnmounted(() => {
                 Actual water temperatures may occur anywhere within or occasionally outside the displayed ranges (about 10% of the time).
               </p>
             </div>
+          </div>
+          <!-- Download footer -->
+          <div class="shrink-0 mt-4 pt-3 border-t border-gray-300 flex justify-center">
+            <a
+              :href="csvURL"
+              download="CRPS_120hrs.csv"
+              class="inline-flex items-center gap-2 px-3 py-2 rounded-md
+                bg-navy-blue text-white text-sm font-medium shadow-md
+                hover:bg-blue-700 transition-colors
+                focus-visible:outline focus-visible:outline-2
+                focus-visible:outline-offset-2 focus-visible:outline-navy-blue"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                class="w-4 h-4"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 3v12m0 0 4-4m-4 4-4-4M4 16v4h16v-4"
+                />
+              </svg>
+              Download CSV
+            </a>
           </div>
         </div>  
       </section>
@@ -1176,28 +1205,11 @@ onUnmounted(() => {
               <Chart class="w-full h-full p-4" :options="boxChartOptions" />
             </div>
           </div>
-
-          <!-- Custom Export Dropdown -->
-          <div class="hidden lg:block absolute top-5 right-4">
-            <button @click="toggleSecondExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
-              Download CSV
-            </button>
-            <ul v-if="isSecondExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
-              <li>
-                <a 
-                  :href="csvURL"
-                  download="CRPS_120hrs.csv"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
-                  Download CSV
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
 
          <!-- Graph Information -->
          <div class="graph-info-3 max-h-[500px] lg:max-h-[750px] p-6 rounded-lg shadow-md flex flex-col">
-              <h2 class="text-lg lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-gray-500 pb-2 mb-6">
+          <h2 class="text-lg lg:text-3xl font-semibold text-center text-dark-text border-b-2 border-gray-500 pb-2 mb-6">
             Graph-Specific Information
           </h2>
 
@@ -1259,6 +1271,35 @@ onUnmounted(() => {
               </p>
             </div>
 
+          </div>
+          <!-- Download footer -->
+          <div class="shrink-0 mt-4 pt-3 border-t border-gray-300 flex justify-center">
+            <a
+              :href="csvURL"
+              download="CRPS_120hrs.csv"
+              class="inline-flex items-center gap-2 px-3 py-2 rounded-md
+                bg-navy-blue text-white text-sm font-medium shadow-md
+                hover:bg-blue-700 transition-colors
+                focus-visible:outline focus-visible:outline-2
+                focus-visible:outline-offset-2 focus-visible:outline-navy-blue"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                class="w-4 h-4"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 3v12m0 0 4-4m-4 4-4-4M4 16v4h16v-4"
+                />
+              </svg>
+              Download CSV
+            </a>
           </div>
         </div>                              
       </section> 
@@ -1346,64 +1387,69 @@ onUnmounted(() => {
 
     <!-- Footer -->
     <footer class="bg-navy-blue py-10 text-dark-text space-y-2">
-        <div class="flex flex-col justify-center items-center text-white text-sm lg:text-lg">
-          <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
-            <p>Texas Parks & Wildlife</p>
-          </a>
-          <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
-            <p>NPS Sea Turtle Science and Recovery</p>
-          </a>
-          <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0173920" target="_blank" class="hover:scale-110 transition-transform">
-            <p>PLOS One: Publication Defining Cold Stunning Threshold</p>
-          </a>
-          <a href="https://www.coastaldynamicslab.org/water-temperature-prediction" target="_blank" class="hover:scale-110 transition-transform">
-            <p>TAMUCC CBI Water Temperature Predictions Reports</p>
-          </a>
-        </div>
-        <div class="flex flex-wrap justify-center items-center gap-8 lg:gap-16 mx-auto p-1 lg:p-4">
-          <a href="https://www.conradblucherinstitute.org/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/CBI-Logo.png" alt="CBI Logo" class="max-w-[165px] lg:max-w-[250px] ">
-          </a>
-          <a href="https://github.com/conrad-blucher-institute/semaphore" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/Semaphore-Logo.png" alt="Semaphore Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-          <a href="https://www.usace.army.mil/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/USACE-Logo.jpg" alt="US Army Corps Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-          <a href="https://www.nsf.gov/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/NSF-Logo.png" alt="NSF Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-          <a href="https://www.ai2es.org/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/ai2es-logo.png" alt="AI2ES Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-          <a href="https://www.gicaonline.com/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/GICA-Logo.png" alt="Gulf Intracoastal Canal Association Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-          <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/TPWD-Logo.gif" alt="Texas Parks and Wildlife Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-          <a href="https://www.coastaldynamicslab.org/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/CDL-Logo.png" alt="Coastal Dynamics Lab Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-          <a href="https://www.nps.gov/index.htm" target="_blank" class="hover:scale-110 transition-transform">
-            <img class="max-w-[80px] lg:max-w-[150px]" src="@/assets/images/NPS-Logo.png" alt="National Park Service Logo">
-          </a>
-          <a href="https://www.weather.gov/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/NWS-Logo.png" alt="National Weather Service Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-          <a href="https://www.uscg.mil/" target="_blank" class="hover:scale-110 transition-transform">
-            <img  src="@/assets/images/CG-Logo.png" alt="USA Coast Guard Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-          <a href="https://www.joincca.org/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/CCA-Logo.png" alt="Coastal Conservation Association Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-          <a href="https://www.weathercompany.com/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/TWC-Logo.png" alt="The Weather Company Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-          <a href="https://ccme.famu.edu/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/CCME-Logo.png" alt="Florida A&M University Logo" class="max-w-[80px] lg:max-w-[150px]">
-          </a>
-        </div>
+        <div class="mx-auto space-y-8 p-1 lg:p-4">
+  <!-- Row 1 -->
+  <div class="flex flex-wrap justify-center items-center gap-8 lg:gap-10">
+    <a href="https://www.conradblucherinstitute.org/" target="_blank" rel="noopener noreferrer" class="hover:scale-110 transition-transform">
+      <img src="@/assets/images/CBI-Logo.png" alt="CBI Logo" class="max-w-[165px] lg:max-w-[250px]">
+    </a>
+
+    <a href="https://www.coastaldynamicslab.org/" target="_blank" rel="noopener noreferrer" class="hover:scale-110 transition-transform">
+      <img src="@/assets/images/CDL-Logo.png" alt="Coastal Dynamics Lab Logo" class="max-w-[80px] lg:max-w-[150px]">
+    </a>
+
+    <a href="https://github.com/conrad-blucher-institute/semaphore" target="_blank" rel="noopener noreferrer" class="hover:scale-110 transition-transform">
+      <img src="@/assets/images/Semaphore-Logo.png" alt="Semaphore Logo" class="max-w-[80px] lg:max-w-[150px]">
+    </a>
+
+    <a href="https://www.joincca.org/" target="_blank" rel="noopener noreferrer" class="hover:scale-110 transition-transform">
+      <img src="@/assets/images/CCA-Logo.png" alt="Coastal Conservation Association Logo" class="max-w-[80px] lg:max-w-[150px]">
+    </a>
+
+    <a href="https://www.nsf.gov/" target="_blank" rel="noopener noreferrer" class="hover:scale-110 transition-transform">
+      <img src="@/assets/images/NSF-Logo.png" alt="NSF Logo" class="max-w-[80px] lg:max-w-[150px]">
+    </a>
+
+    <a href="https://www.ai2es.org/" target="_blank" rel="noopener noreferrer" class="hover:scale-110 transition-transform">
+      <img src="@/assets/images/ai2es-logo.png" alt="AI2ES Logo" class="max-w-[80px] lg:max-w-[150px]">
+    </a>
+
+    <a href="https://www.gicaonline.com/" target="_blank" rel="noopener noreferrer" class="hover:scale-110 transition-transform">
+      <img src="@/assets/images/GICA-Logo.png" alt="Gulf Intracoastal Canal Association Logo" class="max-w-[80px] lg:max-w-[150px]">
+    </a>
+
+    <a href="https://tpwd.texas.gov/" target="_blank" rel="noopener noreferrer" class="hover:scale-110 transition-transform">
+      <img src="@/assets/images/TPWD-Logo.gif" alt="Texas Parks and Wildlife Logo" class="max-w-[80px] lg:max-w-[150px]">
+    </a>
+  </div>
+
+  <!-- Row 2 -->
+  <div class="flex flex-wrap justify-center items-center gap-8 lg:gap-16">
+    <a href="https://www.nps.gov/index.htm" target="_blank" rel="noopener noreferrer" class="hover:scale-110 transition-transform">
+      <img src="@/assets/images/NPS-Logo.png" alt="National Park Service Logo" class="max-w-[80px] lg:max-w-[150px]">
+    </a>
+
+    <a href="https://www.weather.gov/" target="_blank" rel="noopener noreferrer" class="hover:scale-110 transition-transform">
+      <img src="@/assets/images/NWS-Logo.png" alt="National Weather Service Logo" class="max-w-[80px] lg:max-w-[150px]">
+    </a>
+
+    <a href="https://www.uscg.mil/" target="_blank" rel="noopener noreferrer" class="hover:scale-110 transition-transform">
+      <img src="@/assets/images/CG-Logo.png" alt="US Coast Guard Logo" class="max-w-[80px] lg:max-w-[150px]">
+    </a>
+
+    <a href="https://www.usace.army.mil/" target="_blank" rel="noopener noreferrer" class="hover:scale-110 transition-transform">
+      <img src="@/assets/images/USACE-Logo.jpg" alt="US Army Corps Logo" class="max-w-[80px] lg:max-w-[150px]">
+    </a>
+
+    <a href="https://www.weathercompany.com/" target="_blank" rel="noopener noreferrer" class="hover:scale-110 transition-transform">
+      <img src="@/assets/images/TWC-Logo.png" alt="The Weather Company Logo" class="max-w-[80px] lg:max-w-[150px]">
+    </a>
+
+    <a href="https://ccme.famu.edu/" target="_blank" rel="noopener noreferrer" class="hover:scale-110 transition-transform">
+      <img src="@/assets/images/CCME-Logo.png" alt="Florida A&M University Logo" class="max-w-[80px] lg:max-w-[150px]">
+    </a>
+  </div>
+</div>
         <p class="text-center text-sm text-light-text">(Click on the logos to visit each contributor's website)</p>
       </footer>
 </template>

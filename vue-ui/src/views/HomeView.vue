@@ -16,6 +16,8 @@
 
   const menuStore = useMenuStore(); // Instance of useMenuStore
   const showDropdown = ref(false); // State to track dropdown visibility
+  const menuOpen = ref(false)
+  const inundationOpen = ref(false)
 </script>
 
 <template>
@@ -32,16 +34,76 @@
         <h2 class="mt-4 text-md font-medium text-gray-200 lg:text-2xl">Showcasing the visualization of AI models operationalized by Semaphore</h2>
       </div>
       <!-- Dropdown menu -->
-      <div class="relative text-center mt-8">
-        <select
-          class="bg-navy-blue hover:bg-opacity-80 text-white font-semibold text-xl px-6 py-2 rounded-md mb-4 transition-colors text-center"
-        >
-          <option value="">Additional CDL Products</option>
-          <option value="cold-stunning">Cold Stunning Prediction Models</option>
-          <option value="inundation" disabled>Inundation Prediction Models (coming soon!)</option>
-          <option value="fog" disabled>Fog Prediction Models (coming soon!)</option>
-        </select>
-      </div>
+      <div class="relative flex justify-center mt-8">
+        <!-- Inner Dropdown Menu Wrapper -->
+        <div class="relative">
+          <button
+            class="bg-navy-blue border border-white/20 text-white font-semibold text-xl px-6 py-2 rounded-md"
+            :aria-expanded="menuOpen"
+            @click="menuOpen = !menuOpen; inundationOpen = false"
+          >
+            Additional CDL Products ▾
+          </button>
+
+          <!-- Main menu -->
+          <div
+            v-if="menuOpen"
+            class="absolute left-0 top-full mt-2 w-72 bg-navy-blue text-white border border-white/20 rounded-md shadow-lg z-50 p-2 space-y-2"
+          >
+          
+            <!-- Menu Contents -->
+            <div class="relative">
+              <button
+                class="flex items-center justify-between gap-2 w-full border border-white/20 px-4 py-3 text-left rounded-md transition-colors hover:bg-white/10 hover:border-white/40"
+                :aria-expanded="inundationOpen"
+                @click="inundationOpen = !inundationOpen"
+              >
+                <span>Inundation Prediction Models</span>
+                <span aria-hidden="true">▸</span>
+              </button>
+
+              <!-- Inundation Submenu -->
+              <div
+                v-if="inundationOpen"
+                class="absolute left-full top-0 ml-2 w-56 bg-navy-blue border border-white/20 rounded-md shadow-lg p-2 space-y-2"
+              >
+                <a
+                  href="https://sherlock-prod.tamucc.edu/cbocp/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="block border border-white/20 px-4 py-3 text-center rounded-md transition-colors hover:bg-white/10 hover:border-white/40"
+                >
+                  <span class="block font-semibold">Production</span>
+                  <span class="block mt-1 text-xs text-white/70">
+                    Public access
+                  </span>
+                </a>
+
+                <a
+                  href="https://sherlock-dev.tamucc.edu/cbocp/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="block border border-white/20 px-4 py-3 text-center rounded-md transition-colors hover:bg-white/10 hover:border-white/40"
+                >
+                  <span class="block font-semibold">In Development</span>
+                  <span class="block mt-1 text-xs text-white/70">
+                    TAMU-CC VPN required
+                  </span>
+                </a>
+              </div><!-- Inundation Submenu End -->
+            </div> <!-- Menu Contents End -->
+
+            <a
+              href="https://cbigrid.tamucc.edu/fog-predictions/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="block border border-white/20 px-4 py-3 rounded-md transition-colors hover:bg-white/10 hover:border-white/40"
+            >
+              Fog Prediction Models
+            </a>
+          </div> <!-- Main Menu End -->
+        </div> <!-- Inner Dropdown Menu Wrapper End -->
+      </div> <!-- Dropdown menu End -->
     </section>
 
     <!-- Sliding Menu Section -->

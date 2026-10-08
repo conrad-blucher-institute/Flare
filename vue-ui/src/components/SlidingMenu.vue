@@ -125,7 +125,7 @@ function childRight(key) {
           <Transition name="fade">
 
             <div
-              v-if="selectedOption === option && option.children?.length"
+              v-if="option.children?.length &&(menuStore.slidingMenuOptions.length === 1 || selectedOption === option)"
               class="mt-2 flex justify-center w-full"
             >
 
