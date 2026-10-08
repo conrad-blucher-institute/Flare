@@ -28,11 +28,21 @@ const isSmallScreen = window.innerWidth <= 600;
 const csvURL = ref(`${window.location.origin}/flare/csv-data/Espiritu-Santo-Bay_Water-Temperature_120hrs.csv`);
 const showChartHelp = ref(false);
 
-// Add reactive state for dropdown visibility
-const isExportMenuVisible = ref(false);
-const isSecondExportMenuVisible = ref(false);
 const chartOptions = ref({});
 const secondChartOptions = ref({});
+
+const chartColors = {
+  black: '#000000',
+  orange: '#E69F00',
+  blue: '#0072B2'	,
+  bluishGreen: '#009E73',
+  reddishPurple: '#CC79A7',
+  skyBlue: '#56B4E9',
+  indigo: '#332288',
+  wine: '#882255',
+  olive: '#999933',
+  gray: '#7F7F7F',
+};
 
 // Chart function for first chart that changes based on screen size
 const buildChart = (isSmallScreen, chartTitle) => {
@@ -361,9 +371,21 @@ const fetchAndFilterData = async () => {
       name: "Seadrift Water Temperature Measurements",
       data: seadriftWaterMeasurementsFahrenheit,
       type: "line",
-      color: "#0072B2",  // blue
+      color: chartColors.blue,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
+      marker: {
+        enabled: false
+      }
+    },
+    {
+      name: "Seadrift Air Temperature Measurements",
+      data: seadriftAirMeasurementsFahrenheit,
+      type: "line",
+      color: chartColors.indigo,
+      lineWidth: isSmallScreen ? 1 : 2,
+      zIndex: 1,
+      visible: false, // hidden until the user clicks it in the legend
       marker: {
         enabled: false
       }
@@ -372,9 +394,21 @@ const fetchAndFilterData = async () => {
       name: "Port O'Connor Water Temperature Measurements",
       data: portOConnorWaterMeasurementsFahrenheit,
       type: "line",
-      color: "#CC79A7",  // reddish purple
+      color: chartColors.reddishPurple,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
+      marker: {
+        enabled: false
+      }
+    },
+    {
+      name: "Port O'Connor Air Temperature Measurements",
+      data: portOConnorAirMeasurementsFahrenheit,
+      type: "line",
+      color: chartColors.wine,
+      lineWidth: isSmallScreen ? 1 : 2,
+      zIndex: 1,
+      visible: false, // hidden until the user clicks it in the legend
       marker: {
         enabled: false
       }
@@ -383,9 +417,21 @@ const fetchAndFilterData = async () => {
       name: "Port Lavaca Water Temperature Measurements",
       data: portLavacaWaterMeasurementsFahrenheit,
       type: "line",
-      color: "#009E73",  // bluish green
+      color: chartColors.bluishGreen,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
+      marker: {
+        enabled: false
+      }
+    },
+    {
+      name: "Port Lavaca Air Temperature Measurements",
+      data: portLavacaAirMeasurementsFahrenheit,
+      type: "line",
+      color: chartColors.olive,
+      lineWidth: isSmallScreen ? 1 : 2,
+      zIndex: 1,
+      visible: false, // hidden until the user clicks it in the legend
       marker: {
         enabled: false
       }
@@ -394,7 +440,30 @@ const fetchAndFilterData = async () => {
       name: "Aransas Wildlife Refuge Water Temperature Measurements",
       data: wildlifeRefugeWaterMeasurementsFahrenheit,
       type: "line",
-      color: "#7F7F7F",  // gray
+      color: chartColors.skyBlue,
+      lineWidth: isSmallScreen ? 1 : 2,
+      zIndex: 1,
+      marker: {
+        enabled: false
+      }
+    },
+    {
+      name: "Aransas Wildlife Refuge Air Temperature Measurements",
+      data: wildlifeRefugeAirMeasurementsFahrenheit,
+      type: "line",
+      color: chartColors.gray,
+      lineWidth: isSmallScreen ? 1 : 2,
+      zIndex: 1,
+      visible: false, // hidden until the user clicks it in the legend
+      marker: {
+        enabled: false
+      }
+    },
+    {
+      name: "ESB Air Temperature Measurements",
+      data: esbAirMeasurementsFahrenheit,
+      type: "line",
+      color: chartColors.orange,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       marker: {
@@ -405,7 +474,7 @@ const fetchAndFilterData = async () => {
       name: "ESB Water Temperature Predictions",
       data: esbWaterPredictionsFahrenheit,
       type: "line",
-      color: "#000000",
+      color: chartColors.black,
       dashStyle: "Dash",
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 3,
@@ -417,7 +486,7 @@ const fetchAndFilterData = async () => {
       name: "NDFD Air Temperature Predictions",
       data: futureAirPredictionsFahrenheit,
       type: "line",
-      color: "orange",
+      color: chartColors.orange,
       dashStyle: "Dash",
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
@@ -529,16 +598,6 @@ const parseCSV = (csvText) => {
     esbWaterPredictions
   };
 }; // end parseCSV
-
-
-// Function to toggle the dropdown menu
-const toggleExportMenu = () => {
-  isExportMenuVisible.value = !isExportMenuVisible.value;
-};
-
-const toggleSecondExportMenu = () => {
-  isSecondExportMenuVisible.value = !isSecondExportMenuVisible.value;
-}
 
 ///Fetch and update chart data every 15 minutes
 let updateInterval;
