@@ -16,6 +16,9 @@
 <script setup>
 import { Chart } from "highcharts-vue";
 import { ref, onMounted, onUnmounted, reactive } from "vue";
+import "highcharts/modules/exporting";
+import "highcharts/modules/export-data";
+import "highcharts/modules/offline-exporting";
 
 import AdditionalInfoButton from "@/components/AdditionalInfoButton.vue";
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
@@ -25,11 +28,21 @@ const isSmallScreen = window.innerWidth <= 600;
 const csvURL = ref(`${window.location.origin}/flare/csv-data/Espiritu-Santo-Bay_Water-Temperature_120hrs.csv`);
 const showChartHelp = ref(false);
 
-// Add reactive state for dropdown visibility
-const isExportMenuVisible = ref(false);
-const isSecondExportMenuVisible = ref(false);
 const chartOptions = ref({});
 const secondChartOptions = ref({});
+
+const chartColors = {
+  black: '#000000',
+  orange: '#E69F00',
+  blue: '#0072B2'	,
+  bluishGreen: '#009E73',
+  reddishPurple: '#CC79A7',
+  skyBlue: '#56B4E9',
+  indigo: '#332288',
+  wine: '#882255',
+  olive: '#999933',
+  gray: '#7F7F7F',
+};
 
 // Chart function for first chart that changes based on screen size
 const buildChart = (isSmallScreen, chartTitle) => {
@@ -54,6 +67,19 @@ const buildChart = (isSmallScreen, chartTitle) => {
     },
     exporting: {
       enabled: true,
+      filename: "Espiritu-Santo-Bay_Water-Temperature_120hrs",
+      sourceWidth: 1600,
+      sourceHeight: 900,
+      scale: 1, // setting scale to 1 means the exported image is saved as 1600x900
+      buttons: {
+        contextButton: {
+          menuItems: [
+            'viewFullscreen', 'separator',
+            'downloadPNG', 'downloadJPEG', 'downloadPDF', 'separator',
+            'downloadCSV'
+          ]
+        }
+      }
     },
     legend: {
       enabled: true,
@@ -201,6 +227,7 @@ const buildChart = (isSmallScreen, chartTitle) => {
     },
     series: [], // Placeholder for data, dynamically updated
     tooltip: {
+      outside: true,
       shared: true,
       crosshairs: true,
       formatter: function () {
@@ -345,9 +372,21 @@ const fetchAndFilterData = async () => {
       name: "Seadrift Water Temperature Measurements",
       data: seadriftWaterMeasurementsFahrenheit,
       type: "line",
-      color: "#0072B2",  // blue
+      color: chartColors.blue,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
+      marker: {
+        enabled: false
+      }
+    },
+    {
+      name: "Seadrift Air Temperature Measurements",
+      data: seadriftAirMeasurementsFahrenheit,
+      type: "line",
+      color: chartColors.indigo,
+      lineWidth: isSmallScreen ? 1 : 2,
+      zIndex: 1,
+      visible: false, // hidden until the user clicks it in the legend
       marker: {
         enabled: false
       }
@@ -356,9 +395,21 @@ const fetchAndFilterData = async () => {
       name: "Port O'Connor Water Temperature Measurements",
       data: portOConnorWaterMeasurementsFahrenheit,
       type: "line",
-      color: "#CC79A7",  // reddish purple
+      color: chartColors.reddishPurple,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
+      marker: {
+        enabled: false
+      }
+    },
+    {
+      name: "Port O'Connor Air Temperature Measurements",
+      data: portOConnorAirMeasurementsFahrenheit,
+      type: "line",
+      color: chartColors.wine,
+      lineWidth: isSmallScreen ? 1 : 2,
+      zIndex: 1,
+      visible: false, // hidden until the user clicks it in the legend
       marker: {
         enabled: false
       }
@@ -367,9 +418,21 @@ const fetchAndFilterData = async () => {
       name: "Port Lavaca Water Temperature Measurements",
       data: portLavacaWaterMeasurementsFahrenheit,
       type: "line",
-      color: "#009E73",  // bluish green
+      color: chartColors.bluishGreen,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
+      marker: {
+        enabled: false
+      }
+    },
+    {
+      name: "Port Lavaca Air Temperature Measurements",
+      data: portLavacaAirMeasurementsFahrenheit,
+      type: "line",
+      color: chartColors.olive,
+      lineWidth: isSmallScreen ? 1 : 2,
+      zIndex: 1,
+      visible: false, // hidden until the user clicks it in the legend
       marker: {
         enabled: false
       }
@@ -378,7 +441,7 @@ const fetchAndFilterData = async () => {
       name: "Aransas Wildlife Refuge Water Temperature Measurements",
       data: wildlifeRefugeWaterMeasurementsFahrenheit,
       type: "line",
-      color: "#7F7F7F",  // gray
+      color: chartColors.skyBlue,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       marker: {
@@ -386,10 +449,45 @@ const fetchAndFilterData = async () => {
       }
     },
     {
-      name: "ESB Water Temperature Predictions",
+      name: "Aransas Wildlife Refuge Air Temperature Measurements",
+      data: wildlifeRefugeAirMeasurementsFahrenheit,
+      type: "line",
+      color: chartColors.gray,
+      lineWidth: isSmallScreen ? 1 : 2,
+      zIndex: 1,
+      visible: false, // hidden until the user clicks it in the legend
+      marker: {
+        enabled: false
+      }
+    },
+    {
+      name: "Espiritu Santo Bay Water Temperature Measurements",
+      data: esbWaterMeasurementsFahrenheit,
+      type: "line",
+      color: chartColors.black,
+      lineWidth: isSmallScreen ? 1 : 2,
+      zIndex: 1,
+      visible: false, // hidden until the user clicks it in the legend
+      marker: {
+        enabled: false
+      }
+    },
+    {
+      name: "Espiritu Santo Bay Air Temperature Measurements",
+      data: esbAirMeasurementsFahrenheit,
+      type: "line",
+      color: chartColors.orange,
+      lineWidth: isSmallScreen ? 1 : 2,
+      zIndex: 1,
+      marker: {
+        enabled: false
+      }
+    },
+    {
+      name: "Espiritu Santo Bay Water Temperature Predictions",
       data: esbWaterPredictionsFahrenheit,
       type: "line",
-      color: "#000000",
+      color: chartColors.black,
       dashStyle: "Dash",
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 3,
@@ -401,7 +499,7 @@ const fetchAndFilterData = async () => {
       name: "NDFD Air Temperature Predictions",
       data: futureAirPredictionsFahrenheit,
       type: "line",
-      color: "orange",
+      color: chartColors.orange,
       dashStyle: "Dash",
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
@@ -513,16 +611,6 @@ const parseCSV = (csvText) => {
     esbWaterPredictions
   };
 }; // end parseCSV
-
-
-// Function to toggle the dropdown menu
-const toggleExportMenu = () => {
-  isExportMenuVisible.value = !isExportMenuVisible.value;
-};
-
-const toggleSecondExportMenu = () => {
-  isSecondExportMenuVisible.value = !isSecondExportMenuVisible.value;
-}
 
 ///Fetch and update chart data every 15 minutes
 let updateInterval;
@@ -646,23 +734,6 @@ onUnmounted(() => {
               <Chart class="w-full h-full p-4" :options="chartOptions" />
             </div>
           </div>
-
-          <!-- Custom Export Dropdown -->
-          <div class="hidden lg:block absolute top-5 right-4">
-            <button @click="toggleExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
-              Download CSV Data
-            </button>
-            <ul v-if="isExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
-              <li>
-                <a 
-                  :href="csvURL"
-                  download="espiritu-santo-bay.csv"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
-                  Download CSV
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
 
         <!-- Graph Information -->
@@ -736,23 +807,6 @@ onUnmounted(() => {
             <div class="min-w-[600px]  min-h-[350px] lg:min-w-[1000px] lg:h-[700px] lg:min-h-[650px]">
               <Chart class="w-full h-full p-4" :options="secondChartOptions" />
             </div>
-          </div>
-
-          <!-- Custom Export Dropdown -->
-          <div class="hidden lg:block absolute top-5 right-4">
-            <button @click="toggleSecondExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
-              Download CSV Data
-            </button>
-            <ul v-if="isSecondExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
-              <li>
-                <a 
-                  :href="csvURL"
-                  download="espiritu-santo-bay.csv"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
-                  Download CSV
-                </a>
-              </li>
-            </ul>
           </div>
         </div>
 
@@ -914,6 +968,9 @@ onUnmounted(() => {
     <footer class="bg-navy-blue py-10 text-dark-text space-y-2">
       <!-- List of oraganizations -->
         <div class="flex flex-col justify-center items-center text-white text-sm lg:text-lg">
+          <a href="https://static1.squarespace.com/static/60ee26930d31b147a7fce6bc/t/6a863c88f67b6e4fcd91f5b3/1787182216275/Ayesha_Khan_Mar_18_TCRC_Workshop_+ESB_slides-2.pdf" target="_blank" class="hover:scale-110 transition-transform">
+            <p>Information on ESB Model Development</p>
+          </a>
           <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
             <p>Texas Parks & Wildlife</p>
           </a>
@@ -950,6 +1007,9 @@ onUnmounted(() => {
           </a>
           <a href="https://www.sabaypartnership.org/program/mid-coast-sea-turtle-rescue/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/Mid-Coast-Sea-Turtle-Rescue-Logo.png" alt="Mid-Coast Sea Turtle Rescue Logo" class="max-w-[80px] lg:max-w-[150px]">
+          </a>
+          <a href="https://www.fisheries.noaa.gov/" target="_blank" class="hover:scale-110 transition-transform">
+            <img src="@/assets/images/NOAA_fisheries_logo.png" alt="NOAA Fisheries Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
         </div>
         <p class="text-center text-sm text-light-text">(Click on the logos to visit each contributor's website)</p>
