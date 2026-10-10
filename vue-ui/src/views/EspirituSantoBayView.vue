@@ -227,6 +227,7 @@ const buildChart = (isSmallScreen, chartTitle) => {
     },
     series: [], // Placeholder for data, dynamically updated
     tooltip: {
+      outside: true,
       shared: true,
       crosshairs: true,
       formatter: function () {
