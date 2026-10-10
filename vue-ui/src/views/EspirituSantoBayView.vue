@@ -460,7 +460,19 @@ const fetchAndFilterData = async () => {
       }
     },
     {
-      name: "ESB Air Temperature Measurements",
+      name: "Espiritu Santo Bay Water Temperature Measurements",
+      data: esbWaterMeasurementsFahrenheit,
+      type: "line",
+      color: chartColors.black,
+      lineWidth: isSmallScreen ? 1 : 2,
+      zIndex: 1,
+      visible: false, // hidden until the user clicks it in the legend
+      marker: {
+        enabled: false
+      }
+    },
+    {
+      name: "Espiritu Santo Bay Air Temperature Measurements",
       data: esbAirMeasurementsFahrenheit,
       type: "line",
       color: chartColors.orange,
@@ -471,7 +483,7 @@ const fetchAndFilterData = async () => {
       }
     },
     {
-      name: "ESB Water Temperature Predictions",
+      name: "Espiritu Santo Bay Water Temperature Predictions",
       data: esbWaterPredictionsFahrenheit,
       type: "line",
       color: chartColors.black,
