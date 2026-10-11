@@ -1,0 +1,49 @@
+{
+    "chart_name": "test_hohonu",
+    "CSPEC_version": "1.0.0",
+    "data_requests" : [
+         {
+            "key": "SemaphoreInputs",
+            "args": {
+                "column_name": "Port Lavaca Air Temperature Measurement",
+                "location": "PortLavaca",
+                "source": "NOAATANDC",
+                "series": "dAirTmp",
+                "interval": 3600,
+                "range": [-120, 0]
+            }
+        },
+        {
+            "_comment": "5 days of past water level measurements from hohonu",
+            "key": "Hohonu",
+            "args": {
+                "column_name": "Hohonu-Water-Level-Measurements",
+                "station_id": "hohonu-185",
+                "datum": "D2W",
+                "units": "english",
+                "range": [-120, 0]
+            }
+        },
+        {
+            "_comment": "Air temperature predictions from SemaphoreInputs",
+            "key": "SemaphoreInputs",
+            "args": {
+                "column_name": "Air Temperature Prediction",
+                "location": "SBirdIsland", 
+                "source": "NDFD_JSON",
+                "series": "pAirTemp",
+                "interval": 3600,
+                "range": [0, 144]
+            }
+        }
+    ],
+    "post_processing" : [],
+    "csv_config": {
+        "csv_name": "test_hohonu.csv",
+        "included_columns": [
+            "Hohonu-Water-Level-Measurements",
+            "Port Lavaca Air Temperature Measurement",
+            "Air Temperature Prediction"
+        ]
+    }
+}
