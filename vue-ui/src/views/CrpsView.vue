@@ -17,6 +17,9 @@
 import { Chart } from "highcharts-vue";
 import Highcharts from "highcharts";
 import HighchartsMore from "highcharts/highcharts-more";
+import "highcharts/modules/exporting";
+import "highcharts/modules/export-data";
+import "highcharts/modules/offline-exporting";
 import { ref, onMounted, onUnmounted, reactive } from "vue";
 
 import AdditionalInfoButton from "@/components/AdditionalInfoButton.vue";
@@ -67,6 +70,23 @@ const buildRibbonChart = (isSmallScreen, chartTitle) => {
     },
     exporting: {
       enabled: true,
+      filename: "Laguna-Madre_Water-Temperature_120hrs",
+      sourceWidth: 1600,
+      sourceHeight: 900,
+      scale: 1,
+      buttons: {
+        contextButton: {
+          menuItems: [
+            "viewFullscreen",
+            "separator",
+            "downloadPNG",
+            "downloadJPEG",
+            "downloadPDF",
+            "separator",
+            "downloadCSV",
+          ],
+        },
+      },
     },
     legend: {
       enabled: true,
@@ -438,6 +458,7 @@ const buildBoxChart = (isSmallScreen) => {
     },
     series: [], // Placeholder for data, dynamically updated
     tooltip: {
+      outside: true, // Ensures tooltip isn't cut off by chart boundaries
       shared: true,
       crosshairs: true,
       formatter: function () {
@@ -446,7 +467,7 @@ const buildBoxChart = (isSmallScreen) => {
         // Box Plot is a special case since they have multiple values
         var displayInfo = ``;
         this.points.forEach(line => {
-          if (line.series.name === "Water Temperature Predictions Box Plot for Laguna Madre") {
+          if (line.series.type === "boxplot") {
             displayInfo += `
               <span style="color:${line.color}">\u25CF</span> Maximum: <b>${line.high.toFixed(1)}°F</b><br>
               <span style="color:${line.color}">\u25CF</span> Upper Quartile: <b>${line.q3.toFixed(1)}°F</b><br>
@@ -1051,35 +1072,6 @@ onUnmounted(() => {
             </div>
 
           </div> <!-- End Scrollable Content -->
-          <!-- Download footer -->
-          <div class="shrink-0 mt-4 pt-3 border-t border-gray-300 flex justify-center">
-            <a
-              :href="csvURL"
-              download="CRPS_120hrs.csv"
-              class="inline-flex items-center gap-2 px-3 py-2 rounded-md
-                bg-navy-blue text-white text-sm font-medium shadow-md
-                hover:bg-blue-700 transition-colors
-                focus-visible:outline focus-visible:outline-2
-                focus-visible:outline-offset-2 focus-visible:outline-navy-blue"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                class="w-4 h-4"
-                aria-hidden="true"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 3v12m0 0 4-4m-4 4-4-4M4 16v4h16v-4"
-                />
-              </svg>
-              Download CSV
-            </a>
-          </div>
         </div> <!-- End Graph Information -->
       </section> <!-- End First Chart Section -->
       <div class="h-[30px] bg-gray-100"></div>
@@ -1159,35 +1151,6 @@ onUnmounted(() => {
                 Actual water temperatures may occur anywhere within or occasionally outside the displayed ranges (about 10% of the time).
               </p>
             </div>
-          </div>
-          <!-- Download footer -->
-          <div class="shrink-0 mt-4 pt-3 border-t border-gray-300 flex justify-center">
-            <a
-              :href="csvURL"
-              download="CRPS_120hrs.csv"
-              class="inline-flex items-center gap-2 px-3 py-2 rounded-md
-                bg-navy-blue text-white text-sm font-medium shadow-md
-                hover:bg-blue-700 transition-colors
-                focus-visible:outline focus-visible:outline-2
-                focus-visible:outline-offset-2 focus-visible:outline-navy-blue"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                class="w-4 h-4"
-                aria-hidden="true"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 3v12m0 0 4-4m-4 4-4-4M4 16v4h16v-4"
-                />
-              </svg>
-              Download CSV
-            </a>
           </div>
         </div>  
       </section>
@@ -1271,35 +1234,6 @@ onUnmounted(() => {
               </p>
             </div>
 
-          </div>
-          <!-- Download footer -->
-          <div class="shrink-0 mt-4 pt-3 border-t border-gray-300 flex justify-center">
-            <a
-              :href="csvURL"
-              download="CRPS_120hrs.csv"
-              class="inline-flex items-center gap-2 px-3 py-2 rounded-md
-                bg-navy-blue text-white text-sm font-medium shadow-md
-                hover:bg-blue-700 transition-colors
-                focus-visible:outline focus-visible:outline-2
-                focus-visible:outline-offset-2 focus-visible:outline-navy-blue"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                class="w-4 h-4"
-                aria-hidden="true"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 3v12m0 0 4-4m-4 4-4-4M4 16v4h16v-4"
-                />
-              </svg>
-              Download CSV
-            </a>
           </div>
         </div>                              
       </section> 
