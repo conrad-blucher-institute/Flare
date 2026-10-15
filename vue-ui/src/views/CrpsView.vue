@@ -70,7 +70,7 @@ const buildRibbonChart = (isSmallScreen, chartTitle) => {
     },
     exporting: {
       enabled: true,
-      filename: "Laguna-Madre_Water-Temperature_120hrs",
+      filename: "CRPS_120hrs",
       sourceWidth: 1600,
       sourceHeight: 900,
       scale: 1,
@@ -328,6 +328,23 @@ const buildBoxChart = (isSmallScreen) => {
     },
     exporting: {
       enabled: true,
+      filename: "CRPS_120hrs",
+      sourceWidth: 1600,
+      sourceHeight: 900,
+      scale: 1,
+      buttons: {
+        contextButton: {
+          menuItems: [
+            "viewFullscreen",
+            "separator",
+            "downloadPNG",
+            "downloadJPEG",
+            "downloadPDF",
+            "separator",
+            "downloadCSV",
+          ],
+        },
+      },
     },
     legend: {
       enabled: true,
