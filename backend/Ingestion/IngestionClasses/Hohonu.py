@@ -18,11 +18,11 @@ NOTE: reads HOHONU_API_AUTH from the env file.
 """
 from os import getenv
 from datetime import datetime, timedelta, timezone
-from requests import get
+from urllib.parse import urlencode
 
 from Ingestion.I_Ingestion import IDataIngestion
 from runtimeContext import thread_storage
-from Ingestion.Ingestion_Utility import add_empty_column
+from Ingestion.Ingestion_Utility import add_empty_column, api_request
 
 from pandas import DataFrame, to_datetime
 
@@ -167,8 +167,7 @@ class Hohonu(IDataIngestion):
         # format the start and end times
         from_time = from_time.strftime("%Y-%m-%d %H:%M")
         to_time = to_time.strftime("%Y-%m-%d %H:%M")
-
-        url = f"https://dashboard.hohonu.io/api/v1/stations/{station_id}/waterlevel"
+        
         params = {
             "from": from_time,
             "to": to_time,
@@ -183,19 +182,9 @@ class Hohonu(IDataIngestion):
             "Accept": "application/json",
         }
 
-        try:
-            resp = get(url, params=params, headers=headers, timeout=30)
-            if not resp.ok:
-                self.logger.log_error(f"Error querying Hohonu API: {resp.status_code} - {resp.text}")
-                return None
+        url = f"https://dashboard.hohonu.io/api/v1/stations/{station_id}/waterlevel?{urlencode(params)}"
 
-            data = resp.json()
-            return data
-        
-        except Exception as e:
-            # catch all exceptions to add an empty column instead of stopping the exec
-            self.logger.log_error(f"Error fetching response from Hohonu API URL: {url}. Exception: {e}")
-            return None
+        return api_request(url, headers=headers)
 
 
     def _add_data(self, df: DataFrame, column_name: str, response_data: dict) -> DataFrame:
