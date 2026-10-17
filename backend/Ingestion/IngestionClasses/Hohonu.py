@@ -24,7 +24,8 @@ from Ingestion.I_Ingestion import IDataIngestion
 from runtimeContext import thread_storage
 from Ingestion.Ingestion_Utility import add_empty_column, api_request
 
-from pandas import DataFrame, to_datetime
+from pandas import DataFrame, Series, to_datetime
+from numpy import nan
 
 
 class Hohonu(IDataIngestion):
@@ -227,13 +228,17 @@ class Hohonu(IDataIngestion):
         data_timestamps = [p["t"] for p in data_points]
         data_values     = [p["o"] for p in data_points]
         
-        # create a new df where the data points are indexed by their timestamps
+        # create a Series of the data points indexed by their timestamps
         # the timestamps are converted to datetime objects in UTC then remove the timezone information
         index = to_datetime(data_timestamps, utc=True).tz_localize(None)
-        new_df = DataFrame({column_name: data_values}, index=index)
+        series = Series(
+            data=data_values,
+            index=index,
+            name=column_name
+        )
 
         # remove any duplicate timestamps
-        new_df = new_df[~new_df.index.duplicated()]
+        series = series[~series.index.duplicated()]
 
-        # outer join to preserve all timestamps from both dataframes
-        return df.join(new_df, how='outer')
+        # outer join to preserve all timestamps
+        return df.join(series, how='outer')
