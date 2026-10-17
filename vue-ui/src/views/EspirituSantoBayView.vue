@@ -1016,7 +1016,7 @@ onUnmounted(() => {
             <img src="@/assets/images/Mid-Coast-Sea-Turtle-Rescue-Logo.png" alt="Mid-Coast Sea Turtle Rescue Logo" class="max-w-[80px] lg:max-w-[150px]">
           </a>
           <a href="https://www.fisheries.noaa.gov/" target="_blank" class="hover:scale-110 transition-transform">
-            <img src="@/assets/images/NOAA_fisheries_logo.png" alt="NOAA Fisheries Logo" class="max-w-[80px] lg:max-w-[150px]">
+            <img src="@/assets/images/NOAA_fisheries_logo.png" alt="NOAA Fisheries Logo" class="max-w-[100px] lg:max-w-[250px]">
           </a>
         </div>
         <p class="text-center text-sm text-light-text">(Click on the logos to visit each contributor's website)</p>
