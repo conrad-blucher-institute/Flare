@@ -31,17 +31,24 @@ const showChartHelp = ref(false);
 const chartOptions = ref({});
 const secondChartOptions = ref({});
 
-const chartColors = {
+const chartLineColors = {
+  // black for ESB mean water measurements and ESB water predictions
   black: '#000000',
+
+  // orange for ESB mean air measurements and NDFD air predictions 
   orange: '#E69F00',
-  blue: '#0072B2'	,
-  bluishGreen: '#009E73',
-  reddishPurple: '#CC79A7',
-  skyBlue: '#56B4E9',
-  indigo: '#332288',
-  wine: '#882255',
-  olive: '#999933',
-  gray: '#7F7F7F',
+
+  // blues for the water measurements
+  portOConnorWater:     '#bdc9e1',
+  portLavacaWater:      '#67a9cf',
+  seadriftWater:        '#1c9099',
+  aransasWildlifeWater: '#016c59',
+  
+  // greens for the air measurements
+  portOConnorAir:       '#c2e699',
+  portLavacaAir:        '#78c679',
+  seadriftAir:          '#31a354',
+  aransasWildlifeAir:   '#006837',
 };
 
 // Chart function for first chart that changes based on screen size
@@ -323,7 +330,7 @@ const fetchAndFilterData = async () => {
         name: "Espiritu Santo Bay Water Temperature Measurements",
         data: esbWaterMeasurementsFahrenheit,
         type: "line",
-        color: "#000000", // solid black for ESB water measurements
+        color: chartLineColors.black, // solid black for ESB mean water measurements
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1,
         marker: {
@@ -334,7 +341,7 @@ const fetchAndFilterData = async () => {
         name: "Espiritu Santo Bay Air Temperature Measurements",
         data: esbAirMeasurementsFahrenheit,
         type: "line",
-        color: "orange",  // solid orange for ESB air measurements
+        color: chartLineColors.orange,  // solid orange for ESB mean air measurements
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1,
         marker: {
@@ -346,7 +353,7 @@ const fetchAndFilterData = async () => {
         data: esbWaterPredictionsFahrenheit,
         type: "line",
         dashStyle: "Dash",
-        color: "#000000", // black dashes for ESB water predictions
+        color: chartLineColors.black, // black dashes for ESB water predictions
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 3,
         marker: {
@@ -357,7 +364,7 @@ const fetchAndFilterData = async () => {
         name: "NDFD Air Temperature Predictions",
         data: futureAirPredictionsFahrenheit,
         type: "line",
-        color: "orange",  // orange dashes for NDFD air predictions
+        color: chartLineColors.orange,  // orange dashes for NDFD air predictions
         dashStyle: "Dash",
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1,
@@ -372,7 +379,7 @@ const fetchAndFilterData = async () => {
       name: "Seadrift Water Temperature Measurements",
       data: seadriftWaterMeasurementsFahrenheit,
       type: "line",
-      color: chartColors.blue,
+      color: chartLineColors.seadriftWater,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       marker: {
@@ -383,7 +390,7 @@ const fetchAndFilterData = async () => {
       name: "Seadrift Air Temperature Measurements",
       data: seadriftAirMeasurementsFahrenheit,
       type: "line",
-      color: chartColors.indigo,
+      color: chartLineColors.seadriftAir,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       visible: false, // hidden until the user clicks it in the legend
@@ -395,7 +402,7 @@ const fetchAndFilterData = async () => {
       name: "Port O'Connor Water Temperature Measurements",
       data: portOConnorWaterMeasurementsFahrenheit,
       type: "line",
-      color: chartColors.reddishPurple,
+      color: chartLineColors.portOConnorWater,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       marker: {
@@ -406,7 +413,7 @@ const fetchAndFilterData = async () => {
       name: "Port O'Connor Air Temperature Measurements",
       data: portOConnorAirMeasurementsFahrenheit,
       type: "line",
-      color: chartColors.wine,
+      color: chartLineColors.portOConnorAir,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       visible: false, // hidden until the user clicks it in the legend
@@ -418,7 +425,7 @@ const fetchAndFilterData = async () => {
       name: "Port Lavaca Water Temperature Measurements",
       data: portLavacaWaterMeasurementsFahrenheit,
       type: "line",
-      color: chartColors.bluishGreen,
+      color: chartLineColors.portLavacaWater,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       marker: {
@@ -429,7 +436,7 @@ const fetchAndFilterData = async () => {
       name: "Port Lavaca Air Temperature Measurements",
       data: portLavacaAirMeasurementsFahrenheit,
       type: "line",
-      color: chartColors.olive,
+      color: chartLineColors.portLavacaAir,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       visible: false, // hidden until the user clicks it in the legend
@@ -441,7 +448,7 @@ const fetchAndFilterData = async () => {
       name: "Aransas Wildlife Refuge Water Temperature Measurements",
       data: wildlifeRefugeWaterMeasurementsFahrenheit,
       type: "line",
-      color: chartColors.skyBlue,
+      color: chartLineColors.aransasWildlifeWater,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       marker: {
@@ -452,7 +459,7 @@ const fetchAndFilterData = async () => {
       name: "Aransas Wildlife Refuge Air Temperature Measurements",
       data: wildlifeRefugeAirMeasurementsFahrenheit,
       type: "line",
-      color: chartColors.gray,
+      color: chartLineColors.aransasWildlifeAir,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       visible: false, // hidden until the user clicks it in the legend
@@ -464,7 +471,7 @@ const fetchAndFilterData = async () => {
       name: "Espiritu Santo Bay Water Temperature Measurements",
       data: esbWaterMeasurementsFahrenheit,
       type: "line",
-      color: chartColors.black,
+      color: chartLineColors.black,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       visible: false, // hidden until the user clicks it in the legend
@@ -476,7 +483,7 @@ const fetchAndFilterData = async () => {
       name: "Espiritu Santo Bay Air Temperature Measurements",
       data: esbAirMeasurementsFahrenheit,
       type: "line",
-      color: chartColors.orange,
+      color: chartLineColors.orange,
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
       marker: {
@@ -487,7 +494,7 @@ const fetchAndFilterData = async () => {
       name: "Espiritu Santo Bay Water Temperature Predictions",
       data: esbWaterPredictionsFahrenheit,
       type: "line",
-      color: chartColors.black,
+      color: chartLineColors.black,
       dashStyle: "Dash",
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 3,
@@ -499,7 +506,7 @@ const fetchAndFilterData = async () => {
       name: "NDFD Air Temperature Predictions",
       data: futureAirPredictionsFahrenheit,
       type: "line",
-      color: chartColors.orange,
+      color: chartLineColors.orange,
       dashStyle: "Dash",
       lineWidth: isSmallScreen ? 1 : 2,
       zIndex: 1,
