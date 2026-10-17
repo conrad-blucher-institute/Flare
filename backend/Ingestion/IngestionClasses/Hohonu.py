@@ -28,6 +28,21 @@ from pandas import DataFrame, to_datetime
 
 
 class Hohonu(IDataIngestion):
+    """
+    Hohonu ingestion class for querying data from the Hohonu API.
+
+    cspec call
+    {
+        "key": "Hohonu",
+        "args": {
+            "column_name": "Hohonu-Water-Level-Measurements",
+            "station_id": "hohonu-185",
+            "datum": "D2W",
+            "units": "english",
+            "range": [-120, 0]
+        }
+    }
+    """
 
     def __init__(self):
         self.logger = thread_storage.logger
@@ -154,8 +169,9 @@ class Hohonu(IDataIngestion):
         """
 
         api_auth = getenv("HOHONU_API_AUTH", None)
-        if api_auth is None:
-            raise ValueError("HOHONU_API_AUTH environment variable is not set")
+        if not api_auth:
+            self.logger.log_error("HOHONU_API_AUTH environment variable is not set")
+            return None
 
         # ensure the reference time is in UTC
         reference_time = reference_time.astimezone(timezone.utc)
@@ -178,8 +194,12 @@ class Hohonu(IDataIngestion):
             "predictions": str(predictions).lower()
         }
         headers = {
-            "Authorization": api_auth,
+            "Authorization": api_auth.strip(),
             "Accept": "application/json",
+            # Hohonu rejects urllib's default User-Agent ("Python-urllib/x.y") with a
+            # 403 "banned browser signature". This identifies us as an automated client
+            # using the standard "Mozilla/5.0 (compatible; Name/Version)" convention.
+            "User-Agent": "Mozilla/5.0 (compatible; Flare/1.0)",
         }
 
         url = f"https://dashboard.hohonu.io/api/v1/stations/{station_id}/waterlevel?{urlencode(params)}"
