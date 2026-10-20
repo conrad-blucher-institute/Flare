@@ -15,7 +15,7 @@
 ======================================================= -->
 <script setup>
 import { Chart } from "highcharts-vue";
-import { ref, onMounted, onUnmounted, reactive } from "vue";
+import { ref, onMounted, reactive } from "vue";
 import "highcharts/modules/exporting";
 import "highcharts/modules/export-data";
 import "highcharts/modules/offline-exporting";
@@ -619,9 +619,6 @@ const parseCSV = (csvText) => {
   };
 }; // end parseCSV
 
-///Fetch and update chart data every 15 minutes
-let updateInterval;
-
 onMounted(() => {
   const loadCharts = () => {
     Promise.all([
@@ -640,13 +637,6 @@ onMounted(() => {
 
   // Initial load
   loadCharts();
-
-  // Refresh every 15 minutes
-  updateInterval = setInterval(loadCharts, 900000);
-});
-
-onUnmounted(() => {
-  clearInterval(updateInterval);
 });
 </script>
  
