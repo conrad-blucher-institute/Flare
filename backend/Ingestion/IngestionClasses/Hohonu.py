@@ -39,11 +39,7 @@ class Hohonu(IDataIngestion):
             "station_id": "hohonu-185",
             "datum": "D2W",
             "units": "english",
-            "range": [-120, 0],
-            "qc_level": 1,              // optional
-            "flags": false,             // optional
-            "predictions": false,       // optional
-            "observations": "6min"      // optional
+            "range": [-120, 0]
         }
     }
     """
@@ -59,11 +55,7 @@ class Hohonu(IDataIngestion):
             station_id: str,
             datum: str,
             units: str,
-            range: list[int],
-            qc_level: int = 1,
-            flags: bool = False,
-            predictions: bool = False,
-            observations: str = "6min"
+            range: list[int]
         ) -> DataFrame:
         """
         Ingests data from the Hohonu API
@@ -85,25 +77,6 @@ class Hohonu(IDataIngestion):
             range (list[int]) - the times to query data for based on the reference time, in hours. The first
                 value is the start of the range, and the second value is the end of the range.
                 Ex, [-120, 0] will query data from 5 days ago to now.
-            
-            qc_level (int) - the quality control level for the data. Defaults to 1.
-                0 - no quality control
-                1 - basic quality control
-                2 - advanced quality control 
-            
-            flags (bool) - whether to show QC flags for each data point in the response. If true,
-                the response will include a flag for each data point indicating its QC status.
-            
-            predictions (bool) - whether to include tide prediction values.
-
-            observations (str) - the frequency of observations to query.
-                Can be one of:
-                    "true" - all observations from the station, written as a string in the cspec call
-                        When querying all observations, measurements are about every 6 seconds.
-                    "false" - no measurements from the station, written as a string in the cspec call
-                    "6min" - measurements every 6 minutes, written as a string in the cspec call
-                        This is the default value if not specified and can also be written as
-                        "six_min"
 
         Returns:
             DataFrame - the updated dataframe with the new data column added
@@ -119,11 +92,7 @@ class Hohonu(IDataIngestion):
             reference_time = reference_time,
             datum = datum,
             range = range,
-            units = units,
-            qc_level = qc_level,
-            flags = flags,
-            predictions = predictions,
-            observations = observations
+            units = units
         )
 
         # the api_request function will already log HTTPError and all other exceptions
@@ -173,11 +142,7 @@ class Hohonu(IDataIngestion):
             reference_time: datetime,
             datum: str,
             range: list[int],
-            units: str = "english",
-            qc_level: int = 1,
-            flags: bool = False,
-            predictions: bool = False,
-            observations: str = "6min"
+            units: str
         ) -> str:
         """
         Builds the URL for querying data
@@ -195,26 +160,6 @@ class Hohonu(IDataIngestion):
                 Ex, [-120, 0] will query data from 5 days ago to now.
             
             units (str) - the units of the data. Ex, 'english' for feet, 'metric' for meters.
-                Defaults to 'english' for feet.
-            
-            qc_level (int) - the quality control level for the data. Defaults to 1.
-                0 - no quality control
-                1 - basic quality control
-                2 - advanced quality control 
-            
-            flags (bool) - whether to show QC flags for each data point in the response. If true,
-                the response will include a flag for each data point indicating its QC status.
-            
-            predictions (bool) - whether to include tide prediction values.
-
-            observations (str) - the frequency of observations to query.
-                Can be one of:
-                    "true" - all observations from the station, written as a string in the cspec call
-                        When querying all observations, measurements are about every 6 seconds.
-                    "false" - no measurements from the station, written as a string in the cspec call
-                    "6min" - measurements every 6 minutes, written as a string in the cspec call
-                        This is the default value if not specified and can also be written as
-                        "six_min"
         
         Returns:
             str - the URL for querying data from the Hohonu API
@@ -243,10 +188,7 @@ class Hohonu(IDataIngestion):
             "to": to_time,
             "units": units,
             "datum": datum,
-            "qc_level": qc_level,
-            "flags": str(flags).lower(),            # Hohonu expects bools to be lowercase strings
-            "predictions": str(predictions).lower(),
-            "observations": str(observations).lower()
+            "observations": "6min" # request measurements intervaled every 6 minutes
         }
 
         url = f"https://dashboard.hohonu.io/api/v1/stations/{station_id}/waterlevel?{urlencode(params)}"
