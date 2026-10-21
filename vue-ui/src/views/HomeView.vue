@@ -51,47 +51,14 @@
             class="absolute left-0 top-full mt-2 w-72 bg-navy-blue text-white border border-white/20 rounded-md shadow-lg z-50 p-2 space-y-2"
           >
           
-            <!-- Menu Contents -->
-            <div class="relative">
-              <button
-                class="flex items-center justify-between gap-2 w-full border border-white/20 px-4 py-3 text-left rounded-md transition-colors hover:bg-white/10 hover:border-white/40"
-                :aria-expanded="inundationOpen"
-                @click="inundationOpen = !inundationOpen"
-              >
-                <span>Inundation Prediction Models</span>
-                <span aria-hidden="true">▸</span>
-              </button>
-
-              <!-- Inundation Submenu -->
-              <div
-                v-if="inundationOpen"
-                class="absolute left-full top-0 ml-2 w-56 bg-navy-blue border border-white/20 rounded-md shadow-lg p-2 space-y-2"
-              >
-                <a
-                  href="https://sherlock-prod.tamucc.edu/cbocp/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="block border border-white/20 px-4 py-3 text-center rounded-md transition-colors hover:bg-white/10 hover:border-white/40"
-                >
-                  <span class="block font-semibold">Production</span>
-                  <span class="block mt-1 text-xs text-white/70">
-                    Public access
-                  </span>
-                </a>
-
-                <a
-                  href="https://sherlock-dev.tamucc.edu/cbocp/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="block border border-white/20 px-4 py-3 text-center rounded-md transition-colors hover:bg-white/10 hover:border-white/40"
-                >
-                  <span class="block font-semibold">In Development</span>
-                  <span class="block mt-1 text-xs text-white/70">
-                    TAMU-CC VPN required
-                  </span>
-                </a>
-              </div><!-- Inundation Submenu End -->
-            </div> <!-- Menu Contents End -->
+             <a
+              href="https://sherlock-prod.tamucc.edu/cbocp/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="block border border-white/20 px-4 py-3 rounded-md transition-colors hover:bg-white/10 hover:border-white/40"
+            >
+              Inundation Prediction Models
+            </a>
 
             <a
               href="https://cbigrid.tamucc.edu/fog-predictions/"

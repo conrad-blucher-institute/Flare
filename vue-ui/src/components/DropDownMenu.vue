@@ -23,9 +23,12 @@
      Date: 11/04/2024
 ======================================================= -->
 
+
  <script setup>
     import { useMenuStore } from '@/stores/menuStore';
     import { ref } from 'vue';
+    //TODO: Define shared styling variables for the Highcharts hamburger
+    // menu to keep its appearance consistent across all charts and pages.
 
     const menuStore = useMenuStore(); // Instance of useMenuStore
     const isOpen = ref(false); // State to track dropdown visibility
