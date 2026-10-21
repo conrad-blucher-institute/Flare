@@ -42,8 +42,8 @@ class Hohonu(IDataIngestion):
             "range": [-120, 0],
             "qc_level": 1,              // optional
             "flags": false,             // optional
-            "predictions": false,        // optional
-            "observations": "6min"     // optional
+            "predictions": false,       // optional
+            "observations": "6min"      // optional
         }
     }
     """
@@ -109,7 +109,12 @@ class Hohonu(IDataIngestion):
             DataFrame - the updated dataframe with the new data column added
         """
 
-        response_data = self._get_response(
+        headers = self._get_headers()
+        if headers is None:
+            self.logger.log_error("HOHONU_API_AUTH environment variable is not set")
+            return add_empty_column(df, column_name)
+
+        url = self._get_url(
             station_id = station_id,
             reference_time = reference_time,
             datum = datum,
@@ -120,19 +125,49 @@ class Hohonu(IDataIngestion):
             predictions = predictions,
             observations = observations
         )
+
+        # the api_request function will already log HTTPError and all other exceptions
+        response_data = api_request(url, headers=headers)
         if response_data is None:
             return add_empty_column(df, column_name)
 
         try:
             series = self._build_series(column_name, response_data)
-            return df.join(series, how='outer') # outer join to preserve all timestamps
+            return df.join(series, how='outer')
         except Exception as e:
-            # catch all exceptions to add an empty column instead of stopping the exec
+            # catch all exceptions to add an empty column instead of
+            # stopping the exec when building the series fails
             self.logger.log_error(f"Error adding Hohonu data to dataframe. Exception: {e}")
             return add_empty_column(df, column_name)
 
 
-    def _get_response(
+    def _get_headers(self) -> dict | None:
+        """
+        Returns the headers for the Hohonu API request
+
+        NOTE: Hohonu rejects urllib's default User-Agent ("Python-urllib/x.y") with a
+        403 "banned browser signature". This user agent here identifies us as an automated
+        client using the standard "Mozilla/5.0 (compatible; Name/Version)" convention.
+
+        Returns:
+            dict | None - the headers for the Hohonu API request or None
+                if the HOHONU_API_AUTH environment variable is not set
+        """
+
+        api_auth = getenv("HOHONU_API_AUTH", None)
+        if api_auth is None:
+            return None
+
+        headers = {
+            "Authorization": api_auth.strip(),
+            "Accept": "application/json",
+            "User-Agent": "Mozilla/5.0 (compatible; Flare/1.0)",
+        }
+
+        return headers
+
+
+    def _get_url(
             self,
             station_id: str,
             reference_time: datetime,
@@ -143,9 +178,9 @@ class Hohonu(IDataIngestion):
             flags: bool = False,
             predictions: bool = False,
             observations: str = "6min"
-        ) -> dict | None:
+        ) -> str:
         """
-        Builds the URL for querying data and fetches the response
+        Builds the URL for querying data
 
         Args:
             station_id (str) - the ID of the station to query data from
@@ -182,8 +217,7 @@ class Hohonu(IDataIngestion):
                         "six_min"
         
         Returns:
-            dict - the JSON response data from the request
-            None - if the request fails or an exception occurs
+            str - the URL for querying data from the Hohonu API
             
         NOTE: See https://hohonu.readme.io/reference/viewwaterlevel for more info
             on the water level request and parameter details.
@@ -192,11 +226,6 @@ class Hohonu(IDataIngestion):
             Z means UTC. In this code, the requested from and to times are converted
             to UTC before making the query
         """
-
-        api_auth = getenv("HOHONU_API_AUTH", None)
-        if api_auth is None:
-            self.logger.log_error("HOHONU_API_AUTH environment variable is not set")
-            return None
 
         # ensure the reference time is in UTC
         reference_time = reference_time.astimezone(timezone.utc)
@@ -219,18 +248,10 @@ class Hohonu(IDataIngestion):
             "predictions": str(predictions).lower(),
             "observations": str(observations).lower()
         }
-        headers = {
-            "Authorization": api_auth.strip(),
-            "Accept": "application/json",
-            # Hohonu rejects urllib's default User-Agent ("Python-urllib/x.y") with a
-            # 403 "banned browser signature". This identifies us as an automated client
-            # using the standard "Mozilla/5.0 (compatible; Name/Version)" convention.
-            "User-Agent": "Mozilla/5.0 (compatible; Flare/1.0)",
-        }
 
         url = f"https://dashboard.hohonu.io/api/v1/stations/{station_id}/waterlevel?{urlencode(params)}"
 
-        return api_request(url, headers=headers)
+        return url
 
 
     def _build_series(self, column_name: str, response_data: dict) -> Series:
