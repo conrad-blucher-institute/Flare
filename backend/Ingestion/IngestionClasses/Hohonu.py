@@ -124,7 +124,8 @@ class Hohonu(IDataIngestion):
             return add_empty_column(df, column_name)
 
         try:
-            return self._add_data(df, column_name, response_data)
+            series = self._build_series(column_name, response_data)
+            return df.join(series, how='outer') # outer join to preserve all timestamps
         except Exception as e:
             # catch all exceptions to add an empty column instead of stopping the exec
             self.logger.log_error(f"Error adding Hohonu data to dataframe. Exception: {e}")
@@ -232,19 +233,18 @@ class Hohonu(IDataIngestion):
         return api_request(url, headers=headers)
 
 
-    def _add_data(self, df: DataFrame, column_name: str, response_data: dict) -> DataFrame:
+    def _build_series(self, column_name: str, response_data: dict) -> Series:
         """
-        Adds the new data column to the ongoing dataframe using the response data
+        Extracts the data points from the response, builds a series, and returns it to be
+        added to the ongoing dataframe.
 
         Args:
-            df (DataFrame) - the ongoing dataframe to add the new data column to
-
             column_name (str) - the name of the new data column
 
             response_data (dict) - the response data
 
         Returns:
-            DataFrame - the updated dataframe with the new data column added
+            Series - the new data column
         """
         data_points = response_data["data"]["waterlevel"]
 
@@ -261,5 +261,4 @@ class Hohonu(IDataIngestion):
             name=column_name
         )
 
-        # outer join to preserve all timestamps
-        return df.join(series, how='outer')
+        return series
