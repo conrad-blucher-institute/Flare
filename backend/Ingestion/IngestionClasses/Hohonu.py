@@ -25,14 +25,13 @@ from runtimeContext import thread_storage
 from Ingestion.Ingestion_Utility import add_empty_column, api_request
 
 from pandas import DataFrame, Series, to_datetime
-from numpy import nan
 
 
 class Hohonu(IDataIngestion):
     """
     Hohonu ingestion class for querying data from the Hohonu API.
 
-    cspec call
+    cspec data request call
     {
         "key": "Hohonu",
         "args": {
@@ -40,7 +39,11 @@ class Hohonu(IDataIngestion):
             "station_id": "hohonu-185",
             "datum": "D2W",
             "units": "english",
-            "range": [-120, 0]
+            "range": [-120, 0],
+            "qc_level": 1,              // optional
+            "flags": false,             // optional
+            "predictions": false,        // optional
+            "observations": "6min"     // optional
         }
     }
     """
@@ -59,7 +62,8 @@ class Hohonu(IDataIngestion):
             range: list[int],
             qc_level: int = 1,
             flags: bool = False,
-            predictions: bool = False
+            predictions: bool = False,
+            observations: str = "6min"
         ) -> DataFrame:
         """
         Ingests data from the Hohonu API
@@ -91,8 +95,16 @@ class Hohonu(IDataIngestion):
                 the response will include a flag for each data point indicating its QC status.
             
             predictions (bool) - whether to include tide prediction values.
-            
-        
+
+            observations (str) - the frequency of observations to query.
+                Can be one of:
+                    "true" - all observations from the station, written as a string in the cspec call
+                        When querying all observations, measurements are about every 6 seconds.
+                    "false" - no measurements from the station, written as a string in the cspec call
+                    "6min" - measurements every 6 minutes, written as a string in the cspec call
+                        This is the default value if not specified and can also be written as
+                        "six_min"
+
         Returns:
             DataFrame - the updated dataframe with the new data column added
         """
@@ -105,7 +117,8 @@ class Hohonu(IDataIngestion):
             units = units,
             qc_level = qc_level,
             flags = flags,
-            predictions = predictions
+            predictions = predictions,
+            observations = observations
         )
         if response_data is None:
             return add_empty_column(df, column_name)
@@ -127,7 +140,8 @@ class Hohonu(IDataIngestion):
             units: str = "english",
             qc_level: int = 1,
             flags: bool = False,
-            predictions: bool = False, 
+            predictions: bool = False,
+            observations: str = "6min"
         ) -> dict | None:
         """
         Builds the URL for querying data and fetches the response
@@ -156,6 +170,15 @@ class Hohonu(IDataIngestion):
                 the response will include a flag for each data point indicating its QC status.
             
             predictions (bool) - whether to include tide prediction values.
+
+            observations (str) - the frequency of observations to query.
+                Can be one of:
+                    "true" - all observations from the station, written as a string in the cspec call
+                        When querying all observations, measurements are about every 6 seconds.
+                    "false" - no measurements from the station, written as a string in the cspec call
+                    "6min" - measurements every 6 minutes, written as a string in the cspec call
+                        This is the default value if not specified and can also be written as
+                        "six_min"
         
         Returns:
             dict - the JSON response data from the request
@@ -170,7 +193,7 @@ class Hohonu(IDataIngestion):
         """
 
         api_auth = getenv("HOHONU_API_AUTH", None)
-        if not api_auth:
+        if api_auth is None:
             self.logger.log_error("HOHONU_API_AUTH environment variable is not set")
             return None
 
@@ -191,8 +214,9 @@ class Hohonu(IDataIngestion):
             "units": units,
             "datum": datum,
             "qc_level": qc_level,
-            "flags": str(flags).lower(),    # Hohonu expects bools to be lowercase
-            "predictions": str(predictions).lower()
+            "flags": str(flags).lower(),            # Hohonu expects bools to be lowercase strings
+            "predictions": str(predictions).lower(),
+            "observations": str(observations).lower()
         }
         headers = {
             "Authorization": api_auth.strip(),
@@ -236,9 +260,6 @@ class Hohonu(IDataIngestion):
             index=index,
             name=column_name
         )
-
-        # remove any duplicate timestamps
-        series = series[~series.index.duplicated()]
 
         # outer join to preserve all timestamps
         return df.join(series, how='outer')
