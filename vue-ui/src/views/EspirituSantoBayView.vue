@@ -948,7 +948,7 @@ onMounted(() => {
 
           <p class="text-base lg:text-xl text-dark-text mb-4">
             The Espiritu Santo Bay model was developed through the Coastal Dynamics Lab at Texas A&M University-Corpus Christi. 
-            Hector Marrero-Colominas and Ayesha Khan led the model's development, with assistance from \
+            Hector Marrero-Colominas and Ayesha Khan led the model's development, with assistance from 
             Drs. Miranda White and Philippe Tissot. The model is currently maintained by the CDL Semaphore Team.
           </p>
 
