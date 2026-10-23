@@ -15,21 +15,41 @@
 ======================================================= -->
 <script setup>
 import { Chart } from "highcharts-vue";
-import { ref, onMounted, onUnmounted, reactive } from "vue";
+import { ref, onMounted, reactive } from "vue";
+import "highcharts/modules/exporting";
+import "highcharts/modules/export-data";
+import "highcharts/modules/offline-exporting";
 
-import AdditionalInfoButton from "@/components/AdditionalInfoButton.vue";
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
 const missingDataWarningBanner = ref(null);
 const isSmallScreen = window.innerWidth <= 600;
 
 const csvURL = ref(`${window.location.origin}/flare/csv-data/Espiritu-Santo-Bay_Water-Temperature_120hrs.csv`);
 const showChartHelp = ref(false);
+const showInfoDrawer = ref(false);
 
-// Add reactive state for dropdown visibility
-const isExportMenuVisible = ref(false);
-const isSecondExportMenuVisible = ref(false);
 const chartOptions = ref({});
 const secondChartOptions = ref({});
+
+const chartLineColors = {
+  // black for ESB mean water measurements and ESB water predictions
+  black: '#000000',
+
+  // orange for ESB mean air measurements and NDFD air predictions 
+  orange: '#E69F00',
+
+  // blues for the water measurements
+  portOConnorWater:     '#bdc9e1',
+  portLavacaWater:      '#67a9cf',
+  seadriftWater:        '#1c9099',
+  aransasWildlifeWater: '#016c59',
+  
+  // greens for the air measurements
+  portOConnorAir:       '#c2e699',
+  portLavacaAir:        '#78c679',
+  seadriftAir:          '#31a354',
+  aransasWildlifeAir:   '#006837',
+};
 
 // Chart function for first chart that changes based on screen size
 const buildChart = (isSmallScreen, chartTitle) => {
@@ -54,6 +74,19 @@ const buildChart = (isSmallScreen, chartTitle) => {
     },
     exporting: {
       enabled: true,
+      filename: "Espiritu-Santo-Bay_Water-Temperature_120hrs",
+      sourceWidth: 1600,
+      sourceHeight: 900,
+      scale: 1, // setting scale to 1 means the exported image is saved as 1600x900
+      buttons: {
+        contextButton: {
+          menuItems: [
+            'viewFullscreen', 'separator',
+            'downloadPNG', 'downloadJPEG', 'downloadPDF', 'separator',
+            'downloadCSV'
+          ]
+        }
+      }
     },
     legend: {
       enabled: true,
@@ -201,6 +234,7 @@ const buildChart = (isSmallScreen, chartTitle) => {
     },
     series: [], // Placeholder for data, dynamically updated
     tooltip: {
+      outside: true,
       shared: true,
       crosshairs: true,
       formatter: function () {
@@ -290,13 +324,156 @@ const fetchAndFilterData = async () => {
     // filter air predictions to only include future predictions
     const futureAirPredictionsFahrenheit = ndfdAirPredictionsFahrenheit.filter(([time]) => time >= Date.now());
 
-    // Update chart series with filtered data
+    // chart 1 options
     chartOptions.value.series = [
+      {
+        name: "Seadrift Water Temperature Measurements",
+        data: seadriftWaterMeasurementsFahrenheit,
+        type: "line",
+        color: chartLineColors.seadriftWater,
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 1,
+        marker: {
+          enabled: false
+        }
+      },
+      {
+        name: "Seadrift Air Temperature Measurements",
+        data: seadriftAirMeasurementsFahrenheit,
+        type: "line",
+        color: chartLineColors.seadriftAir,
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 1,
+        visible: false, // hidden until the user clicks it in the legend
+        marker: {
+          enabled: false
+        }
+      },
+      {
+        name: "Port O'Connor Water Temperature Measurements",
+        data: portOConnorWaterMeasurementsFahrenheit,
+        type: "line",
+        color: chartLineColors.portOConnorWater,
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 1,
+        marker: {
+          enabled: false
+        }
+      },
+      {
+        name: "Port O'Connor Air Temperature Measurements",
+        data: portOConnorAirMeasurementsFahrenheit,
+        type: "line",
+        color: chartLineColors.portOConnorAir,
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 1,
+        visible: false, // hidden until the user clicks it in the legend
+        marker: {
+          enabled: false
+        }
+      },
+      {
+        name: "Port Lavaca Water Temperature Measurements",
+        data: portLavacaWaterMeasurementsFahrenheit,
+        type: "line",
+        color: chartLineColors.portLavacaWater,
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 1,
+        marker: {
+          enabled: false
+        }
+      },
+      {
+        name: "Port Lavaca Air Temperature Measurements",
+        data: portLavacaAirMeasurementsFahrenheit,
+        type: "line",
+        color: chartLineColors.portLavacaAir,
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 1,
+        visible: false, // hidden until the user clicks it in the legend
+        marker: {
+          enabled: false
+        }
+      },
+      {
+        name: "Aransas Wildlife Refuge Water Temperature Measurements",
+        data: wildlifeRefugeWaterMeasurementsFahrenheit,
+        type: "line",
+        color: chartLineColors.aransasWildlifeWater,
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 1,
+        marker: {
+          enabled: false
+        }
+      },
+      {
+        name: "Aransas Wildlife Refuge Air Temperature Measurements",
+        data: wildlifeRefugeAirMeasurementsFahrenheit,
+        type: "line",
+        color: chartLineColors.aransasWildlifeAir,
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 1,
+        visible: false, // hidden until the user clicks it in the legend
+        marker: {
+          enabled: false
+        }
+      },
       {
         name: "Espiritu Santo Bay Water Temperature Measurements",
         data: esbWaterMeasurementsFahrenheit,
         type: "line",
-        color: "#000000", // solid black for ESB water measurements
+        color: chartLineColors.black,
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 1,
+        visible: false, // hidden until the user clicks it in the legend
+        marker: {
+          enabled: false
+        }
+      },
+      {
+        name: "Espiritu Santo Bay Air Temperature Measurements",
+        data: esbAirMeasurementsFahrenheit,
+        type: "line",
+        color: chartLineColors.orange,
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 1,
+        marker: {
+          enabled: false
+        }
+      },
+      {
+        name: "Espiritu Santo Bay Water Temperature Predictions",
+        data: esbWaterPredictionsFahrenheit,
+        type: "line",
+        color: chartLineColors.black,
+        dashStyle: "Dash",
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 3,
+        marker: {
+          enabled: false
+        }
+      },
+      {
+        name: "NDFD Air Temperature Predictions",
+        data: futureAirPredictionsFahrenheit,
+        type: "line",
+        color: chartLineColors.orange,
+        dashStyle: "Dash",
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 1,
+        marker: {
+          enabled: false
+        }
+      }
+    ];  // end chart 1
+
+    // chart 2 options
+    secondChartOptions.value.series = [
+      {
+        name: "Espiritu Santo Bay Water Temperature Measurements",
+        data: esbWaterMeasurementsFahrenheit,
+        type: "line",
+        color: chartLineColors.black, // solid black for ESB mean water measurements
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1,
         marker: {
@@ -307,7 +484,7 @@ const fetchAndFilterData = async () => {
         name: "Espiritu Santo Bay Air Temperature Measurements",
         data: esbAirMeasurementsFahrenheit,
         type: "line",
-        color: "orange",  // solid orange for ESB air measurements
+        color: chartLineColors.orange,  // solid orange for ESB mean air measurements
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1,
         marker: {
@@ -319,7 +496,7 @@ const fetchAndFilterData = async () => {
         data: esbWaterPredictionsFahrenheit,
         type: "line",
         dashStyle: "Dash",
-        color: "#000000", // black dashes for ESB water predictions
+        color: chartLineColors.black, // black dashes for ESB water predictions
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 3,
         marker: {
@@ -330,7 +507,7 @@ const fetchAndFilterData = async () => {
         name: "NDFD Air Temperature Predictions",
         data: futureAirPredictionsFahrenheit,
         type: "line",
-        color: "orange",  // orange dashes for NDFD air predictions
+        color: chartLineColors.orange,  // orange dashes for NDFD air predictions
         dashStyle: "Dash",
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1,
@@ -338,78 +515,9 @@ const fetchAndFilterData = async () => {
           enabled: false
         }
       }
-    ]; // end chart 1
+    ]; // end chart 2
 
-    secondChartOptions.value.series = [
-    {
-      name: "Seadrift Water Temperature Measurements",
-      data: seadriftWaterMeasurementsFahrenheit,
-      type: "line",
-      color: "#0072B2",  // blue
-      lineWidth: isSmallScreen ? 1 : 2,
-      zIndex: 1,
-      marker: {
-        enabled: false
-      }
-    },
-    {
-      name: "Port O'Connor Water Temperature Measurements",
-      data: portOConnorWaterMeasurementsFahrenheit,
-      type: "line",
-      color: "#CC79A7",  // reddish purple
-      lineWidth: isSmallScreen ? 1 : 2,
-      zIndex: 1,
-      marker: {
-        enabled: false
-      }
-    },
-    {
-      name: "Port Lavaca Water Temperature Measurements",
-      data: portLavacaWaterMeasurementsFahrenheit,
-      type: "line",
-      color: "#009E73",  // bluish green
-      lineWidth: isSmallScreen ? 1 : 2,
-      zIndex: 1,
-      marker: {
-        enabled: false
-      }
-    },
-    {
-      name: "Aransas Wildlife Refuge Water Temperature Measurements",
-      data: wildlifeRefugeWaterMeasurementsFahrenheit,
-      type: "line",
-      color: "#7F7F7F",  // gray
-      lineWidth: isSmallScreen ? 1 : 2,
-      zIndex: 1,
-      marker: {
-        enabled: false
-      }
-    },
-    {
-      name: "ESB Water Temperature Predictions",
-      data: esbWaterPredictionsFahrenheit,
-      type: "line",
-      color: "#000000",
-      dashStyle: "Dash",
-      lineWidth: isSmallScreen ? 1 : 2,
-      zIndex: 3,
-      marker: {
-        enabled: false
-      }
-    },
-    {
-      name: "NDFD Air Temperature Predictions",
-      data: futureAirPredictionsFahrenheit,
-      type: "line",
-      color: "orange",
-      dashStyle: "Dash",
-      lineWidth: isSmallScreen ? 1 : 2,
-      zIndex: 1,
-      marker: {
-        enabled: false
-      }
-    }
-  ];  // end chart 2
+    
   } catch (error) {
     console.error("Error fetching or processing data:", error);
   }
@@ -514,28 +622,11 @@ const parseCSV = (csvText) => {
   };
 }; // end parseCSV
 
-
-// Function to toggle the dropdown menu
-const toggleExportMenu = () => {
-  isExportMenuVisible.value = !isExportMenuVisible.value;
-};
-
-const toggleSecondExportMenu = () => {
-  isSecondExportMenuVisible.value = !isSecondExportMenuVisible.value;
-}
-
-///Fetch and update chart data every 15 minutes
-let updateInterval;
-
 onMounted(() => {
   const loadCharts = () => {
     Promise.all([
       fetchAndFilterData()
     ]).then(() => {
-      // dynamically update the current time on the chart's x-axis plot lines
-      chartOptions.value.xAxis.plotLines[0].value = Date.now();
-      secondChartOptions.value.xAxis.plotLines[0].value = Date.now();
-
       missingDataWarningBanner.value.checkForMissingDataAndWarn([
         chartOptions.value,
         secondChartOptions.value,
@@ -545,13 +636,6 @@ onMounted(() => {
 
   // Initial load
   loadCharts();
-
-  // Refresh every 15 minutes
-  updateInterval = setInterval(loadCharts, 900000);
-});
-
-onUnmounted(() => {
-  clearInterval(updateInterval);
 });
 </script>
  
@@ -646,23 +730,6 @@ onUnmounted(() => {
               <Chart class="w-full h-full p-4" :options="chartOptions" />
             </div>
           </div>
-
-          <!-- Custom Export Dropdown -->
-          <div class="hidden lg:block absolute top-5 right-4">
-            <button @click="toggleExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
-              Download CSV Data
-            </button>
-            <ul v-if="isExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
-              <li>
-                <a 
-                  :href="csvURL"
-                  download="espiritu-santo-bay.csv"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
-                  Download CSV
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
 
         <!-- Graph Information -->
@@ -681,9 +748,10 @@ onUnmounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Shows recent observed temperatures alongside an AI water temperature forecast and
-                NWS-NDFD air temperature forecasts. This provides a simple view of how water temperatures
-                are expected to change over the next five days.
+                Shows recent temperature measurements from multiple locations surrounding Espiritu Santo Bay (ESB),
+                alongside AI water temperature and NWS-NDFD air temperature forecasts for the ESB area.
+                This allows users to compare nearby observed conditions with the temperatures
+                predicted for ESB over the next five days.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -695,8 +763,12 @@ onUnmounted(() => {
               </h3>
 
               <p>
-                The black dashed line shows the water temperature forecast from the AI model predictions.
-                The vertical “Now” line separates recent temperature observations from future predictions. 
+                The blue colored solid lines show recent water temperature measurements from four locations
+                surrounding ESB, while the solid orange line show the average air temperature measurements
+                across surrounding locations. The black dashed line shows the AI water temperature predictions
+                for ESB, and the orange dashed line shows the NWS-NDFD air temperature prediction for ESB.
+                The vertical “Now” line separates recent temperature measurements from future predictions.
+                Additional air temperature measurements, in green, can be displayed by clicking on them using the graph legend.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -708,8 +780,9 @@ onUnmounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Best for tracking the predicted water temperature trend and observing whether it approaches,
-                crosses, or remains below critical cold-stunning thresholds.
+                Best for comparing recent water temperature conditions across locations surrounding ESB
+                and tracking whether the predicted water temperature approaches, crosses, or
+                remains below critical cold-stunning thresholds.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -721,7 +794,10 @@ onUnmounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                This forecast shows only one possible outcome and does not display the uncertainty of the AI water temperature predictions.
+                Because no temperature sensors are located within ESB, the measurements shown are derived
+                from surrounding locations and may not fully capture localized conditions within the bay.
+                This forecast shows only one possible outcome and does not display the uncertainty 
+                of the AI water temperature predictions.
               </p>
             </div>
           </div>
@@ -736,23 +812,6 @@ onUnmounted(() => {
             <div class="min-w-[600px]  min-h-[350px] lg:min-w-[1000px] lg:h-[700px] lg:min-h-[650px]">
               <Chart class="w-full h-full p-4" :options="secondChartOptions" />
             </div>
-          </div>
-
-          <!-- Custom Export Dropdown -->
-          <div class="hidden lg:block absolute top-5 right-4">
-            <button @click="toggleSecondExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
-              Download CSV Data
-            </button>
-            <ul v-if="isSecondExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
-              <li>
-                <a 
-                  :href="csvURL"
-                  download="espiritu-santo-bay.csv"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
-                  Download CSV
-                </a>
-              </li>
-            </ul>
           </div>
         </div>
 
@@ -772,9 +831,10 @@ onUnmounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Shows recent observed temperatures alongside an AI water temperature forecast and
-                NWS-NDFD air temperature forecasts. This provides a simple view of how water temperatures
-                are expected to change over the next five days.
+                Shows averaged recent water and air temperature measurements from multiple locations surrounding
+                Espiritu Santo Bay (ESB), alongside AI water temperature and NWS-NDFD air temperature
+                forecasts for the ESB area. This provides a simplified view of recent representative
+                conditions of ESB with the temperatures predicted for ESB over the next five days.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -786,8 +846,10 @@ onUnmounted(() => {
               </h3>
 
               <p>
-                The black dashed line shows the water temperature forecast from the AI model predictions.
-                The vertical “Now” line separates recent temperature observations from future predictions.
+                The solid black and orange lines show the average recent water and air temperature measurements,
+                respectively, from locations surrounding ESB. The dashed black and orange lines show the AI water
+                temperature and NWS-NDFD air temperature predictions, respectively, for ESB. The vertical “Now” line
+                separates recent temperature measurements from future predictions.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -799,8 +861,9 @@ onUnmounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Best for tracking the predicted water temperature trend and observing whether it approaches,
-                crosses, or remains below critical cold-stunning thresholds.
+                Best for viewing a simplified summary of recent temperature conditions that are representative
+                of ESB and tracking whether the predicted water temperature approaches, crosses, or remains below 
+                critical cold-stunning thresholds.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -812,7 +875,10 @@ onUnmounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                This forecast shows only one possible outcome and does not display the uncertainty of the AI water temperature predictions.
+                Because no temperature sensors are located within ESB, the measurements shown are derived from surrounding
+                locations and may not fully capture localized conditions within the bay. This forecast shows only one possible
+                outcome and does not display the uncertainty of the AI water temperature predictions.
+                Refer to the multi-location graph to view measurements from each surrounding location separately.
               </p>
             </div>
           </div>
@@ -848,22 +914,20 @@ onUnmounted(() => {
           </h2>
 
           <p class="text-base lg:text-xl text-dark-text mb-4">
-            Espiritu Santo Bay is a shallow coastal system connected to San Antonio Bay
-            and the Gulf of Mexico. During the cold-front season, typically November
-            through March, its shallow waters can cool rapidly and place green sea turtles
-            and other marine life at risk. When water temperatures approach or fall below
-            8°C, green sea turtles may become cold-stunned, leaving them weak, lethargic,
+            Espiritu Santo Bay is a shallow coastal system connected to San Antonio Bay and the Gulf. 
+            During the cold-front season, typically November through March, its shallow waters can cool 
+            rapidly and place green sea turtles and other marine life at risk. When water temperatures approach 
+            or fall below 8°C, green sea turtles may become cold-stunned; leaving them weak, lethargic, 
             and vulnerable to prolonged cold exposure, vessel strikes, and predation.
           </p>
 
           <p class="text-base lg:text-xl text-dark-text mb-4">
-            Preparing for these events requires time to organize volunteers, deploy rescue
-            boats, coordinate field operations, and arrange transportation to
-            rehabilitation facilities. The Espiritu Santo Bay water temperature model was
-            developed to provide advance guidance about when hazardous water temperatures
-            may occur. It produces water temperature predictions up to 120 hours, or five
-            days, into the future, helping responders and other stakeholders anticipate
-            the possible onset, severity, and duration of cold-water conditions.
+            Preparing for these events requires time to organize volunteers, deploy rescue boats, 
+            coordinate field operations, and arrange transportation to rehabilitation facilities. 
+            The Espiritu Santo Bay water temperature model was developed to provide advance guidance about 
+            when hazardous water temperatures may occur. It produces water temperature predictions up to 120 hours, 
+            or five days, into the future, helping responders and other stakeholders anticipate the possible onset, 
+            severity, and duration of cold-water conditions.
           </p>
 
           <h3 class="text-lg lg:text-2xl font-bold text-dark-text mt-6 mb-3">
@@ -871,12 +935,11 @@ onUnmounted(() => {
           </h3>
 
           <p class="text-base lg:text-xl text-dark-text mb-4">
-            By providing several days of advance notice, the model can help sea turtle
-            responders determine when to increase monitoring, begin coordinating personnel
-            and equipment, prepare vessels, and plan the transportation and rehabilitation
-            of recovered turtles. The predictions may also support broader coordination
-            among organizations whose environmental, economic, or recreational activities
-            could be affected by extreme cold conditions in and around the bay.
+            By providing several days of advance notice, the model can help sea turtle responders
+            determine when to increase monitoring, begin coordinating personnel and equipment, prepare vessels,
+            and plan the transportation and rehabilitation of recovered turtles. 
+            The predictions may also support broader coordination among organizations whose environmental, 
+            economic, or recreational activities could be affected by extreme cold conditions in and around the bay.
           </p>
 
           <h3 class="text-lg lg:text-2xl font-bold text-dark-text mt-6 mb-3">
@@ -884,36 +947,167 @@ onUnmounted(() => {
           </h3>
 
           <p class="text-base lg:text-xl text-dark-text mb-4">
-            The Espiritu Santo Bay model was developed through the Coastal Dynamics Lab at
-            Texas A&amp;M University-Corpus Christi. Hector Marrero-Colominas and Ayesha
-            Khan led the model's development, with assistance from Drs. Miranda White and
-            Philippe Tissot. The model is currently maintained by the CDL Semaphore Team.
+            The Espiritu Santo Bay model was developed through the Coastal Dynamics Lab at Texas A&M University-Corpus Christi. 
+            Hector Marrero-Colominas and Ayesha Khan led the model's development, with assistance from 
+            Drs. Miranda White and Philippe Tissot. The model is currently maintained by the CDL Semaphore Team.
           </p>
 
           <p class="text-base lg:text-xl text-dark-text mb-4">
-            Foundational field observations were made possible through collaboration with
-            <strong>Mid-Coast Sea Turtle Rescue</strong> and
-            <strong>NOAA Fisheries</strong>. These efforts included multiple boat trips to
-            deploy air and water temperature sensors within Espiritu Santo Bay, providing
-            preliminary measurements that informed the design of the model.
+            Foundational field observations were made possible through collaboration with 
+            <strong>Mid-Coast Sea Turtle Rescue</strong> and <strong>NOAA Fisheries</strong>. 
+            These efforts included multiple boat trips to deploy air
+            and water temperature sensors within Espiritu Santo Bay, providing preliminary measurements that 
+            informed the design of the model. The resulting prediction system reflects a collaborative effort among 
+            university AI researchers, network partners, sea turtle responders, and other coastal stakeholders working 
+            to improve preparation for cold-stunning events.
           </p>
-
-          <p class="text-base lg:text-xl text-dark-text mb-4">
-            The resulting prediction system reflects a collaborative effort among
-            university AI researchers, network partners, sea turtle responders, and other
-            coastal stakeholders working to improve preparation for cold-stunning events.
-          </p>
-
         </div>
     </section>
 
     <!-- Information Section -->
-    <AdditionalInfoButton />
+    <div class="fixed inset-x-0 bottom-0 z-50">
+      <!-- Always-visible Handle -->
+      <button
+          @click="showInfoDrawer = !showInfoDrawer"
+          class="w-[calc(100%-2rem)] mx-4 rounded-lg bg-[#1895a3] text-white border-4 border-black shadow-xl py-3"
+      >
+          <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-2"></div>
+          <div class="font-semibold text-xl">
+              {{ showInfoDrawer ? "Hide Additional Information ▼" : "Additional Information ▲" }}
+          </div>
+      </button>
+
+      <transition
+          enter-active-class="transition-transform duration-300 ease-out"
+          leave-active-class="transition-transform duration-300 ease-in"
+          enter-from-class="translate-y-full"
+          enter-to-class="translate-y-0"
+          leave-from-class="translate-y-0"
+          leave-to-class="translate-y-full"
+      >
+        <div
+          v-if="showInfoDrawer"
+          class="bg-blue-50
+            max-h-[75vh]
+            overflow-y-auto
+            shadow-2xl
+            p-5"
+        >
+          <!-- Card Grid -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Left Card -->
+            <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
+              <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
+                Data on this Graph:
+              </h3>
+
+              <p class="text-base lg:text-xl text-dark-text mb-4">
+                <strong>Hourly temperature observations</strong>: Recent water and air temperature observations are obtained from 
+                four Texas Coastal Ocean Observation Network (TCOON) stations surrounding Espiritu Santo Bay:
+              </p>
+
+              <ul class="list-disc space-y-2 pl-5 text-md lg:text-xl text-dark-text">
+                <li>
+                  <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8773701" 
+                    class="underline text-blue-600 hover:text-blue-800" target="_blank">Port O'Connor Station</a>
+                </li>
+                <li>
+                  <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8773037" 
+                    class="underline text-blue-600 hover:text-blue-800" target="_blank">Seadrift Station</a>
+                </li>
+                <li>
+                  <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8773259" 
+                    class="underline text-blue-600 hover:text-blue-800" target="_blank">Port Lavaca Station</a>
+                </li>
+                <li>
+                  <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8774230" 
+                    class="underline text-blue-600 hover:text-blue-800" target="_blank">Aransas Wildlife Refuge Station</a>
+                </li>
+              </ul>
+
+              <!-- space between the list and the next paragraphs -->
+              <br>
+
+              <p class="text-base lg:text-xl text-dark-text mb-4">
+                <strong>Observed conditions on the graphs</strong>: The multi-location graph displays observations from the four TCOON 
+                stations separately. The averaged graph displays the mean water and air temperatures across 
+                these stations as representative conditions for ESB.
+              </p>
+
+              <p class="text-base lg:text-xl text-dark-text mb-4">
+                <strong>Air temperature predictions</strong>: Future air temperatures are obtained from the National Digital Forecast Database 
+                (NDFD) grid corresponding to the ESB area.
+              </p>
+
+              <p class="text-base lg:text-xl text-dark-text mb-4">
+                <strong>Water temperature predictions</strong>: Future water temperatures are generated by a deterministic machine 
+                learning model developed by the Cool Turtle model development research team. The predictions are intended to represent
+                bay-wide water temperature conditions within ESB, rather than conditions at any one surrounding station.
+              </p>
+
+              <p class="text-base lg:text-xl text-dark-text mb-4">
+                <strong>Why surrounding stations are used</strong>: ESB does not currently contain permanent, 
+                real-time water or air temperature sensors. The model therefore uses observations from the four surrounding TCOON 
+                stations to represent recent temperature conditions within the bay.
+              </p>
+
+              <p class="text-base lg:text-xl text-dark-text mb-4">
+                <strong>In-bay research measurements</strong>: Temporary sensors were deployed within ESB during two winter 
+                field campaigns. HOBO sensors measured water and air temperatures during winter 2023-26, and a modified Telonics buoy
+                measured water temperature during winter 2024-25 and 2025-26.
+              </p>
+
+              <p class="text-base lg:text-xl text-dark-text mb-4">
+                <strong>Representativeness of the surrounding observations</strong>: Comparisons with the temporary in-bay measurements 
+                from 2023-24 showed that average temperatures within ESB corresponded relatively well with the mean 
+                temperatures observed across the four surrounding TCOON stations. This relationship supports using 
+                the station averages to represent bay-wide conditions, particularly under the assumption that ESB is 
+                approximately isothermal during cold-stunning events (with few exceptions such as Mitchell's Cut during incoming tides).
+              </p>
+            </div> <!-- End Left Card -->
+
+            <!-- Right Card -->
+            <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
+              <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
+                Additional Information:
+              </h3>
+              <ul class="list-disc space-y-2 pl-5 text-md lg:text-xl text-dark-text">
+                <li>
+                  Wind speed measurements and predictions (NWS-NDFD) for Port O'Connor (coming soon)
+                </li>
+                <li>
+                  Ensemble air temperature predictions from The Weather Company (coming soon)
+                </li>
+                <li>
+                  NOAA Sea Turtle Stranding and Salvage Network informational page
+                  <a href="https://www.fisheries.noaa.gov/national/marine-life-distress/sea-turtle-stranding-and-salvage-network"
+                    target="_blank" class="underline text-blue-600 hover:text-blue-800"
+                  >
+                    here
+                  </a>
+                </li>
+                <li>
+                  Mid-Coast Sea Turtle Rescue informational page
+                  <a href="https://www.sabaypartnership.org/program/mid-coast-sea-turtle-rescue/"
+                    target="_blank" class="underline text-blue-600 hover:text-blue-800"
+                  >
+                    here
+                  </a>
+                </li>
+              </ul>
+            </div> <!-- End Right Card -->
+          </div> <!-- End Card Grid -->
+        </div>
+      </transition> 
+    </div> <!-- End Additional Info Modal -->
 
     <!-- Footer -->
     <footer class="bg-navy-blue py-10 text-dark-text space-y-2">
       <!-- List of oraganizations -->
         <div class="flex flex-col justify-center items-center text-white text-sm lg:text-lg">
+          <a href="https://static1.squarespace.com/static/60ee26930d31b147a7fce6bc/t/6a863c88f67b6e4fcd91f5b3/1787182216275/Ayesha_Khan_Mar_18_TCRC_Workshop_+ESB_slides-2.pdf" target="_blank" class="hover:scale-110 transition-transform">
+            <p>Information on ESB Model Development</p>
+          </a>
           <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
             <p>Texas Parks & Wildlife</p>
           </a>
@@ -950,6 +1144,9 @@ onUnmounted(() => {
           </a>
           <a href="https://www.sabaypartnership.org/program/mid-coast-sea-turtle-rescue/" target="_blank" class="hover:scale-110 transition-transform">
             <img src="@/assets/images/Mid-Coast-Sea-Turtle-Rescue-Logo.png" alt="Mid-Coast Sea Turtle Rescue Logo" class="max-w-[80px] lg:max-w-[150px]">
+          </a>
+          <a href="https://www.fisheries.noaa.gov/" target="_blank" class="hover:scale-110 transition-transform">
+            <img src="@/assets/images/NOAA_fisheries_logo.png" alt="NOAA Fisheries Logo" class="max-w-[100px] lg:max-w-[250px]">
           </a>
         </div>
         <p class="text-center text-sm text-light-text">(Click on the logos to visit each contributor's website)</p>
