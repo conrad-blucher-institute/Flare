@@ -464,3 +464,77 @@ def test_limit_integrity():
 
 
 
+
+@pytest.mark.parametrize("other_timestamp", [
+    datetime(2025, 1, 1, 12, 36),
+    datetime(2025, 1, 1, 18, 36),
+])
+def test_grid_uses_target_column_bounds(other_timestamp):
+    target_index = pd.DatetimeIndex([
+        datetime(2025, 1, 1, 13, 0),
+        datetime(2025, 1, 1, 14, 0),
+        datetime(2025, 1, 1, 16, 0),
+    ])
+    other_df = DataFrame({'other_col': [97.0]}, index=[other_timestamp])
+    test_df = other_df.join(
+        DataFrame({'test_col': [11.0, 23.0, 59.0]}, index=target_index),
+        how="outer"
+    )
+    expected_df = other_df.join(
+        DataFrame(
+            {'test_col': [11.0, 23.0, 41.0, 59.0]},
+            index=date_range(datetime(2025, 1, 1, 13, 0), periods=4, freq='3600s')
+        ),
+        how="outer"
+    )
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 3600,
+        "limit": 7200
+    }
+
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+
+    assert result_df.loc[target_index, 'test_col'].tolist() == [11.0, 23.0, 59.0]
+    pd.testing.assert_frame_equal(result_df, expected_df, check_exact=True, check_freq=False)
+
+
+def test_single_target_point_with_other_series():
+    test_df = DataFrame(
+        {'other_col': [97.0, nan, 103.0], 'test_col': [nan, 23.0, nan]},
+        index=[
+            datetime(2025, 1, 1, 12, 36),
+            datetime(2025, 1, 1, 13, 0),
+            datetime(2025, 1, 1, 18, 36),
+        ]
+    )
+    expected_df = test_df.copy()
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 3600,
+        "limit": 7200
+    }
+
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+
+    pd.testing.assert_frame_equal(result_df, expected_df, check_exact=True, check_freq=False)
+
+
+def test_all_nans_with_irregular_index():
+    test_df = DataFrame(
+        {'other_col': [97.0, 103.0], 'test_col': [nan, nan]},
+        index=[datetime(2025, 1, 1, 12, 36), datetime(2025, 1, 1, 15, 36)]
+    )
+    expected_df = DataFrame(
+        {'other_col': [97.0, nan, nan, 103.0], 'test_col': [nan, nan, nan, nan]},
+        index=date_range(datetime(2025, 1, 1, 12, 36), periods=4, freq='3600s')
+    )
+    kwargs = {
+        "col_name": "test_col",
+        "interpolation_interval": 3600,
+        "limit": 7200
+    }
+
+    result_df = post_process_factory(test_df, "LinearInterpolation", kwargs)
+
+    pd.testing.assert_frame_equal(result_df, expected_df, check_exact=True, check_freq=False)

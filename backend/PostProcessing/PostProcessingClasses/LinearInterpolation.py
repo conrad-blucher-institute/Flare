@@ -58,10 +58,15 @@ class LinearInterpolation(IPostProcessing):
         # Create a copy to avoid modifying the input parameter
         df = df.copy()
 
+        # Anchor the grid to the target column, retaining the all-NaN fallback.
+        column_index = df[col_name].dropna().index
+        if column_index.empty:
+            column_index = df.index
+
         # Build a uniform interval index because the original index may be irregular
         target_interval_index = date_range(
-            start=df.index[0],
-            end=df.index[-1],
+            start=column_index[0],
+            end=column_index[-1],
             freq=timedelta(seconds=interpolation_interval)
         )
         
@@ -85,7 +90,7 @@ class LinearInterpolation(IPostProcessing):
         interpolated_data_series.loc[interpolated_data_series == self.DUMMY_VALUE] = np.nan
 
         # Reindex the data to only return the requested interval
-        final_data_series = interpolated_data_series.reindex(date_range(start=interpolated_data_series.index[0], end=interpolated_data_series.index[-1], freq=timedelta(seconds=interpolation_interval)))
+        final_data_series = interpolated_data_series.reindex(target_interval_index)
 
         # Replace the original column in the DataFrame
         df.drop(columns=[col_name], inplace=True)
