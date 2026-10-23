@@ -1073,17 +1073,10 @@ onMounted(() => {
               </h3>
               <ul class="list-disc space-y-2 pl-5 text-md lg:text-xl text-dark-text">
                 <li>
-                  Wind speed measurements and predictions (NWS-NDFD) for Port O'Connor available
-                  <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">here</a>
+                  Wind speed measurements and predictions (NWS-NDFD) for Port O'Connor (coming soon)
                 </li>
                 <li>
-                  Ensemble air temperature predictions from The Weather Company available
-                  <router-link 
-                    to="/air-temperature-ensemble" 
-                    class="underline text-blue-600 hover:text-blue-800"
-                  >
-                    here
-                  </router-link>
+                  Ensemble air temperature predictions from The Weather Company (coming soon)
                 </li>
                 <li>
                   NOAA Sea Turtle Stranding and Salvage Network informational page
