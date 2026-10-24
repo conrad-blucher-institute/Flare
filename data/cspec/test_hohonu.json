@@ -2,7 +2,7 @@
     "chart_name": "test_hohonu",
     "CSPEC_version": "1.0.0",
     "data_requests" : [
-         {
+        {
             "key": "SemaphoreInputs",
             "args": {
                 "column_name": "Port Lavaca Air Temperature Measurement",
@@ -21,7 +21,7 @@
                 "station_id": "hohonu-185",
                 "datum": "D2W",
                 "units": "english",
-                "range": [-120, 0]
+                "time_range": [-120, 0]
             }
         },
         {
