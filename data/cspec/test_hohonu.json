@@ -21,7 +21,7 @@
                 "station_id": "hohonu-185",
                 "datum": "D2W",
                 "units": "english",
-                "range": [-120, 0]
+                "time_range": [-120, 0]
             }
         },
         {

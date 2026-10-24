@@ -39,7 +39,7 @@ class Hohonu(IDataIngestion):
             "station_id": "hohonu-185",
             "datum": "D2W",
             "units": "english",
-            "range": [-120, 0]
+            "time_range": [-120, 0]
         }
     }
     """
@@ -55,7 +55,7 @@ class Hohonu(IDataIngestion):
             station_id: str,
             datum: str,
             units: str,
-            range: list[int]
+            time_range: list[int]
         ) -> DataFrame:
         """
         Ingests data from the Hohonu API
@@ -74,7 +74,7 @@ class Hohonu(IDataIngestion):
 
             units (str) - the units of the data. Ex, 'english' for feet, 'metric' for meters
 
-            range (list[int]) - the times to query data for based on the reference time, in hours. The first
+            time_range (list[int]) - the times to query data for based on the reference time, in hours. The first
                 value is the start of the range, and the second value is the end of the range.
                 Ex, [-120, 0] will query data from 5 days ago to now.
 
@@ -84,14 +84,13 @@ class Hohonu(IDataIngestion):
 
         headers = self._get_headers()
         if headers is None:
-            self.logger.log_error("HOHONU_API_AUTH environment variable is not set")
             return add_empty_column(df, column_name)
 
         url = self._get_url(
             station_id = station_id,
             reference_time = reference_time,
             datum = datum,
-            range = range,
+            time_range = time_range,
             units = units
         )
 
@@ -125,6 +124,7 @@ class Hohonu(IDataIngestion):
 
         api_auth = getenv("HOHONU_API_AUTH", None)
         if api_auth is None:
+            self.logger.log_error("HOHONU_API_AUTH environment variable is not set")
             return None
 
         headers = {
@@ -141,7 +141,7 @@ class Hohonu(IDataIngestion):
             station_id: str,
             reference_time: datetime,
             datum: str,
-            range: list[int],
+            time_range: list[int],
             units: str
         ) -> str:
         """
@@ -155,7 +155,7 @@ class Hohonu(IDataIngestion):
 
             datum (str) - the datum of the data to query. Ex, D2W, MLLW, NAVD88
 
-            range (list[int]) - the times to query data for based on the reference time, in hours. The first
+            time_range (list[int]) - the times to query data for based on the reference time, in hours. The first
                 value is the start of the range, and the second value is the end of the range.
                 Ex, [-120, 0] will query data from 5 days ago to now.
             
@@ -176,8 +176,8 @@ class Hohonu(IDataIngestion):
         reference_time = reference_time.astimezone(timezone.utc)
         
         # calculate the start and end times for the request
-        from_time = reference_time + timedelta(hours=range[0])
-        to_time = reference_time + timedelta(hours=range[1])
+        from_time = reference_time + timedelta(hours=time_range[0])
+        to_time = reference_time + timedelta(hours=time_range[1])
 
         # format the start and end times
         from_time = from_time.strftime("%Y-%m-%d %H:%M")

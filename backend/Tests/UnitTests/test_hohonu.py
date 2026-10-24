@@ -95,7 +95,7 @@ class TestHohonu:
                 station_id="hohonu-185",
                 datum="D2W",
                 units="english",
-                range=[-1, 0]
+                time_range=[-1, 0]
             )
 
         expected_series = Series(
@@ -185,7 +185,7 @@ class TestHohonu:
                 station_id="hohonu-185",
                 datum="D2W",
                 units="english",
-                range=[-1, 0]
+                time_range=[-1, 0]
             )
 
         thread_storage.logger.log_error.assert_called_once_with("HOHONU_API_AUTH environment variable is not set")
@@ -214,7 +214,7 @@ class TestHohonu:
                 station_id="hohonu-185",
                 datum="D2W",
                 units="english",
-                range=[-1, 0]
+                time_range=[-1, 0]
             )
 
         # api_request already logs the failure, so Hohonu shouldn't log again
