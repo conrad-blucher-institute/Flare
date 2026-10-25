@@ -61,6 +61,16 @@ const buildChart = (isSmallScreen, chartTitle) => {
       style: { fontFamily: "Arial" },
       marginRight: 30,
       marginTop: 100,
+      events: {
+        // tooltip.outside renders the tooltip on document.body, which is hidden in fullscreen,
+        // so render it inside the chart while fullscreen is open
+        fullscreenOpen: function () {
+          this.update({ tooltip: { outside: false } });
+        },
+        fullscreenClose: function () {
+          this.update({ tooltip: { outside: true } });
+        },
+      },
     },
     title: {
       text: chartTitle,
