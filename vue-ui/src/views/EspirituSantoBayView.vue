@@ -31,6 +31,74 @@ const isSecondExportMenuVisible = ref(false);
 const chartOptions = ref({});
 const secondChartOptions = ref({});
 
+const graphItems = [
+    {
+        text: 'Past six-day air/water temperature from',
+        linkText: "NOAA's South Bird Island Station",
+        href: 'https://tidesandcurrents.noaa.gov/stationhome.html?id=8776139',
+    },
+    {
+        text: 'Backup water temperature data from',
+        linkText: 'National Park Service',
+        href: 'https://lighthouse.tamucc.edu/overview/171',
+    },
+    {
+        text: 'Air temperature predictions from the National Digital Forecast Database (points)',
+    },
+    {
+        text: 'Cubic interpolation of predicted air temperature (dashed line)',
+    },
+    {
+        text: 'Water temperature predictions from Semaphore (dashed line)',
+    },
+];
+
+const additionalItems = [
+    {
+        text: 'Wind speed graph available',
+        linkText: 'here',
+        href: 'https://cbigrid.tamucc.edu/tpw/graph-only-wind.html',
+    },
+    {
+        text: 'Ensemble air temperature predictions from The Weather Company available',
+        linkText: 'here',
+        linkTarget: '_self',
+        to: '/air-temperature-ensemble',
+    },
+    {
+        text: 'Ensemble water temperature predictions from Semaphore available',
+        linkText: 'here',
+        linkTarget: '_self',
+        to: '/water-temperature-ensemble',
+    },
+    {
+        text: 'CRPS (Continuous Ranked Probability Score) ensemble model from Semaphore available',
+        linkText: 'here',
+        linkTarget: '_self',
+        to: '/crps',
+    },
+    {
+        text: 'Wind predictions for the Laguna Madre available',
+        linkText: 'here',
+        href: 'https://cbigrid.tamucc.edu/tpw/graph-only-wind.html',
+    },
+    {
+        text: 'Ensemble air temperature predictions for Bird Island Basin available',
+        linkText: 'here',
+        href: 'https://cbigrid.tamucc.edu/tpw/graph-only-wind.html',
+    },
+    {
+        text: 'AI water temperature prediction models performance available',
+        linkText: 'here',
+        href: 'https://lighthouse.tamucc.edu/supertool.php?stnid=013&elev=mwl&mode=nnwtp',
+    },
+    {
+        text: 'NOAA Sea Turtle Stranding and Salvage Network water temperature measurements',
+        linkText: 'here',
+        href: 'https://connect.fisheries.noaa.gov/content/c0773132-9590-4e21-bb42-676e2140fbaa/',
+    },
+];
+
 // Chart function for first chart that changes based on screen size
 const buildChart = (isSmallScreen, chartTitle) => {
   return {
@@ -908,7 +976,7 @@ onUnmounted(() => {
     </section>
 
     <!-- Information Section -->
-    <AdditionalInfoButton />
+    <AdditionalInfoButton :graph-items="graphItems" :additional-items="additionalItems" />
 
     <!-- Footer -->
     <footer class="bg-navy-blue py-10 text-dark-text space-y-2">

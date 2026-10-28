@@ -23,6 +23,88 @@ import "highcharts/modules/offline-exporting";
 import { ref, onMounted, onUnmounted, reactive } from "vue";
 
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
+import AdditionalInfoButton from '@/components/AdditionalInfoButton.vue';
+
+const graphItems = [
+    {
+        parts: [
+            { text: 'Observed Water and Air Temperatures:', bold: true },
+            { text: ' Hourly observations in Upper Laguna Madre are obtained from the' },
+        ],
+        linkText: 'South Bird Island TCOON station',
+        href: 'https://lighthouse.tamucc.edu/pq?_ga=2.37560803.210879303.1694296771-1722476858',
+    },
+    {
+        parts: [
+            { text: 'Predicted Air Temperatures:', bold: true },
+            { text: ' Air temperature predictions are obtained from the forecast grid corresponding to the Upper Laguna Madre area through' },
+        ],
+        linkText: 'NWS-NDFD',
+        href: 'https://digital.weather.gov/',
+    },
+    {
+        parts: [
+            { text: 'Predicted Water Temperatures:', bold: true },
+            { text: ' The Cool Turtle model development research team produces probabilistic water temperature predictions using an ensemble of machine learning models. Additional information about the model development and evaluation is available in the following publication:' },
+        ],
+        linkText: 'Machine Learning Uncertainty Quantification for Extreme Cold Water Events',
+        href: 'https://journals.ametsoc.org/view/journals/aies/5/3/AIES-D-25-0058.1.xml',
+    },
+    {
+        parts: [
+            { text: 'How the Ensemble Predictions are Displayed:', bold: true },
+            { text: ' Each graph presents the same ensemble of ML water temperature predictions in a different format.' },
+        ],
+    },
+    {
+        parts: [
+            { text: 'Central Forecast Graph:', bold: true },
+            { text: ' This graph displays the ensemble median as a single water temperature prediction. The median represents the middle of the ensemble predictions, with half of the predicted values above it and half below it.' },
+        ],
+    },
+    {
+        parts: [
+            { text: 'Fan Plot:', bold: true },
+            { text: ' This graph displays the median prediction and shaded percentile ranges. The 25th–75th percentile band shows the central portion of the ensemble, while the 5th–95th percentile band shows a broader range of possible outcomes.' },
+        ],
+    },
+    {
+        parts: [
+            { text: 'Box Plot:', bold: true },
+            { text: ' This graph displays selected ensemble percentiles at each forecast time, allowing users to examine the distribution and spread of the predicted water temperatures throughout the five-day forecast.' },
+        ],
+    },
+];
+
+const additionalItems = [
+    {
+        text: 'Wind speed measurements and predictions (NWS-NDFD) for South Bird Island found',
+        linkText: 'here',
+        href: 'https://cbigrid.tamucc.edu/tpw/graph-only-wind.html',
+    },
+    {
+        text: 'Ensemble air temperature predictions for Laguna Madre from The Weather Company found',
+        linkText: 'here',
+        linkTarget: '_self',
+        to: '/air-temperature-ensemble',
+    },
+    {
+        text: 'AI water temperature prediction model performance charts found',
+        linkText: 'here',
+        href: 'https://lighthouse.tamucc.edu/supertool.php?stnid=013&elev=mwl&mode=nnwtp',
+    },
+    {
+        text: 'NOAA Sea Turtle Stranding and Salvage Network informational page found',
+        linkText: 'here',
+        href: 'https://www.fisheries.noaa.gov/national/marine-life-distress/sea-turtle-stranding-and-salvage-network',
+    },
+    {
+        text: 'Old version of ensemble water temperature (MRE) predictions found',
+        linkText: 'here',
+        linkTarget: '_self',
+        to: '/water-temperature-ensemble',
+    },
+];
 const missingDataWarningBanner = ref(MissingDataWarningBanner);
 const isSmallScreen = window.innerWidth <= 600;
 
@@ -1332,202 +1414,7 @@ onUnmounted(() => {
         </div>
     </section>
 
-    <!-- Information Section -->
-    <div class="fixed inset-x-0 bottom-0 z-50">
-        <!-- Always-visible Handle -->
-        <button
-            @click="showInfoDrawer = !showInfoDrawer"
-            class="w-[calc(100%-2rem)] mx-4 rounded-lg bg-[#1895a3] text-white border-4 border-black shadow-xl py-3"
-        >
-            <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-2"></div>
-            <div class="font-semibold text-xl">
-                {{ showInfoDrawer ? "Hide Additional Information ▼" : "Additional Information ▲" }}
-            </div>
-        </button>
-
-        <transition
-            enter-active-class="transition-transform duration-300 ease-out"
-            leave-active-class="transition-transform duration-300 ease-in"
-            enter-from-class="translate-y-full"
-            enter-to-class="translate-y-0"
-            leave-from-class="translate-y-0"
-            leave-to-class="translate-y-full"
-        >
-            <div
-                v-if="showInfoDrawer"
-                class="bg-blue-50
-                    max-h-[75vh]
-                    overflow-y-auto
-                    shadow-2xl
-                    p-5"
-            >
-                <!-- Card Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                   <!-- Left Card -->
-                  <div class="lg:col-span-1 rounded-lg bg-white p-6 shadow-md text-dark-text">
-
-                      <h3
-                      class="mb-4 border-b-2 border-gray-500 pb-3 text-center text-xl font-extrabold lg:text-left lg:text-2xl"
-                    >
-                      Data on this Graph:
-                    </h3>
-
-                    <div class="space-y-4 text-base leading-relaxed lg:text-lg">
-                      <dl class="space-y-3">
-                        <div>
-                          <dt class="inline font-bold">Observed water and air temperatures:</dt>
-                          <dd class="inline">
-                            Hourly observations are obtained from the
-                            <a
-                              href="https://lighthouse.tamucc.edu/pq?_ga=2.37560803.210879303.1694296771-1722476858"
-                              class="underline underline-offset-2 hover:text-blue-700"
-                            >South Bird Island TCOON station</a>
-                            in Upper Laguna Madre.
-                          </dd>
-                        </div>
-
-                        <div>
-                          <dt class="inline font-bold">Predicted air temperatures:</dt>
-                          <dd class="inline">
-                            <a
-                              href="https://digital.weather.gov/"
-                              class="underline underline-offset-2 hover:text-blue-700"
-                            > NWS-NDFD</a>
-                            air temperature predictions are obtained from the forecast grid
-                            corresponding to the Upper Laguna Madre area.
-                          </dd>
-                        </div>
-
-                        <div>
-                          <dt class="inline font-bold">Predicted water temperatures:</dt>
-                          <dd class="inline">
-                            The Cool Turtle model development research team produces probabilistic
-                            water temperature predictions using an ensemble of machine learning models.
-                            Additional information about the model development and evaluation is
-                            available in the following publication:
-                            <a
-                              href="https://journals.ametsoc.org/view/journals/aies/5/3/AIES-D-25-0058.1.xml"
-                              class="underline underline-offset-2 hover:text-blue-700"
-                            ><em>Machine Learning Uncertainty Quantification for Extreme Cold Water Events</em></a>.
-                          </dd>
-                        </div>
-                      </dl>
-
-                      <section class="border-t border-gray-200 pt-3">
-                        <h4 class="text-lg font-bold leading-snug lg:text-xl">
-                          How the ensemble predictions are displayed:
-                        </h4>
-
-                        <p class="mt-2">
-                          Each graph presents the <em>same</em> ensemble of ML water temperature
-                          predictions in a different format:
-                        </p>
-
-                        <dl class="mt-3 space-y-3">
-                          <div>
-                            <dt class="inline font-bold">Central forecast graph:</dt>
-                            <dd class="inline">
-                              This graph displays the ensemble median as a single water temperature
-                              prediction. The median represents the middle of the ensemble predictions,
-                              with half of the predicted values above it and half below it.
-                            </dd>
-                          </div>
-
-                          <div>
-                            <dt class="inline font-bold">Fan plot:</dt>
-                            <dd class="inline">
-                              This graph displays the median prediction and shaded percentile ranges.
-                              The 25th–75th percentile band shows the central portion of the ensemble,
-                              while the 5th–95th percentile band shows a broader range of possible outcomes.
-                            </dd>
-                          </div>
-
-                          <div>
-                            <dt class="inline font-bold">Box plot:</dt>
-                            <dd class="inline">
-                              This graph displays selected ensemble percentiles at each forecast time,
-                              allowing users to examine the distribution and spread of the predicted
-                              water temperatures throughout the five-day forecast.
-                            </dd>
-                          </div>
-                        </dl>
-                      </section>
-                    </div>
-                  </div>  <!-- End Left Card  -->
-
-                 <!-- Right Card -->
-                  <div class="lg:col-span-1 rounded-lg bg-white p-6 shadow-md">
-                    <h3
-                      class="mb-5 border-b-2 border-gray-500 pb-3 text-center text-xl font-extrabold text-dark-text lg:text-left lg:text-2xl"
-                    >
-                      Links to Additional Information
-                    </h3>
-
-                    <ul class="space-y-4 text-base leading-relaxed text-dark-text lg:text-lg">
-                      <li>
-                        <a
-                          href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="block border-l-2 border-gray-300 py-1 pl-4 transition-colors hover:border-blue-600 hover:text-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-700"
-                        >
-                          <span class="font-semibold">Wind speed measurements and predictions (NWS-NDFD) for South Bird Island</span>
-                          
-                        </a>
-                      </li>
-
-                      <li>
-                        <router-link
-                          to="/air-temperature-ensemble"
-                          target="_blank"
-                          class="block border-l-2 border-gray-300 py-1 pl-4 transition-colors hover:border-blue-600 hover:text-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-700"
-                        >
-                          <span class="font-semibold">Ensemble air temperature predictions for Laguna Madre from The Weather Company</span>
-                          
-                        </router-link>
-                      </li>
-
-
-                      <li>
-                        <a
-                          href="https://lighthouse.tamucc.edu/supertool.php?stnid=013&amp;elev=mwl&amp;mode=nnwtp"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="block border-l-2 border-gray-300 py-1 pl-4 transition-colors hover:border-blue-600 hover:text-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-700"
-                        >
-                          <span class="font-semibold">AI water temperature prediction model performance charts</span>
-                          
-                        </a>
-                      </li>
-
-                      <li>
-                        <a
-                          href="https://www.fisheries.noaa.gov/national/marine-life-distress/sea-turtle-stranding-and-salvage-network"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="block border-l-2 border-gray-300 py-1 pl-4 transition-colors hover:border-blue-600 hover:text-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-700"
-                        >
-                          <span class="font-semibold">NOAA Sea Turtle Stranding and Salvage Network informational page</span>
-                          
-                        </a>
-                      </li>
-
-                      <li>
-                        <router-link
-                          to="/water-temperature-ensemble"
-                          class="block border-l-2 border-gray-300 py-1 pl-4 transition-colors hover:border-blue-600 hover:text-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-700"
-                        >
-                          <span class="font-semibold">Old version of ensemble water temperature (MRE) predictions </span>
-                          
-                        </router-link>
-                      </li>
-                    </ul>
-                  </div>
-                  <!-- End Right Card -->
-                </div> <!-- End Card Grid -->
-            </div>
-        </transition>
-    </div> <!-- End Additional Info Modal -->
+    <AdditionalInfoButton :graph-items="graphItems" :additional-items="additionalItems" />
 
     <!-- Footer -->
     <footer class="bg-navy-blue py-10 text-dark-text space-y-2">
