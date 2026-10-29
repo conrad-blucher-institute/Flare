@@ -21,6 +21,7 @@ import "highcharts/modules/export-data";
 import "highcharts/modules/offline-exporting";
 
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
+import AdditionalInfoButton from "@/components/AdditionalInfoButton.vue";
 const missingDataWarningBanner = ref(null);
 const isSmallScreen = window.innerWidth <= 600;
 
@@ -30,6 +31,28 @@ const showInfoDrawer = ref(false);
 
 const chartOptions = ref({});
 const secondChartOptions = ref({});
+
+
+const chartLineColors = {
+  // black for ESB mean water measurements and ESB water predictions
+  black: '#000000',
+
+  // orange for ESB mean air measurements and NDFD air predictions 
+  orange: '#E69F00',
+
+  // blues for the water measurements
+  portOConnorWater:     '#bdc9e1',
+  portLavacaWater:      '#67a9cf',
+  seadriftWater:        '#1c9099',
+  aransasWildlifeWater: '#016c59',
+  
+  // greens for the air measurements
+  portOConnorAir:       '#c2e699',
+  portLavacaAir:        '#78c679',
+  seadriftAir:          '#31a354',
+  aransasWildlifeAir:   '#006837',
+};
+
 
 const graphItems = [
     {
