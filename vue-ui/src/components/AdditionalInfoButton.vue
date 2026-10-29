@@ -6,11 +6,77 @@ displayed at the bottom of the screen. The button is always visible.
 
 Created By: CJ Quintero
 Created On: 09/24/2026
+
+Usage:
+    Import this component into the parent page and pass two arrays:
+
+    <AdditionalInfo
+        :graph-items="graphItems"
+        :additional-items="additionalItems"
+    />
+
+Props:
+    graphItems      - Items displayed under "Data on this Graph:".
+    additionalItems - Items displayed under "Additional Information:".
+    Both default to empty arrays and use the same item format.
+
+Item fields:
+    text       - Plain text displayed before the optional link.
+    parts      - Text segments used instead of text for bold formatting.
+                 Each segment has text and an optional bold: true.
+                 Include spaces between words in the segment strings.
+    linkText   - Clickable text; required when providing a link.
+    href       - External URL.
+    to         - Internal Vue Router destination. Takes priority over href.
+    linkTarget - Defaults to a new tab. Set to '_self' for the current tab.
+
+Examples:
+    const graphItems = [
+        {
+            text: 'Water temperature predictions are updated daily.',
+        },
+        {
+            parts: [
+                { text: 'Observed temperatures:', bold: true },
+                { text: ' Hourly observations are available from the' },
+            ],
+            linkText: 'South Bird Island TCOON station',
+            href: 'https://lighthouse.tamucc.edu/pq',
+        },
+    ];
+
+    const additionalItems = [
+        {
+            linkText: 'Ensemble air temperature predictions',
+            to: '/air-temperature-ensemble',
+            linkTarget: '_self',
+        },
+    ];
+
+Notes:
+    - Card headers stay fixed inside the component.
+    - Links appear after the text or parts.
+    - If parts is provided, text is ignored.
+    - Items without href or to display only their text.
+    - Text is rendered literally; HTML strings are not interpreted.
 -->
 <script setup>
 import { ref } from 'vue';
 
 const showInfoDrawer = ref(false);
+const getLinkTarget = (item) =>
+    item.linkTarget === '_self' ? '_self' : '_blank';
+
+defineProps({
+    graphItems: {
+        type: Array,
+        default: () => [],
+    },
+    additionalItems: {
+        type: Array,
+        default: () => [],
+    },
+});
 </script>
 
 <template>
@@ -49,20 +115,46 @@ const showInfoDrawer = ref(false);
                         <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
                             Data on this Graph:
                         </h3>
-                        <ul class="list-disc list-inside space-y-2 text-md lg:text-xl text-dark-text">
-                            <li>
-                                Past six-day air/water temperature from
-                                <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8776139" 
-                                    class="underline text-blue-600 hover:text-blue-800" target="_blank">NOAA's South Bird Island Station</a>
+                       <ul class="list-disc list-inside space-y-2 text-md lg:text-xl text-dark-text">
+                            <li v-for="(item, index) in graphItems" :key="index">
+                                <template v-if="item.parts">
+                                    <template v-for="(part, partIndex) in item.parts" :key="partIndex">
+                                        <strong v-if="part.bold">{{ part.text }}</strong>
+                                        <span v-else>{{ part.text }}</span>
+                                    </template>
+                                </template>
+                                <template v-else>{{ item.text }}</template>
+
+                               <template v-if="item.to || item.href">
+                                    {{ ' ' }}
+
+                                    <router-link
+                                        v-if="item.to"
+                                        :to="item.to"
+                                        custom
+                                        v-slot="{ href }"
+                                    >
+                                        <a
+                                            :href="href"
+                                            :target="getLinkTarget(item)"
+                                            rel="noopener noreferrer"
+                                            class="underline text-blue-600 hover:text-blue-800"
+                                        >
+                                            {{ item.linkText }}
+                                        </a>
+                                    </router-link>
+
+                                    <a
+                                        v-else
+                                        :href="item.href"
+                                        :target="getLinkTarget(item)"
+                                        rel="noopener noreferrer"
+                                        class="underline text-blue-600 hover:text-blue-800"
+                                    >
+                                        {{ item.linkText }}
+                                    </a>
+                                </template>
                             </li>
-                            <li>
-                                Backup water temperature data from
-                                <a href="https://lighthouse.tamucc.edu/overview/171" 
-                                    class="underline text-blue-600 hover:text-blue-800" target="_blank">National Park Service</a>
-                            </li>
-                            <li>Air temperature predictions from the National Digital Forecast Database (points)</li>
-                            <li>Cubic interpolation of predicted air temperature (dashed line)</li>
-                            <li>Water temperature predictions from Semaphore (dashed line)</li>
                         </ul>
                     </div> <!-- End Left Card -->
 
@@ -72,60 +164,44 @@ const showInfoDrawer = ref(false);
                             Additional Information:
                         </h3>
                         <ul class="list-disc space-y-2 pl-5 text-md lg:text-xl text-dark-text">
-                            <li>
-                                Wind speed graph available 
-                                <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">here</a>
-                            </li>
-                            <li>
-                                Ensemble air temperature predictions from The Weather Company available 
-                                <router-link 
-                                    to="/air-temperature-ensemble" 
-                                    class="underline text-blue-600 hover:text-blue-800"
-                                >
-                                    here
-                                </router-link>
-                            </li>
-                            <li>
-                                Ensemble water temperature predictions from Semaphore available 
-                                <router-link 
-                                    to="/water-temperature-ensemble" 
-                                    class="underline text-blue-600 hover:text-blue-800"
-                                >
-                                    here
-                                </router-link>
-                            </li>
-                            <li>
-                                CRPS (Continuous Ranked Probability Score) ensemble model from Semaphore available
-                                <router-link 
-                                    to="/crps" 
-                                    class="underline text-blue-600 hover:text-blue-800"
-                                >
-                                    here
-                                </router-link>
-                            </li>
-                            <li>
-                                Wind predictions for the Laguna Madre available
-                                <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">
-                                    here
-                                </a>
-                            </li>
-                            <li>
-                                Ensemble air temperature predictions for Bird Island Basin available 
-                                <a href="https://cbigrid.tamucc.edu/tpw/graph-only-wind.html" target="_blank" class="underline text-blue-600 hover:text-blue-800">
-                                    here
-                                </a>
-                            </li>
-                            <li>
-                                AI water temperature prediction models performance available
-                                <a href="https://lighthouse.tamucc.edu/supertool.php?stnid=013&elev=mwl&mode=nnwtp" target="_blank" class="underline text-blue-600 hover:text-blue-800">
-                                    here
-                                </a>
-                            </li>
-                            <li>
-                                NOAA Sea Turtle Stranding and Salvage Network water temperature measurements
-                                <a href="https://connect.fisheries.noaa.gov/content/c0773132-9590-4e21-bb42-676e2140fbaa/" target="_blank" class="underline text-blue-600 hover:text-blue-800">
-                                    here
-                                </a>
+                            <li v-for="(item, index) in additionalItems" :key="index">
+                                <template v-if="item.parts">
+                                    <template v-for="(part, partIndex) in item.parts" :key="partIndex">
+                                        <strong v-if="part.bold">{{ part.text }}</strong>
+                                        <span v-else>{{ part.text }}</span>
+                                    </template>
+                                </template>
+                                <template v-else>{{ item.text }}</template>
+
+                                <template v-if="item.to || item.href">
+                                    {{ ' ' }}
+
+                                    <router-link
+                                        v-if="item.to"
+                                        :to="item.to"
+                                        custom
+                                        v-slot="{ href }"
+                                    >
+                                        <a
+                                            :href="href"
+                                            :target="getLinkTarget(item)"
+                                            rel="noopener noreferrer"
+                                            class="underline text-blue-600 hover:text-blue-800"
+                                        >
+                                            {{ item.linkText }}
+                                        </a>
+                                    </router-link>
+
+                                    <a
+                                        v-else
+                                        :href="item.href"
+                                        :target="getLinkTarget(item)"
+                                        rel="noopener noreferrer"
+                                        class="underline text-blue-600 hover:text-blue-800"
+                                    >
+                                        {{ item.linkText }}
+                                    </a>
+                                </template>
                             </li>
                         </ul>
                     </div> <!-- End Right Card -->

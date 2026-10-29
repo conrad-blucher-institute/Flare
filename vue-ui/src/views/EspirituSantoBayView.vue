@@ -21,6 +21,7 @@ import "highcharts/modules/export-data";
 import "highcharts/modules/offline-exporting";
 
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
+import AdditionalInfoButton from "@/components/AdditionalInfoButton.vue";
 const missingDataWarningBanner = ref(null);
 const isSmallScreen = window.innerWidth <= 600;
 
@@ -30,6 +31,7 @@ const showInfoDrawer = ref(false);
 
 const chartOptions = ref({});
 const secondChartOptions = ref({});
+
 
 const chartLineColors = {
   // black for ESB mean water measurements and ESB water predictions
@@ -50,6 +52,75 @@ const chartLineColors = {
   seadriftAir:          '#31a354',
   aransasWildlifeAir:   '#006837',
 };
+
+
+const graphItems = [
+    {
+        text: 'Past six-day air/water temperature from',
+        linkText: "NOAA's South Bird Island Station",
+        href: 'https://tidesandcurrents.noaa.gov/stationhome.html?id=8776139',
+    },
+    {
+        text: 'Backup water temperature data from',
+        linkText: 'National Park Service',
+        href: 'https://lighthouse.tamucc.edu/overview/171',
+    },
+    {
+        text: 'Air temperature predictions from the National Digital Forecast Database (points)',
+    },
+    {
+        text: 'Cubic interpolation of predicted air temperature (dashed line)',
+    },
+    {
+        text: 'Water temperature predictions from Semaphore (dashed line)',
+    },
+];
+
+const additionalItems = [
+    {
+        text: 'Wind speed graph available',
+        linkText: 'here',
+        href: 'https://cbigrid.tamucc.edu/tpw/graph-only-wind.html',
+    },
+    {
+        text: 'Ensemble air temperature predictions from The Weather Company available',
+        linkText: 'here',
+        linkTarget: '_self',
+        to: '/air-temperature-ensemble',
+    },
+    {
+        text: 'Ensemble water temperature predictions from Semaphore available',
+        linkText: 'here',
+        linkTarget: '_self',
+        to: '/water-temperature-ensemble',
+    },
+    {
+        text: 'CRPS (Continuous Ranked Probability Score) ensemble model from Semaphore available',
+        linkText: 'here',
+        linkTarget: '_self',
+        to: '/crps',
+    },
+    {
+        text: 'Wind predictions for the Laguna Madre available',
+        linkText: 'here',
+        href: 'https://cbigrid.tamucc.edu/tpw/graph-only-wind.html',
+    },
+    {
+        text: 'Ensemble air temperature predictions for Bird Island Basin available',
+        linkText: 'here',
+        href: 'https://cbigrid.tamucc.edu/tpw/graph-only-wind.html',
+    },
+    {
+        text: 'AI water temperature prediction models performance available',
+        linkText: 'here',
+        href: 'https://lighthouse.tamucc.edu/supertool.php?stnid=013&elev=mwl&mode=nnwtp',
+    },
+    {
+        text: 'NOAA Sea Turtle Stranding and Salvage Network water temperature measurements',
+        linkText: 'here',
+        href: 'https://connect.fisheries.noaa.gov/content/c0773132-9590-4e21-bb42-676e2140fbaa/',
+    },
+];
 
 // Chart function for first chart that changes based on screen size
 const buildChart = (isSmallScreen, chartTitle) => {
@@ -975,141 +1046,7 @@ onMounted(() => {
     </section>
 
     <!-- Information Section -->
-    <div class="fixed inset-x-0 bottom-0 z-50">
-      <!-- Always-visible Handle -->
-      <button
-          @click="showInfoDrawer = !showInfoDrawer"
-          class="w-[calc(100%-2rem)] mx-4 rounded-lg bg-[#1895a3] text-white border-4 border-black shadow-xl py-3"
-      >
-          <div class="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-2"></div>
-          <div class="font-semibold text-xl">
-              {{ showInfoDrawer ? "Hide Additional Information ▼" : "Additional Information ▲" }}
-          </div>
-      </button>
-
-      <transition
-          enter-active-class="transition-transform duration-300 ease-out"
-          leave-active-class="transition-transform duration-300 ease-in"
-          enter-from-class="translate-y-full"
-          enter-to-class="translate-y-0"
-          leave-from-class="translate-y-0"
-          leave-to-class="translate-y-full"
-      >
-        <div
-          v-if="showInfoDrawer"
-          class="bg-blue-50
-            max-h-[75vh]
-            overflow-y-auto
-            shadow-2xl
-            p-5"
-        >
-          <!-- Card Grid -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Left Card -->
-            <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
-              <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
-                Data on this Graph:
-              </h3>
-
-              <p class="text-base lg:text-xl text-dark-text mb-4">
-                <strong>Hourly temperature observations</strong>: Recent water and air temperature observations are obtained from 
-                four Texas Coastal Ocean Observation Network (TCOON) stations surrounding Espiritu Santo Bay:
-              </p>
-
-              <ul class="list-disc space-y-2 pl-5 text-md lg:text-xl text-dark-text">
-                <li>
-                  <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8773701" 
-                    class="underline text-blue-600 hover:text-blue-800" target="_blank">Port O'Connor Station</a>
-                </li>
-                <li>
-                  <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8773037" 
-                    class="underline text-blue-600 hover:text-blue-800" target="_blank">Seadrift Station</a>
-                </li>
-                <li>
-                  <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8773259" 
-                    class="underline text-blue-600 hover:text-blue-800" target="_blank">Port Lavaca Station</a>
-                </li>
-                <li>
-                  <a href="https://tidesandcurrents.noaa.gov/stationhome.html?id=8774230" 
-                    class="underline text-blue-600 hover:text-blue-800" target="_blank">Aransas Wildlife Refuge Station</a>
-                </li>
-              </ul>
-
-              <!-- space between the list and the next paragraphs -->
-              <br>
-
-              <p class="text-base lg:text-xl text-dark-text mb-4">
-                <strong>Observed conditions on the graphs</strong>: The multi-location graph displays observations from the four TCOON 
-                stations separately. The averaged graph displays the mean water and air temperatures across 
-                these stations as representative conditions for ESB.
-              </p>
-
-              <p class="text-base lg:text-xl text-dark-text mb-4">
-                <strong>Air temperature predictions</strong>: Future air temperatures are obtained from the National Digital Forecast Database 
-                (NDFD) grid corresponding to the ESB area.
-              </p>
-
-              <p class="text-base lg:text-xl text-dark-text mb-4">
-                <strong>Water temperature predictions</strong>: Future water temperatures are generated by a deterministic machine 
-                learning model developed by the Cool Turtle model development research team. The predictions are intended to represent
-                bay-wide water temperature conditions within ESB, rather than conditions at any one surrounding station.
-              </p>
-
-              <p class="text-base lg:text-xl text-dark-text mb-4">
-                <strong>Why surrounding stations are used</strong>: ESB does not currently contain permanent, 
-                real-time water or air temperature sensors. The model therefore uses observations from the four surrounding TCOON 
-                stations to represent recent temperature conditions within the bay.
-              </p>
-
-              <p class="text-base lg:text-xl text-dark-text mb-4">
-                <strong>In-bay research measurements</strong>: Temporary sensors were deployed within ESB during two winter 
-                field campaigns. HOBO sensors measured water and air temperatures during winter 2023-26, and a modified Telonics buoy
-                measured water temperature during winter 2024-25 and 2025-26.
-              </p>
-
-              <p class="text-base lg:text-xl text-dark-text mb-4">
-                <strong>Representativeness of the surrounding observations</strong>: Comparisons with the temporary in-bay measurements 
-                from 2023-24 showed that average temperatures within ESB corresponded relatively well with the mean 
-                temperatures observed across the four surrounding TCOON stations. This relationship supports using 
-                the station averages to represent bay-wide conditions, particularly under the assumption that ESB is 
-                approximately isothermal during cold-stunning events (with few exceptions such as Mitchell's Cut during incoming tides).
-              </p>
-            </div> <!-- End Left Card -->
-
-            <!-- Right Card -->
-            <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
-              <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
-                Additional Information:
-              </h3>
-              <ul class="list-disc space-y-2 pl-5 text-md lg:text-xl text-dark-text">
-                <li>
-                  Wind speed measurements and predictions (NWS-NDFD) for Port O'Connor (coming soon)
-                </li>
-                <li>
-                  Ensemble air temperature predictions from The Weather Company (coming soon)
-                </li>
-                <li>
-                  NOAA Sea Turtle Stranding and Salvage Network informational page
-                  <a href="https://www.fisheries.noaa.gov/national/marine-life-distress/sea-turtle-stranding-and-salvage-network"
-                    target="_blank" class="underline text-blue-600 hover:text-blue-800"
-                  >
-                    here
-                  </a>
-                </li>
-                <li>
-                  Mid-Coast Sea Turtle Rescue informational page
-                  <a href="https://www.sabaypartnership.org/program/mid-coast-sea-turtle-rescue/"
-                    target="_blank" class="underline text-blue-600 hover:text-blue-800"
-                  >
-                    here
-                  </a>
-                </li>
-              </ul>
-            </div> <!-- End Right Card -->
-          </div> <!-- End Card Grid -->
-        </div>
-      </transition> 
-    </div> <!-- End Additional Info Modal -->
+    <AdditionalInfoButton :graph-items="graphItems" :additional-items="additionalItems" />
 
     <!-- Footer -->
     <footer class="bg-navy-blue py-10 text-dark-text space-y-2">
