@@ -20,7 +20,7 @@ import HighchartsMore from "highcharts/highcharts-more";
 import "highcharts/modules/exporting";
 import "highcharts/modules/export-data";
 import "highcharts/modules/offline-exporting";
-import { ref, onMounted, onUnmounted, reactive } from "vue";
+import { ref, onMounted, reactive } from "vue";
 
 import AdditionalInfoButton from "@/components/AdditionalInfoButton.vue";
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
@@ -898,10 +898,6 @@ const toggleSecondExportMenu = () => {
   isSecondExportMenuVisible.value = !isSecondExportMenuVisible.value;
 }
 
-
-///Fetch and update chart data every 15 minutes
-let updateInterval;
-
 onMounted(() => {
   const loadCharts = () => {
     Promise.all([
@@ -917,16 +913,7 @@ onMounted(() => {
 
   // Initial load
   loadCharts();
-
-  // Refresh every 15 minutes
-  updateInterval = setInterval(loadCharts, 900000);
 });
-
-onUnmounted(() => {
-  clearInterval(updateInterval);
-});
-
-
 </script>
  
 <template>
