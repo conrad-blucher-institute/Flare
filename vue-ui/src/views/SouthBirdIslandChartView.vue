@@ -14,7 +14,7 @@
 import Highcharts from "highcharts";
 import { Chart } from "highcharts-vue";
 
-import { ref, onMounted, onUnmounted, reactive } from "vue";
+import { ref, onMounted, reactive } from "vue";
 
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
 const missingDataWarningBanner = ref(MissingDataWarningBanner);
@@ -440,22 +440,14 @@ const toggleExportMenu = () => {
   isExportMenuVisible.value = !isExportMenuVisible.value;
 };
 
-///Fetch and update chart data every 15 minutes
-let updateInterval;
 onMounted(() => {
-  fetchAndFilterData().then(() => {
-    missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value]);
-  });
-  updateInterval = setInterval(() => {
+  const loadCharts = () => {
     fetchAndFilterData().then(() => {
       missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value]);
     });
-  }, 900000); 
-});
-
-
-onUnmounted(() => {
-  clearInterval(updateInterval);
+  };
+  
+  loadCharts(); // initial load
 });
 </script>
 

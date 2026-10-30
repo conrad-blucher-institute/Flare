@@ -18,7 +18,7 @@ import Highcharts from "highcharts";
 import HighchartsMore from "highcharts/highcharts-more";
 import { Chart } from "highcharts-vue";
 
-import { ref, onMounted, onUnmounted, reactive } from "vue";
+import { ref, onMounted, reactive } from "vue";
 
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
 const missingDataWarningBanner = ref(MissingDataWarningBanner);
@@ -882,31 +882,18 @@ const toggleThirdExportMenu = () => {
   isThirdExportMenuVisible.value = !isThirdExportMenuVisible.value;
 };
 
-///Fetch and update chart data every 15 minutes
-let updateInterval;
 onMounted(() => {
-  Promise.all([
-    fetchAndFilterData(),
-    fetchAndFilterSecondData(),
-    fetchAndFilterThirdData()
-  ]).then(() => {
-    missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value, secondChartOptions.value, thirdChartOptions.value]);
-  });
-  
-  updateInterval = setInterval(() => {
+  const loadCharts = () => {
     Promise.all([
       fetchAndFilterData(),
       fetchAndFilterSecondData(),
-      fetchAndFilterThirdData(),
+      fetchAndFilterThirdData()
     ]).then(() => {
       missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value, secondChartOptions.value, thirdChartOptions.value]);
     });
-  }, 900000); 
-});
-
-
-onUnmounted(() => {
-  clearInterval(updateInterval);
+  };
+  
+  loadCharts(); // initial load
 });
 </script>
 

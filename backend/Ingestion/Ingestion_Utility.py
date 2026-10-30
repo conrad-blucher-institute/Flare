@@ -1,4 +1,4 @@
-from urllib.error import HTTPError, URLError
+from urllib.error import HTTPError
 from urllib.request import urlopen, Request
 from numpy import nan
 from pandas import DataFrame
@@ -6,7 +6,7 @@ import json
 from runtimeContext import thread_storage
 
 
-def api_request(url: str, headers: dict | None = None, timeout: int = 10) -> dict | None:
+def api_request(url: str, headers: dict | None = None, timeout: int = 60) -> dict | None:
     """
     Execute a web get request returning the response or None if the request fails
 
@@ -14,7 +14,7 @@ def api_request(url: str, headers: dict | None = None, timeout: int = 10) -> dic
 
     :param headers: dict | None - optional headers to include in the request
 
-    :param timeout: int - the timeout for the request in seconds. Defaults to 10 seconds.
+    :param timeout: int - the timeout for the request in seconds, defaults to 60 seconds
 
     :returns: dict[any] | None - the response from the request as a dictionary, or None if the request fails
     """
@@ -30,7 +30,7 @@ def api_request(url: str, headers: dict | None = None, timeout: int = 10) -> dic
     except Exception as ex:
         logger.log_error(message=f'[URL:{url}] Fetch failed, unhandled exceptions: {ex}')
         return None
-    
+
 
 def add_empty_column(data: DataFrame, col_name: str):
     logger = thread_storage.logger
