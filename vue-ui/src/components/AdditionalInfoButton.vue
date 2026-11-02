@@ -8,57 +8,63 @@ Created By: CJ Quintero
 Created On: 09/24/2026
 
 Usage:
-    Import this component into the parent page and pass two arrays:
+  Import this component into the parent page and pass two arrays:
 
-    <AdditionalInfo
-        :graph-items="graphItems"
-        :additional-items="additionalItems"
-    />
+	<AdditionalInfoButton
+		:dataOnThisGraph="dataOnThisGraph"
+		:additionalInfo="additionalInfo"
+	/>
 
 Props:
-    graphItems      - Items displayed under "Data on this Graph:".
-    additionalItems - Items displayed under "Additional Information:".
-    Both default to empty arrays and use the same item format.
+	dataOnThisGraph - Items displayed under "Data on this Graph:".
+	additionalInfo  - Items displayed under "Additional Information:".
 
-Item fields:
-    text       - Plain text displayed before the optional link.
-    parts      - Text segments used instead of text for bold formatting.
-                 Each segment has text and an optional bold: true.
-                 Include spaces between words in the segment strings.
-    linkText   - Clickable text; required when providing a link.
-    href       - External URL.
-    to         - Internal Vue Router destination. Takes priority over href.
-    linkTarget - Defaults to a new tab. Set to '_self' for the current tab.
+dataOnThisGraph Item fields:
+	header (str) - the bold header portion of the item
+	
+	body (str) - the body text
+	
+	links (array[{ text, href }]) - an array of links with { text, href }
+		the text is the visible text shown on the page
+		the href is the URL the link points to
+	
+	bulletLinks (bool) - whether to display the links as bullet points
+		true: display links as bullet points in a block beneath the body text
+		false: display links inline after the text, only recommended for a single link
+
+Additional Item fields:
+	body (str) - the body text of the bullet
+
+	linkText (str) - the visible text of the link
+
+	href (str) - the URL the link points to
+		for internal links, the path should start with '/' such as '/crps' so the router can handle it correctly.
+		for external links, the full URL should be provided, such as 'https://lighthouse.tamucc.edu/pq'
+
+	linkTarget (str) - the target attribute for the link (e.g., '_self', '_blank')
+		_self - open the link in the same tab, should be used for navigating to another Flare page
+		_blank - open the link in a new tab, should be used for navigating to external pages not on Flare
 
 Examples:
-    const graphItems = [
-        {
-            text: 'Water temperature predictions are updated daily.',
-        },
-        {
-            parts: [
-                { text: 'Observed temperatures:', bold: true },
-                { text: ' Hourly observations are available from the' },
-            ],
-            linkText: 'South Bird Island TCOON station',
-            href: 'https://lighthouse.tamucc.edu/pq',
-        },
-    ];
+	const dataOnThisGraph = [
+		{
+			header: 'Observed Water and Air Temperatures:',
+			body: 'Hourly observations in Upper Laguna Madre are obtained from the',
+			links: [
+				{ text: 'South Bird Island TCOON station', href: 'https://lighthouse.tamucc.edu/pq?_ga=2.37560803.210879303.1694296771-1722476858'}
+			],
+			bulletLinks: false // inline link
+		}
+	];
 
-    const additionalItems = [
-        {
-            linkText: 'Ensemble air temperature predictions',
-            to: '/air-temperature-ensemble',
-            linkTarget: '_self',
-        },
-    ];
-
-Notes:
-    - Card headers stay fixed inside the component.
-    - Links appear after the text or parts.
-    - If parts is provided, text is ignored.
-    - Items without href or to display only their text.
-    - Text is rendered literally; HTML strings are not interpreted.
+	const additionalInfo = [
+		{
+			body: 'Wind speed measurements and predictions (NWS-NDFD) for South Bird Island found',
+			linkText: 'here',
+			href: 'https://cbigrid.tamucc.edu/tpw/graph-only-wind.html',
+			linkTarget: '_blank' // open in a new tab
+		},
+	];
 -->
 <script setup>
 import { ref } from 'vue';
@@ -68,11 +74,11 @@ const getLinkTarget = (item) =>
     item.linkTarget === '_self' ? '_self' : '_blank';
 
 defineProps({
-    graphItems: {
+    dataOnThisGraph: {
         type: Array,
         default: () => [],
     },
-    additionalItems: {
+    additionalInfo: {
         type: Array,
         default: () => [],
     },
@@ -115,47 +121,41 @@ defineProps({
                         <h3 class="text-xl lg:text-2xl font-extrabold text-center lg:text-left text-dark-text border-b-2 border-gray-500 pb-2 mb-3 lg:pb-4 lg:mb-6">
                             Data on this Graph:
                         </h3>
-                       <ul class="list-disc list-inside space-y-2 text-md lg:text-xl text-dark-text">
-                            <li v-for="(item, index) in graphItems" :key="index">
-                                <template v-if="item.parts">
-                                    <template v-for="(part, partIndex) in item.parts" :key="partIndex">
-                                        <strong v-if="part.bold">{{ part.text }}</strong>
-                                        <span v-else>{{ part.text }}</span>
+                       <div class="space-y-4 text-md lg:text-xl text-dark-text">
+                            <div v-for="(item, index) in dataOnThisGraph" :key="index">
+                                <p>
+                                    <strong>{{ item.header }}</strong>
+                                    {{ ' ' }}{{ item.body }}
+
+                                    <!-- Inline links -->
+                                    <template v-if="!item.bulletLinks">
+                                        <template v-for="(link, linkIndex) in item.links ?? []" :key="linkIndex">
+                                            {{ linkIndex === 0 ? ' ' : ', ' }}
+                                            <router-link v-if="link.to" :to="link.to" custom v-slot="{ href }">
+                                                <a :href="href" :target="getLinkTarget(link)" rel="noopener noreferrer"
+                                                class="underline text-blue-600 hover:text-blue-800">{{ link.text }}</a>
+                                            </router-link>
+                                            <a v-else :href="link.href" :target="getLinkTarget(link)" rel="noopener noreferrer"
+                                            class="underline text-blue-600 hover:text-blue-800">{{ link.text }}</a>
+                                        </template>
                                     </template>
-                                </template>
-                                <template v-else>{{ item.text }}</template>
+                                </p>
 
-                               <template v-if="item.to || item.href">
-                                    {{ ' ' }}
+                                <!-- Bulleted links -->
+                                <ul v-if="item.bulletLinks && item.links?.length" class="list-disc pl-8 mt-1 space-y-1">
+                                    <li v-for="(link, linkIndex) in item.links" :key="linkIndex">
 
-                                    <router-link
-                                        v-if="item.to"
-                                        :to="item.to"
-                                        custom
-                                        v-slot="{ href }"
-                                    >
-                                        <a
-                                            :href="href"
-                                            :target="getLinkTarget(item)"
-                                            rel="noopener noreferrer"
-                                            class="underline text-blue-600 hover:text-blue-800"
-                                        >
-                                            {{ item.linkText }}
-                                        </a>
-                                    </router-link>
+                                        <router-link v-if="link.to" :to="link.to" custom v-slot="{ href }">
+                                            <a :href="href" :target="getLinkTarget(link)" rel="noopener noreferrer"
+                                            class="underline text-blue-600 hover:text-blue-800">{{ link.text }}</a>
+                                        </router-link>
 
-                                    <a
-                                        v-else
-                                        :href="item.href"
-                                        :target="getLinkTarget(item)"
-                                        rel="noopener noreferrer"
-                                        class="underline text-blue-600 hover:text-blue-800"
-                                    >
-                                        {{ item.linkText }}
-                                    </a>
-                                </template>
-                            </li>
-                        </ul>
+                                        <a v-else :href="link.href" :target="getLinkTarget(link)" rel="noopener noreferrer"
+                                        class="underline text-blue-600 hover:text-blue-800">{{ link.text }}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
                     </div> <!-- End Left Card -->
 
                     <!-- Right Card -->
@@ -164,21 +164,16 @@ defineProps({
                             Additional Information:
                         </h3>
                         <ul class="list-disc space-y-2 pl-5 text-md lg:text-xl text-dark-text">
-                            <li v-for="(item, index) in additionalItems" :key="index">
-                                <template v-if="item.parts">
-                                    <template v-for="(part, partIndex) in item.parts" :key="partIndex">
-                                        <strong v-if="part.bold">{{ part.text }}</strong>
-                                        <span v-else>{{ part.text }}</span>
-                                    </template>
-                                </template>
-                                <template v-else>{{ item.text }}</template>
+                            <li v-for="(item, index) in additionalInfo" :key="index">
+                                {{ item.body }}
 
-                                <template v-if="item.to || item.href">
+                                <template v-if="item.href">
                                     {{ ' ' }}
 
+                                    <!-- Internal Flare routes use the router -->
                                     <router-link
-                                        v-if="item.to"
-                                        :to="item.to"
+                                        v-if="item.href.startsWith('/')"
+                                        :to="item.href"
                                         custom
                                         v-slot="{ href }"
                                     >

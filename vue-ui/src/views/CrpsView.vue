@@ -25,86 +25,84 @@ import { ref, onMounted, onUnmounted, reactive } from "vue";
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
 import AdditionalInfoButton from '@/components/AdditionalInfoButton.vue';
 
-const graphItems = [
-    {
-        parts: [
-            { text: 'Observed Water and Air Temperatures:', bold: true },
-            { text: ' Hourly observations in Upper Laguna Madre are obtained from the' },
-        ],
-        linkText: 'South Bird Island TCOON station',
-        href: 'https://lighthouse.tamucc.edu/pq?_ga=2.37560803.210879303.1694296771-1722476858',
-    },
-    {
-        parts: [
-            { text: 'Predicted Air Temperatures:', bold: true },
-            { text: ' Air temperature predictions are obtained from the forecast grid corresponding to the Upper Laguna Madre area through' },
-        ],
-        linkText: 'NWS-NDFD',
-        href: 'https://digital.weather.gov/',
-    },
-    {
-        parts: [
-            { text: 'Predicted Water Temperatures:', bold: true },
-            { text: ' The Cool Turtle model development research team produces probabilistic water temperature predictions using an ensemble of machine learning models. Additional information about the model development and evaluation is available in the following publication:' },
-        ],
-        linkText: 'Machine Learning Uncertainty Quantification for Extreme Cold Water Events',
-        href: 'https://journals.ametsoc.org/view/journals/aies/5/3/AIES-D-25-0058.1.xml',
-    },
-    {
-        parts: [
-            { text: 'How the Ensemble Predictions are Displayed:', bold: true },
-            { text: ' Each graph presents the same ensemble of ML water temperature predictions in a different format.' },
-        ],
-    },
-    {
-        parts: [
-            { text: 'Central Forecast Graph:', bold: true },
-            { text: ' This graph displays the ensemble median as a single water temperature prediction. The median represents the middle of the ensemble predictions, with half of the predicted values above it and half below it.' },
-        ],
-    },
-    {
-        parts: [
-            { text: 'Fan Plot:', bold: true },
-            { text: ' This graph displays the median prediction and shaded percentile ranges. The 25th–75th percentile band shows the central portion of the ensemble, while the 5th–95th percentile band shows a broader range of possible outcomes.' },
-        ],
-    },
-    {
-        parts: [
-            { text: 'Box Plot:', bold: true },
-            { text: ' This graph displays selected ensemble percentiles at each forecast time, allowing users to examine the distribution and spread of the predicted water temperatures throughout the five-day forecast.' },
-        ],
-    },
+// left card items for the additional info section
+const dataOnThisGraph = [
+  {
+    header: 'Observed Water and Air Temperatures:',
+    body: 'Hourly observations in Upper Laguna Madre are obtained from the',
+    links: [
+      { text: 'South Bird Island TCOON station', href: 'https://lighthouse.tamucc.edu/pq?_ga=2.37560803.210879303.1694296771-1722476858'}
+    ],
+    bulletLinks: false // inline link
+  },
+  {
+    header: 'Predicted Air Temperatures:',
+    body: 'Air temperature predictions are obtained from the forecast grid corresponding to the Upper Laguna Madre area through',
+    links: [
+      { text: 'NWS-NDFD', href: 'https://digital.weather.gov/' }
+    ],
+    bulletLinks: false // inline link
+  },
+  {
+    header: 'Predicted Water Temperatures:',
+    body: 'The Cool Turtle model development research team produces probabilistic water temperature predictions using an ensemble of machine learning models. Additional information about the model development and evaluation is available in the following publication:',
+    links: [
+      { text: 'Machine Learning Uncertainty Quantification for Extreme Cold Water Events', href: 'https://journals.ametsoc.org/view/journals/aies/5/3/AIES-D-25-0058.1.xml' }
+    ],
+    bulletLinks: false // inline link
+  },
+  {
+    header: 'How the Ensemble Predictions are Displayed:',
+    body: 'Each graph presents the same ensemble of ML water temperature predictions in a different format'
+  },
+  {
+    header: 'Central Forecast Graph:',
+    body: 'This graph displays the ensemble median as a single water temperature prediction. The median represents the middle of the ensemble predictions, with half of the predicted values above it and half below it'
+  },
+  {
+    header: 'Fan Plot:',
+    body: 'This graph displays the median prediction and shaded percentile ranges. The 25th-75th percentile band shows the central portion of the ensemble, while the 5th-95th percentile band shows a broader range of possible outcomes'
+  },
+  {
+    header: 'Box Plot:',
+    body: 'This graph displays selected ensemble percentiles at each forecast time, allowing users to examine the distribution and spread of the predicted water temperatures throughout the five-day forecast'
+  }
 ];
 
-const additionalItems = [
-    {
-        text: 'Wind speed measurements and predictions (NWS-NDFD) for South Bird Island found',
-        linkText: 'here',
-        href: 'https://cbigrid.tamucc.edu/tpw/graph-only-wind.html',
-    },
-    {
-        text: 'Ensemble air temperature predictions for Laguna Madre from The Weather Company found',
-        linkText: 'here',
-        linkTarget: '_self',
-        to: '/air-temperature-ensemble',
-    },
-    {
-        text: 'AI water temperature prediction model performance charts found',
-        linkText: 'here',
-        href: 'https://lighthouse.tamucc.edu/supertool.php?stnid=013&elev=mwl&mode=nnwtp',
-    },
-    {
-        text: 'NOAA Sea Turtle Stranding and Salvage Network informational page found',
-        linkText: 'here',
-        href: 'https://www.fisheries.noaa.gov/national/marine-life-distress/sea-turtle-stranding-and-salvage-network',
-    },
-    {
-        text: 'Old version of ensemble water temperature (MRE) predictions found',
-        linkText: 'here',
-        linkTarget: '_self',
-        to: '/water-temperature-ensemble',
-    },
+// right card items for the additional info section
+const additionalInfo = [
+  {
+    body: 'Wind speed measurements and predictions (NWS-NDFD) for South Bird Island found',
+    linkText: 'here',
+    href: 'https://cbigrid.tamucc.edu/tpw/graph-only-wind.html',
+    linkTarget: '_blank' // open in a new tab
+  },
+  {
+    body: 'Ensemble air temperature predictions for Laguna Madre from The Weather Company found',
+    linkText: 'here',
+    href: '/air-temperature-ensemble',
+    linkTarget: '_self',
+  },
+  {
+    body: 'AI water temperature prediction model performance charts found',
+    linkText: 'here',
+    href: 'https://lighthouse.tamucc.edu/supertool.php?stnid=013&elev=mwl&mode=nnwtp',
+    linkTarget: '_blank' // open in a new tab
+  },
+  {
+    body: 'NOAA Sea Turtle Stranding and Salvage Network informational page found',
+    linkText: 'here',
+    href: 'https://www.fisheries.noaa.gov/national/marine-life-distress/sea-turtle-stranding-and-salvage-network',
+    linkTarget: '_blank' // open in a new tab
+  },
+  {
+    body: 'Old version of ensemble water temperature (MRE) predictions found',
+    linkText: 'here',
+    href: '/water-temperature-ensemble',
+    linkTarget: '_self'
+  }
 ];
+
 const missingDataWarningBanner = ref(MissingDataWarningBanner);
 const isSmallScreen = window.innerWidth <= 600;
 
@@ -1414,7 +1412,7 @@ onUnmounted(() => {
         </div>
     </section>
 
-    <AdditionalInfoButton :graph-items="graphItems" :additional-items="additionalItems" />
+    <AdditionalInfoButton :dataOnThisGraph="dataOnThisGraph" :additionalInfo="additionalInfo" />
 
     <!-- Footer -->
     <footer class="bg-navy-blue py-10 text-dark-text space-y-2">
