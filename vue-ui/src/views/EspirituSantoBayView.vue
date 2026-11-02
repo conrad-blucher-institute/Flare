@@ -27,7 +27,6 @@ const isSmallScreen = window.innerWidth <= 600;
 
 const csvURL = ref(`${window.location.origin}/flare/csv-data/Espiritu-Santo-Bay_Water-Temperature_120hrs.csv`);
 const showChartHelp = ref(false);
-const showInfoDrawer = ref(false);
 
 const chartOptions = ref({});
 const secondChartOptions = ref({});
@@ -53,16 +52,16 @@ const chartLineColors = {
   aransasWildlifeAir:   '#006837',
 };
 
-
+// additional info left card data
 const dataOnThisGraph = [
   {
     header: 'Hourly temperature observations:',
     body: 'Recent water and air temperature observations are obtained from four Texas Coastal Ocean Observation Network (TCOON) stations surrounding Espiritu Santo Bay:',
     links: [
-      { text: "Port O'Connor Station",           href: 'https://tidesandcurrents.noaa.gov/stationhome.html?id=8773701' },
-      { text: "Seadrift Station",                href: 'https://tidesandcurrents.noaa.gov/stationhome.html?id=8773037' },
-      { text: "Port Lavaca Station",             href: 'https://tidesandcurrents.noaa.gov/stationhome.html?id=8773259' },
-      { text: "Aransas Wildlife Refuge Station", href: 'https://tidesandcurrents.noaa.gov/stationhome.html?id=8774230' }
+      { text: "Port O'Connor Station",           href: 'https://tidesandcurrents.noaa.gov/stationhome.html?id=8773701', linkTarget: '_blank' },
+      { text: "Seadrift Station",                href: 'https://tidesandcurrents.noaa.gov/stationhome.html?id=8773037', linkTarget: '_blank' },
+      { text: "Port Lavaca Station",             href: 'https://tidesandcurrents.noaa.gov/stationhome.html?id=8773259', linkTarget: '_blank' },
+      { text: "Aransas Wildlife Refuge Station", href: 'https://tidesandcurrents.noaa.gov/stationhome.html?id=8774230', linkTarget: '_blank' }
     ],
     bulletLinks: true
   },
@@ -92,36 +91,40 @@ const dataOnThisGraph = [
   }
 ];
 
+// additional info right card data
 const additionalInfo = [
   {
     body: "Wind speed measurements and predictions (NWS-NDFD) for Port O'Connor (coming soon)",
-    linkText: '',
-    href: '',
-    linkTarget: '_blank'
+    links: [],
+    bulletLinks: false
   },
   {
     body: "Ensemble air temperature predictions from The Weather Company for Port O'Connor",
-    linkText: 'here',
-    href: 'https://cbigrid.tamucc.edu/tpw/ibm-charts.html?location=port-o%27connor',
-    linkTarget: '_blank'
+    links: [
+      { text: "here", href: 'https://cbigrid.tamucc.edu/tpw/ibm-charts.html?location=port-o%27connor', linkTarget: '_blank' }
+    ],
+    bulletLinks: false
   },
   {
     body: 'NOAA Sea Turtle Stranding and Salvage Network informational page',
-    linkText: 'here',
-    href: 'https://www.fisheries.noaa.gov/national/marine-life-distress/sea-turtle-stranding-and-salvage-network',
-    linkTarget: '_blank'
+    links: [
+      { text: 'here', href: 'https://www.fisheries.noaa.gov/national/marine-life-distress/sea-turtle-stranding-and-salvage-network', linkTarget: '_blank' }
+    ],
+    bulletLinks: false
   },
   {
     body: 'Mid-Coast Sea Turtle Rescue informational page',
-    linkText: 'here',
-    href: 'https://www.sabaypartnership.org/program/mid-coast-sea-turtle-rescue/',
-    linkTarget: '_blank'
+    links: [
+      { text: 'here', href: 'https://www.sabaypartnership.org/program/mid-coast-sea-turtle-rescue/', linkTarget: '_blank' }
+    ],
+    bulletLinks: false
   },
   {
     body: 'Additional locations for ensemble air temperature predictions from The Weather Company',
-    linkText: 'here',
-    href: 'https://cbigrid.tamucc.edu/tpw/map-index.html',
-    linkTarget: '_blank'
+    links: [
+      { text: 'here', href: 'https://cbigrid.tamucc.edu/tpw/map-index.html', linkTarget: '_blank' }
+    ],
+    bulletLinks: false
   }
 ];
 
