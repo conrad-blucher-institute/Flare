@@ -447,7 +447,8 @@ onMounted(() => {
     });
   };
   
-  loadCharts(); // initial load
+  // initial load
+  loadCharts();
 });
 </script>
 

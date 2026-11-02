@@ -487,8 +487,10 @@ onMounted(() => {
     });
   };
 
-  loadCharts(); // initial load
+  // initial load
+  loadCharts();
 });
+
 // Compile the correct chart options based on screen size
 chartOptions.value = reactive(buildChart(isSmallScreen));
 </script>

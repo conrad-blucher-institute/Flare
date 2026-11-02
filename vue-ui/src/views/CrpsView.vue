@@ -962,9 +962,6 @@ const parseCSV = (csvText) => {
   };
 }; // end parseRibbonCSV
 
-///Fetch and update chart data every 15 minutes
-let updateInterval;
-
 onMounted(() => {
   const loadCharts = () => {
     Promise.all([
@@ -978,7 +975,7 @@ onMounted(() => {
     });
   };
 
-  // Initial load
+  // initial load
   loadCharts();
 });
 </script>
