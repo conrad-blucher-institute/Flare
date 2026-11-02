@@ -353,8 +353,8 @@ const buildChart = (isSmallScreen, chartTitle) => {
   };
 }; // end buildChart 
 
-chartOptions.value = reactive(buildChart(isSmallScreen, "Water Temperature Predictions for Espiritu Santo Bay"));
-secondChartOptions.value = reactive(buildChart(isSmallScreen, "Water Temperature Predictions for Espiritu Santo Bay"));
+chartOptions.value = reactive(buildChart(isSmallScreen, "Water Temperature Predictions for Espiritu Santo Bay (ESB)"));
+secondChartOptions.value = reactive(buildChart(isSmallScreen, "Water Temperature Predictions for Espiritu Santo Bay (ESB)"));
 
 
 // Function to fetch and process CSV data
@@ -505,7 +505,7 @@ const fetchAndFilterData = async () => {
         }
       },
       {
-        name: "Espiritu Santo Bay Water Temperature Measurements",
+        name: "Estimated ESB Water Temperature Measurements",
         data: esbWaterMeasurementsFahrenheit,
         type: "line",
         color: chartLineColors.black,
@@ -517,7 +517,7 @@ const fetchAndFilterData = async () => {
         }
       },
       {
-        name: "Espiritu Santo Bay Air Temperature Measurements",
+        name: "Estimated ESB Air Temperature Measurements",
         data: esbAirMeasurementsFahrenheit,
         type: "line",
         color: chartLineColors.orange,
@@ -528,7 +528,7 @@ const fetchAndFilterData = async () => {
         }
       },
       {
-        name: "Espiritu Santo Bay Water Temperature Predictions",
+        name: "ESB Water Temperature Predictions",
         data: esbWaterPredictionsFahrenheit,
         type: "line",
         color: chartLineColors.black,
@@ -556,7 +556,7 @@ const fetchAndFilterData = async () => {
     // chart 2 options
     secondChartOptions.value.series = [
       {
-        name: "Espiritu Santo Bay Water Temperature Measurements",
+        name: "Estimated ESB Water Temperature Measurements",
         data: esbWaterMeasurementsFahrenheit,
         type: "line",
         color: chartLineColors.black, // solid black for ESB mean water measurements
@@ -567,7 +567,7 @@ const fetchAndFilterData = async () => {
         }
       },
       {
-        name: "Espiritu Santo Bay Air Temperature Measurements",
+        name: "Estimated ESB Air Temperature Measurements",
         data: esbAirMeasurementsFahrenheit,
         type: "line",
         color: chartLineColors.orange,  // solid orange for ESB mean air measurements
@@ -578,7 +578,7 @@ const fetchAndFilterData = async () => {
         }
       },
       {
-        name: "Espiritu Santo Bay Water Temperature Predictions",
+        name: "ESB Water Temperature Predictions",
         data: esbWaterPredictionsFahrenheit,
         type: "line",
         dashStyle: "Dash",
@@ -850,7 +850,7 @@ onMounted(() => {
 
               <p>
                 The blue colored solid lines show recent water temperature measurements from four locations
-                surrounding ESB, while the solid orange line show the average air temperature measurements
+                surrounding ESB, while the solid orange line shows the average air temperature measurements
                 across surrounding locations. The black dashed line shows the AI water temperature predictions
                 for ESB, and the orange dashed line shows the NWS-NDFD air temperature prediction for ESB.
                 The vertical “Now” line separates recent temperature measurements from future predictions.
