@@ -1060,9 +1060,6 @@ onMounted(() => {
           <a href="https://static1.squarespace.com/static/60ee26930d31b147a7fce6bc/t/6a863c88f67b6e4fcd91f5b3/1787182216275/Ayesha_Khan_Mar_18_TCRC_Workshop_+ESB_slides-2.pdf" target="_blank" class="hover:scale-110 transition-transform">
             <p>Information on ESB Model Development</p>
           </a>
-          <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
-            <p>Texas Parks & Wildlife</p>
-          </a>
           <a href="https://www.nps.gov/pais/learn/nature/stsr.htm" target="_blank" class="hover:scale-110 transition-transform">
             <p>NPS Sea Turtle Science and Recovery</p>
           </a>
