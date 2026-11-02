@@ -11,8 +11,8 @@ Usage:
   Import this component into the parent page and pass two arrays:
 
 	<AdditionalInfoButton
-		:dataOnThisGraph="dataOnThisGraph"
-		:additionalInfo="additionalInfo"
+		:data-on-this-graph="dataOnThisGraph"
+		:additional-info="additionalInfo"
 	/>
 
 Props:
