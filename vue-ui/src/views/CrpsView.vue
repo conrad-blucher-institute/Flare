@@ -15,8 +15,6 @@
 ======================================================= -->
 <script setup>
 import { Chart } from "highcharts-vue";
-import Highcharts from "highcharts";
-import HighchartsMore from "highcharts/highcharts-more";
 import "highcharts/modules/exporting";
 import "highcharts/modules/export-data";
 import "highcharts/modules/offline-exporting";
@@ -100,7 +98,7 @@ const additionalInfo = [
     bulletLinks: false
   },
   {
-    body: 'Old version of ensemble water temperature (MRE) predictions found',
+    body: 'Previous cold stunning ensemble (MRE) water temperature predictions found',
     links: [
       { text: 'here', href: '/water-temperature-ensemble', linkTarget: '_self' }
     ],

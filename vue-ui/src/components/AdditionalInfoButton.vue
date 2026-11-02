@@ -137,10 +137,8 @@ defineProps({
                                     <template v-if="!item.bulletLinks">
                                         <template v-for="(link, linkIndex) in item.links ?? []" :key="linkIndex">
                                             {{ linkIndex === 0 ? ' ' : ', ' }}
-                                            <router-link v-if="isInternalLink(link)" :to="link.href" custom v-slot="{ href }">
-                                                <a :href="href" :target="getLinkTarget(link)" rel="noopener noreferrer"
-                                                class="underline text-blue-600 hover:text-blue-800">{{ link.text }}</a>
-                                            </router-link>
+                                            <router-link v-if="isInternalLink(link)" :to="link.href" :target="getLinkTarget(link)" rel="noopener noreferrer"
+                                            class="underline text-blue-600 hover:text-blue-800">{{ link.text }}</router-link>
                                             <a v-else :href="link.href" :target="getLinkTarget(link)" rel="noopener noreferrer"
                                             class="underline text-blue-600 hover:text-blue-800">{{ link.text }}</a>
                                         </template>
@@ -151,10 +149,8 @@ defineProps({
                                 <ul v-if="item.bulletLinks && item.links?.length" class="list-disc pl-8 mt-1 space-y-1">
                                     <li v-for="(link, linkIndex) in item.links" :key="linkIndex">
 
-                                        <router-link v-if="isInternalLink(link)" :to="link.href" custom v-slot="{ href }">
-                                            <a :href="href" :target="getLinkTarget(link)" rel="noopener noreferrer"
-                                            class="underline text-blue-600 hover:text-blue-800">{{ link.text }}</a>
-                                        </router-link>
+                                        <router-link v-if="isInternalLink(link)" :to="link.href" :target="getLinkTarget(link)" rel="noopener noreferrer"
+                                        class="underline text-blue-600 hover:text-blue-800">{{ link.text }}</router-link>
 
                                         <a v-else :href="link.href" :target="getLinkTarget(link)" rel="noopener noreferrer"
                                         class="underline text-blue-600 hover:text-blue-800">{{ link.text }}</a>
@@ -182,10 +178,8 @@ defineProps({
                                 <template v-if="!item.bulletLinks">
                                     <template v-for="(link, linkIndex) in item.links ?? []" :key="linkIndex">
                                         {{ linkIndex === 0 ? ' ' : ', ' }}
-                                        <router-link v-if="isInternalLink(link)" :to="link.href" custom v-slot="{ href }">
-                                            <a :href="href" :target="getLinkTarget(link)" rel="noopener noreferrer"
-                                            class="underline text-blue-600 hover:text-blue-800">{{ link.text }}</a>
-                                        </router-link>
+                                        <router-link v-if="isInternalLink(link)" :to="link.href" :target="getLinkTarget(link)" rel="noopener noreferrer"
+                                        class="underline text-blue-600 hover:text-blue-800">{{ link.text }}</router-link>
                                         <a v-else :href="link.href" :target="getLinkTarget(link)" rel="noopener noreferrer"
                                         class="underline text-blue-600 hover:text-blue-800">{{ link.text }}</a>
                                     </template>
@@ -194,10 +188,8 @@ defineProps({
                                 <!-- Bulleted links, nested under this bullet -->
                                 <ul v-if="item.bulletLinks && item.links?.length" class="list-[circle] pl-6 mt-1 space-y-1">
                                     <li v-for="(link, linkIndex) in item.links" :key="linkIndex">
-                                        <router-link v-if="isInternalLink(link)" :to="link.href" custom v-slot="{ href }">
-                                            <a :href="href" :target="getLinkTarget(link)" rel="noopener noreferrer"
-                                            class="underline text-blue-600 hover:text-blue-800">{{ link.text }}</a>
-                                        </router-link>
+                                        <router-link v-if="isInternalLink(link)" :to="link.href" :target="getLinkTarget(link)" rel="noopener noreferrer"
+                                        class="underline text-blue-600 hover:text-blue-800">{{ link.text }}</router-link>
                                         <a v-else :href="link.href" :target="getLinkTarget(link)" rel="noopener noreferrer"
                                         class="underline text-blue-600 hover:text-blue-800">{{ link.text }}</a>
                                     </li>
