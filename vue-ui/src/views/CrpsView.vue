@@ -15,6 +15,8 @@
 ======================================================= -->
 <script setup>
 import { Chart } from "highcharts-vue";
+import Highcharts from "highcharts";                      // do not remove
+import HighchartsMore from "highcharts/highcharts-more";  // do not remove
 import "highcharts/modules/exporting";
 import "highcharts/modules/export-data";
 import "highcharts/modules/offline-exporting";
