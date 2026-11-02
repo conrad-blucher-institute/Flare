@@ -23,13 +23,13 @@ import { ref, onMounted, onUnmounted, reactive } from "vue";
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
 import AdditionalInfoButton from '@/components/AdditionalInfoButton.vue';
 
-// left card items for the additional info section
+// additional info left card data
 const dataOnThisGraph = [
   {
     header: 'Observed Water and Air Temperatures:',
     body: 'Hourly observations in Upper Laguna Madre are obtained from the',
     links: [
-      { text: 'South Bird Island TCOON station', href: 'https://lighthouse.tamucc.edu/pq?_ga=2.37560803.210879303.1694296771-1722476858'}
+      { text: 'South Bird Island TCOON station', href: 'https://lighthouse.tamucc.edu/pq'}
     ],
     bulletLinks: false
   },
@@ -67,7 +67,7 @@ const dataOnThisGraph = [
   }
 ];
 
-// right card items for the additional info section
+// additional info right card data
 const additionalInfo = [
   {
     body: 'Wind speed measurements and predictions (NWS-NDFD) for South Bird Island found',

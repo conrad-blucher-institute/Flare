@@ -31,7 +31,6 @@ const showChartHelp = ref(false);
 const chartOptions = ref({});
 const secondChartOptions = ref({});
 
-
 const chartLineColors = {
   // black for ESB mean water measurements and ESB water predictions
   black: '#000000',
