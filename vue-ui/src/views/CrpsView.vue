@@ -1388,6 +1388,26 @@ onMounted(() => {
 
   <!-- Footer -->
   <footer class="bg-navy-blue py-10 text-dark-text space-y-2">
+    <!-- footer links -->
+    <div class="flex flex-col justify-center items-center text-white text-sm lg:text-lg">
+      <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0173920" target="_blank" class="hover:scale-110 transition-transform">
+        <p>PLOS One: Publication Defining Cold Stunning Threshold</p>
+      </a>
+      <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
+        <p>NPS Sea Turtle Science and Recovery</p>
+      </a>
+      <a href="https://doi.org/10.1175/AIES-D-25-0058.1" target="_blank" class="hover:scale-110 transition-transform">
+        <p>Published Scientific Paper On New Laguna Madre ML-Ensemble Water Temperature Prediction Model</p>
+      </a>
+      <a href="https://www.coastaldynamicslab.org/water-temperature-predictionse" target="_blank" class="hover:scale-110 transition-transform">
+        <p>TAMUCC CBI Water Temperature Predictions Reports</p>
+      </a>
+      <a href="https://www.coastaldynamicslab.org/water-temperature-cold-stunning-predictions" target="_blank" class="hover:scale-110 transition-transform">
+        <p>Cold-Stunning Event Research Information Page</p>
+      </a>
+    </div> <!-- end footer links -->
+
+    <!-- stakeholder section -->
     <div class="mx-auto space-y-8 p-1 lg:p-4">
       <!-- Row 1 -->
       <div class="flex flex-wrap justify-center items-center gap-8 lg:gap-10">
@@ -1449,9 +1469,8 @@ onMounted(() => {
         <a href="https://ccme.famu.edu/" target="_blank" rel="noopener noreferrer" class="hover:scale-110 transition-transform">
           <img src="@/assets/images/CCME-Logo.png" alt="Florida A&M University Logo" class="max-w-[80px] lg:max-w-[150px]">
         </a>
-      </div>
-    </div>
-    <p class="text-center text-sm text-light-text">(Click on the logos to visit each contributor's website)</p>
+      </div> <!-- end row 2 -->
+    </div> <!-- end stakeholders section-->
   </footer>
 </template>
 
