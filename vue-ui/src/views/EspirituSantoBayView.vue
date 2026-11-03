@@ -834,10 +834,10 @@ onMounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Shows recent temperature measurements from multiple locations surrounding Espiritu Santo Bay (ESB),
-                alongside AI water temperature and NWS-NDFD air temperature forecasts for the ESB area.
-                This allows users to compare nearby observed conditions with the temperatures
-                predicted for ESB over the next five days.
+                Shows recent temperature measurements from <strong>multiple locations surrounding Espiritu Santo Bay (ESB)</strong>,
+                alongside <strong>AI water temperature</strong> and <i>National Weather Service National Digital Forecast Database (NWS-NDFD) </i> 
+                <strong>air temperature predictions</strong> for the ESB area. This allows users to compare nearby observed conditions with
+                the temperatures predicted for ESB over the next five days.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -848,13 +848,29 @@ onMounted(() => {
                 How to Read
               </h3>
 
-              <p>
-                The blue colored solid lines show recent water temperature measurements from four locations
-                surrounding ESB, while the solid orange line shows the average air temperature measurements
-                across surrounding locations. The black dashed line shows the AI water temperature predictions
-                for ESB, and the orange dashed line shows the NWS-NDFD air temperature prediction for ESB.
-                The vertical “Now” line separates recent temperature measurements from future predictions.
-                Additional air temperature measurements, in green, can be displayed by clicking on them using the graph legend.
+              <p class="leading-relaxed">
+                The <strong>blue colored solid lines</strong> show <strong>recent water temperature measurements</strong> 
+                from <i>four locations surrounding ESB</i>, while the <strong>solid orange line</strong> shows the 
+                <strong>estimated air temperature measurements</strong> across <i>surrounding locations</i>.
+              </p>
+
+              <br>
+
+              <p class="leading-relaxed">
+                The <strong>black dashed line</strong> shows the <strong>AI water temperature predictions for ESB</strong>,
+                and the <strong>orange dashed line</strong> shows the <i>NWS-NDFD</i> <strong>air temperature predictions</strong> for ESB.
+              </p>
+
+              <br>
+
+              <p class="leading-relaxed">
+                The <strong>vertical "Now" line</strong> separates <i>recent temperature measurements</i> from <i>future predictions</i>.
+              </p>
+
+              <br>
+
+              <p class="leading-relaxed">
+                Additional air temperature measurements, in orange, can be displayed by clicking on them using the graph legend.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -866,9 +882,9 @@ onMounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Best for comparing recent water temperature conditions across locations surrounding ESB
-                and tracking whether the predicted water temperature approaches, crosses, or
-                remains below critical cold-stunning thresholds.
+                Best for comparing <strong>recent water temperature conditions</strong> <i>across locations surrounding ESB</i>
+                and tracking whether the <strong>predicted water temperature</strong> <i>approaches, crosses, or remains
+                below</i> critical <strong>cold-stunning thresholds</strong>.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -880,10 +896,14 @@ onMounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Because no temperature sensors are located within ESB, the measurements shown are derived
-                from surrounding locations and may not fully capture localized conditions within the bay.
-                This forecast shows only one possible outcome and does not display the uncertainty 
-                of the AI water temperature predictions.
+                Because <strong>no temperature sensors</strong> are located within <strong>ESB</strong>, the measurements shown are derived
+                <i>from surrounding locations</i> and may not <i>fully</i> capture localized conditions within the bay.
+              </p>
+              
+              <br>
+
+              <p class="leading-relaxed">
+                This graph shows only <i>one</i> possible outcome and <i>does not display the uncertainty</i> of the AI water temperature predictions.
               </p>
             </div>
           </div>
@@ -917,10 +937,10 @@ onMounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Shows averaged recent water and air temperature measurements from multiple locations surrounding
-                Espiritu Santo Bay (ESB), alongside AI water temperature and NWS-NDFD air temperature
-                forecasts for the ESB area. This provides a simplified view of recent representative
-                conditions of ESB with the temperatures predicted for ESB over the next five days.
+                Shows recent <i>estimated</i> water and air temperature measurements from <i>multiple locations surrounding ESB</i>,
+                alongside <strong>AI water temperature</strong> and <i>NWS-NDFD</i> <strong>air temperature predictions</strong> for the ESB area.
+                This provides a simplified view of recent representative (or estimated) conditions of ESB with the temperatures
+                predicted for ESB over the next five days.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -931,11 +951,22 @@ onMounted(() => {
                 How to Read
               </h3>
 
-              <p>
-                The solid black and orange lines show the average recent water and air temperature measurements,
-                respectively, from locations surrounding ESB. The dashed black and orange lines show the AI water
-                temperature and NWS-NDFD air temperature predictions, respectively, for ESB. The vertical “Now” line
-                separates recent temperature measurements from future predictions.
+              <p class="leading-relaxed">
+                The <strong>solid black</strong> and <strong>orange lines</strong> show the 
+                <strong>estimated recent water and air temperature measurements</strong>, respectively, from <i>locations surrounding ESB</i>.
+              </p>
+
+              <br>
+
+              <p class="leading-relaxed">
+                The <strong>dashed black</strong> and <strong>orange lines</strong> show the <strong>AI water temperature</strong>
+                and <i>NWS-NDFD</i> <strong>air temperature predictions</strong>, respectively, for ESB.
+              </p>
+
+              <br>
+
+              <p class="leading-relaxed">
+                The <strong>vertical "Now" line</strong> separates <i>recent temperature measurements</i> from <i>future predictions</i>.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -947,9 +978,9 @@ onMounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Best for viewing a simplified summary of recent temperature conditions that are representative
-                of ESB and tracking whether the predicted water temperature approaches, crosses, or remains below 
-                critical cold-stunning thresholds.
+                Best for viewing a <strong>simplified summary</strong> of <strong>recent temperature conditions</strong> that are 
+                <strong>representative</strong> of ESB and tracking whether the <strong>predicted water temperature</strong> <i>approaches, 
+                crosses, or remains below</i> critical <strong>cold-stunning thresholds</strong>.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -961,10 +992,20 @@ onMounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Because no temperature sensors are located within ESB, the measurements shown are derived from surrounding
-                locations and may not fully capture localized conditions within the bay. This forecast shows only one possible
-                outcome and does not display the uncertainty of the AI water temperature predictions.
-                Refer to the multi-location graph to view measurements from each surrounding location separately.
+                Because <strong>no temperature sensors</strong> are located within <strong>ESB</strong>, the measurements shown are derived
+                <i>from surrounding locations</i> and may not <i>fully</i> capture localized conditions within the bay.
+              </p>
+
+              <br>
+
+              <p class="leading-relaxed">
+                This graph shows only <i>one</i> possible outcome and <i>does not display the uncertainty</i> of the AI water temperature predictions.
+              </p>
+
+              <br>
+
+              <p class="leading-relaxed">
+                Refer to the <strong>multi-location</strong> graph (above) to view measurements from each surrounding location separately.
               </p>
             </div>
           </div>
@@ -1068,6 +1109,9 @@ onMounted(() => {
           </a>
           <a href="https://www.coastaldynamicslab.org/water-temperature-predictions" target="_blank" class="hover:scale-110 transition-transform">
             <p>TAMUCC CBI Water Temperature Predictions Reports</p>
+          </a>
+          <a href="https://www.coastaldynamicslab.org/water-temperature-cold-stunning-predictions" target="_blank" class="hover:scale-110 transition-transform">
+            <p>Cold-Stunning Event Research Information Page</p>
           </a>
         </div>
 
