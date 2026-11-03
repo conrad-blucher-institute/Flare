@@ -1042,19 +1042,18 @@ onMounted(() => {
 
           <p class="text-base lg:text-xl text-dark-text mb-4">
             Espiritu Santo Bay is a shallow coastal system connected to San Antonio Bay and the Gulf. 
-            During the cold-front season, typically November through March, its shallow waters can cool 
-            rapidly and place green sea turtles and other marine life at risk. When water temperatures approach 
-            or fall below 8°C, green sea turtles may become cold-stunned; leaving them weak, lethargic, 
-            and vulnerable to prolonged cold exposure, vessel strikes, and predation.
+            During the cold-front season, typically November through March, its shallow waters can cool rapidly 
+            and place green sea turtles and other marine life at risk. When water temperatures approach or fall below 8°C, 
+            green sea turtles may become cold-stunned; leaving them weak, lethargic, and vulnerable to prolonged 
+            cold exposure, vessel strikes, and predation.
           </p>
 
           <p class="text-base lg:text-xl text-dark-text mb-4">
-            Preparing for these events requires time to organize volunteers, deploy rescue boats, 
-            coordinate field operations, and arrange transportation to rehabilitation facilities. 
-            The Espiritu Santo Bay water temperature model was developed to provide advance guidance about 
-            when hazardous water temperatures may occur. It produces water temperature predictions up to 120 hours, 
-            or five days, into the future, helping responders and other stakeholders anticipate the possible onset, 
-            severity, and duration of cold-water conditions.
+            Preparing for these events requires time to organize volunteers, deploy rescue boats, coordinate field operations, 
+            and arrange transportation to rehabilitation facilities. The Espiritu Santo Bay water temperature model was 
+            developed to provide advance guidance about when hazardous water temperatures may occur. It produces water 
+            temperature predictions up to 120 hours, or five days, into the future, helping responders and other stakeholders 
+            anticipate the possible onset, severity, and duration of cold-water conditions.
           </p>
 
           <h3 class="text-lg lg:text-2xl font-bold text-dark-text mt-6 mb-3">
@@ -1062,11 +1061,10 @@ onMounted(() => {
           </h3>
 
           <p class="text-base lg:text-xl text-dark-text mb-4">
-            By providing several days of advance notice, the model can help sea turtle responders
-            determine when to increase monitoring, begin coordinating personnel and equipment, prepare vessels,
-            and plan the transportation and rehabilitation of recovered turtles. 
-            The predictions may also support broader coordination among organizations whose environmental, 
-            economic, or recreational activities could be affected by extreme cold conditions in and around the bay.
+            By providing several days of advance notice, the model can help sea turtle responders determine when 
+            to increase monitoring, begin coordinating personnel and equipment, prepare vessels, and plan the transportation
+            and rehabilitation of recovered turtles. The predictions may also support broader coordination among organizations
+            whose environmental, economic, or recreational activities could be affected by extreme cold conditions in and around the bay.
           </p>
 
           <h3 class="text-lg lg:text-2xl font-bold text-dark-text mt-6 mb-3">
@@ -1075,18 +1073,17 @@ onMounted(() => {
 
           <p class="text-base lg:text-xl text-dark-text mb-4">
             The Espiritu Santo Bay model was developed through the Coastal Dynamics Lab at Texas A&M University-Corpus Christi. 
-            Hector Marrero-Colominas and Ayesha Khan led the model's development, with assistance from 
-            Drs. Miranda White and Philippe Tissot. The model is currently maintained by the CDL Semaphore Team.
+            Hector Marrero-Colominas and Ayesha Khan led the model's development, with assistance from Drs. Miranda White and Philippe Tissot. 
+            The model is currently maintained by the CDL Semaphore Team.
           </p>
 
           <p class="text-base lg:text-xl text-dark-text mb-4">
             Foundational field observations were made possible through collaboration with 
-            <strong>Mid-Coast Sea Turtle Rescue</strong> and <strong>NOAA Fisheries</strong>. 
-            These efforts included multiple boat trips to deploy air
-            and water temperature sensors within Espiritu Santo Bay, providing preliminary measurements that 
-            informed the design of the model. The resulting prediction system reflects a collaborative effort among 
-            university AI researchers, network partners, sea turtle responders, and other coastal stakeholders working 
-            to improve preparation for cold-stunning events.
+            <strong>Mid-Coast Sea Turtle Rescue</strong> and <strong>NOAA Fisheries</strong>. These efforts included multiple boat trips to 
+            deploy air and water temperature sensors within Espiritu Santo Bay, providing preliminary measurements 
+            that informed the design of the model. The resulting prediction system reflects a collaborative effort 
+            among university AI researchers, network partners, sea turtle responders, and other coastal stakeholders 
+            working to improve preparation for cold-stunning events.
           </p>
         </div>
     </section>
@@ -1142,7 +1139,6 @@ onMounted(() => {
             <img src="@/assets/images/NOAA_fisheries_logo.png" alt="NOAA Fisheries Logo" class="max-w-[100px] lg:max-w-[250px]">
           </a>
         </div>
-        <p class="text-center text-sm text-light-text">(Click on the logos to visit each contributor's website)</p>
       </footer>
 </template>
 
