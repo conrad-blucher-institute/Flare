@@ -509,8 +509,8 @@ const fetchAndFilterData = async () => {
         data: esbWaterMeasurementsFahrenheit,
         type: "line",
         color: chartLineColors.black,
-        lineWidth: 3, // thicker line for ESB water measurements
-        zIndex: 1,
+        lineWidth: 4, // thicker line for ESB water measurements
+        zIndex: 3,
         visible: false, // hidden until the user clicks it in the legend
         marker: {
           enabled: false
@@ -521,8 +521,8 @@ const fetchAndFilterData = async () => {
         data: esbAirMeasurementsFahrenheit,
         type: "line",
         color: chartLineColors.orange,
-        lineWidth: 3, // thicker line for ESB air measurements
-        zIndex: 1,
+        lineWidth: 4, // thicker line for ESB air measurements
+        zIndex: 3,
         marker: {
           enabled: false
         }
