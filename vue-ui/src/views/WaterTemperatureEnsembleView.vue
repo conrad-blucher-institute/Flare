@@ -611,6 +611,7 @@ chartOptions.value = reactive(buildChart(isSmallScreen));
           <img src="@/assets/images/TWC-Logo.png" alt="The Weather Company Logo" class="w-[100px] h-[100px] lg:w-[200px] lg:h-[200px]">
         </a>
       </div>
-      <p class="mt-4 text-sm text-gray-300">&copy; 2024 Flare. All rights reserved.</p>
+      <p class="mt-4 text-sm text-gray-300">&copy; 2026 Flare. All rights reserved.</p>
+      <br><br> <!-- space after logos and bottom of page -->
     </footer>
 </template>

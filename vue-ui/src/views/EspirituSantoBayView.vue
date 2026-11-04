@@ -1136,7 +1136,8 @@ onMounted(() => {
             <img src="@/assets/images/NOAA_fisheries_logo.png" alt="NOAA Fisheries Logo" class="max-w-[100px] lg:max-w-[250px]">
           </a>
         </div>
-      </footer>
+      <br><br> <!-- space after logos and bottom of page -->
+    </footer>
 </template>
 
 <style scoped>

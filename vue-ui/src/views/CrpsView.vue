@@ -1523,6 +1523,7 @@ onMounted(() => {
         </a>
       </div> <!-- end row 2 -->
     </div> <!-- end stakeholders section-->
+    <br><br> <!-- space after logos and bottom of page -->
   </footer>
 </template>
 
