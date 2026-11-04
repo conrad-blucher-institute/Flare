@@ -47,7 +47,7 @@ const dataOnThisGraph = [
     header: 'Predicted Water Temperatures:',
     body: 'The Cool Turtle model development research team produces probabilistic water temperature predictions using an ensemble of machine learning models. Additional information about the model development and evaluation is available in the following publication:',
     links: [
-      { text: 'Machine Learning Uncertainty Quantification for Extreme Cold Water Events.', href: 'https://ams.confex.com/ams/106ANNUAL/meetingapp.cgi/Paper/474540', linkTarget: '_blank' }
+      { text: 'Machine Learning Uncertainty Quantification for Extreme Cold Water Events.', href: 'https://journals.ametsoc.org/view/journals/aies/5/3/AIES-D-25-0058.1.xml', linkTarget: '_blank' }
     ],
     bulletLinks: false
   },
