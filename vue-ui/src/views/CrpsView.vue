@@ -1091,10 +1091,10 @@ onMounted(() => {
             </h3>
 
             <p class="leading-relaxed">
-              Shows recent temperature measurements alongside a central (median) AI water temperature
-              forecast and air temperature forecasts from The Weather Company (TWC) and 
-              National Weather Service National Digital Forecast Database (NWS-NDFD). 
-              This provides a simple view of how water temperatures are expected to change over the next five days.
+              Shows recent temperature measurements alongside <strong>central</strong> <i>(median)</i> <strong>AI water temperature predictions</strong>
+              and <strong>air temperature predictions</strong> from <i>The Weather Company (TWC)</i> and 
+              <i>National Weather Service National Digital Forecast Database (NWS-NDFD)</i>. This provides a simple view of 
+              how water temperatures are expected to change over the next five days.
             </p>
           </div>
           <hr class="border-t border-dark-text">
@@ -1106,9 +1106,14 @@ onMounted(() => {
             </h3>
 
             <p class="leading-relaxed">
-              The black dashed line shows the central water temperature forecast from the AI ensemble model predictions.
-              This line represents the median, or middle, of the possible predictions. The vertical “Now” line separates
-              recent temperature measurements from future predictions. 
+              The <strong>black dashed line</strong> shows the <strong>central water temperature predictions</strong> from the
+              AI ensemble model predictions. This line represents the <i>median</i>, or middle, of the possible predictions. 
+            </p>
+
+            <br>
+
+            <p class="leading-relaxed">
+              The <strong>vertical "Now" line</strong> separates <i>recent temperature measurements</i> from <i>future predictions</i>. 
             </p>
           </div>
           <hr class="border-t border-dark-text">
@@ -1120,8 +1125,8 @@ onMounted(() => {
             </h3>
 
             <p class="leading-relaxed">
-              Best for tracking the predicted water temperature trend and observing whether it approaches,
-              crosses, or remains below critical cold-stunning thresholds.
+              Best for tracking the <strong>predicted water temperature trend</strong> and observing whether it
+              <i>approaches, crosses, or remains below</i> critical <strong>cold-stunning thresholds</strong>.
             </p>
           </div>
           <hr class="border-t border-dark-text">
@@ -1131,14 +1136,17 @@ onMounted(() => {
             <h3 class="text-lg lg:text-xl font-bold mb-2">
               Keep in Mind
             </h3>
+            
+            <p class="leading-relaxed">
+              This graph shows only <i>one</i> possible outcome and <i>does not display the uncertainty</i> of the AI water temperature predictions.
+            </p>
+
+            <br>
 
             <p class="leading-relaxed">
-              This forecast shows only one possible outcome and does not display the uncertainty of the AI water
-              temperature predictions. Use the Fan Plot or Percentile Box Plot to see the range of water
-              temperatures predicted by the AI ensemble model.
+              Use the <strong>Fan Plot</strong> or <strong>Percentile Box Plot</strong> to see the range of water temperatures predicted by the AI ensemble model.
             </p>
           </div>
-
         </div> <!-- End Scrollable Content -->
       </div> <!-- End Graph Information -->
     </section> <!-- End First Chart Section -->
@@ -1171,10 +1179,11 @@ onMounted(() => {
               Purpose
             </h3>
 
-            <p class="leading-relaxed mb-3">
-              Shows recent temperature measurements alongside the central (median) AI water temperature forecast,
-              a range of possible water temperature outcomes, and air temperature forecasts from TWC and NWS-NDFD.
-              This provides information about the central predicted trend with forecast uncertainty over the next five days.
+            <p class="leading-relaxed">
+              Shows recent temperature measurements alongside the <strong>central</strong> <i>(median)</i> <strong>AI water temperature predictions</strong>,
+              a <strong>range of possible future water temperature outcomes</strong>, and <strong>air temperature predictions</strong> from
+              <i>TWC</i> and <i>NWS-NDFD</i>. This provides information about the <strong>central</strong> predicted trend
+              with <strong>predictive uncertainty</strong> over the next five days.
             </p>
           </div>
           <hr class="border-t border-dark-text">
@@ -1185,12 +1194,22 @@ onMounted(() => {
               How to Read
             </h3>
 
-            <p class="leading-relaxed mb-3">
-              The black dashed line shows the central, or median, water temperature forecast.
-              The darker shaded area (25th [lower temperature] - 75th [higher temperature] percentile range)
-              shows the most likely range, containing the middle 50% of AI water temperature predictions.
-              The lighter shaded area (5th [lower temperature] - 95th [higher temperature] percentile range])
-              shows a broader range of less likely but possible temperatures, containing 90% of AI water temperature predictions.
+            <p class="leading-relaxed">
+              The <strong>black dashed line</strong> shows the <strong>central</strong>, or <i>median</i>, <strong>water temperature predictions</strong>.
+            </p>
+
+            <br>
+
+            <p class="leading-relaxed">
+              The <strong>darker shaded area</strong> <i>(25th [lower temperature] - 75th [higher temperature] percentile range)</i>
+              shows the <strong>central 50%</strong> of AI water temperature predictions.
+            </p>
+
+            <br>
+
+            <p class="leading-relaxed">
+              The <strong>lighter shaded area</strong> <i>(5th [lower temperature] - 95th [higher temperature] percentile range])</i>
+              shows a <strong>broader range of possible temperatures</strong>, containing <strong>90%</strong> of AI water temperature predictions.
             </p>
           </div>
           <hr class="border-t border-dark-text">
@@ -1202,9 +1221,16 @@ onMounted(() => {
             </h3>
 
             <p class="leading-relaxed">
-              Look at where the central forecast and shaded ranges fall relative to critical cold-stunning thresholds.
-              Also watch how the shaded ranges widen or narrow over time. Wider ranges indicate greater predictive uncertainty,
-              while narrower ranges indicate greater confidence on future water temperatures.
+              Look at where the <strong>central prediction</strong> and <strong>shaded ranges fall</strong>
+              relative to critical cold-stunning <strong>thresholds</strong>.
+            </p>
+
+            <br>
+
+            <p class="leading-relaxed">
+              Also watch how the <strong>shaded ranges widen or narrow</strong> <i>over time</i>. 
+              <strong>Wider ranges</strong> indicate <i>greater predictive uncertainty</i>,
+              while <strong>narrower ranges</strong> indicate <i>greater confidence of future water temperatures</i>.
             </p>
           </div>
           <hr class="border-t border-dark-text">
@@ -1216,7 +1242,8 @@ onMounted(() => {
             </h3>
 
             <p class="leading-relaxed">
-              Actual water temperatures may occur anywhere within or occasionally outside the displayed ranges (about 10% of the time).
+              <strong>Actual water temperatures</strong> may <strong>occur anywhere within</strong>
+              or <strong>occasionally outside the displayed ranges</strong> (about 10% of the time).
             </p>
           </div>
         </div>
@@ -1254,8 +1281,8 @@ onMounted(() => {
             </h3>
 
             <p class="leading-relaxed">
-              Summarizes how possible water temperature predictions are distributed at each forecast time,
-              making it easier to compare the central forecast and forecast uncertainty across the next five days.
+              Summarizes how possible water temperature predictions are <strong>distributed at each selected forecast time</strong>,
+              making it easier to compare the <strong>central predictions</strong> and predictive uncertainty across the next five days.
             </p>
           </div>
           <hr class="border-t border-dark-text">
@@ -1267,10 +1294,26 @@ onMounted(() => {
             </h3>
 
             <p class="leading-relaxed">
-              The center blue line shows the central, or median, water temperature forecast.
-              The box (25th-75th percentiles) shows the most likely range, containing the middle 50% of AI water temperature predictions.
-              The whiskers (5th-95th percentiles) show a wider range of possible temperatures, containing 90% of predictions.
-              The points beyond the whiskers show the minimum and maximum predicted temperatures.
+              The <strong>center blue line</strong> shows the <strong>central</strong>, or <i>median</i>, <strong>water temperature predictions</strong>.
+            </p>
+
+            <br>
+
+            <p class="leading-relaxed">
+              The <strong>box</strong> <i>(25th-75th percentiles)</i> shows the <strong>central 50%</strong> of AI water temperature predictions.
+            </p>
+
+            <br>
+
+            <p class="leading-relaxed">
+              The <strong>whiskers</strong> <i>(5th-95th percentiles)</i> show a <strong>wider range of possible temperatures</strong>, 
+              containing <strong>90%</strong> of the predictions.
+            </p>
+
+            <br>
+
+            <p class="leading-relaxed">
+              The <strong>points beyond the whiskers</strong> show the <strong>minimum</strong> and <strong>maximum predicted temperatures</strong>.
             </p>
           </div>
           <hr class="border-t border-dark-text">
@@ -1282,9 +1325,14 @@ onMounted(() => {
             </h3>
 
             <p class="leading-relaxed">
-              Compare the central forecast and ranges with critical cold-stunning thresholds.
-              Taller boxes and longer whiskers indicate greater predictive uncertainty,
-              while shorter ones indicate greater confidence on future water temperatures.
+              Compare the <strong>central prediction and ranges</strong> with critical cold-stunning thresholds.
+            </p>
+
+            <br>
+
+            <p class="leading-relaxed">
+              <strong>Taller boxes and longer whiskers</strong> indicate <i>greater predictive uncertainty</i>, while <strong>shorter boxes</strong> 
+              indicate <strong><i>greater confidence of future water temperatures</i></strong>.
             </p>
           </div>
           <hr class="border-t border-dark-text">
@@ -1296,12 +1344,12 @@ onMounted(() => {
             </h3>
 
             <p class="leading-relaxed">
-              The minimum and maximum points represent the most extreme AI predictions and may be influenced by only
-              a small number of predictions and are driven also by future air temperature conditions.
+              The minimum and maximum points represent the <strong>most extreme AI predictions</strong>. 
+              These may be <i>influenced</i> by <strong>only a small number of predictions</strong> and are also <i>driven</i> by 
+              <strong><i>air temperature predictions</i></strong>. 
               Interpret these points alongside the ranges displayed by the boxes rather than on their own.
             </p>
           </div>
-
         </div>
       </div>                              
     </section> 
@@ -1333,43 +1381,45 @@ onMounted(() => {
         Laguna Madre AI Ensemble Water Temperature Model
       </h2>
       <p class="text-md lg:text-xl text-dark-text mb-4">
-        The Laguna Madre is a shallow, hypersaline lagoon where strong winter cold fronts can lower air temperatures
-        by more than 10°C in less than 24 hours. These rapid changes can cause substantial declines in water temperature, 
-        creating hazardous conditions for marine life. Past extreme cold-water events have resulted in large-scale fish
-        kills and the cold-stunning of sea turtles.
+        The Laguna Madre is a shallow, hypersaline lagoon where strong winter cold fronts can lower air temperatures by more
+        than 10°C in less than 24 hours. These rapid changes can cause substantial declines in water temperature, 
+        creating hazardous conditions for marine life. Past extreme cold-water events have resulted in 
+        large-scale fish kills and the cold-stunning of sea turtles.
       </p>
       <p class="text-md lg:text-xl text-dark-text mb-4">
         During these events, members of the Texas Marine Coldwater Response Collaboration (TCRC)—including government agencies,
-        researchers, private-sector organizations, and other coastal stakeholders—coordinate preparations and response activities. 
-        These efforts may include mobilizing sea turtle rescue resources and voluntarily modifying or suspending activities such as 
-        fishing, navigation, and dredging to reduce additional risks to marine life.
+        researchers, private-sector organizations, and other coastal stakeholders—coordinate preparations and response activities.
+        These efforts may include mobilizing sea turtle rescue resources and voluntarily modifying or suspending activities such
+        as fishing, navigation, and dredging to reduce additional risks to marine life.
       </p>
       <p class="text-md lg:text-xl text-dark-text mb-4">
-        Accurate and timely temperature predictions help TCRC members determine when preparations may be needed and how long hazardous 
-        conditions could persist. The live-updating graph above displays recent air and water temperature observations alongside 
-        predicted conditions for the Laguna Madre. The water temperature predictions extend up to 120 hours, or five days, into the future.
+        Accurate and timely temperature predictions help TCRC members determine when preparations may be needed and how long 
+        hazardous conditions could persist. The live-updating graph above displays recent air and water temperature observations 
+        alongside predicted conditions for the Laguna Madre. The water temperature predictions extend up to 120 hours, or five days, into the future.
       </p>
       <p class="text-md lg:text-xl text-dark-text mb-4">
-        Users should pay particular attention to how quickly water temperatures are predicted to decrease, 
+        Users should pay particular attention to how quickly water temperatures are predicted to decrease,
         whether they approach important cold-stunning thresholds, and how long hazardous conditions may persist. 
         Predictions should be interpreted as decision-support guidance rather than exact guarantees. 
-        Because forecast conditions can change, users should review the latest model update alongside current observations,
+        Because forecast conditions can change, users should review the latest model update alongside current observations, 
         official weather information, and local operational expertise.
       </p>
       <p class="text-md lg:text-xl text-dark-text mb-4">
-        By providing advance notice of potentially hazardous water temperatures, 
-        the model supports coordinated decisions about monitoring, resource mobilization, 
-        rescue preparations, and temporary operational changes. Research and development are ongoing to 
-        improve the accuracy, reliability, and usefulness of the predictions during extreme cold-weather events.
+        By providing advance notice of potentially hazardous water temperatures, the model supports coordinated decisions about monitoring,
+        resource mobilization, rescue preparations, and temporary operational changes. Research and development are ongoing to improve the accuracy,
+        reliability, and usefulness of the predictions during extreme cold-weather events.
       </p>
-      <p class="text-md lg:text-xl text-dark-text mb-4">
-        The original AI water temperature model was developed by Dr. Robyn Ball during her master's research at 
-        Texas A&M University-Corpus Christi (TAMU-CC). Responsibility for its continued development and maintenance was later 
-        entrusted to the Cool Turtles team within the Coastal Dynamics Lab at TAMU-CC.
-      </p>
-      <h3 class="text-lg lg:text-xl font-bold mb-2">
+
+      <h3 class="text-lg lg:text-2xl font-bold text-dark-text mt-6 mb-3">
         Model Development and Maintenance
       </h3>
+
+      <p class="text-md lg:text-xl text-dark-text mb-4">
+        The original AI water temperature model was developed by Dr. Robyn Ball during her master's research 
+        at Texas A&M University-Corpus Christi (TAMU-CC). Responsibility for its continued development and maintenance 
+        was later entrusted to the Cool Turtles team within the Coastal Dynamics Lab at TAMU-CC.
+      </p>
+
       <p class="text-md lg:text-xl text-dark-text mb-4">
         The Cool Turtles team is led by
         <a href="https://www.linkedin.com/in/miranda-white-859b2414a/" target="_blank" class="text-blue-500 hover:underline">Dr. Miranda White</a>, 
@@ -1396,7 +1446,7 @@ onMounted(() => {
       <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
         <p>NPS Sea Turtle Science and Recovery</p>
       </a>
-      <a href="https://doi.org/10.1175/AIES-D-25-0058.1" target="_blank" class="hover:scale-110 transition-transform">
+      <a href="https://journals.ametsoc.org/view/journals/aies/5/3/AIES-D-25-0058.1.xml" target="_blank" class="hover:scale-110 transition-transform">
         <p>Published Scientific Paper On New Laguna Madre ML-Ensemble Water Temperature Prediction Model</p>
       </a>
       <a href="https://www.coastaldynamicslab.org/water-temperature-predictionse" target="_blank" class="hover:scale-110 transition-transform">
