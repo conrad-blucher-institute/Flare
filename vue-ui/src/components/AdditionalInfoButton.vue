@@ -22,7 +22,11 @@ Props:
 Item fields for both props:
   header (str) - the bold header portion of the item, optional for both props
 
-  body (str) - the body text
+  body (str) - the body text, rendered as HTML with v-html
+    only use hardcoded strings, never user input or fetched data
+    write a literal & or < as &amp; or &lt;
+    add Tailwind classes to any inline tags, since scoped CSS does not apply to them
+    use the links array for internal links, since router-link does not work inside v-html
 
   links (array[{ text, href, linkTarget }]) - an optional array of links
     text (str) - the visible text shown on the page
@@ -132,7 +136,7 @@ defineProps({
                     <strong>{{ item.header }}</strong>
                     {{ ' ' }}
                   </template>
-                  {{ item.body }}
+                  <span v-html="item.body"></span>
 
                   <!-- inline links -->
                   <template v-if="!item.bulletLinks">
@@ -183,7 +187,7 @@ defineProps({
                   <strong>{{ item.header }}</strong>
                   {{ ' ' }}
                 </template>
-                {{ item.body }}
+                <span v-html="item.body"></span>
 
                 <!-- inline links -->
                 <template v-if="!item.bulletLinks">
