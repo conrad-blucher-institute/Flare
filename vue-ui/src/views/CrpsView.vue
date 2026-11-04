@@ -29,17 +29,17 @@ import AdditionalInfoButton from '@/components/AdditionalInfoButton.vue';
 const dataOnThisGraph = [
   {
     header: 'Observed Water and Air Temperatures:',
-    body: 'Hourly observations in Upper Laguna Madre are obtained from the',
+    body: 'Hourly observations are obtained from the ',
     links: [
-      { text: 'South Bird Island TCOON station', href: 'https://lighthouse.tamucc.edu/pq'}
+      { text: 'South Bird Island TCOON station in Upper Laguna Madre.', href: 'https://lighthouse.tamucc.edu/pq'}
     ],
     bulletLinks: false
   },
   {
     header: 'Predicted Air Temperatures:',
-    body: 'Air temperature predictions are obtained from the forecast grid corresponding to the Upper Laguna Madre area through',
+    body: 'NWS-NDFD air temperature predictions are obtained from the forecast grid corresponding to the ',
     links: [
-      { text: 'NWS-NDFD', href: 'https://digital.weather.gov/' }
+      { text: 'Upper Laguna Madre area.', href: 'https://digital.weather.gov/' }
     ],
     bulletLinks: false
   },
@@ -47,13 +47,13 @@ const dataOnThisGraph = [
     header: 'Predicted Water Temperatures:',
     body: 'The Cool Turtle model development research team produces probabilistic water temperature predictions using an ensemble of machine learning models. Additional information about the model development and evaluation is available in the following publication:',
     links: [
-      { text: 'Machine Learning Uncertainty Quantification for Extreme Cold Water Events', href: 'https://journals.ametsoc.org/view/journals/aies/5/3/AIES-D-25-0058.1.xml' }
+      { text: 'Machine Learning Uncertainty Quantification for Extreme Cold Water Events.', href: 'https://ams.confex.com/ams/106ANNUAL/meetingapp.cgi/Paper/474540' }
     ],
     bulletLinks: false
   },
   {
     header: 'How the Ensemble Predictions are Displayed:',
-    body: 'Each graph presents the same ensemble of ML water temperature predictions in a different format.'
+    body: 'Each graph presents the same ensemble of ML water temperature predictions in a different format:'
   },
   {
     header: 'Central Forecast Graph:',
@@ -72,25 +72,30 @@ const dataOnThisGraph = [
 // additional info right card data
 const additionalInfo = [
   {
-    body: 'Wind speed measurements and predictions (NWS-NDFD) for South Bird Island found',
+    body: 'Wind speed measurements and predictions (NWS-NDFD) for South Bird Island available ',
     links: [
       { text: 'here', href: 'https://cbigrid.tamucc.edu/tpw/graph-only-wind.html', linkTarget: '_blank' }
     ],
     bulletLinks: false
   },
   {
-    body: 'Ensemble air temperature predictions for Laguna Madre from The Weather Company found',
+    body: 'Ensemble air temperature predictions for Laguna Madre from The Weather Company available ',
     links: [
       { text: 'here', href: '/air-temperature-ensemble', linkTarget: '_self' }
     ],
     bulletLinks: false
   },
   {
-    body: 'AI water temperature prediction model performance charts found',
-    links: [
-      { text: 'here', href: 'https://lighthouse.tamucc.edu/supertool.php?stnid=013&elev=mwl&mode=nnwtp', linkTarget: '_blank' }
-    ],
-    bulletLinks: false
+    body: `
+      Performance charts of 
+      <a href="https://cbigrid.tamucc.edu/tpw/" target="_blank" class="underline text-blue-600 hover:text-blue-800">
+        TPW AI water temperature prediction model
+      </a> 
+      available 
+      <a href="https://lighthouse.tamucc.edu/supertool.php?stnid=013&elev=mwl&mode=nnwtp" target="_blank" class="underline text-blue-600 hover:text-blue-800">
+        here
+      </a> (Forecast Supertool)
+    `
   },
   {
     body: 'NOAA Sea Turtle Stranding and Salvage Network informational page found',
@@ -100,7 +105,7 @@ const additionalInfo = [
     bulletLinks: false
   },
   {
-    body: 'Previous cold stunning ensemble (MRE) water temperature predictions found',
+    body: 'Old version of ensemble water temperature (MRE) predictions available',
     links: [
       { text: 'here', href: '/water-temperature-ensemble', linkTarget: '_self' }
     ],
