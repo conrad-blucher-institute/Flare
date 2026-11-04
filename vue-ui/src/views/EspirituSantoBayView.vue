@@ -39,16 +39,16 @@ const chartLineColors = {
   orange: '#E69F00',
 
   // blues for the water measurements
-  portOConnorWater:     '#bdc9e1',
-  portLavacaWater:      '#67a9cf',
-  seadriftWater:        '#1c9099',
-  aransasWildlifeWater: '#016c59',
+  portOConnorWater:     '#CCECFF',
+  portLavacaWater:      '#0070C0',
+  seadriftWater:        '#19C3FF',
+  aransasWildlifeWater: '#033D61',
   
-  // greens for the air measurements
-  portOConnorAir:       '#c2e699',
-  portLavacaAir:        '#78c679',
-  seadriftAir:          '#31a354',
-  aransasWildlifeAir:   '#006837',
+  // orange/browns for the air measurements
+  portOConnorAir:       '#F9DAAB',
+  portLavacaAir:        '#B76F27',
+  seadriftAir:          '#EFE565',
+  aransasWildlifeAir:   '#603B14',
 };
 
 // additional info left card data
@@ -509,7 +509,7 @@ const fetchAndFilterData = async () => {
         data: esbWaterMeasurementsFahrenheit,
         type: "line",
         color: chartLineColors.black,
-        lineWidth: isSmallScreen ? 1 : 2,
+        lineWidth: 3, // thicker line for ESB water measurements
         zIndex: 1,
         visible: false, // hidden until the user clicks it in the legend
         marker: {
@@ -521,7 +521,7 @@ const fetchAndFilterData = async () => {
         data: esbAirMeasurementsFahrenheit,
         type: "line",
         color: chartLineColors.orange,
-        lineWidth: isSmallScreen ? 1 : 2,
+        lineWidth: 3, // thicker line for ESB air measurements
         zIndex: 1,
         marker: {
           enabled: false
@@ -870,7 +870,7 @@ onMounted(() => {
               <br>
 
               <p class="leading-relaxed">
-                Additional air temperature measurements, in orange, can be displayed by clicking on them using the graph legend.
+                Additional air temperature measurements, in orange hues, can be displayed by clicking on them using the graph legend.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -1103,9 +1103,6 @@ onMounted(() => {
           </a>
           <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0173920" target="_blank" class="hover:scale-110 transition-transform">
             <p>PLOS One: Publication Defining Cold Stunning Threshold</p>
-          </a>
-          <a href="https://www.coastaldynamicslab.org/water-temperature-predictions" target="_blank" class="hover:scale-110 transition-transform">
-            <p>TAMUCC CBI Water Temperature Predictions Reports</p>
           </a>
           <a href="https://www.coastaldynamicslab.org/water-temperature-cold-stunning-predictions" target="_blank" class="hover:scale-110 transition-transform">
             <p>Cold-Stunning Event Research Information Page</p>

@@ -1443,14 +1443,11 @@ onMounted(() => {
       <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0173920" target="_blank" class="hover:scale-110 transition-transform">
         <p>PLOS One: Publication Defining Cold Stunning Threshold</p>
       </a>
-      <a href="https://tpwd.texas.gov/" target="_blank" class="hover:scale-110 transition-transform">
+      <a href="https://www.nps.gov/pais/learn/nature/stsr.htm" target="_blank" class="hover:scale-110 transition-transform">
         <p>NPS Sea Turtle Science and Recovery</p>
       </a>
       <a href="https://journals.ametsoc.org/view/journals/aies/5/3/AIES-D-25-0058.1.xml" target="_blank" class="hover:scale-110 transition-transform">
         <p>Published Scientific Paper On New Laguna Madre ML-Ensemble Water Temperature Prediction Model</p>
-      </a>
-      <a href="https://www.coastaldynamicslab.org/water-temperature-predictionse" target="_blank" class="hover:scale-110 transition-transform">
-        <p>TAMUCC CBI Water Temperature Predictions Reports</p>
       </a>
       <a href="https://www.coastaldynamicslab.org/water-temperature-cold-stunning-predictions" target="_blank" class="hover:scale-110 transition-transform">
         <p>Cold-Stunning Event Research Information Page</p>
