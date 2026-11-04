@@ -31,7 +31,7 @@ const dataOnThisGraph = [
     header: 'Observed Water and Air Temperatures:',
     body: 'Hourly observations are obtained from the ',
     links: [
-      { text: 'South Bird Island TCOON station in Upper Laguna Madre.', href: 'https://lighthouse.tamucc.edu/pq'}
+      { text: 'South Bird Island TCOON station.', href: 'https://tidesandcurrents.noaa.gov/stationhome.html?id=8776139', linkTarget: '_blank' }
     ],
     bulletLinks: false
   },
@@ -39,7 +39,7 @@ const dataOnThisGraph = [
     header: 'Predicted Air Temperatures:',
     body: 'NWS-NDFD air temperature predictions are obtained from the forecast grid corresponding to the ',
     links: [
-      { text: 'Upper Laguna Madre area.', href: 'https://digital.weather.gov/' }
+      { text: 'Upper Laguna Madre area.', href: 'https://digital.weather.gov/?zoom=9&lat=27.73422&lon=-97.26358&layers=FB00TTTFFTT&element=6&coords=latlon&tunits=localt', linkTarget: '_blank' }
     ],
     bulletLinks: false
   },
@@ -47,7 +47,7 @@ const dataOnThisGraph = [
     header: 'Predicted Water Temperatures:',
     body: 'The Cool Turtle model development research team produces probabilistic water temperature predictions using an ensemble of machine learning models. Additional information about the model development and evaluation is available in the following publication:',
     links: [
-      { text: 'Machine Learning Uncertainty Quantification for Extreme Cold Water Events.', href: 'https://ams.confex.com/ams/106ANNUAL/meetingapp.cgi/Paper/474540' }
+      { text: 'Machine Learning Uncertainty Quantification for Extreme Cold Water Events.', href: 'https://ams.confex.com/ams/106ANNUAL/meetingapp.cgi/Paper/474540', linkTarget: '_blank' }
     ],
     bulletLinks: false
   },
@@ -108,6 +108,13 @@ const additionalInfo = [
     body: 'Old version of ensemble water temperature (MRE) predictions available',
     links: [
       { text: 'here', href: '/water-temperature-ensemble', linkTarget: '_self' }
+    ],
+    bulletLinks: false
+  },
+  {
+    body: 'Additional locations for ensemble air temperature predictions from The Weather Company',
+    links: [
+      { text: 'here', href: 'https://cbigrid.tamucc.edu/tpw/map-index.html', linkTarget: '_blank' }
     ],
     bulletLinks: false
   }
@@ -1337,7 +1344,7 @@ onMounted(() => {
 
             <p class="leading-relaxed">
               <strong>Taller boxes and longer whiskers</strong> indicate <i>greater predictive uncertainty</i>, while <strong>shorter boxes</strong> 
-              indicate <strong><i>greater confidence of future water temperatures</i></strong>.
+              indicate <i>greater confidence of future water temperatures</i>.
             </p>
           </div>
           <hr class="border-t border-dark-text">
