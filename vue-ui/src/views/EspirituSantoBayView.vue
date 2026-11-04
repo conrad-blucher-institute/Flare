@@ -39,16 +39,16 @@ const chartLineColors = {
   orange: '#E69F00',
 
   // blues for the water measurements
-  portOConnorWater:     '#bdc9e1',
-  portLavacaWater:      '#67a9cf',
-  seadriftWater:        '#1c9099',
-  aransasWildlifeWater: '#016c59',
+  portOConnorWater:     '#CCECFF',
+  portLavacaWater:      '#0070C0',
+  seadriftWater:        '#19C3FF',
+  aransasWildlifeWater: '#033D61',
   
-  // greens for the air measurements
-  portOConnorAir:       '#c2e699',
-  portLavacaAir:        '#78c679',
-  seadriftAir:          '#31a354',
-  aransasWildlifeAir:   '#006837',
+  // orange/browns for the air measurements
+  portOConnorAir:       '#F9DAAB',
+  portLavacaAir:        '#B76F27',
+  seadriftAir:          '#EFE565',
+  aransasWildlifeAir:   '#603B14',
 };
 
 // additional info left card data
@@ -353,8 +353,8 @@ const buildChart = (isSmallScreen, chartTitle) => {
   };
 }; // end buildChart 
 
-chartOptions.value = reactive(buildChart(isSmallScreen, "Water Temperature Predictions for Espiritu Santo Bay"));
-secondChartOptions.value = reactive(buildChart(isSmallScreen, "Water Temperature Predictions for Espiritu Santo Bay"));
+chartOptions.value = reactive(buildChart(isSmallScreen, "Water Temperature Predictions for Espiritu Santo Bay (ESB)"));
+secondChartOptions.value = reactive(buildChart(isSmallScreen, "Water Temperature Predictions for Espiritu Santo Bay (ESB)"));
 
 
 // Function to fetch and process CSV data
@@ -505,11 +505,11 @@ const fetchAndFilterData = async () => {
         }
       },
       {
-        name: "Espiritu Santo Bay Water Temperature Measurements",
+        name: "Estimated ESB Water Temperature Measurements",
         data: esbWaterMeasurementsFahrenheit,
         type: "line",
         color: chartLineColors.black,
-        lineWidth: isSmallScreen ? 1 : 2,
+        lineWidth: 3, // thicker line for ESB water measurements
         zIndex: 1,
         visible: false, // hidden until the user clicks it in the legend
         marker: {
@@ -517,18 +517,18 @@ const fetchAndFilterData = async () => {
         }
       },
       {
-        name: "Espiritu Santo Bay Air Temperature Measurements",
+        name: "Estimated ESB Air Temperature Measurements",
         data: esbAirMeasurementsFahrenheit,
         type: "line",
         color: chartLineColors.orange,
-        lineWidth: isSmallScreen ? 1 : 2,
+        lineWidth: 3, // thicker line for ESB air measurements
         zIndex: 1,
         marker: {
           enabled: false
         }
       },
       {
-        name: "Espiritu Santo Bay Water Temperature Predictions",
+        name: "ESB Water Temperature Predictions",
         data: esbWaterPredictionsFahrenheit,
         type: "line",
         color: chartLineColors.black,
@@ -556,7 +556,7 @@ const fetchAndFilterData = async () => {
     // chart 2 options
     secondChartOptions.value.series = [
       {
-        name: "Espiritu Santo Bay Water Temperature Measurements",
+        name: "Estimated ESB Water Temperature Measurements",
         data: esbWaterMeasurementsFahrenheit,
         type: "line",
         color: chartLineColors.black, // solid black for ESB mean water measurements
@@ -567,7 +567,7 @@ const fetchAndFilterData = async () => {
         }
       },
       {
-        name: "Espiritu Santo Bay Air Temperature Measurements",
+        name: "Estimated ESB Air Temperature Measurements",
         data: esbAirMeasurementsFahrenheit,
         type: "line",
         color: chartLineColors.orange,  // solid orange for ESB mean air measurements
@@ -578,7 +578,7 @@ const fetchAndFilterData = async () => {
         }
       },
       {
-        name: "Espiritu Santo Bay Water Temperature Predictions",
+        name: "ESB Water Temperature Predictions",
         data: esbWaterPredictionsFahrenheit,
         type: "line",
         dashStyle: "Dash",
@@ -834,10 +834,10 @@ onMounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Shows recent temperature measurements from multiple locations surrounding Espiritu Santo Bay (ESB),
-                alongside AI water temperature and NWS-NDFD air temperature forecasts for the ESB area.
-                This allows users to compare nearby observed conditions with the temperatures
-                predicted for ESB over the next five days.
+                Shows recent temperature measurements from <strong>multiple locations surrounding Espiritu Santo Bay (ESB)</strong>,
+                alongside <strong>AI water temperature</strong> and <i>National Weather Service National Digital Forecast Database (NWS-NDFD) </i> 
+                <strong>air temperature predictions</strong> for the ESB area. This allows users to compare nearby observed conditions with
+                the temperatures predicted for ESB over the next five days.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -848,13 +848,29 @@ onMounted(() => {
                 How to Read
               </h3>
 
-              <p>
-                The blue colored solid lines show recent water temperature measurements from four locations
-                surrounding ESB, while the solid orange line show the average air temperature measurements
-                across surrounding locations. The black dashed line shows the AI water temperature predictions
-                for ESB, and the orange dashed line shows the NWS-NDFD air temperature prediction for ESB.
-                The vertical “Now” line separates recent temperature measurements from future predictions.
-                Additional air temperature measurements, in green, can be displayed by clicking on them using the graph legend.
+              <p class="leading-relaxed">
+                The <strong>blue colored solid lines</strong> show <strong>recent water temperature measurements</strong> 
+                from <i>four locations surrounding ESB</i>, while the <strong>solid orange line</strong> shows the 
+                <strong>estimated air temperature measurements</strong> across <i>surrounding locations</i>.
+              </p>
+
+              <br>
+
+              <p class="leading-relaxed">
+                The <strong>black dashed line</strong> shows the <strong>AI water temperature predictions for ESB</strong>,
+                and the <strong>orange dashed line</strong> shows the <i>NWS-NDFD</i> <strong>air temperature predictions</strong> for ESB.
+              </p>
+
+              <br>
+
+              <p class="leading-relaxed">
+                The <strong>vertical "Now" line</strong> separates <i>recent temperature measurements</i> from <i>future predictions</i>.
+              </p>
+
+              <br>
+
+              <p class="leading-relaxed">
+                Additional air temperature measurements, in orange hues, can be displayed by clicking on them using the graph legend.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -866,9 +882,9 @@ onMounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Best for comparing recent water temperature conditions across locations surrounding ESB
-                and tracking whether the predicted water temperature approaches, crosses, or
-                remains below critical cold-stunning thresholds.
+                Best for comparing <strong>recent water temperature conditions</strong> <i>across locations surrounding ESB</i>
+                and tracking whether the <strong>predicted water temperature</strong> <i>approaches, crosses, or remains
+                below</i> critical <strong>cold-stunning thresholds</strong>.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -880,10 +896,14 @@ onMounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Because no temperature sensors are located within ESB, the measurements shown are derived
-                from surrounding locations and may not fully capture localized conditions within the bay.
-                This forecast shows only one possible outcome and does not display the uncertainty 
-                of the AI water temperature predictions.
+                Because <strong>no temperature sensors</strong> are located within <strong>ESB</strong>, the measurements shown are derived
+                <i>from surrounding locations</i> and may not <i>fully</i> capture localized conditions within the bay.
+              </p>
+              
+              <br>
+
+              <p class="leading-relaxed">
+                This graph shows only <i>one</i> possible outcome and <i>does not display the uncertainty</i> of the AI water temperature predictions.
               </p>
             </div>
           </div>
@@ -917,10 +937,10 @@ onMounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Shows averaged recent water and air temperature measurements from multiple locations surrounding
-                Espiritu Santo Bay (ESB), alongside AI water temperature and NWS-NDFD air temperature
-                forecasts for the ESB area. This provides a simplified view of recent representative
-                conditions of ESB with the temperatures predicted for ESB over the next five days.
+                Shows recent <i>estimated</i> water and air temperature measurements from <i>multiple locations surrounding ESB</i>,
+                alongside <strong>AI water temperature</strong> and <i>NWS-NDFD</i> <strong>air temperature predictions</strong> for the ESB area.
+                This provides a simplified view of recent representative (or estimated) conditions of ESB with the temperatures
+                predicted for ESB over the next five days.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -931,11 +951,22 @@ onMounted(() => {
                 How to Read
               </h3>
 
-              <p>
-                The solid black and orange lines show the average recent water and air temperature measurements,
-                respectively, from locations surrounding ESB. The dashed black and orange lines show the AI water
-                temperature and NWS-NDFD air temperature predictions, respectively, for ESB. The vertical “Now” line
-                separates recent temperature measurements from future predictions.
+              <p class="leading-relaxed">
+                The <strong>solid black</strong> and <strong>orange lines</strong> show the 
+                <strong>estimated recent water and air temperature measurements</strong>, respectively, from <i>locations surrounding ESB</i>.
+              </p>
+
+              <br>
+
+              <p class="leading-relaxed">
+                The <strong>dashed black</strong> and <strong>orange lines</strong> show the <strong>AI water temperature</strong>
+                and <i>NWS-NDFD</i> <strong>air temperature predictions</strong>, respectively, for ESB.
+              </p>
+
+              <br>
+
+              <p class="leading-relaxed">
+                The <strong>vertical "Now" line</strong> separates <i>recent temperature measurements</i> from <i>future predictions</i>.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -947,9 +978,9 @@ onMounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Best for viewing a simplified summary of recent temperature conditions that are representative
-                of ESB and tracking whether the predicted water temperature approaches, crosses, or remains below 
-                critical cold-stunning thresholds.
+                Best for viewing a <strong>simplified summary</strong> of <strong>recent temperature conditions</strong> that are 
+                <strong>representative</strong> of ESB and tracking whether the <strong>predicted water temperature</strong> <i>approaches, 
+                crosses, or remains below</i> critical <strong>cold-stunning thresholds</strong>.
               </p>
             </div>
             <hr class="border-t border-dark-text">
@@ -961,10 +992,20 @@ onMounted(() => {
               </h3>
 
               <p class="leading-relaxed">
-                Because no temperature sensors are located within ESB, the measurements shown are derived from surrounding
-                locations and may not fully capture localized conditions within the bay. This forecast shows only one possible
-                outcome and does not display the uncertainty of the AI water temperature predictions.
-                Refer to the multi-location graph to view measurements from each surrounding location separately.
+                Because <strong>no temperature sensors</strong> are located within <strong>ESB</strong>, the measurements shown are derived
+                <i>from surrounding locations</i> and may not <i>fully</i> capture localized conditions within the bay.
+              </p>
+
+              <br>
+
+              <p class="leading-relaxed">
+                This graph shows only <i>one</i> possible outcome and <i>does not display the uncertainty</i> of the AI water temperature predictions.
+              </p>
+
+              <br>
+
+              <p class="leading-relaxed">
+                Refer to the <strong>multi-location</strong> graph (above) to view measurements from each surrounding location separately.
               </p>
             </div>
           </div>
@@ -1001,19 +1042,18 @@ onMounted(() => {
 
           <p class="text-base lg:text-xl text-dark-text mb-4">
             Espiritu Santo Bay is a shallow coastal system connected to San Antonio Bay and the Gulf. 
-            During the cold-front season, typically November through March, its shallow waters can cool 
-            rapidly and place green sea turtles and other marine life at risk. When water temperatures approach 
-            or fall below 8°C, green sea turtles may become cold-stunned; leaving them weak, lethargic, 
-            and vulnerable to prolonged cold exposure, vessel strikes, and predation.
+            During the cold-front season, typically November through March, its shallow waters can cool rapidly 
+            and place green sea turtles and other marine life at risk. When water temperatures approach or fall below 8°C, 
+            green sea turtles may become cold-stunned; leaving them weak, lethargic, and vulnerable to prolonged 
+            cold exposure, vessel strikes, and predation.
           </p>
 
           <p class="text-base lg:text-xl text-dark-text mb-4">
-            Preparing for these events requires time to organize volunteers, deploy rescue boats, 
-            coordinate field operations, and arrange transportation to rehabilitation facilities. 
-            The Espiritu Santo Bay water temperature model was developed to provide advance guidance about 
-            when hazardous water temperatures may occur. It produces water temperature predictions up to 120 hours, 
-            or five days, into the future, helping responders and other stakeholders anticipate the possible onset, 
-            severity, and duration of cold-water conditions.
+            Preparing for these events requires time to organize volunteers, deploy rescue boats, coordinate field operations, 
+            and arrange transportation to rehabilitation facilities. The Espiritu Santo Bay water temperature model was 
+            developed to provide advance guidance about when hazardous water temperatures may occur. It produces water 
+            temperature predictions up to 120 hours, or five days, into the future, helping responders and other stakeholders 
+            anticipate the possible onset, severity, and duration of cold-water conditions.
           </p>
 
           <h3 class="text-lg lg:text-2xl font-bold text-dark-text mt-6 mb-3">
@@ -1021,11 +1061,10 @@ onMounted(() => {
           </h3>
 
           <p class="text-base lg:text-xl text-dark-text mb-4">
-            By providing several days of advance notice, the model can help sea turtle responders
-            determine when to increase monitoring, begin coordinating personnel and equipment, prepare vessels,
-            and plan the transportation and rehabilitation of recovered turtles. 
-            The predictions may also support broader coordination among organizations whose environmental, 
-            economic, or recreational activities could be affected by extreme cold conditions in and around the bay.
+            By providing several days of advance notice, the model can help sea turtle responders determine when 
+            to increase monitoring, begin coordinating personnel and equipment, prepare vessels, and plan the transportation
+            and rehabilitation of recovered turtles. The predictions may also support broader coordination among organizations
+            whose environmental, economic, or recreational activities could be affected by extreme cold conditions in and around the bay.
           </p>
 
           <h3 class="text-lg lg:text-2xl font-bold text-dark-text mt-6 mb-3">
@@ -1034,18 +1073,17 @@ onMounted(() => {
 
           <p class="text-base lg:text-xl text-dark-text mb-4">
             The Espiritu Santo Bay model was developed through the Coastal Dynamics Lab at Texas A&M University-Corpus Christi. 
-            Hector Marrero-Colominas and Ayesha Khan led the model's development, with assistance from 
-            Drs. Miranda White and Philippe Tissot. The model is currently maintained by the CDL Semaphore Team.
+            Hector Marrero-Colominas and Ayesha Khan led the model's development, with assistance from Drs. Miranda White and Philippe Tissot. 
+            The model is currently maintained by the CDL Semaphore Team.
           </p>
 
           <p class="text-base lg:text-xl text-dark-text mb-4">
             Foundational field observations were made possible through collaboration with 
-            <strong>Mid-Coast Sea Turtle Rescue</strong> and <strong>NOAA Fisheries</strong>. 
-            These efforts included multiple boat trips to deploy air
-            and water temperature sensors within Espiritu Santo Bay, providing preliminary measurements that 
-            informed the design of the model. The resulting prediction system reflects a collaborative effort among 
-            university AI researchers, network partners, sea turtle responders, and other coastal stakeholders working 
-            to improve preparation for cold-stunning events.
+            <strong>Mid-Coast Sea Turtle Rescue</strong> and <strong>NOAA Fisheries</strong>. These efforts included multiple boat trips to 
+            deploy air and water temperature sensors within Espiritu Santo Bay, providing preliminary measurements 
+            that informed the design of the model. The resulting prediction system reflects a collaborative effort 
+            among university AI researchers, network partners, sea turtle responders, and other coastal stakeholders 
+            working to improve preparation for cold-stunning events.
           </p>
         </div>
     </section>
@@ -1066,8 +1104,8 @@ onMounted(() => {
           <a href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0173920" target="_blank" class="hover:scale-110 transition-transform">
             <p>PLOS One: Publication Defining Cold Stunning Threshold</p>
           </a>
-          <a href="https://www.coastaldynamicslab.org/water-temperature-predictions" target="_blank" class="hover:scale-110 transition-transform">
-            <p>TAMUCC CBI Water Temperature Predictions Reports</p>
+          <a href="https://www.coastaldynamicslab.org/water-temperature-cold-stunning-predictions" target="_blank" class="hover:scale-110 transition-transform">
+            <p>Cold-Stunning Event Research Information Page</p>
           </a>
         </div>
 
@@ -1098,8 +1136,8 @@ onMounted(() => {
             <img src="@/assets/images/NOAA_fisheries_logo.png" alt="NOAA Fisheries Logo" class="max-w-[100px] lg:max-w-[250px]">
           </a>
         </div>
-        <p class="text-center text-sm text-light-text">(Click on the logos to visit each contributor's website)</p>
-      </footer>
+      <br><br> <!-- space after logos and bottom of page -->
+    </footer>
 </template>
 
 <style scoped>

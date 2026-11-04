@@ -718,7 +718,7 @@ onMounted(() => {
           <img src="@/assets/images/CCA-Logo.png" alt="Coastal Conservation Association Logo" class="max-w-[80px] lg:max-w-[150px]">
         </a>
       </div>
-      <p class="text-center text-sm text-light-text">(Click on the logos to visit each contributor's website)</p>
+      <br><br> <!-- space after logos and bottom of page -->
     </footer>
   </div>
 </template>

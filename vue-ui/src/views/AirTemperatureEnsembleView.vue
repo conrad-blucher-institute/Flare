@@ -1119,5 +1119,6 @@ onMounted(() => {
         </a>
       </div>
       <p class="mt-4 text-sm text-gray-300">&copy; 2024 Flare. All rights reserved.</p>
+      <br><br> <!-- space after logos and bottom of page -->
     </footer>
 </template>
