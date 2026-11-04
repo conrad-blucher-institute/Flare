@@ -20,7 +20,7 @@ import "highcharts/highcharts-more";
 import "highcharts/modules/exporting";
 import "highcharts/modules/export-data";
 import "highcharts/modules/offline-exporting";
-import { ref, onMounted, onUnmounted, reactive } from "vue";
+import { ref, onMounted, reactive } from "vue";
 
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
 import AdditionalInfoButton from '@/components/AdditionalInfoButton.vue';
@@ -962,9 +962,6 @@ const parseCSV = (csvText) => {
   };
 }; // end parseRibbonCSV
 
-///Fetch and update chart data every 15 minutes
-let updateInterval;
-
 onMounted(() => {
   const loadCharts = () => {
     Promise.all([
@@ -978,18 +975,9 @@ onMounted(() => {
     });
   };
 
-  // Initial load
+  // display charts
   loadCharts();
-
-  // Refresh every 15 minutes
-  updateInterval = setInterval(loadCharts, 900000);
 });
-
-onUnmounted(() => {
-  clearInterval(updateInterval);
-});
-
-
 </script>
  
 <template>

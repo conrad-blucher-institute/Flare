@@ -720,7 +720,7 @@ onMounted(() => {
     });
   };
 
-  // Initial load
+  // display charts
   loadCharts();
 });
 </script>
