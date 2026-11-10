@@ -14,6 +14,18 @@ from PostProcessing.IPostProcessing import IPostProcessing
 from runtimeContext import thread_storage
 from pandas import DataFrame, Series, to_numeric
 
+"""
+Post Processing call:
+{
+    "key": "Statistics",
+    "args": {
+        "column_name": "Air Temperature Predictions",
+        "percentiles": [0, 5, 25, 50, 75, 95, 100],
+        "statistics": ["min", "max", "mean", "median"]
+    }
+}
+"""
+
 class Statistics(IPostProcessing):
     """
     Statistics Post Processing Class:
@@ -109,15 +121,13 @@ class Statistics(IPostProcessing):
                     )
                 case "std":
                     # standard deviation
-                    # ddof=1 uses the sample standard deviation which matches pandas' default behavior
                     result[f'{column.name} std'] = column.apply(
-                        lambda row: np.nan if np.isnan(row).all() else np.nanstd(row, ddof=1)
+                        lambda row: np.nan if np.isnan(row).all() else np.nanstd(row)
                     )
                 case "var":
                     # variance
-                    # ddof=1 uses the sample variance which matches pandas' default behavior
                     result[f'{column.name} var'] = column.apply(
-                        lambda row: np.nan if np.isnan(row).all() else np.nanvar(row, ddof=1)
+                        lambda row: np.nan if np.isnan(row).all() else np.nanvar(row)
                     )
                 case _:
                     self.logger.log_error(f'Invalid statistic: {stat}')
