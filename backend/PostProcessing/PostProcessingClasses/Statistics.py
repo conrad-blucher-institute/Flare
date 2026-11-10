@@ -12,21 +12,13 @@ Created on: 11/09/2026
 import numpy as np
 from PostProcessing.IPostProcessing import IPostProcessing
 from runtimeContext import thread_storage
-from pandas import DataFrame, Series
+from pandas import DataFrame, Series, to_numeric
 
 class Statistics(IPostProcessing):
     """
     Statistics Post Processing Class:
     computes statistics for a specific column across each row
     """
-
-    """
-    default percentiles to calculate
-
-    NOTE: the 0th percentile is the min, the 50th percentile is the median,
-    and the 100th percentile is the max.
-    """
-    DEFAULT_PERCENTILES = [0, 5, 25, 50, 75, 95, 100]
 
     def __init__(self):
         self.logger = thread_storage
@@ -36,7 +28,7 @@ class Statistics(IPostProcessing):
             df: DataFrame,
             column_name: str,
             statistics: list[str] | None = None,
-            percentiles: list[int] = DEFAULT_PERCENTILES
+            percentiles: list[int] | None = None
         ) -> DataFrame:
         """
         performs the post process on the specified column of the dataframe
@@ -54,8 +46,8 @@ class Statistics(IPostProcessing):
                 ["min", "max", "mean", "median", "std", "var"]
 
             percentiles (list[int]) - the percentiles to calculate
-                as a list of integers, or defaults to the default percentiles
-                if not requested/provided.
+                as a list of integers, or defaults to the None if not provided.
+                percentiles must be between 0 <= p <= 100.
         
         Returns:
             DataFrame - the dataframe with the calculated statistics appended
@@ -64,13 +56,20 @@ class Statistics(IPostProcessing):
             self.logger.log_error(f"Column '{column_name}' not found in dataframe")
             return df
 
-        percentiles_df = self._compute_percentiles(df[column_name], percentiles)
+        if percentiles is None and statistics is None:
+            self.logger.log_error('No statistics or percentiles requested')
+            return df
 
+        # ensure every row in the column is numeric and coerce invalid values to NaN
+        column = df[column_name].apply(to_numeric, errors='coerce')
+
+        result_df = DataFrame(index=column.index)
+        if percentiles:
+            result_df = result_df.join(self._compute_percentiles(column, percentiles), how='outer')
         if statistics:
-            stats_df = self._compute_statistics(df[column_name], statistics)
-            percentiles_df = percentiles_df.join(stats_df, how='outer')
+            result_df = result_df.join(self._compute_statistics(column, statistics), how='outer')
 
-        return df.join(percentiles_df, how='outer')
+        return df.join(result_df, how='outer')
 
 
     def _compute_statistics(self, column: Series, statistics: list[str]) -> DataFrame:
