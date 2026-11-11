@@ -522,7 +522,7 @@ const fetchAndFilterData = async () => {
         type: "line",
         color: chartLineColors.orange,
         lineWidth: 4, // thicker line for ESB air measurements
-        zIndex: 3,
+        zIndex: 2, 
         marker: {
           enabled: false
         }
@@ -560,8 +560,8 @@ const fetchAndFilterData = async () => {
         data: esbWaterMeasurementsFahrenheit,
         type: "line",
         color: chartLineColors.black, // solid black for ESB mean water measurements
-        lineWidth: isSmallScreen ? 1 : 2,
-        zIndex: 1,
+        lineWidth: 4,
+        zIndex: 3, // above estimated air measurements
         marker: {
           enabled: false
         }
@@ -571,7 +571,7 @@ const fetchAndFilterData = async () => {
         data: esbAirMeasurementsFahrenheit,
         type: "line",
         color: chartLineColors.orange,  // solid orange for ESB mean air measurements
-        lineWidth: isSmallScreen ? 1 : 2,
+        lineWidth: 4,
         zIndex: 1,
         marker: {
           enabled: false
