@@ -10,20 +10,17 @@ Last Updated: 11/10/2026
 ======================================================= -->
 <script setup>
 import Highcharts from "highcharts";
-import HighchartsMore from "highcharts/highcharts-more";
+import "highcharts/highcharts-more";
+import "highcharts/modules/exporting";
+import "highcharts/modules/export-data";
+import "highcharts/modules/offline-exporting";
 import { Chart } from "highcharts-vue";
-
 import { ref, onMounted, reactive } from "vue";
-
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
+
 const missingDataWarningBanner = ref(MissingDataWarningBanner);
 const isSmallScreen = window.innerWidth <= 600;
 const csvURL = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD_Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
-
-// Add reactive state for dropdown visibility
-const isExportMenuVisible = ref(false);
-const isSecondExportMenuVisible = ref(false);
-const isThirdExportMenuVisible = ref(false);
 
 const chartOptions = ref({});
 const secondChartOptions = ref({});
@@ -40,6 +37,16 @@ const buildChart = (isSmallScreen) => {
       style: { fontFamily: "Arial" },
       marginRight: 30,
       marginTop: 100, 
+      events: {
+        // tooltip.outside renders the tooltip on document.body, which is hidden in fullscreen,
+        // so render it inside the chart while fullscreen is open
+        fullscreenOpen: function () {
+          this.update({ tooltip: { outside: false } });
+        },
+        fullscreenClose: function () {
+          this.update({ tooltip: { outside: true } });
+        },
+      },
     },
     title: {
       text: "Ensemble Air Temperature Forecasts for the Upper Laguna Madre",
@@ -52,9 +59,27 @@ const buildChart = (isSmallScreen) => {
       align: 'center',
     },
     exporting: {
-      enabled: true, // Enables the export menu
+      enabled: true,
+      filename: "TWC-NDFD_Laguna-Madre_Air-Temperature-Predictions_240hrs",
+      sourceWidth: 1600,
+      sourceHeight: 900,
+      scale: 1,
+      buttons: {
+        contextButton: {
+          menuItems: [
+            "viewFullscreen",
+            "separator",
+            "downloadPNG",
+            "downloadJPEG",
+            "downloadPDF",
+            "separator",
+            "downloadCSV",
+          ],
+        },
+      },
     },
-    legend: {enabled: false,
+    legend: {
+      enabled: false,
     },
     xAxis: {
       type: "datetime",
@@ -108,7 +133,6 @@ const buildChart = (isSmallScreen) => {
           color: "#0f4f66",
         },
       },
-
       plotLines: [],
       events: {
         afterSetExtremes: function () {
@@ -118,7 +142,6 @@ const buildChart = (isSmallScreen) => {
           const max = xAxis.max;
           const plotLines = [];
 
-          
           for (let time = min; time <= max; time += 2 * 24 * 3600 * 1000) {
             plotLines.push({
               color: "gray",
@@ -142,7 +165,6 @@ const buildChart = (isSmallScreen) => {
               },
             });
           }
-
           // Add the new plotlines dynamically
           plotLines.forEach((line) => xAxis.addPlotLine(line));
         },
@@ -168,9 +190,9 @@ const buildChart = (isSmallScreen) => {
     endOnTick: true,
     tickInterval: 5, // Major ticks every 5 units
     },
-
     series: [], // Placeholder for data, dynamically updated
     tooltip: {
+      outside: true,
       shared: false,
       crosshairs: true,
       formatter: function () {
@@ -208,6 +230,16 @@ const buildSecondChart = (isSmallScreen) => {
       style: { fontFamily: "Arial" },
       marginRight: 30,
       marginTop: 100,
+      events: {
+        // tooltip.outside renders the tooltip on document.body, which is hidden in fullscreen,
+        // so render it inside the chart while fullscreen is open
+        fullscreenOpen: function () {
+          this.update({ tooltip: { outside: false } });
+        },
+        fullscreenClose: function () {
+          this.update({ tooltip: { outside: true } });
+        },
+      },
     },
     title: {
       text: "Air Temperature Predictions from The Weather Company and<br>The National Digital Forecast Database",
@@ -221,6 +253,23 @@ const buildSecondChart = (isSmallScreen) => {
     },
     exporting: {
       enabled: true,
+      filename: "TWC-NDFD_Laguna-Madre_Air-Temperature-Predictions_240hrs",
+      sourceWidth: 1600,
+      sourceHeight: 900,
+      scale: 1,
+      buttons: {
+        contextButton: {
+          menuItems: [
+            "viewFullscreen",
+            "separator",
+            "downloadPNG",
+            "downloadJPEG",
+            "downloadPDF",
+            "separator",
+            "downloadCSV",
+          ],
+        },
+      },
     },
     legend: {
       enabled: true,
@@ -311,6 +360,7 @@ const buildSecondChart = (isSmallScreen) => {
     },
     series: [], // Placeholder for data, dynamically updated
     tooltip: {
+      outside: true,
       shared: true,
       crosshairs: true,
       formatter: function () {
@@ -364,6 +414,16 @@ const buildThirdChart = (isSmallScreen) => {
       style: { fontFamily: "Arial" },
       marginRight: 30,
       marginTop: 100,
+      events: {
+        // tooltip.outside renders the tooltip on document.body, which is hidden in fullscreen,
+        // so render it inside the chart while fullscreen is open
+        fullscreenOpen: function () {
+          this.update({ tooltip: { outside: false } });
+        },
+        fullscreenClose: function () {
+          this.update({ tooltip: { outside: true } });
+        },
+      },
     },
     title: {
       text: "Box Plot for Air Temperature Predictions from The Weather Company<br>and The National Digital Forecast Database",
@@ -377,6 +437,23 @@ const buildThirdChart = (isSmallScreen) => {
     },
     exporting: {
       enabled: true,
+      filename: "TWC-NDFD_Laguna-Madre_Air-Temperature-Predictions_240hrs",
+      sourceWidth: 1600,
+      sourceHeight: 900,
+      scale: 1,
+      buttons: {
+        contextButton: {
+          menuItems: [
+            "viewFullscreen",
+            "separator",
+            "downloadPNG",
+            "downloadJPEG",
+            "downloadPDF",
+            "separator",
+            "downloadCSV",
+          ],
+        },
+      },
     },
     legend: {
       enabled: true,
@@ -443,6 +520,7 @@ const buildThirdChart = (isSmallScreen) => {
     },
     series: [], // Placeholder for data, dynamically updated
     tooltip: {
+      outside: true,
       shared: true,
       crosshairs: true,
       formatter: function () {
@@ -488,7 +566,7 @@ const buildThirdChart = (isSmallScreen) => {
         lineWidth: 3
       },
       spline: {
-      lineWidth: 3,
+        lineWidth: 3,
       },
       series: {
         states: {
@@ -709,19 +787,6 @@ const parseCSV = (csvText) => {
   return result;
 };
 
-// Function to toggle the dropdown menu
-const toggleExportMenu = () => {
-  isExportMenuVisible.value = !isExportMenuVisible.value;
-};
-
-const toggleSecondExportMenu = () => {
-  isSecondExportMenuVisible.value = !isSecondExportMenuVisible.value;
-}
-
-const toggleThirdExportMenu = () => {
-  isThirdExportMenuVisible.value = !isThirdExportMenuVisible.value;
-};
-
 onMounted(() => {
   const loadCharts = () => {
     Promise.all([
@@ -760,7 +825,9 @@ onMounted(() => {
         </div>
       </div>
       </section>
+
       <MissingDataWarningBanner ref="missingDataWarningBanner" />
+
       <!-- First Chart Section: Spaghetti Graph -->
       <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 py-8 px-4 bg-white items-stretch">
         <!-- Chart -->
@@ -769,23 +836,6 @@ onMounted(() => {
             <div class="min-w-[1000px] h-[500px] lg:h-[700px] lg:min-h-[650px]">
               <Chart class="w-full h-full p-4" :options="chartOptions" />
             </div>
-          </div>
-
-          <!-- Custom Export Dropdown -->
-          <div class="hidden lg:block absolute top-5 right-4">
-            <button @click="toggleExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
-              Download CSV Data
-            </button>
-            <ul v-if="isExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
-              <li>
-                <a 
-                  :href="csvURL"
-                  download="TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
-                  Download CSV
-                </a>
-              </li>
-            </ul>
           </div>
         </div>
 
@@ -823,23 +873,6 @@ onMounted(() => {
               <Chart class="w-full h-full p-4" :options="secondChartOptions" />
             </div>
           </div>
-
-          <!-- Custom Export Dropdown -->
-          <div class="hidden lg:block absolute top-5 right-4">
-            <button @click="toggleSecondExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
-              Download CSV
-            </button>
-            <ul v-if="isSecondExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
-              <li>
-                <a 
-                  :href="csvURL2"
-                  download="TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
-                  Download CSV
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
 
         <!-- Instructions -->
@@ -876,23 +909,6 @@ onMounted(() => {
             <div class="min-w-[1000px] h-[500px] lg:h-[700px] lg:min-h-[650px]">
               <Chart class="w-full h-full p-4" :options="thirdChartOptions" />
             </div>
-          </div>
-
-          <!-- Custom Export Dropdown -->
-          <div class="hidden lg:block absolute top-5 right-4">
-            <button @click="toggleThirdExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
-              Download CSV
-            </button>
-            <ul v-if="isThirdExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
-              <li>
-                <a 
-                  :href="csvURL3"
-                  download="TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs.csv"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
-                  Download CSV
-                </a>
-              </li>
-            </ul>
           </div>
         </div>
         
