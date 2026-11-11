@@ -522,7 +522,7 @@ const fetchAndFilterData = async () => {
         type: "line",
         color: chartLineColors.orange,
         lineWidth: 4, // thicker line for ESB air measurements
-        zIndex: 3,
+        zIndex: 2, 
         marker: {
           enabled: false
         }
@@ -561,7 +561,7 @@ const fetchAndFilterData = async () => {
         type: "line",
         color: chartLineColors.black, // solid black for ESB mean water measurements
         lineWidth: 4,
-        zIndex: 1,
+        zIndex: 3, // above estimated air measurements
         marker: {
           enabled: false
         }
