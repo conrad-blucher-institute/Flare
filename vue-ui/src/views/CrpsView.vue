@@ -1009,6 +1009,9 @@ const extractCSVColumn = (csvText, columnName) => {
   /*
     Extract a specified column from a CSV by the header name
 
+    NOTE: This cannot parse quoted values that contain commas
+    like TWC ensemble members
+
     Args:
       csvText (string) - the CSV data converted to text
       columnName (string) - the name of the column to extract
