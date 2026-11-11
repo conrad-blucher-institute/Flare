@@ -15,571 +15,307 @@ import "highcharts/modules/exporting";
 import "highcharts/modules/export-data";
 import "highcharts/modules/offline-exporting";
 import { Chart } from "highcharts-vue";
-import { ref, onMounted, reactive } from "vue";
+import { ref, onMounted } from "vue";
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
 
-const missingDataWarningBanner = ref(MissingDataWarningBanner);
 const isSmallScreen = window.innerWidth <= 600;
-const csvURL = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD_Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
+const BASE_FILENAME = 'TWC-NDFD_Laguna-Madre_Air-Temperature-Predictions_240hrs';
+const csvURL = ref(`${window.location.origin}/flare/csv-data/${BASE_FILENAME}.csv`);
 
 const chartOptions = ref({});
 const secondChartOptions = ref({});
 const thirdChartOptions = ref({});
+const missingDataWarningBanner = ref(null);
 
-// Chart function for first chart that changes based on screen size
+const TEXT_COLOR = "#0f4f66";
+
+// exporting menu options for all charts
+const commonExporting = () => ({
+  enabled: true,
+  filename: `${BASE_FILENAME}`,
+  sourceWidth: 1600,
+  sourceHeight: 900,
+  scale: 1,
+  buttons: {
+    contextButton: {
+      menuItems: [
+        "viewFullscreen",
+        "separator",
+        "downloadPNG",
+        "downloadJPEG",
+        "downloadPDF",
+        "separator",
+        "downloadCSV",
+      ],
+    },
+  },
+});
+
+// tooltip.outside renders the tooltip on document.body, which is hidden in fullscreen,
+// so render it inside the chart while fullscreen is open
+const fullscreenTooltipEvents = {
+  fullscreenOpen: function () {
+    this.update({ tooltip: { outside: false } });
+  },
+  fullscreenClose: function () {
+    this.update({ tooltip: { outside: true } });
+  },
+};
+
+// common chart options for all charts
+const commonChart = (type) => ({
+  type,
+  zoomType: "x",
+  backgroundColor: "white",
+  style: { fontFamily: "Arial" },
+  marginRight: 30,
+  marginTop: 100,
+  events: fullscreenTooltipEvents,
+});
+
+// common title options for all charts
+const commonTitle = (text) => ({
+  text,
+  style: {
+    fontSize: isSmallScreen ? "20px" : "28px",
+    fontWeight: "bold",
+    color: TEXT_COLOR,
+  },
+  useHTML: true,
+  align: "center",
+});
+
+// common y-axis options for all charts
+const commonYAxis = {
+  labels: {
+    style: { fontSize: isSmallScreen ? "12px" : "26px", color: TEXT_COLOR, fontFamily: "Arial" },
+  },
+  title: {
+    text: "Temperature (°F)",
+    style: { color: TEXT_COLOR, fontSize: isSmallScreen ? "12px" : "20px" },
+  },
+  startOnTick: true,
+  endOnTick: true,
+  tickInterval: 5,
+};
+
+// common legend options for all charts
+const commonLegend = {
+  enabled: true,
+  align: "center",
+  verticalAlign: "bottom",
+  layout: "horizontal",
+  itemStyle: { color: TEXT_COLOR, fontWeight: "normal", fontSize: isSmallScreen ? "12px" : "14px" },
+};
+
+// common tooltip style for all charts
+const tooltipStyle = {
+  fontSize: isSmallScreen ? "12px" : "14px",
+  padding: isSmallScreen ? "5px" : "8px",
+  color: TEXT_COLOR,
+  fontFamily: "Arial",
+};
+
+// all tooltips have a "Date: ... Time: ..." header
+const tooltipHeader = (x) => {
+  const localDate = new Date(x);
+  const date = localDate.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", year: "numeric" });
+  const time = localDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  return `<b>Date: ${date}</b><br><b>Time: ${time}</b><br>`;
+};
+
+// daily x axis used by the ribbon and box plot charts
+const dailyXAxis = {
+  type: "datetime",
+  labels: {
+    formatter: function () {
+      const localDate = new Date(this.value);
+      const day = localDate.toLocaleDateString("en-US", { weekday: "short" });
+      const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      return `<span style="display: block; text-align: center; font-family: Arial;"><b>${day}</b><br>${date}</span>`;
+    },
+    useHTML: true,
+    style: { fontSize: isSmallScreen ? "12px" : "16px", fontFamily: "Arial", color: TEXT_COLOR, whiteSpace: "nowrap" },
+  },
+  tickInterval: 24 * 3600 * 1000,
+  title: {
+    text: "Time",
+    style: { fontSize: isSmallScreen ? "14px" : "20px", fontFamily: "Arial", color: TEXT_COLOR },
+  },
+};
+
 // spaghetti graph
-const buildChart = (isSmallScreen) => {
-  return {
-    chart: {
-      type: "line",
-      zoomType: "x",
-      backgroundColor: "white",
-      style: { fontFamily: "Arial" },
-      marginRight: 30,
-      marginTop: 100, 
-      events: {
-        // tooltip.outside renders the tooltip on document.body, which is hidden in fullscreen,
-        // so render it inside the chart while fullscreen is open
-        fullscreenOpen: function () {
-          this.update({ tooltip: { outside: false } });
-        },
-        fullscreenClose: function () {
-          this.update({ tooltip: { outside: true } });
-        },
-      },
-    },
-    title: {
-      text: "Ensemble Air Temperature Forecasts for the Upper Laguna Madre",
-      style: { 
-        fontSize: isSmallScreen ? "20px" : "28px", 
-        fontWeight: "bold", 
-        color: "#0f4f66"
-      },
-      useHTML: true,
-      align: 'center',
-    },
-    exporting: {
-      enabled: true,
-      filename: "TWC-NDFD_Laguna-Madre_Air-Temperature-Predictions_240hrs",
-      sourceWidth: 1600,
-      sourceHeight: 900,
-      scale: 1,
-      buttons: {
-        contextButton: {
-          menuItems: [
-            "viewFullscreen",
-            "separator",
-            "downloadPNG",
-            "downloadJPEG",
-            "downloadPDF",
-            "separator",
-            "downloadCSV",
-          ],
-        },
-      },
-    },
-    legend: {
-      enabled: false,
-    },
-    xAxis: {
-      type: "datetime",
-      dateTimeLabelFormats: {
-        day: "%a %b %e",
-      },
-      labels: {
-        formatter: function () {
-          const localDate = new Date(this.value);
-          const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
-          const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-          const time = localDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }); 
-          return `<span style="display: block; text-align: center; font-family: Arial;">
-                    <b>${day}</b><br>${date}<br><i>${time}</i>
-                  </span>`;
-        },
-        useHTML: true,
-        style: {
-          fontSize: isSmallScreen ? "12px" : "16px", 
-          fontFamily: "Arial",
-          color: "#0f4f66",
-          whiteSpace: "nowrap",
-        },
-      },
-      labelsOverflow: "justify", // Prevent truncation
-      maxPadding: 0, // Fitting lines exactly to graph size
-      minPadding: 0,
-      tickInterval: 2 * 24 * 3600 * 1000, // Main ticks every 2 days
-      minorTickInterval: 24 * 3600 * 1000, // Minor ticks every day
-      minorTickWidth: 1, // Width of the minor tick lines
-      minorTickLength: 5, // Length of the minor tick lines
-      minorTickColor: "#888", // Color of the minor ticks
-      // Ensure ticks align to 12 AM
-      tickPositioner: function () {
-        let positions = [];
-        let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
-        let start = Math.floor((this.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset;
-        let end = this.max;
-        
-        while (start <= end) {
-          positions.push(start);
-          start += 2 * 24 * 3600 * 1000; // Increment by 2 days
-        }
-        return positions;
-      },
-      title: {
-        text: "Time",
-        style: {
-          fontSize: isSmallScreen ? "14px" : "20px",
-          fontFamily: "Arial",
-          color: "#0f4f66",
-        },
-      },
-      plotLines: [],
-      events: {
-        afterSetExtremes: function () {
-          const xAxis = this;
-          const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000; // Ensure local time alignment
-          const min = Math.floor((xAxis.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset + (24 * 3600 * 1000);
-          const max = xAxis.max;
-          const plotLines = [];
-
-          for (let time = min; time <= max; time += 2 * 24 * 3600 * 1000) {
-            plotLines.push({
-              color: "gray",
-              dashStyle: "Dot",
-              width: 1,
-              value: time,
-              label: {
-                text: (() => {
-                    const localDate = new Date(time); // Convert timestamp to local time
-                    const options = { weekday: "short", month: "short", day: "numeric" }; // Format options
-                    return localDate.toLocaleDateString("en-US", options); // Format as "Mon Jan 27"
-                  })(),
-                align: "left",
-                rotation: 0,
-                y: 15,
-                style: {
-                  color: "#0f4f66",
-                  fontSize: isSmallScreen ? "10px" : "12px", 
-                  fontFamily: "Arial",
-                },
-              },
-            });
-          }
-          // Add the new plotlines dynamically
-          plotLines.forEach((line) => xAxis.addPlotLine(line));
-        },
-      },
-    },
-    yAxis: {
+const buildChart = () => ({
+  chart: commonChart("line"),
+  title: commonTitle("Ensemble Air Temperature Forecasts for the Upper Laguna Madre"),
+  exporting: commonExporting(),
+  legend: { enabled: false },
+  xAxis: {
+    type: "datetime",
     labels: {
-      style: {
-        fontSize: isSmallScreen ? "12px" : "26px",
-        color: '#0f4f66',
-        fontFamily: 'Arial',
-      },
-    },
-    title: {
-      text: "Temperature (°F)",
-      style: { 
-          color: "#0f4f66", 
-          fontSize: isSmallScreen ? "12px" : "20px", 
-        },
-    },
-    // Let Highcharts auto-calculate range with some padding
-    startOnTick: true,
-    endOnTick: true,
-    tickInterval: 5, // Major ticks every 5 units
-    },
-    series: [], // Placeholder for data, dynamically updated
-    tooltip: {
-      outside: true,
-      shared: false,
-      crosshairs: true,
       formatter: function () {
-        const localDate = new Date(this.x); 
-        return `<b>Date: ${localDate.toLocaleDateString("en-US", {
-                    weekday: "long",
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                })}</b><br>
-                <b>Time: ${localDate.toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                })}</b><br>
-                Temperature: ${this.y.toFixed(2)}°F`;
+        const localDate = new Date(this.value);
+        const day = localDate.toLocaleDateString("en-US", { weekday: "short" });
+        const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        const time = localDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+        return `<span style="display: block; text-align: center; font-family: Arial;">
+                  <b>${day}</b><br>${date}<br><i>${time}</i>
+                </span>`;
       },
-      style: {
-        fontSize: isSmallScreen ? "12px" : "14px", 
-        padding: isSmallScreen ? "5px" : "8px", 
-        color: "#0f4f66",
-        fontFamily: "Arial",
+      useHTML: true,
+      style: { fontSize: isSmallScreen ? "12px" : "16px", fontFamily: "Arial", color: TEXT_COLOR, whiteSpace: "nowrap" },
+    },
+    maxPadding: 0, // fit lines exactly to the graph width
+    minPadding: 0,
+    minorTickInterval: 24 * 3600 * 1000, // minor ticks every day
+    minorTickWidth: 1,
+    minorTickLength: 5,
+    minorTickColor: "#888",
+    // major ticks every 2 days, aligned to local midnight
+    tickPositioner: function () {
+      const DAY = 24 * 3600 * 1000;
+      const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+      const positions = [];
+      let start = Math.floor((this.min - timezoneOffset) / DAY) * DAY + timezoneOffset;
+      while (start <= this.max) {
+        positions.push(start);
+        start += 2 * DAY;
+      }
+      return positions;
+    },
+    title: dailyXAxis.title,
+    events: {
+      // dotted day lines on the in-between days; redrawn on every zoom
+      afterSetExtremes: function () {
+        const DAY = 24 * 3600 * 1000;
+        const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+        const min = Math.floor((this.min - timezoneOffset) / DAY) * DAY + timezoneOffset + DAY;
+
+        // remove the previous zoom's lines so they don't stack up
+        this.removePlotLine("day-line");
+
+        for (let time = min; time <= this.max; time += 2 * DAY) {
+          this.addPlotLine({
+            id: "day-line",
+            color: "gray",
+            dashStyle: "Dot",
+            width: 1,
+            value: time,
+            label: {
+              text: new Date(time).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }),
+              align: "left",
+              rotation: 0,
+              y: 15,
+              style: { color: TEXT_COLOR, fontSize: isSmallScreen ? "10px" : "12px", fontFamily: "Arial" },
+            },
+          });
+        }
       },
     },
-  };
-}; // end buildChart (spaghetti graph)
+  },
+  yAxis: commonYAxis,
+  plotOptions: {
+    series: {
+      marker: { enabled: false },
+      lineWidth: 1,
+    },
+  },
+  series: [],
+  tooltip: {
+    outside: true,
+    shared: false,
+    crosshairs: true,
+    style: tooltipStyle,
+    formatter: function () {
+      return tooltipHeader(this.x) + `Temperature: ${this.y.toFixed(1)}°F`;
+    },
+  },
+});
 
-// Chart function for second chart that changes based on screen size
 // ribbon graph
-const buildSecondChart = (isSmallScreen) => {
-  return {
-    chart: {
-      type: "areaspline",
-      zoomType: "x",
-      backgroundColor: "white",
-      style: { fontFamily: "Arial" },
-      marginRight: 30,
-      marginTop: 100,
-      events: {
-        // tooltip.outside renders the tooltip on document.body, which is hidden in fullscreen,
-        // so render it inside the chart while fullscreen is open
-        fullscreenOpen: function () {
-          this.update({ tooltip: { outside: false } });
-        },
-        fullscreenClose: function () {
-          this.update({ tooltip: { outside: true } });
-        },
-      },
+const buildSecondChart = () => ({
+  chart: commonChart("line"),
+  title: commonTitle("Air Temperature Predictions from The Weather Company and<br>The National Digital Forecast Database"),
+  exporting: commonExporting(),
+  legend: commonLegend,
+  xAxis: dailyXAxis,
+  yAxis: commonYAxis,
+  plotOptions: {
+    series: {
+      marker: { enabled: false },
+      states: { inactive: { opacity: 1 } }, // do not dim other series when hovering over one
     },
-    title: {
-      text: "Air Temperature Predictions from The Weather Company and<br>The National Digital Forecast Database",
-      style: { 
-        fontSize: isSmallScreen ? "20px" : "28px", 
-        fontWeight: "bold", 
-        color: "#0f4f66" 
-      },
-      useHTML: true,
-      align: 'center',
-    },
-    exporting: {
-      enabled: true,
-      filename: "TWC-NDFD_Laguna-Madre_Air-Temperature-Predictions_240hrs",
-      sourceWidth: 1600,
-      sourceHeight: 900,
-      scale: 1,
-      buttons: {
-        contextButton: {
-          menuItems: [
-            "viewFullscreen",
-            "separator",
-            "downloadPNG",
-            "downloadJPEG",
-            "downloadPDF",
-            "separator",
-            "downloadCSV",
-          ],
-        },
-      },
-    },
-    legend: {
-      enabled: true,
-      align: 'center',
-      verticalAlign: 'bottom',
-      layout: 'horizontal',
-      itemStyle: {
-        color: "#0f4f66",
-        fontWeight: 'normal',
-        fontSize: isSmallScreen ? "12px" : "14px"
-      }
-    },
-    xAxis: {
-      type: "datetime",
-      dateTimeLabelFormats: {
-        day: "%a %b %e",
-      },
-      labels: {
-        formatter: function () {
-          const localDate = new Date(this.value);
-          const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
-          const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-          return `<span style="display: block; text-align: center; font-family: Arial;">
-                    <b>${day}</b><br>${date}
-                  </span>`;
-        },
-        useHTML: true,
-        style: {
-          fontSize: isSmallScreen ? "12px" : "16px", 
-          fontFamily: "Arial",
-          color: "#0f4f66",
-          whiteSpace: "nowrap",
-        },
-      },
-      tickInterval: 24 * 3600 * 1000, // Main ticks every day
-      title: {
-        text: "Time",
-        style: {
-          fontSize: isSmallScreen ? "14px" : "20px",
-          fontFamily: "Arial",
-          color: "#0f4f66",
-        },
-      },
-    },
-    yAxis: {
-      labels: {
-        style: {
-          fontSize: isSmallScreen ? "12px" : "26px",
-          color: '#0f4f66',
-          fontFamily: 'Arial',
-        },
-      },
-      title: {
-        text: "Temperature (°F)",
-        style: { 
-            color: "#0f4f66", 
-            fontSize: isSmallScreen ? "12px" : "20px", 
-        },
-      },
-      // Let Highcharts auto-calculate range with some padding
-      startOnTick: true,
-      endOnTick: true,
-      tickInterval: 5, // Major ticks every 5 units
-    },
-    plotOptions: {
-      areaspline: {
-        fillOpacity: 0.3,
-        marker: {
-          enabled: false,
-          radius: 3,
-          states: {
-            hover: {
-              enabled: true
-            }
-          }
-        },
-        states: {
-          hover: {
-            lineWidth: 3
-          }
-        }
-      },
-      series: {
-        states: {
-          inactive: { opacity: 1 } // do not dim other series when hovering over one
-        }
-      }
-    },
-    series: [], // Placeholder for data, dynamically updated
-    tooltip: {
-      outside: true,
-      shared: true,
-      crosshairs: true,
-      formatter: function () {
-        const localDate = new Date(this.x); 
-        // Dynamically creating the tooltip based on what series are present
-        // Bounds are a special case since they are a range
-        var displayInfo = ``;
-        this.points.forEach(line => {
-          if (line.series.name === "Bounds") {
-            displayInfo += `
-              <span style="color:${line.color}">\u25CF</span> 95th Percentile: <b>${line.high.toFixed(1)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> 5th Percentile: <b>${line.low.toFixed(1)}°F</b><br>`;
-          }
-          else
-          displayInfo += `
-            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(1)}°F</b><br>`;
-          
-        });
-        return `<b>Date: ${localDate.toLocaleDateString("en-US", {
-                    weekday: "long",
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                })}</b><br>
-                <b>Time: ${localDate.toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                })}</b><br>
-                ${displayInfo}`;
-                
-                
-      },
-      style: {
-        fontSize: isSmallScreen ? "12px" : "14px", 
-        padding: isSmallScreen ? "5px" : "8px", 
-        color: "#0f4f66",
-        fontFamily: "Arial",
-      },
-    },
-  };
-}; // end buildSecondChart (ribbon graph)
+  },
+  series: [],
+  tooltip: {
+    outside: true,
+    shared: true,
+    crosshairs: true,
+    style: tooltipStyle,
+    formatter: function () {
+      let displayInfo = "";
+      this.points.forEach((line) => {
+        const dot = `<span style="color:${line.color}">\u25CF</span>`;
 
-// Chart function for third chart that changes based on screen size
+        if (line.series.type === "arearange") {
+          const { highLabel, lowLabel } = line.series.options.custom;
+          displayInfo += `
+            ${dot} <b>${line.series.name}</b><br>
+            &nbsp;&nbsp;&nbsp;${highLabel}: <b>${line.point.high.toFixed(1)}°F</b><br>
+            &nbsp;&nbsp;&nbsp;${lowLabel}: <b>${line.point.low.toFixed(1)}°F</b><br>`;
+        } else {
+          displayInfo += `${dot} ${line.series.name}: <b>${line.y.toFixed(1)}°F</b><br>`;
+        }
+      });
+      return tooltipHeader(this.x) + displayInfo;
+    },
+  },
+});
+
 // box plot graph
-const buildThirdChart = (isSmallScreen) => {
-  return {
-    chart: {
-      type: "boxplot",
-      zoomType: "x",
-      backgroundColor: "white",
-      style: { fontFamily: "Arial" },
-      marginRight: 30,
-      marginTop: 100,
-      events: {
-        // tooltip.outside renders the tooltip on document.body, which is hidden in fullscreen,
-        // so render it inside the chart while fullscreen is open
-        fullscreenOpen: function () {
-          this.update({ tooltip: { outside: false } });
-        },
-        fullscreenClose: function () {
-          this.update({ tooltip: { outside: true } });
-        },
-      },
+const buildThirdChart = () => ({
+  chart: commonChart("boxplot"),
+  title: commonTitle("Box Plot for Air Temperature Predictions from The Weather Company<br>and The National Digital Forecast Database"),
+  exporting: commonExporting(),
+  legend: commonLegend,
+  xAxis: dailyXAxis,
+  yAxis: commonYAxis,
+  plotOptions: {
+    series: {
+      marker: { enabled: false },
+      states: { inactive: { opacity: 1 } }, // do not dim other series when hovering over one
     },
-    title: {
-      text: "Box Plot for Air Temperature Predictions from The Weather Company<br>and The National Digital Forecast Database",
-      style: { 
-        fontSize: isSmallScreen ? "20px" : "28px", 
-        fontWeight: "bold", 
-        color: "#0f4f66"
-      },
-      useHTML: true,
-      align: 'center'
-    },
-    exporting: {
-      enabled: true,
-      filename: "TWC-NDFD_Laguna-Madre_Air-Temperature-Predictions_240hrs",
-      sourceWidth: 1600,
-      sourceHeight: 900,
-      scale: 1,
-      buttons: {
-        contextButton: {
-          menuItems: [
-            "viewFullscreen",
-            "separator",
-            "downloadPNG",
-            "downloadJPEG",
-            "downloadPDF",
-            "separator",
-            "downloadCSV",
-          ],
-        },
-      },
-    },
-    legend: {
-      enabled: true,
-      align: 'center',
-      verticalAlign: 'bottom',
-      layout: 'horizontal',
-      itemStyle: {
-        color: "#0f4f66",
-        fontWeight: 'normal',
-        fontSize: isSmallScreen ? "12px" : "14px"
-      }
-    },
-    xAxis: {
-      type: "datetime",
-      dateTimeLabelFormats: {
-        day: "%a %b %e",
-      },
-      labels: {
-        formatter: function () {
-          const localDate = new Date(this.value);
-          const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
-          const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-          return `<span style="display: block; text-align: center; font-family: Arial;">
-                    <b>${day}</b><br>${date}
-                  </span>`;
-        },
-        useHTML: true,
-        style: {
-          fontSize: isSmallScreen ? "12px" : "16px", 
-          fontFamily: "Arial",
-          color: "#0f4f66",
-          whiteSpace: "nowrap",
-        },
-      },
-      tickInterval: 24 * 3600 * 1000, // Main ticks every day
-      title: {
-        text: "Time",
-        style: {
-          fontSize: isSmallScreen ? "14px" : "20px",
-          fontFamily: "Arial",
-          color: "#0f4f66",
-        },
-      },
-    },
-    yAxis: {
-      labels: {
-        style: {
-          fontSize: isSmallScreen ? "12px" : "26px",
-          color: '#0f4f66',
-          fontFamily: 'Arial',
-        },
-      },
-      title: {
-        text: "Temperature (°F)",
-        style: { 
-            color: "#0f4f66", 
-            fontSize: isSmallScreen ? "12px" : "20px", 
-        },
-      },
-      // Let Highcharts auto-calculate range with some padding
-      startOnTick: true,
-      endOnTick: true,
-      tickInterval: 5, // Major ticks every 5 units
-    },
-    series: [], // Placeholder for data, dynamically updated
-    tooltip: {
-      outside: true,
-      shared: true,
-      crosshairs: true,
-      formatter: function () {
-        const localDate = new Date(this.x); 
-        // Dynamically creating the tooltip based on what series are present
-        // Box Plot is a special case since they have multiple values
-        var displayInfo = ``;
-        this.points.forEach(line => {
-          if (line.series.name === "Box Plot Air Temperature Predictions") {
-            displayInfo += `
-              <span style="color:${line.color}">\u25CF</span> Maximum: <b>${line.high.toFixed(1)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Upper Quartile: <b>${line.q3.toFixed(1)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Median: <b>${line.median.toFixed(1)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Lower Quartile: <b>${line.q1.toFixed(1)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Minimum: <b>${line.low.toFixed(1)}°F</b><br>`;
-          }
-          else
+  },
+  series: [],
+  tooltip: {
+    outside: true,
+    shared: true,
+    crosshairs: true,
+    style: tooltipStyle,
+    formatter: function () {
+      let displayInfo = "";
+      this.points.forEach((line) => {
+        const dot = `<span style="color:${line.color}">\u25CF</span>`;
+        if (line.series.type === "boxplot") {
+          const p = line.point;
           displayInfo += `
-            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(1)}°F</b><br>`;
-          
-        });
-        return `<b>Date: ${localDate.toLocaleDateString("en-US", {
-                    weekday: "long",
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                })}</b><br>
-                <b>Time: ${localDate.toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                })}</b><br>
-                ${displayInfo}`;    
-      },
-      style: {
-        fontSize: isSmallScreen ? "12px" : "14px", 
-        padding: isSmallScreen ? "5px" : "8px", 
-        color: "#0f4f66",
-        fontFamily: "Arial",
-      },
-    },
-    plotOptions: {
-      line: {
-        lineWidth: 3
-      },
-      spline: {
-        lineWidth: 3,
-      },
-      series: {
-        states: {
-          inactive: { opacity: 1 } // do not dim other series when hovering over one
+            ${dot} Maximum: <b>${p.high.toFixed(1)}°F</b><br>
+            ${dot} Upper Quartile: <b>${p.q3.toFixed(1)}°F</b><br>
+            ${dot} Median: <b>${p.median.toFixed(1)}°F</b><br>
+            ${dot} Lower Quartile: <b>${p.q1.toFixed(1)}°F</b><br>
+            ${dot} Minimum: <b>${p.low.toFixed(1)}°F</b><br>`;
+        } else {
+          displayInfo += `${dot} ${line.series.name}: <b>${line.y.toFixed(1)}°F</b><br>`;
         }
-      }
+      });
+      return tooltipHeader(this.x) + displayInfo;
     },
-  }
-} // end buildThirdChart (box plot graph)
+  },
+});
 
-chartOptions.value = reactive(buildChart(isSmallScreen));
-secondChartOptions.value = buildSecondChart(isSmallScreen);
-thirdChartOptions.value = buildThirdChart(isSmallScreen);
+chartOptions.value = buildChart();
+secondChartOptions.value = buildSecondChart();
+thirdChartOptions.value = buildThirdChart();
 
 // Function to fetch and process CSV data for first chart
 const fetchAndFilterData = async () => {
@@ -599,8 +335,6 @@ const fetchAndFilterData = async () => {
       name: `Ensemble Member ${i + 1}`,
       data: memberData.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]),
       color: Highcharts.getOptions().colors[i % 10],
-      lineWidth: 1,
-      marker: { enabled: false },
     }));
 
     // update chart options
@@ -660,7 +394,6 @@ const fetchAndFilterData = async () => {
         data: p50Fahrenheit,
         color: "blue",
         lineWidth: 4,
-        marker: { enabled: false },
         zIndex: 3,
       },
       {
@@ -669,8 +402,8 @@ const fetchAndFilterData = async () => {
         data: innerRibbon,
         color: '#9ACDFF',
         lineWidth: 1,
-        marker: { enabled: false },
-        zIndex: 1
+        zIndex: 1,
+        custom: { highLabel: "High (75%)", lowLabel: "Low (25%)" }
       },
       {
         name: '5th-95th Percentile',
@@ -678,8 +411,8 @@ const fetchAndFilterData = async () => {
         data: outerRibbon,
         color: '#DDEEFF',
         lineWidth: 1,
-        marker: { enabled: false },
-        zIndex: 0
+        zIndex: 0,
+        custom: { highLabel: "High (95%)", lowLabel: "Low (5%)" }
       },
       {
         name: "NDFD Air Temperature Predictions",
@@ -687,7 +420,6 @@ const fetchAndFilterData = async () => {
         data: ndfdFahrenheit,
         color: "purple",
         lineWidth: 4,
-        marker: { enabled: false },
         zIndex: 3,
       },
     ];
@@ -705,7 +437,6 @@ const fetchAndFilterData = async () => {
         color: '#4A90E2',
         fillColor: 'rgba(74,144,226,0.35)',
         zIndex: 1,
-        marker: { enabled: false },
       },
       {
         name: "Median Air Temperature Predictions",
@@ -714,7 +445,6 @@ const fetchAndFilterData = async () => {
         color: "blue",
         lineWidth: 4,
         zIndex: 3,
-        marker: { enabled: false },
       },
       {
         name: "NDFD Air Temperature Predictions",
@@ -723,7 +453,6 @@ const fetchAndFilterData = async () => {
         color: "purple",
         lineWidth: 4,
         zIndex: 3, 
-        marker: { enabled: false }
       }
     ];
   } catch (error) {
@@ -732,7 +461,7 @@ const fetchAndFilterData = async () => {
 };
 
 const parseCSV = (csvText) => {
-  const lines = csvText.trim().split("\n");
+  const lines = csvText.trim().split(/\r?\n/);
   const header = lines[0].split(",");
   const col = (name) => header.indexOf(name);
 
@@ -789,9 +518,7 @@ const parseCSV = (csvText) => {
 
 onMounted(() => {
   const loadCharts = () => {
-    Promise.all([
-      fetchAndFilterData(),
-    ]).then(() => {
+    fetchAndFilterData().then(() => {
       missingDataWarningBanner.value.checkForMissingDataAndWarn([
         chartOptions.value, 
         secondChartOptions.value, 
