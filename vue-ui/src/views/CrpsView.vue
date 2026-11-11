@@ -1029,7 +1029,11 @@ const extractCSVColumn = (csvText, columnName) => {
   }
 
   rows.slice(1).forEach((row) => {
-    // replace quoted lists or quoted values
+    /*
+      TWC ensemble members are stored as quoted arrays in a single cell
+      such as "[a, b, c, ...]". This turns the entire cell into a single
+      empty string that will be ignored when parsing the cells
+    */
     const cells = row.replace(/"[^"]*"/g, "").split(",");
 
     const timestamp = cells[0];
