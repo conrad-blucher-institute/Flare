@@ -748,7 +748,7 @@ const fetchAndFilterData = async () => {
         type: "line",
         dashStyle: "Dash",
         color: "black",
-        lineWidth: isSmallScreen ? 1 : 2,
+        lineWidth: 3,
         zIndex: 3, // Ensure median is in front of the other lines
         marker: { enabled: false},
       },
@@ -798,7 +798,7 @@ const fetchAndFilterData = async () => {
         type: "line",
         dashStyle: "Dash",
         color: "black",
-        lineWidth: isSmallScreen ? 1 : 2,
+        lineWidth: 3,
         zIndex: 3, // Ensure the median is in front of the other lines
         marker: { enabled: false},
       },
@@ -868,7 +868,7 @@ const fetchAndFilterData = async () => {
         data: boxplotWaterPredictionsPercentile50Fahrenheit,
         type: "line",
         color: "#4A90E2",
-        lineWidth: isSmallScreen ? 1 : 2,
+        lineWidth: 3,
         zIndex: 1, // Ensure this is in front of the bounds
         marker: { enabled: false },
       },
