@@ -1,11 +1,10 @@
 <!-- ===================================================
 View: AirTemperatureEnsembleView.vue
 
-This view displays the air temperature ensemble trends and predictions for South Bird Island
-found https://sherlock-prod.tamucc.edu/flare/air-temperature-ensemble
+This view displays the air temperature ensemble trends and predictions for
+the upper laguna madre found at https://sherlock-prod.tamucc.edu/flare/air-temperature-ensemble
 
 Authors: Anointiyae Beasley, Savannah Stephenson, Christian Quintero
-
 Last Updated: 11/10/2026
 ======================================================= -->
 <script setup>
@@ -30,7 +29,7 @@ const missingDataWarningBanner = ref(null);
 const TEXT_COLOR = "#0f4f66";
 
 // exporting menu options for all charts
-const commonExporting = () => ({
+const commonExporting = {
   enabled: true,
   filename: `${BASE_FILENAME}`,
   sourceWidth: 1600,
@@ -49,7 +48,7 @@ const commonExporting = () => ({
       ],
     },
   },
-});
+};
 
 // tooltip.outside renders the tooltip on document.body, which is hidden in fullscreen,
 // so render it inside the chart while fullscreen is open
@@ -148,7 +147,7 @@ const dailyXAxis = {
 const buildChart = () => ({
   chart: commonChart("line"),
   title: commonTitle("Ensemble Air Temperature Forecasts for the Upper Laguna Madre"),
-  exporting: commonExporting(),
+  exporting: commonExporting,
   legend: { enabled: false },
   xAxis: {
     type: "datetime",
@@ -236,7 +235,7 @@ const buildChart = () => ({
 const buildSecondChart = () => ({
   chart: commonChart("line"),
   title: commonTitle("Air Temperature Predictions from The Weather Company and<br>The National Digital Forecast Database"),
-  exporting: commonExporting(),
+  exporting: commonExporting,
   legend: commonLegend,
   xAxis: dailyXAxis,
   yAxis: commonYAxis,
@@ -276,7 +275,7 @@ const buildSecondChart = () => ({
 const buildThirdChart = () => ({
   chart: commonChart("boxplot"),
   title: commonTitle("Box Plot for Air Temperature Predictions from The Weather Company<br>and The National Digital Forecast Database"),
-  exporting: commonExporting(),
+  exporting: commonExporting,
   legend: commonLegend,
   xAxis: dailyXAxis,
   yAxis: commonYAxis,
