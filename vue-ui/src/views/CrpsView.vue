@@ -629,14 +629,26 @@ const fetchAndFilterData = async () => {
     // Fetch CSV data
     const response = await fetch(csvURL.value);
     const twcResponse = await fetch(twcURL.value);
-    if (!response.ok || !twcResponse.ok) throw new Error("Failed to fetch ribbon CSV data");
 
+    if (!response.ok) {
+      // stop exec if the main CSV fails to fetch
+      throw new Error("Failed to fetch ribbon CSV data");
+    }
+
+    let twcMedian = [];
+    if (twcResponse.ok) {
+      // proceed to fetch TWC CSV data
+      const twcCsvText = await twcResponse.text();
+      twcMedian = extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p50");
+    }
+    else {
+      // do not stop exec if the TWC CSV fails to fetch
+      console.error("Failed to fetch TWC CSV data");
+    }
+
+    // convert to text and parse CSV data
     const csvText = await response.text();
-    const twcCsvText = await twcResponse.text();
-
-    // Parse the CSV data for the ribbon chart
     const parsedData = parseCSV(csvText);
-    const twcMedian = extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p50");
 
     // Ensure parsed arrays are initialized
     const waterMeasurements = parsedData.waterMeasurements || [];
