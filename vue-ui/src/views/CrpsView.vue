@@ -841,7 +841,7 @@ const fetchAndFilterData = async () => {
         dashStyle: "Dash",
         color: "black",
         lineWidth: 3,
-        zIndex: 5,
+        zIndex: 6,
         marker: { enabled: false},
       },
       {
