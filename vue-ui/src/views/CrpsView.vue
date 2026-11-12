@@ -620,30 +620,40 @@ ribbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen, "Water Tempe
 secondRibbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen , "Water Temperature Predictions with Uncertainty Estimates<br/>(Fan Plot) for Laguna Madre"));
 boxChartOptions.value = reactive(buildBoxChart(isSmallScreen));
 
+const fetchTwcMedian = async () => {
+  /*
+    fetches the TWC median and guards against failures by returning
+    an empty series if there's an error
 
-
+    Returns:
+      Array - the TWC median series as [[timestamp, value], ...]
+      or [] if the fetch fails
+  */
+  try {
+    const twcResponse = await fetch(twcURL.value);
+    if (!twcResponse.ok) {
+      throw new Error(`HTTP ${twcResponse.status}`);
+    }
+    const twcCsvText = await twcResponse.text();
+    return extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p50");
+  } catch (error) {
+    console.error("Failed to fetch TWC CSV data", error);
+    return [];
+  }
+};
 
 // Function to fetch and process second CSV data
 const fetchAndFilterData = async () => {
   try {
-    // Fetch CSV data
-    const response = await fetch(csvURL.value);
-    const twcResponse = await fetch(twcURL.value);
+    // fetch main csv and twc csv in parallel
+    const [response, twcMedian] = await Promise.all([
+      fetch(csvURL.value),
+      fetchTwcMedian(),
+    ]);
 
     if (!response.ok) {
       // stop exec if the main CSV fails to fetch
       throw new Error("Failed to fetch ribbon CSV data");
-    }
-
-    let twcMedian = [];
-    if (twcResponse.ok) {
-      // proceed to fetch TWC CSV data
-      const twcCsvText = await twcResponse.text();
-      twcMedian = extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p50");
-    }
-    else {
-      // do not stop exec if the TWC CSV fails to fetch
-      console.error("Failed to fetch TWC CSV data");
     }
 
     // convert to text and parse CSV data
