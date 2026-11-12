@@ -1,529 +1,319 @@
 <!-- ===================================================
-     View: AirTemperatureEnsembleView.vue
+View: AirTemperatureEnsembleView.vue
 
-     Description: This view displays the air temperature ensemble trends and predictions for South Bird Island.
+This view displays the air temperature ensemble trends and predictions for
+the upper laguna madre found at https://sherlock-prod.tamucc.edu/flare/air-temperature-ensemble
 
-                  Features include:
-                  - A dynamically updating Highcharts spaghetti chart using live CSV data.
-                  - Instructions for interacting with the chart.
-                  - Information on the data of the chart.
-                  - Additional links
-     Author: Anointiyae Beasley, Savannah Stephenson, Christian Quintero
-
-     Last Updated: 07/27/2025
-
+Authors: Anointiyae Beasley, Savannah Stephenson, Christian Quintero
+Last Updated: 11/10/2026
 ======================================================= -->
 <script setup>
 import Highcharts from "highcharts";
-import HighchartsMore from "highcharts/highcharts-more";
+import "highcharts/highcharts-more";
+import "highcharts/modules/exporting";
+import "highcharts/modules/export-data";
+import "highcharts/modules/offline-exporting";
 import { Chart } from "highcharts-vue";
-
-import { ref, onMounted, reactive } from "vue";
-
+import { ref, onMounted } from "vue";
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
-const missingDataWarningBanner = ref(MissingDataWarningBanner);
+
 const isSmallScreen = window.innerWidth <= 600;
-
-// spaghetti graph
-// ribbon graph
-// box plot graph
-const csvURL = ref(`${window.location.origin}/flare/csv-data/TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
-const csvURL2 = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
-const csvURL3 = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs.csv`);
-
-
-
-// Add reactive state for dropdown visibility
-const isExportMenuVisible = ref(false);
-const isSecondExportMenuVisible = ref(false);
-const isThirdExportMenuVisible = ref(false);
-const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-
-// Define the current date and time
-const nowDate = new Date(); // Current timestamp
-const nowTime = nowDate.getTime();
+const BASE_FILENAME = 'TWC-NDFD_Laguna-Madre_Air-Temperature-Predictions_240hrs';
+const csvURL = ref(`${window.location.origin}/flare/csv-data/${BASE_FILENAME}.csv`);
 
 const chartOptions = ref({});
 const secondChartOptions = ref({});
 const thirdChartOptions = ref({});
+const missingDataWarningBanner = ref(null);
 
-// Chart function for first chart that changes based on screen size
+const TEXT_COLOR = "#0f4f66";
+
+// exporting menu options for all charts
+const commonExporting = {
+  enabled: true,
+  filename: `${BASE_FILENAME}`,
+  sourceWidth: 1600,
+  sourceHeight: 900,
+  scale: 1,
+  buttons: {
+    contextButton: {
+      menuItems: [
+        "viewFullscreen",
+        "separator",
+        "downloadPNG",
+        "downloadJPEG",
+        "downloadPDF",
+        "separator",
+        "downloadCSV",
+      ],
+    },
+  },
+};
+
+// tooltip.outside renders the tooltip on document.body, which is hidden in fullscreen,
+// so render it inside the chart while fullscreen is open
+const fullscreenTooltipEvents = {
+  fullscreenOpen: function () {
+    this.update({ tooltip: { outside: false } });
+  },
+  fullscreenClose: function () {
+    this.update({ tooltip: { outside: true } });
+  },
+};
+
+// common chart options for all charts
+const commonChart = (type) => ({
+  type,
+  zoomType: "x",
+  backgroundColor: "white",
+  style: { fontFamily: "Arial" },
+  marginRight: 30,
+  marginTop: 100,
+  events: fullscreenTooltipEvents,
+});
+
+// common title options for all charts
+const commonTitle = (text) => ({
+  text,
+  style: {
+    fontSize: isSmallScreen ? "20px" : "28px",
+    fontWeight: "bold",
+    color: TEXT_COLOR,
+  },
+  useHTML: true,
+  align: "center",
+});
+
+// common y-axis options for all charts
+const commonYAxis = {
+  labels: {
+    style: { fontSize: isSmallScreen ? "12px" : "26px", color: TEXT_COLOR, fontFamily: "Arial" },
+  },
+  title: {
+    text: "Temperature (°F)",
+    style: { color: TEXT_COLOR, fontSize: isSmallScreen ? "12px" : "20px" },
+  },
+  startOnTick: true,
+  endOnTick: true,
+  tickInterval: 5,
+};
+
+// common legend options for all charts
+const commonLegend = {
+  enabled: true,
+  align: "center",
+  verticalAlign: "bottom",
+  layout: "horizontal",
+  itemStyle: { color: TEXT_COLOR, fontWeight: "normal", fontSize: isSmallScreen ? "12px" : "14px" },
+};
+
+// common tooltip style for all charts
+const tooltipStyle = {
+  fontSize: isSmallScreen ? "12px" : "14px",
+  padding: isSmallScreen ? "5px" : "8px",
+  color: TEXT_COLOR,
+  fontFamily: "Arial",
+};
+
+// all tooltips have a "Date: ... Time: ..." header
+const tooltipHeader = (x) => {
+  const localDate = new Date(x);
+  const date = localDate.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", year: "numeric" });
+  const time = localDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  return `<b>Date: ${date}</b><br><b>Time: ${time}</b><br>`;
+};
+
+// daily x axis used by the ribbon and box plot charts
+const dailyXAxis = {
+  type: "datetime",
+  labels: {
+    formatter: function () {
+      const localDate = new Date(this.value);
+      const day = localDate.toLocaleDateString("en-US", { weekday: "short" });
+      const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      return `<span style="display: block; text-align: center; font-family: Arial;"><b>${day}</b><br>${date}</span>`;
+    },
+    useHTML: true,
+    style: { fontSize: isSmallScreen ? "12px" : "16px", fontFamily: "Arial", color: TEXT_COLOR, whiteSpace: "nowrap" },
+  },
+  tickInterval: 24 * 3600 * 1000,
+  title: {
+    text: "Time",
+    style: { fontSize: isSmallScreen ? "14px" : "20px", fontFamily: "Arial", color: TEXT_COLOR },
+  },
+};
+
 // spaghetti graph
-const buildChart = (isSmallScreen) => {
-  return {
-    chart: {
-      type: "line",
-      zoomType: "x",
-      backgroundColor: "white",
-      style: { fontFamily: "Arial" },
-      marginRight: 30,
-      marginTop: 100, 
-    },
-    title: {
-      text: "Ensemble Air Temperature Forecasts for the Upper Laguna Madre",
-      style: { 
-        fontSize: isSmallScreen ? "20px" : "28px", 
-        fontWeight: "bold", 
-        color: "#0f4f66"
-      },
-      useHTML: true,
-      align: 'center',
-    },
-    exporting: {
-      enabled: true, // Enables the export menu
-    },
-    legend: {enabled: false,
-    },
-    xAxis: {
-      type: "datetime",
-      dateTimeLabelFormats: {
-        day: "%a %b %e",
-      },
-      labels: {
-        formatter: function () {
-          const localDate = new Date(this.value);
-          const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
-          const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-          const time = localDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true }); 
-          return `<span style="display: block; text-align: center; font-family: Arial;">
-                    <b>${day}</b><br>${date}<br><i>${time}</i>
-                  </span>`;
-        },
-        useHTML: true,
-        style: {
-          fontSize: isSmallScreen ? "12px" : "16px", 
-          fontFamily: "Arial",
-          color: "#0f4f66",
-          whiteSpace: "nowrap",
-        },
-      },
-      labelsOverflow: "justify", // Prevent truncation
-      maxPadding: 0, // Fitting lines exactly to graph size
-      minPadding: 0,
-      tickInterval: 2 * 24 * 3600 * 1000, // Main ticks every 2 days
-      minorTickInterval: 24 * 3600 * 1000, // Minor ticks every day
-      minorTickWidth: 1, // Width of the minor tick lines
-      minorTickLength: 5, // Length of the minor tick lines
-      minorTickColor: "#888", // Color of the minor ticks
-      // Ensure ticks align to 12 AM
-      tickPositioner: function () {
-        let positions = [];
-        let timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
-        let start = Math.floor((this.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset;
-        let end = this.max;
-        
-        while (start <= end) {
-          positions.push(start);
-          start += 2 * 24 * 3600 * 1000; // Increment by 2 days
-        }
-        return positions;
-      },
-      title: {
-        text: "Time",
-        style: {
-          fontSize: isSmallScreen ? "14px" : "20px",
-          fontFamily: "Arial",
-          color: "#0f4f66",
-        },
-      },
-
-      plotLines: [],
-      events: {
-        afterSetExtremes: function () {
-          const xAxis = this;
-          const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000; // Ensure local time alignment
-          const min = Math.floor((xAxis.min - timezoneOffset) / (24 * 3600 * 1000)) * (24 * 3600 * 1000) + timezoneOffset + (24 * 3600 * 1000);
-          const max = xAxis.max;
-          const plotLines = [];
-
-          
-          for (let time = min; time <= max; time += 2 * 24 * 3600 * 1000) {
-            plotLines.push({
-              color: "gray",
-              dashStyle: "Dot",
-              width: 1,
-              value: time,
-              label: {
-                text: (() => {
-                    const localDate = new Date(time); // Convert timestamp to local time
-                    const options = { weekday: "short", month: "short", day: "numeric" }; // Format options
-                    return localDate.toLocaleDateString("en-US", options); // Format as "Mon Jan 27"
-                  })(),
-                align: "left",
-                rotation: 0,
-                y: 15,
-                style: {
-                  color: "#0f4f66",
-                  fontSize: isSmallScreen ? "10px" : "12px", 
-                  fontFamily: "Arial",
-                },
-              },
-            });
-          }
-
-          // Add the new plotlines dynamically
-          plotLines.forEach((line) => xAxis.addPlotLine(line));
-        },
-      },
-    },
-    yAxis: {
+const buildChart = () => ({
+  chart: commonChart("line"),
+  title: commonTitle("Ensemble Air Temperature Forecasts for the Upper Laguna Madre"),
+  exporting: commonExporting,
+  legend: { enabled: false },
+  xAxis: {
+    type: "datetime",
     labels: {
-      style: {
-        fontSize: isSmallScreen ? "12px" : "26px",
-        color: '#0f4f66',
-        fontFamily: 'Arial',
-      },
-    },
-    title: {
-      text: "Temperature (°F)",
-      style: { 
-          color: "#0f4f66", 
-          fontSize: isSmallScreen ? "12px" : "20px", 
-        },
-    },
-    // Let Highcharts auto-calculate range with some padding
-    startOnTick: true,
-    endOnTick: true,
-    tickInterval: 5, // Major ticks every 5 units
-    },
-
-    series: [], // Placeholder for data, dynamically updated
-    tooltip: {
-      shared: false,
-      crosshairs: true,
       formatter: function () {
-        const localDate = new Date(this.x); 
-        return `<b>Date: ${localDate.toLocaleDateString("en-US", {
-                    weekday: "long",
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                })}</b><br>
-                <b>Time: ${localDate.toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                })}</b><br>
-                Temperature: ${this.y.toFixed(2)}°F`;
+        const localDate = new Date(this.value);
+        const day = localDate.toLocaleDateString("en-US", { weekday: "short" });
+        const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        const time = localDate.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+        return `<span style="display: block; text-align: center; font-family: Arial;">
+                  <b>${day}</b><br>${date}<br><i>${time}</i>
+                </span>`;
       },
-      style: {
-        fontSize: isSmallScreen ? "12px" : "14px", 
-        padding: isSmallScreen ? "5px" : "8px", 
-        color: "#0f4f66",
-        fontFamily: "Arial",
+      useHTML: true,
+      style: { fontSize: isSmallScreen ? "12px" : "16px", fontFamily: "Arial", color: TEXT_COLOR, whiteSpace: "nowrap" },
+    },
+    maxPadding: 0, // fit lines exactly to the graph width
+    minPadding: 0,
+    minorTickInterval: 24 * 3600 * 1000, // minor ticks every day
+    minorTickWidth: 1,
+    minorTickLength: 5,
+    minorTickColor: "#888",
+    // major ticks every 2 days, aligned to local midnight
+    tickPositioner: function () {
+      const DAY = 24 * 3600 * 1000;
+      const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+      const positions = [];
+      let start = Math.floor((this.min - timezoneOffset) / DAY) * DAY + timezoneOffset;
+      while (start <= this.max) {
+        positions.push(start);
+        start += 2 * DAY;
+      }
+      return positions;
+    },
+    title: dailyXAxis.title,
+    events: {
+      // dotted day lines on the in-between days; redrawn on every zoom
+      afterSetExtremes: function () {
+        const DAY = 24 * 3600 * 1000;
+        const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000;
+        const min = Math.floor((this.min - timezoneOffset) / DAY) * DAY + timezoneOffset + DAY;
+
+        // remove the previous zoom's lines so they don't stack up
+        this.removePlotLine("day-line");
+
+        for (let time = min; time <= this.max; time += 2 * DAY) {
+          this.addPlotLine({
+            id: "day-line",
+            color: "gray",
+            dashStyle: "Dot",
+            width: 1,
+            value: time,
+            label: {
+              text: new Date(time).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }),
+              align: "left",
+              rotation: 0,
+              y: 15,
+              style: { color: TEXT_COLOR, fontSize: isSmallScreen ? "10px" : "12px", fontFamily: "Arial" },
+            },
+          });
+        }
       },
     },
-  };
-}; // end buildChart (spaghetti graph)
+  },
+  yAxis: commonYAxis,
+  plotOptions: {
+    series: {
+      marker: { enabled: false },
+      lineWidth: 1,
+    },
+  },
+  series: [],
+  tooltip: {
+    outside: true,
+    shared: false,
+    crosshairs: true,
+    style: tooltipStyle,
+    formatter: function () {
+      return tooltipHeader(this.x) + `Temperature: ${this.y.toFixed(1)}°F`;
+    },
+  },
+});
 
-// Chart function for second chart that changes based on screen size
 // ribbon graph
-const buildSecondChart = (isSmallScreen) => {
-  return {
-    chart: {
-      type: "areaspline",
-      zoomType: "x",
-      backgroundColor: "white",
-      style: { fontFamily: "Arial" },
-      marginRight: 30,
-      marginTop: 100,
+const buildSecondChart = () => ({
+  chart: commonChart("line"),
+  title: commonTitle("Air Temperature Predictions from The Weather Company and<br>The National Digital Forecast Database"),
+  exporting: commonExporting,
+  legend: commonLegend,
+  xAxis: dailyXAxis,
+  yAxis: commonYAxis,
+  plotOptions: {
+    series: {
+      marker: { enabled: false },
+      states: { inactive: { opacity: 1 } }, // do not dim other series when hovering over one
     },
-    title: {
-      text: "Air Temperature Predictions from The Weather Company and<br>The National Digital Forecast Database",
-      style: { 
-        fontSize: isSmallScreen ? "20px" : "28px", 
-        fontWeight: "bold", 
-        color: "#0f4f66" 
-      },
-      useHTML: true,
-      align: 'center',
-    },
-    exporting: {
-      enabled: true,
-    },
-    legend: {
-      enabled: true,
-      align: 'center',
-      verticalAlign: 'bottom',
-      layout: 'horizontal',
-      itemStyle: {
-        color: "#0f4f66",
-        fontWeight: 'normal',
-        fontSize: isSmallScreen ? "12px" : "14px"
-      }
-    },
-    xAxis: {
-      type: "datetime",
-      dateTimeLabelFormats: {
-        day: "%a %b %e",
-      },
-      labels: {
-        formatter: function () {
-          const localDate = new Date(this.value);
-          const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
-          const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-          return `<span style="display: block; text-align: center; font-family: Arial;">
-                    <b>${day}</b><br>${date}
-                  </span>`;
-        },
-        useHTML: true,
-        style: {
-          fontSize: isSmallScreen ? "12px" : "16px", 
-          fontFamily: "Arial",
-          color: "#0f4f66",
-          whiteSpace: "nowrap",
-        },
-      },
-      tickInterval: 24 * 3600 * 1000, // Main ticks every day
-      title: {
-        text: "Time",
-        style: {
-          fontSize: isSmallScreen ? "14px" : "20px",
-          fontFamily: "Arial",
-          color: "#0f4f66",
-        },
-      },
-    },
-    yAxis: {
-      labels: {
-        style: {
-          fontSize: isSmallScreen ? "12px" : "26px",
-          color: '#0f4f66',
-          fontFamily: 'Arial',
-        },
-      },
-      title: {
-        text: "Temperature (°F)",
-        style: { 
-            color: "#0f4f66", 
-            fontSize: isSmallScreen ? "12px" : "20px", 
-        },
-      },
-      // Let Highcharts auto-calculate range with some padding
-      startOnTick: true,
-      endOnTick: true,
-      tickInterval: 5, // Major ticks every 5 units
-    },
-    plotOptions: {
-      areaspline: {
-        fillOpacity: 0.3,
-        marker: {
-          enabled: false,
-          radius: 3,
-          states: {
-            hover: {
-              enabled: true
-            }
-          }
-        },
-        states: {
-          hover: {
-            lineWidth: 3
-          }
-        }
-      },
-      series: {
-        states: {
-          inactive: { opacity: 1 } // do not dim other series when hovering over one
-        }
-      }
-    },
-    series: [], // Placeholder for data, dynamically updated
-    tooltip: {
-      shared: true,
-      crosshairs: true,
-      formatter: function () {
-        const localDate = new Date(this.x); 
-        // Dynamically creating the tooltip based on what series are present
-        // Bounds are a special case since they are a range
-        var displayInfo = ``;
-        this.points.forEach(line => {
-          if (line.series.name === "Bounds") {
-            displayInfo += `
-              <span style="color:${line.color}">\u25CF</span> 95th Percentile: <b>${line.high.toFixed(1)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> 5th Percentile: <b>${line.low.toFixed(1)}°F</b><br>`;
-          }
-          else
-          displayInfo += `
-            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(1)}°F</b><br>`;
-          
-        });
-        return `<b>Date: ${localDate.toLocaleDateString("en-US", {
-                    weekday: "long",
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                })}</b><br>
-                <b>Time: ${localDate.toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                })}</b><br>
-                ${displayInfo}`;
-                
-                
-      },
-      style: {
-        fontSize: isSmallScreen ? "12px" : "14px", 
-        padding: isSmallScreen ? "5px" : "8px", 
-        color: "#0f4f66",
-        fontFamily: "Arial",
-      },
-    },
-  };
-}; // end buildSecondChart (ribbon graph)
+  },
+  series: [],
+  tooltip: {
+    outside: true,
+    shared: true,
+    crosshairs: true,
+    style: tooltipStyle,
+    formatter: function () {
+      let displayInfo = "";
+      this.points.forEach((line) => {
+        const dot = `<span style="color:${line.color}">\u25CF</span>`;
 
-// Chart function for third chart that changes based on screen size
+        if (line.series.type === "arearange") {
+          const { highLabel, lowLabel } = line.series.options.custom;
+          displayInfo += `
+            ${dot} <b>${line.series.name}</b><br>
+            &nbsp;&nbsp;&nbsp;${highLabel}: <b>${line.high.toFixed(1)}°F</b><br>
+            &nbsp;&nbsp;&nbsp;${lowLabel}: <b>${line.low.toFixed(1)}°F</b><br>`;
+        } else {
+          displayInfo += `${dot} ${line.series.name}: <b>${line.y.toFixed(1)}°F</b><br>`;
+        }
+      });
+      return tooltipHeader(this.x) + displayInfo;
+    },
+  },
+});
+
 // box plot graph
-const buildThirdChart = (isSmallScreen) => {
-  return {
-    chart: {
-      type: "boxplot",
-      zoomType: "x",
-      backgroundColor: "white",
-      style: { fontFamily: "Arial" },
-      marginRight: 30,
-      marginTop: 100,
+const buildThirdChart = () => ({
+  chart: commonChart("boxplot"),
+  title: commonTitle("Box Plot for Air Temperature Predictions from The Weather Company<br>and The National Digital Forecast Database"),
+  exporting: commonExporting,
+  legend: commonLegend,
+  xAxis: dailyXAxis,
+  yAxis: commonYAxis,
+  plotOptions: {
+    series: {
+      marker: { enabled: false },
+      states: { inactive: { opacity: 1 } }, // do not dim other series when hovering over one
     },
-    title: {
-      text: "Box Plot for Air Temperature Predictions from The Weather Company<br>and The National Digital Forecast Database",
-      style: { 
-        fontSize: isSmallScreen ? "20px" : "28px", 
-        fontWeight: "bold", 
-        color: "#0f4f66"
-      },
-      useHTML: true,
-      align: 'center'
-    },
-    exporting: {
-      enabled: true,
-    },
-    legend: {
-      enabled: true,
-      align: 'center',
-      verticalAlign: 'bottom',
-      layout: 'horizontal',
-      itemStyle: {
-        color: "#0f4f66",
-        fontWeight: 'normal',
-        fontSize: isSmallScreen ? "12px" : "14px"
-      }
-    },
-    xAxis: {
-      type: "datetime",
-      dateTimeLabelFormats: {
-        day: "%a %b %e",
-      },
-      labels: {
-        formatter: function () {
-          const localDate = new Date(this.value);
-          const day = localDate.toLocaleDateString("en-US", { weekday: "short" }); 
-          const date = localDate.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-          return `<span style="display: block; text-align: center; font-family: Arial;">
-                    <b>${day}</b><br>${date}
-                  </span>`;
-        },
-        useHTML: true,
-        style: {
-          fontSize: isSmallScreen ? "12px" : "16px", 
-          fontFamily: "Arial",
-          color: "#0f4f66",
-          whiteSpace: "nowrap",
-        },
-      },
-      tickInterval: 24 * 3600 * 1000, // Main ticks every day
-      title: {
-        text: "Time",
-        style: {
-          fontSize: isSmallScreen ? "14px" : "20px",
-          fontFamily: "Arial",
-          color: "#0f4f66",
-        },
-      },
-    },
-    yAxis: {
-      labels: {
-        style: {
-          fontSize: isSmallScreen ? "12px" : "26px",
-          color: '#0f4f66',
-          fontFamily: 'Arial',
-        },
-      },
-      title: {
-        text: "Temperature (°F)",
-        style: { 
-            color: "#0f4f66", 
-            fontSize: isSmallScreen ? "12px" : "20px", 
-        },
-      },
-      // Let Highcharts auto-calculate range with some padding
-      startOnTick: true,
-      endOnTick: true,
-      tickInterval: 5, // Major ticks every 5 units
-    },
-    series: [], // Placeholder for data, dynamically updated
-    tooltip: {
-      shared: true,
-      crosshairs: true,
-      formatter: function () {
-        const localDate = new Date(this.x); 
-        // Dynamically creating the tooltip based on what series are present
-        // Box Plot is a special case since they have multiple values
-        var displayInfo = ``;
-        this.points.forEach(line => {
-          if (line.series.name === "Box Plot Air Temperature Predictions") {
-            displayInfo += `
-              <span style="color:${line.color}">\u25CF</span> Maximum: <b>${line.high.toFixed(1)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Upper Quartile: <b>${line.q3.toFixed(1)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Median: <b>${line.median.toFixed(1)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Lower Quartile: <b>${line.q1.toFixed(1)}°F</b><br>
-              <span style="color:${line.color}">\u25CF</span> Minimum: <b>${line.low.toFixed(1)}°F</b><br>`;
-          }
-          else
+  },
+  series: [],
+  tooltip: {
+    outside: true,
+    shared: true,
+    crosshairs: true,
+    style: tooltipStyle,
+    formatter: function () {
+      let displayInfo = "";
+      this.points.forEach((line) => {
+        const dot = `<span style="color:${line.color}">\u25CF</span>`;
+        if (line.series.type === "boxplot") {
           displayInfo += `
-            <span style="color:${line.color}">\u25CF</span> ${line.series.name}: <b>${line.y.toFixed(1)}°F</b><br>`;
-          
-        });
-        return `<b>Date: ${localDate.toLocaleDateString("en-US", {
-                    weekday: "long",
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                })}</b><br>
-                <b>Time: ${localDate.toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                })}</b><br>
-                ${displayInfo}`;
-                
-                
-      },
-      style: {
-        fontSize: isSmallScreen ? "12px" : "14px", 
-        padding: isSmallScreen ? "5px" : "8px", 
-        color: "#0f4f66",
-        fontFamily: "Arial",
-      },
-    },
-    plotOptions: {
-      line: {
-        lineWidth: 3
-      },
-      spline: {
-      lineWidth: 3,
-      },
-      series: {
-        states: {
-          inactive: { opacity: 1 } // do not dim other series when hovering over one
+            ${dot} Maximum: <b>${line.high.toFixed(1)}°F</b><br>
+            ${dot} Upper Quartile: <b>${line.q3.toFixed(1)}°F</b><br>
+            ${dot} Median: <b>${line.median.toFixed(1)}°F</b><br>
+            ${dot} Lower Quartile: <b>${line.q1.toFixed(1)}°F</b><br>
+            ${dot} Minimum: <b>${line.low.toFixed(1)}°F</b><br>`;
+        } else {
+          displayInfo += `${dot} ${line.series.name}: <b>${line.y.toFixed(1)}°F</b><br>`;
         }
-      }
+      });
+      return tooltipHeader(this.x) + displayInfo;
     },
-  }
-} // end buildThirdChart (box plot graph)
+  },
+});
 
-
-chartOptions.value = reactive(buildChart(isSmallScreen));
-secondChartOptions.value = buildSecondChart(isSmallScreen);
-thirdChartOptions.value = buildThirdChart(isSmallScreen);
+chartOptions.value = buildChart();
+secondChartOptions.value = buildSecondChart();
+thirdChartOptions.value = buildThirdChart();
 
 // Function to fetch and process CSV data for first chart
 const fetchAndFilterData = async () => {
@@ -535,361 +325,203 @@ const fetchAndFilterData = async () => {
     const csvText = await response.text();
 
     // Parse the CSV data
-    const { airPredictionMembers } = parseCSV(csvText);
-
-    const series = [];
-
-    // Loop through each ensemble member
-    airPredictionMembers.forEach((memberData, i) => {
-      series.push({
-        name: `Ensemble Member ${i + 1}`,
-        data: memberData,
-        color: Highcharts.getOptions().colors[i % 10], // Use Highcharts colors
-        lineWidth: 1,
-        marker: { enabled: false },
-      });
-    });
-
-    // Update chart options
-    chartOptions.value.series = series;
-  } catch (error) {
-    console.error("Error fetching or processing data:", error);
-  }
-};
-
-// Function to fetch and process second CSV data
-const fetchAndFilterSecondData = async () => {
-  try {
-    // Fetch CSV data
-    const response = await fetch(csvURL2.value);
-    if (!response.ok) throw new Error("Failed to fetch second CSV data");
-
-    const csvText = await response.text();
-
-    // Parse the CSV data for the second chart
-    const parsedData = parseSecondCSV(csvText);
-
-    // Ensure parsed arrays are initialized
-    const fifthPercentiles = parsedData.fifthPercentiles || [];
-    const medians = parsedData.medians || [];
-    const ninetyfifthPercentiles = parsedData.ninetyfifthPercentiles || [];
-    const NDFPredictions = parsedData.NDFPredictions || [];
-
-    // Convert to Fahrenheit
-    // and round to 1 decimal
+    const parsedData = parseCSV(csvText);
     const toFahrenheit = (celsius) => (celsius * 9/5) + 32;
-    const fifthPercentilesFahrenheit = fifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
-    const mediansFahrenheit = medians.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
-    const ninetyfifthPercentilesFahrenheit = ninetyfifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
-    const NDFPredictionsFahrenheit = NDFPredictions.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    
+    // one line per ensemble member, in Fahrenheit
+    const spaghettiSeries = parsedData.members.map((memberData, i) => ({
+      name: `Ensemble Member ${i + 1}`,
+      data: memberData.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]),
+      color: Highcharts.getOptions().colors[i % 10],
+    }));
 
-  
-    // Combine lower and upper bounds into a single series for Highcharts
-    // boundsFahrenheit now shows 5th and 95th percentiles rather than min and max
-    const boundsFahrenheit = fifthPercentilesFahrenheit.map((point, index) => {
-      const dateIndex = point[0];
-      const fifthPercentile = fifthPercentilesFahrenheit[index][1];
-      const ninetyfifthPercentile = ninetyfifthPercentilesFahrenheit[index][1];
-      return [dateIndex, fifthPercentile, ninetyfifthPercentile];
+    // update chart options
+    chartOptions.value.series = spaghettiSeries;
+
+    // initialize series lists
+    const p0 = parsedData.p0 || [];
+    const p5 = parsedData.p5 || [];
+    const p25 = parsedData.p25 || [];
+    const p50 = parsedData.p50 || [];
+    const p75 = parsedData.p75 || [];
+    const p95 = parsedData.p95 || [];
+    const p100 = parsedData.p100 || [];
+    const ndfd = parsedData.ndfd || [];
+    
+    // convert to Fahrenheit
+    const p0Fahrenheit = p0.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const p5Fahrenheit = p5.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const p25Fahrenheit = p25.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const p50Fahrenheit = p50.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const p75Fahrenheit = p75.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const p95Fahrenheit = p95.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const p100Fahrenheit = p100.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const ndfdFahrenheit = ndfd.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    
+    // combine into 1 series for the outer ribbon of p5 - p95
+    const outerRibbon = p5Fahrenheit.map((point, index) => {
+      const time = point[0];
+      const p5 = p5Fahrenheit[index][1];
+      const p95 = p95Fahrenheit[index][1];
+      return [time, p5, p95];
     });
 
-    // Update chart series with filtered data
+    // combine into 1 series for the inner ribbon of p25 - p75
+    const innerRibbon = p25Fahrenheit.map((point, index) => {
+      const time = point[0];
+      const p25 = p25Fahrenheit[index][1];
+      const p75 = p75Fahrenheit[index][1];
+      return [time, p25, p75];
+    });
+
+    const boxPlot = p0Fahrenheit.map((point, index) => {
+      const time = point[0];
+      const p0 = p0Fahrenheit[index][1];
+      const p25 = p25Fahrenheit[index][1];
+      const p50 = p50Fahrenheit[index][1];
+      const p75 = p75Fahrenheit[index][1];
+      const p100 = p100Fahrenheit[index][1];
+      return [time, p0, p25, p50, p75, p100];
+    });
+
+    // update chart 2
     secondChartOptions.value.series = [
       {
         name: "Median Air Temperature Predictions",
-        data: mediansFahrenheit,
         type: "line",
+        data: p50Fahrenheit,
         color: "blue",
-        lineWidth: isSmallScreen ? 2 : 4,
-        zIndex: 1, // Ensure this is in front of the bounds
-        marker: { enabled: false },
+        lineWidth: 4,
+        zIndex: 3,
       },
       {
-        name: "Bounds",
-        data: boundsFahrenheit,
-        type: "arearange",
-        lineWidth: 0, // No line for bounds
-        color: Highcharts.getOptions().colors[0],
-        fillOpacity: 0.3,
-        zIndex: 0, // Ensure this is behind the mean line
-        marker: { enabled: false },
+        name: '25th-75th Percentile',
+        type: 'arearange',
+        data: innerRibbon,
+        color: '#9ACDFF',
+        lineWidth: 1,
+        zIndex: 1,
+        custom: { highLabel: "High (75%)", lowLabel: "Low (25%)" }
+      },
+      {
+        name: '5th-95th Percentile',
+        type: 'arearange',
+        data: outerRibbon,
+        color: '#DDEEFF',
+        lineWidth: 1,
+        zIndex: 0,
+        custom: { highLabel: "High (95%)", lowLabel: "Low (5%)" }
       },
       {
         name: "NDFD Air Temperature Predictions",
-        data: NDFPredictionsFahrenheit,
         type: "line",
+        data: ndfdFahrenheit,
         color: "purple",
-        lineWidth: isSmallScreen ? 2 : 4,
-        marker: {
-          enabled: false,
-          radius: isSmallScreen ? 1 : 2,
-        },
+        lineWidth: 4,
+        zIndex: 3,
       },
+    ];
+    
+    // update chart 3
+    thirdChartOptions.value.series = [
+      {
+        name: "Box Plot Air Temperature Predictions",
+        type: "boxplot",
+        data: boxPlot,
+        medianColor: '#000000',
+        stemColor: '#4A90E2',
+        whiskerColor: '#4A90E2',
+        whiskerLength: '150%',
+        color: '#4A90E2',
+        fillColor: 'rgba(74,144,226,0.35)',
+        zIndex: 1,
+      },
+      {
+        name: "Median Air Temperature Predictions",
+        type: "line",
+        data: p50Fahrenheit,
+        color: "blue",
+        lineWidth: 4,
+        zIndex: 3,
+      },
+      {
+        name: "NDFD Air Temperature Predictions",
+        type: "line",
+        data: ndfdFahrenheit,
+        color: "purple",
+        lineWidth: 4,
+        zIndex: 3, 
+      }
     ];
   } catch (error) {
     console.error("Error fetching or processing data:", error);
   }
-}; // end fetchAndFilterSecondData
+};
 
-
-// Function to fetch and process third CSV data
-const fetchAndFilterThirdData = async () => {
-  try {
-    // Fetch CSV data
-    const response = await fetch(csvURL3.value);
-    if (!response.ok) throw new Error("Failed to fetch third CSV data");
-
-    const csvText = await response.text();
-
-    // Parse the CSV data for the third chart
-    const parsedData = parseThirdCSV(csvText);
-
-    // Ensure parsed arrays are initialized
-    const lowerBounds = parsedData.lowerBounds || [];
-    const twentyfifthPercentiles = parsedData.twentyfifthPercentiles || [];
-    const medians = parsedData.medians || [];
-    const seventyfifthPercentiles = parsedData.seventyfifthPercentiles || [];
-    const upperBounds = parsedData.upperBounds || [];
-    const NDFPredictions = parsedData.NDFPredictions || [];
-
-    // Convert to Fahrenheit
-    // and round to 1 decimal place
-    const toFahrenheit = (celsius) => (celsius * 9/5) + 32;
-    const lowerBoundsFahrenheit = lowerBounds.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
-    const twentyfifthPercentilesFahrenheit = twentyfifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
-    const mediansFahrenheit = medians.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
-    const seventyfifthPercentilesFahrenheit = seventyfifthPercentiles.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
-    const upperBoundsFahrenheit = upperBounds.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
-    const NDFPredictionsFahrenheit = NDFPredictions.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
-
-    // combine data into a single series for highcharts
-    const boxplotData = lowerBoundsFahrenheit.map((point, index) => {
-      const dateIndex = point[0];
-      const lowerBound = lowerBoundsFahrenheit[index][1];
-      const twentyfifthPercentile = twentyfifthPercentilesFahrenheit[index][1];
-      const median = mediansFahrenheit[index][1];
-      const seventyfifthPercentile = seventyfifthPercentilesFahrenheit[index][1];
-      const upperBound = upperBoundsFahrenheit[index][1];
-      return [dateIndex, lowerBound, twentyfifthPercentile, median, seventyfifthPercentile, upperBound];
-    });
-
-    thirdChartOptions.value.series = [
-      {
-        name: "Box Plot Air Temperature Predictions",
-        data: boxplotData,
-        type: "boxplot",
-        color: Highcharts.getOptions().colors[0],
-      },
-      {
-        name: "Median Air Temperature Predictions",
-        data: mediansFahrenheit,
-        type: "line",
-        color: "blue",
-        zIndex: 1,                                    // Ensure this line is in front of the box plot
-        marker: { enabled: false },
-      },
-      {
-        name: "NDFD Air Temperature Predictions",
-        data: NDFPredictionsFahrenheit,
-        type: "line",
-        color: "purple",
-        zIndex: 1,                                    // Ensure this line is in front of the box plot   
-        lineWidth: isSmallScreen ? 2 : 4,
-        marker: {
-          enabled: false,
-          radius: isSmallScreen ? 1 : 2,
-        },
-      }
-    ]
-  }
-  catch (error) {
-    console.error("Error fetching or processing third data:", error);
-  }
-}
-
-// CSV parsing function first chart
 const parseCSV = (csvText) => {
-  const rows = csvText.split("\n").map((row) => {
-    // Split the row into two parts: timestamp and JSON array
-    const match = row.match(/^([^,]+),(.+)$/);
-    return match ? [match[1].trim(), match[2].trim()] : [];
-  });
+  const lines = csvText.trim().split(/\r?\n/);
+  const header = lines[0].split(",");
+  const col = (name) => header.indexOf(name);
 
-  const airPredictionMembers = [];
-
-  rows.forEach((row, rowIndex) => {
-    // Skip the header row
-    if (rowIndex === 0) return;
-
-    const [timestamp, jsonArray] = row;
-
-    // Skip rows with missing or invalid data
-    if (!timestamp || !jsonArray) {
-      console.warn(`Skipping invalid row at index ${rowIndex}:`, row);
-      return;
-    }
-
-    // Parse timestamp as UTC
-    const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
-    const utcTimestamp = Date.UTC(year, month - 1, day, hour, minute, second); // Parse as UTC (subtract 1 from month as Date.UTC expects 0-based months)
-
-    const localTimestamp = new Date(utcTimestamp).toLocaleString("en-US", {
-      timeZone: userTimeZone,
-    });
-
-    const localDate = new Date(localTimestamp);
-
-    if (!isNaN(localDate)) {
-      if (localDate && jsonArray) {
-        try {
-          // Remove surrounding quotes from the JSON array
-          const cleanedJsonArray = jsonArray.replace(/^"|"$/g, "");
-
-          // Validate and parse the JSON array
-          const parsedArray = JSON.parse(cleanedJsonArray);
-
-          if (Array.isArray(parsedArray)) {
-            parsedArray.forEach((tempCelsius, index) => {
-              const tempFahrenheit = (tempCelsius * 9) / 5 + 32; // Convert Celsius to Fahrenheit
-              if (!airPredictionMembers[index]) airPredictionMembers[index] = [];
-              airPredictionMembers[index].push([localDate.getTime(), tempFahrenheit]);
-            });
-          } else {
-            console.warn(`Parsed value is not an array: ${cleanedJsonArray}`);
-          }
-        } catch (error) {
-          console.error(`Error parsing JSON array: ${jsonArray} -> ${error.message}`);
-        }
-      }
-  }
-  });
-
-  return { airPredictionMembers };
-};
-
-// CSV parsing function for second chart
-const parseSecondCSV = (csvText) => {
-  const rows = csvText.split("\n").map((row) => row.split(","));
-
-  const fifthPercentiles = [];
-  const medians = [];
-  const ninetyfifthPercentiles = [];
-  const NDFPredictions = [];
-
-  rows.forEach((row, index) => {
-    // Skip the header row
-    if (index === 0) return;
-
-    const [timestamp, fifthPercentile, median, ninetyfifthPercentile, ndfdPrediction] = row;
-
-    // Parse timestamp as UTC
-    const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
-    const utcTimestamp = Date.UTC(year, month - 1, day, hour, minute, second); // Parse as UTC (subtract 1 from month as Date.UTC expects 0-based months)
-    const localTimestamp = new Date(utcTimestamp).toLocaleString("en-US", {
-      timeZone: userTimeZone,
-    });
-    const localDate = new Date(localTimestamp);
-
-    if (!isNaN(localDate)) {
-      if (fifthPercentile && !isNaN(+fifthPercentile)) {
-        fifthPercentiles.push([localDate.getTime(), +fifthPercentile]);
-      }
-      if (median && !isNaN(+median)) {
-        medians.push([localDate.getTime(), +median]);
-      }
-      if (ninetyfifthPercentile && !isNaN(+ninetyfifthPercentile)) {
-        ninetyfifthPercentiles.push([localDate.getTime(), +ninetyfifthPercentile]);
-      }
-      if (ndfdPrediction && !isNaN(+ndfdPrediction)) {
-        NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
-      }
-    }
-  });
-
-  return {fifthPercentiles, medians, ninetyfifthPercentiles, NDFPredictions};
-}; // end parseSecondCSV
-
-const parseThirdCSV = (csvText) => {
-  const rows = csvText.split("\n").map((row) => row.split(","));
-
-  // keep the order of the columns consistent with how they are 
-  // saved in a CSV file
-  const lowerBounds = [];                   // minimums 
-  const twentyfifthPercentiles = [];        // 25th percentiles
-  const medians = [];                       // medians
-  const seventyfifthPercentiles = [];       // 75th percentiles
-  const upperBounds = [];                   // maximums
-  const NDFPredictions = [];
-
-  rows.forEach((row, index) => {
-    // Skip the header row
-    if (index === 0) return;
-
-    // each row in the CSV is expected to follow this order from the CSV config 
-    const [timestamp, lowerBound, twentyfifthPercentile, median, seventyfifthPercentile, upperBound, ndfdPrediction] = row;
-
-    // Parse timestamp as UTC
-    const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
-    const utcTimestamp = Date.UTC(year, month - 1, day, hour, minute, second); // Parse as UTC (subtract 1 from month as Date.UTC expects 0-based months)
-    const localTimestamp = new Date(utcTimestamp).toLocaleString("en-US", {
-      timeZone: userTimeZone,
-    });
-    const localDate = new Date(localTimestamp);
-
-    if (!isNaN(localDate)) {
-      if (lowerBound && !isNaN(+lowerBound)) {
-        lowerBounds.push([localDate.getTime(), +lowerBound]);
-      }
-      if (twentyfifthPercentile && !isNaN(+twentyfifthPercentile)) {
-        twentyfifthPercentiles.push([localDate.getTime(), +twentyfifthPercentile]);
-      }
-      if (median && !isNaN(+median)) {
-        medians.push([localDate.getTime(), +median]);
-      }
-      if (seventyfifthPercentile && !isNaN(+seventyfifthPercentile)) {
-        seventyfifthPercentiles.push([localDate.getTime(), +seventyfifthPercentile]);
-      }
-      if (upperBound && !isNaN(+upperBound)) {
-        upperBounds.push([localDate.getTime(), +upperBound]);
-      }
-      if (ndfdPrediction && !isNaN(+ndfdPrediction)) {
-        NDFPredictions.push([localDate.getTime(), ndfdPrediction === "" ? NaN : +ndfdPrediction]);
-      }
-    }
-  });
-
-  // return the arrays of data
-  return {
-    lowerBounds,
-    twentyfifthPercentiles,
-    medians,
-    seventyfifthPercentiles,
-    upperBounds,
-    NDFPredictions
+  // set up the arrays to return
+  const result = {
+    members: [],
+    p0: [],
+    p5: [],
+    p25: [],
+    p50: [],
+    p75: [],
+    p95: [],
+    p100: [],
+    ndfd: []
   };
-}; // end parseThirdCSV
 
-// Function to toggle the dropdown menu
-const toggleExportMenu = () => {
-  isExportMenuVisible.value = !isExportMenuVisible.value;
-};
+  // map the CSV column names to the result keys
+  const keys = {
+    p0: "TWC Air Temperature Predictions p0",
+    p5: "TWC Air Temperature Predictions p5",
+    p25: "TWC Air Temperature Predictions p25",
+    p50: "TWC Air Temperature Predictions p50",
+    p75: "TWC Air Temperature Predictions p75",
+    p95: "TWC Air Temperature Predictions p95",
+    p100: "TWC Air Temperature Predictions p100",
+    ndfd: "NDFD Air Temperature Predictions",
+  };
 
-const toggleSecondExportMenu = () => {
-  isSecondExportMenuVisible.value = !isSecondExportMenuVisible.value;
-}
+  // skip the header row
+  lines.slice(1).forEach((line) => {
+    // pull out the quoted list so its commas don't split the row
+    const listMatch = line.match(/"?\[(.*?)\]"?/);
+    const list = listMatch && listMatch[1].trim() ? listMatch[1].split(",").map(Number) : [];
+    const fields = line.replace(/"?\[.*?\]"?/, "LIST").split(",");
 
-const toggleThirdExportMenu = () => {
-  isThirdExportMenuVisible.value = !isThirdExportMenuVisible.value;
+    const [year, month, day, hour, minute, second] = fields[0].split(/[- :]/).map(Number);
+    const time = Date.UTC(year, month - 1, day, hour, minute, second);
+    if (isNaN(time)) return;
+
+    // one series per ensemble member: members[i] holds member i's points
+    list.forEach((value, i) => {
+      if (!result.members[i]) result.members[i] = [];
+      if (!isNaN(value)) result.members[i].push([time, value]);
+    });
+
+    for (const [key, name] of Object.entries(keys)) {
+      const raw = fields[col(name)];
+      if (raw && !isNaN(+raw)) result[key].push([time, +raw]);
+    }
+  });
+
+  return result;
 };
 
 onMounted(() => {
   const loadCharts = () => {
-    Promise.all([
-      fetchAndFilterData(),
-      fetchAndFilterSecondData(),
-      fetchAndFilterThirdData()
-    ]).then(() => {
-      missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value, secondChartOptions.value, thirdChartOptions.value]);
+    fetchAndFilterData().then(() => {
+      missingDataWarningBanner.value.checkForMissingDataAndWarn([
+        chartOptions.value, 
+        secondChartOptions.value, 
+        thirdChartOptions.value
+      ]);
     });
   };
   
@@ -918,7 +550,9 @@ onMounted(() => {
         </div>
       </div>
       </section>
+
       <MissingDataWarningBanner ref="missingDataWarningBanner" />
+
       <!-- First Chart Section: Spaghetti Graph -->
       <section class="grid grid-cols-1 lg:grid-cols-5 gap-4 py-8 px-4 bg-white items-stretch">
         <!-- Chart -->
@@ -927,23 +561,6 @@ onMounted(() => {
             <div class="min-w-[1000px] h-[500px] lg:h-[700px] lg:min-h-[650px]">
               <Chart class="w-full h-full p-4" :options="chartOptions" />
             </div>
-          </div>
-
-          <!-- Custom Export Dropdown -->
-          <div class="hidden lg:block absolute top-5 right-4">
-            <button @click="toggleExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
-              Download CSV Data
-            </button>
-            <ul v-if="isExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
-              <li>
-                <a 
-                  :href="csvURL"
-                  download="TWC-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
-                  Download CSV
-                </a>
-              </li>
-            </ul>
           </div>
         </div>
 
@@ -981,23 +598,6 @@ onMounted(() => {
               <Chart class="w-full h-full p-4" :options="secondChartOptions" />
             </div>
           </div>
-
-          <!-- Custom Export Dropdown -->
-          <div class="hidden lg:block absolute top-5 right-4">
-            <button @click="toggleSecondExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
-              Download CSV
-            </button>
-            <ul v-if="isSecondExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
-              <li>
-                <a 
-                  :href="csvURL2"
-                  download="TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_240hrs.csv"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
-                  Download CSV
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
 
         <!-- Instructions -->
@@ -1034,23 +634,6 @@ onMounted(() => {
             <div class="min-w-[1000px] h-[500px] lg:h-[700px] lg:min-h-[650px]">
               <Chart class="w-full h-full p-4" :options="thirdChartOptions" />
             </div>
-          </div>
-
-          <!-- Custom Export Dropdown -->
-          <div class="hidden lg:block absolute top-5 right-4">
-            <button @click="toggleThirdExportMenu" class="bg-navy-blue text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700">
-              Download CSV
-            </button>
-            <ul v-if="isThirdExportMenuVisible" class="absolute mt-2 w-48 bg-white border border-gray-300 shadow-lg rounded-lg z-50">
-              <li>
-                <a 
-                  :href="csvURL3"
-                  download="TWC-NDFD-Laguna-Madre_Air-Temperature-Predictions_Box-Plot_240hrs.csv"
-                  class="px-4 py-2 hover:bg-gray-100 cursor-pointer block">
-                  Download CSV
-                </a>
-              </li>
-            </ul>
           </div>
         </div>
         
