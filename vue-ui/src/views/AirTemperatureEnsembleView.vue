@@ -260,8 +260,8 @@ const buildSecondChart = () => ({
           const { highLabel, lowLabel } = line.series.options.custom;
           displayInfo += `
             ${dot} <b>${line.series.name}</b><br>
-            &nbsp;&nbsp;&nbsp;${highLabel}: <b>${line.point.high.toFixed(1)}°F</b><br>
-            &nbsp;&nbsp;&nbsp;${lowLabel}: <b>${line.point.low.toFixed(1)}°F</b><br>`;
+            &nbsp;&nbsp;&nbsp;${highLabel}: <b>${line.high.toFixed(1)}°F</b><br>
+            &nbsp;&nbsp;&nbsp;${lowLabel}: <b>${line.low.toFixed(1)}°F</b><br>`;
         } else {
           displayInfo += `${dot} ${line.series.name}: <b>${line.y.toFixed(1)}°F</b><br>`;
         }
@@ -296,13 +296,12 @@ const buildThirdChart = () => ({
       this.points.forEach((line) => {
         const dot = `<span style="color:${line.color}">\u25CF</span>`;
         if (line.series.type === "boxplot") {
-          const p = line.point;
           displayInfo += `
-            ${dot} Maximum: <b>${p.high.toFixed(1)}°F</b><br>
-            ${dot} Upper Quartile: <b>${p.q3.toFixed(1)}°F</b><br>
-            ${dot} Median: <b>${p.median.toFixed(1)}°F</b><br>
-            ${dot} Lower Quartile: <b>${p.q1.toFixed(1)}°F</b><br>
-            ${dot} Minimum: <b>${p.low.toFixed(1)}°F</b><br>`;
+            ${dot} Maximum: <b>${line.high.toFixed(1)}°F</b><br>
+            ${dot} Upper Quartile: <b>${line.q3.toFixed(1)}°F</b><br>
+            ${dot} Median: <b>${line.median.toFixed(1)}°F</b><br>
+            ${dot} Lower Quartile: <b>${line.q1.toFixed(1)}°F</b><br>
+            ${dot} Minimum: <b>${line.low.toFixed(1)}°F</b><br>`;
         } else {
           displayInfo += `${dot} ${line.series.name}: <b>${line.y.toFixed(1)}°F</b><br>`;
         }
@@ -492,9 +491,9 @@ const parseCSV = (csvText) => {
   // skip the header row
   lines.slice(1).forEach((line) => {
     // pull out the quoted list so its commas don't split the row
-    const listMatch = line.match(/"\[(.*?)\]"/);
-    const list = listMatch ? listMatch[1].split(",").map(Number) : [];
-    const fields = line.replace(/"\[.*?\]"/, "LIST").split(",");
+    const listMatch = line.match(/"?\[(.*?)\]"?/);
+    const list = listMatch && listMatch[1].trim() ? listMatch[1].split(",").map(Number) : [];
+    const fields = line.replace(/"?\[.*?\]"?/, "LIST").split(",");
 
     const [year, month, day, hour, minute, second] = fields[0].split(/[- :]/).map(Number);
     const time = Date.UTC(year, month - 1, day, hour, minute, second);
