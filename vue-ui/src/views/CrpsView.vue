@@ -620,15 +620,36 @@ ribbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen, "Water Tempe
 secondRibbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen , "Water Temperature Predictions with Uncertainty Estimates<br/>(Fan Plot) for Laguna Madre"));
 boxChartOptions.value = reactive(buildBoxChart(isSmallScreen));
 
+const fetchTwcMedian = async () => {
+  /*
+    fetches the TWC median and guards against failures by returning
+    an empty series if there's an error
 
-
+    Returns:
+      Array - the TWC median series as [[timestamp, value], ...]
+      or [] if the fetch fails
+  */
+  try {
+    const twcResponse = await fetch(twcURL.value);
+    if (!twcResponse.ok) {
+      throw new Error(`HTTP ${twcResponse.status}`);
+    }
+    const twcCsvText = await twcResponse.text();
+    return extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p50");
+  } catch (error) {
+    console.error("Failed to fetch TWC CSV data", error);
+    return [];
+  }
+};
 
 // Function to fetch and process second CSV data
 const fetchAndFilterData = async () => {
   try {
-    // Fetch CSV data
-    const response = await fetch(csvURL.value);
-    const twcResponse = await fetch(twcURL.value);
+    // fetch main csv and twc csv in parallel
+    const [response, twcMedian] = await Promise.all([
+      fetch(csvURL.value),
+      fetchTwcMedian(),
+    ]);
 
     if (!response.ok) {
       // stop exec if the main CSV fails to fetch
@@ -1082,6 +1103,13 @@ const extractCSVColumn = (csvText, columnName) => {
       array [[local_timestamp, value], ...] - the values for the series
         with local timestamp or an empty array if the column is not found
   */
+
+  // TWC ensemble members are not supported for CSV parsing
+  if (columnName === "TWC Air Temperature Predictions") {
+    console.error(`Column "${columnName}" contains quoted ensemble arrays, which extractCSVColumn cannot parse`);
+    return [];
+  }
+
   const rows = csvText.trim().split("\n");
   const headers = rows[0].split(",");
   const colIndex = headers.indexOf(columnName);
@@ -1098,6 +1126,7 @@ const extractCSVColumn = (csvText, columnName) => {
       TWC ensemble members are stored as quoted arrays in a single cell
       such as "[a, b, c, ...]". This turns the entire cell into a single
       empty string that will be ignored when parsing the cells
+      so that commas within the quoted array do not mess up the split
     */
     const cells = row.replace(/"[^"]*"/g, "").split(",");
 
