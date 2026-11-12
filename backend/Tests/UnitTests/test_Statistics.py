@@ -23,7 +23,9 @@ from pandas.testing import assert_frame_equal, assert_index_equal
 @pytest.fixture(autouse=True)
 def mock_logger():
     with patch('PostProcessing.PostProcessingClasses.Statistics.thread_storage') as mock_thread_storage:
-        yield mock_thread_storage
+        mock_logger = MagicMock()
+        mock_thread_storage.logger = mock_logger
+        yield mock_logger
 
 class TestStatistics:
     """testing suite for the Statistics post processing class"""

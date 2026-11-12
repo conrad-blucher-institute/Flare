@@ -33,7 +33,7 @@ class Statistics(IPostProcessing):
     """
 
     def __init__(self):
-        self.logger = thread_storage
+        self.logger = thread_storage.logger
 
     def post_process(
             self, 
