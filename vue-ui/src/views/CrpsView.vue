@@ -1048,6 +1048,7 @@ const extractCSVColumn = (csvText, columnName) => {
       TWC ensemble members are stored as quoted arrays in a single cell
       such as "[a, b, c, ...]". This turns the entire cell into a single
       empty string that will be ignored when parsing the cells
+      so that commas within the quoted array do not mess up the split
     */
     const cells = row.replace(/"[^"]*"/g, "").split(",");
 
