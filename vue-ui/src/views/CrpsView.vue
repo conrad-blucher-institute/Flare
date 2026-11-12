@@ -851,7 +851,8 @@ const fetchAndFilterData = async () => {
         color: '#9ACDFF',
         lineWidth: 1,
         marker: { enabled: false },
-        zIndex: 3
+        zIndex: 3,
+        fillOpacity: 1
       },
       {
         name: '5th-95th Percentile',
@@ -860,7 +861,8 @@ const fetchAndFilterData = async () => {
         color: '#DDEEFF',
         lineWidth: 1,
         marker: { enabled: false },
-        zIndex: 2
+        zIndex: 2,
+        fillOpacity: 1
       },
       {
         name: "TWC Median Air Temperature Predictions",
