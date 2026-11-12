@@ -23,7 +23,9 @@ from pandas.testing import assert_frame_equal, assert_index_equal
 @pytest.fixture(autouse=True)
 def mock_logger():
     with patch('PostProcessing.PostProcessingClasses.Statistics.thread_storage') as mock_thread_storage:
-        yield mock_thread_storage
+        mock_logger = MagicMock()
+        mock_thread_storage.logger = mock_logger
+        yield mock_logger
 
 class TestStatistics:
     """testing suite for the Statistics post processing class"""
@@ -317,3 +319,29 @@ class TestStatistics:
         })
 
         assert_frame_equal(result_df, expected_df)
+
+
+    def test_empty_list_args(self, mock_logger):
+        """
+        tests that empty list arguments are handled correctly
+
+        docker exec flare-backend python3 -m pytest /app/backend/Tests/UnitTests/test_Statistics.py::TestStatistics::test_empty_list_args -v
+        """
+        input_df = DataFrame({
+            "Air Temperature Predictions": [
+                [1, 2, 3, 4, 5],
+                [6, 7, 8, 9, 10],
+                [11, 12, 13, 14, 15]
+            ]
+        })
+
+        result_df = Statistics().post_process(
+            input_df,
+            "Air Temperature Predictions",
+            statistics=[],
+            percentiles=[]
+        )
+
+        # result should match the input
+        assert_frame_equal(result_df, input_df)
+        mock_logger.log_error.assert_called_once_with('No statistics or percentiles requested')
