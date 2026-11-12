@@ -68,7 +68,7 @@ class Statistics(IPostProcessing):
             self.logger.log_error(f"Column '{column_name}' not found in dataframe")
             return df
 
-        if percentiles is None and statistics is None:
+        if not percentiles and not statistics:
             self.logger.log_error('No statistics or percentiles requested')
             return df
 
@@ -77,11 +77,11 @@ class Statistics(IPostProcessing):
 
         result_df = DataFrame(index=column.index)
         if percentiles:
-            result_df = result_df.join(self._compute_percentiles(column, percentiles), how='outer')
+            result_df = result_df.join(self._compute_percentiles(column, percentiles), how='inner')
         if statistics:
-            result_df = result_df.join(self._compute_statistics(column, statistics), how='outer')
+            result_df = result_df.join(self._compute_statistics(column, statistics), how='inner')
 
-        return df.join(result_df, how='outer')
+        return df.join(result_df, how='inner')
 
 
     def _compute_statistics(self, column: Series, statistics: list[str]) -> DataFrame:
