@@ -1042,6 +1042,13 @@ const extractCSVColumn = (csvText, columnName) => {
       array [[local_timestamp, value], ...] - the values for the series
         with local timestamp or an empty array if the column is not found
   */
+
+  // TWC ensemble members are not supported for CSV parsing
+  if (columnName === "TWC Air Temperature Predictions") {
+    console.error(`Column "${columnName}" contains quoted ensemble arrays, which extractCSVColumn cannot parse`);
+    return [];
+  }
+
   const rows = csvText.trim().split("\n");
   const headers = rows[0].split(",");
   const colIndex = headers.indexOf(columnName);
