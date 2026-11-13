@@ -620,25 +620,23 @@ ribbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen, "Water Tempe
 secondRibbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen , "Water Temperature Predictions with Uncertainty Estimates<br/>(Fan Plot) for Laguna Madre"));
 boxChartOptions.value = reactive(buildBoxChart(isSmallScreen));
 
-const fetchTwcMedian = async () => {
+const fetchTwcData = async () => {
   /*
-    fetches the TWC median and guards against failures by returning
-    an empty series if there's an error
+    fetches the TWC response and guards against failures by returning
+    null if the fetch or text conversion fails
 
     Returns:
-      Array - the TWC median series as [[timestamp, value], ...]
-      or [] if the fetch fails
+      string | null - the TWC CSV text, or null if the fetch fails
   */
   try {
     const twcResponse = await fetch(twcURL.value);
     if (!twcResponse.ok) {
       throw new Error(`HTTP ${twcResponse.status}`);
     }
-    const twcCsvText = await twcResponse.text();
-    return extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p50");
+    return await twcResponse.text();
   } catch (error) {
     console.error("Failed to fetch TWC CSV data", error);
-    return [];
+    return null;
   }
 };
 
@@ -646,9 +644,9 @@ const fetchTwcMedian = async () => {
 const fetchAndFilterData = async () => {
   try {
     // fetch main csv and twc csv in parallel
-    const [response, twcMedian] = await Promise.all([
+    const [response, twcCsvText] = await Promise.all([
       fetch(csvURL.value),
-      fetchTwcMedian(),
+      fetchTwcData(),
     ]);
 
     if (!response.ok) {
@@ -661,18 +659,21 @@ const fetchAndFilterData = async () => {
     let twcP25 = [];
     let twcP75 = [];
     let twcP95 = [];
-    if (twcResponse.ok) {
-      // proceed to fetch TWC CSV data
-      const twcCsvText = await twcResponse.text();
+    try {
+      // check for null from the fetch promise
+      if (!twcCsvText) {
+        throw new Error("No TWC CSV data, skipping TWC series");
+      }
+      // parse the fetched TWC data
       twcMedian = extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p50");
       twcP5 = extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p5");
       twcP25 = extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p25");
       twcP75 = extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p75");
       twcP95 = extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p95");
     }
-    else {
-      // do not stop exec if the TWC CSV fails to fetch
-      console.error("Failed to fetch TWC CSV data");
+    catch (error) {
+      // do not stop exec if the TWC CSV fails to fetch or parse
+      console.error(error);
     }
 
     // convert to text and parse CSV data
@@ -902,7 +903,8 @@ const fetchAndFilterData = async () => {
         color: '#FFD996',
         lineWidth: 1,
         marker: { enabled: false },
-        zIndex: 1
+        zIndex: 1,
+        visible: false, // hidden until the user clicks it in the legend
       },
       {
         name: 'TWC 5th-95th Percentile',
@@ -911,7 +913,8 @@ const fetchAndFilterData = async () => {
         color: '#FFF0D5',
         lineWidth: 1,
         marker: { enabled: false },
-        zIndex: 0
+        zIndex: 0,
+        visible: false, // hidden until the user clicks it in the legend
       },
     ];
 
