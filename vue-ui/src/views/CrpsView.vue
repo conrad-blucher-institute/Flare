@@ -1261,7 +1261,9 @@ onMounted(() => {
             <Chart class="w-full h-full p-4" :options="ribbonChartOptions" />
           </div>
         </div>
-
+        <p class="text-center text-base lg:text-lg text-dark-text">
+          <strong>To Show or Hide Chart Lines</strong>, click on the legend items above to turn lines on and off.
+        </p>
       </div>
 
       <!-- Graph Information -->
@@ -1351,6 +1353,9 @@ onMounted(() => {
             <Chart class="w-full h-full p-4" :options="secondRibbonChartOptions" />
           </div>
         </div>
+        <p class="text-center text-base lg:text-lg text-dark-text">
+          <strong>To Show or Hide Chart Lines</strong>, click on the legend items above to turn lines on and off.
+        </p>
       </div>
 
       <!-- Graph Information -->
@@ -1453,6 +1458,9 @@ onMounted(() => {
             <Chart class="w-full h-full p-4" :options="boxChartOptions" />
           </div>
         </div>
+        <p class="text-center text-base lg:text-lg text-dark-text">
+          <strong>To Show or Hide Chart Lines</strong>, click on the legend items above to turn lines on and off.
+        </p>
       </div>
 
       <!-- Graph Information -->
