@@ -620,25 +620,23 @@ ribbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen, "Water Tempe
 secondRibbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen , "Water Temperature Predictions with Uncertainty Estimates<br/>(Fan Plot) for Laguna Madre"));
 boxChartOptions.value = reactive(buildBoxChart(isSmallScreen));
 
-const fetchTwcMedian = async () => {
+const fetchTwcData = async () => {
   /*
-    fetches the TWC median and guards against failures by returning
-    an empty series if there's an error
+    fetches the TWC response and guards against failures by returning
+    null if the fetch or text conversion fails
 
     Returns:
-      Array - the TWC median series as [[timestamp, value], ...]
-      or [] if the fetch fails
+      string | null - the TWC CSV text, or null if the fetch fails
   */
   try {
     const twcResponse = await fetch(twcURL.value);
     if (!twcResponse.ok) {
       throw new Error(`HTTP ${twcResponse.status}`);
     }
-    const twcCsvText = await twcResponse.text();
-    return extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p50");
+    return await twcResponse.text();
   } catch (error) {
     console.error("Failed to fetch TWC CSV data", error);
-    return [];
+    return null;
   }
 };
 
@@ -646,14 +644,36 @@ const fetchTwcMedian = async () => {
 const fetchAndFilterData = async () => {
   try {
     // fetch main csv and twc csv in parallel
-    const [response, twcMedian] = await Promise.all([
+    const [response, twcCsvText] = await Promise.all([
       fetch(csvURL.value),
-      fetchTwcMedian(),
+      fetchTwcData(),
     ]);
 
     if (!response.ok) {
       // stop exec if the main CSV fails to fetch
       throw new Error("Failed to fetch ribbon CSV data");
+    }
+
+    let twcMedian = [];
+    let twcP5 = [];
+    let twcP25 = [];
+    let twcP75 = [];
+    let twcP95 = [];
+    try {
+      // check for null from the fetch promise
+      if (!twcCsvText) {
+        throw new Error("No TWC CSV data, skipping TWC series");
+      }
+      // parse the fetched TWC data
+      twcMedian = extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p50");
+      twcP5 = extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p5");
+      twcP25 = extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p25");
+      twcP75 = extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p75");
+      twcP95 = extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p95");
+    }
+    catch (error) {
+      // do not stop exec if the TWC CSV fails to fetch or parse
+      console.error(error);
     }
 
     // convert to text and parse CSV data
@@ -687,6 +707,10 @@ const fetchAndFilterData = async () => {
     const waterPredictionsPercentileMinFahrenheit = waterPredictionsPercentileMin.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const waterPredictionsPercentileMaxFahrenheit = waterPredictionsPercentileMax.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const twcMedianFahrenheit = twcMedian.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const twcP5Fahrenheit = twcP5.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const twcP25Fahrenheit = twcP25.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const twcP75Fahrenheit = twcP75.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const twcP95Fahrenheit = twcP95.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
 
     // filter air predictions to only include future predictions
     const futureAirPredictionsFahrenheit = airPredictionsFahrenheit.filter(([time]) => time >= Date.now());
@@ -719,6 +743,24 @@ const fetchAndFilterData = async () => {
     const high = waterPredictionsPercentile75Fahrenheit[index][1];
 
     return [time, low, high];
+    });
+
+    // TWC inner ribbon (25th-75th), in Fahrenheit
+    const twcInnerRibbon = twcP25Fahrenheit.map((point, index) => {
+      const time = point[0];
+      const low = twcP25Fahrenheit[index][1];
+      const high = twcP75Fahrenheit[index][1];
+
+      return [time, low, high];
+    });
+
+    // TWC outer ribbon (5th-95th), in Fahrenheit
+    const twcOuterRibbon = twcP5Fahrenheit.map((point, index) => {
+      const time = point[0];
+      const low = twcP5Fahrenheit[index][1];
+      const high = twcP95Fahrenheit[index][1];
+
+      return [time, low, high];
     });
 
     // === Calculate bounds for the box plot chart ===
@@ -792,7 +834,7 @@ const fetchAndFilterData = async () => {
         type: "line",
         color: "black",
         lineWidth: isSmallScreen ? 1 : 2,
-        zIndex: 1, // Ensure this is in front of the bounds
+        zIndex: 4,
         marker: { enabled: false },
       },
       {
@@ -801,7 +843,7 @@ const fetchAndFilterData = async () => {
         type: "line",
         color: "orange",
         lineWidth: isSmallScreen ? 1 : 2,
-        zIndex: 1,
+        zIndex: 4,
         marker: { enabled: false },
       },
       {
@@ -811,7 +853,7 @@ const fetchAndFilterData = async () => {
         color: "purple",
         dashStyle: "Dash",
         lineWidth: isSmallScreen ? 1 : 2,
-        zIndex: 1, // Ensure this is in front of the bounds
+        zIndex: 4,
         marker: { enabled: false },
       },
       {
@@ -821,7 +863,7 @@ const fetchAndFilterData = async () => {
         dashStyle: "Dash",
         color: "black",
         lineWidth: 3,
-        zIndex: 3, // Ensure the median is in front of the other lines
+        zIndex: 6,
         marker: { enabled: false},
       },
       {
@@ -831,7 +873,8 @@ const fetchAndFilterData = async () => {
         color: '#9ACDFF',
         lineWidth: 1,
         marker: { enabled: false },
-        zIndex: 1
+        zIndex: 3,
+        fillOpacity: 1
       },
       {
         name: '5th-95th Percentile',
@@ -840,7 +883,8 @@ const fetchAndFilterData = async () => {
         color: '#DDEEFF',
         lineWidth: 1,
         marker: { enabled: false },
-        zIndex: 0
+        zIndex: 2,
+        fillOpacity: 1
       },
       // TODO: make common series lines then reuse them across different charts
       // and make common chart options to clean up the code
@@ -851,9 +895,29 @@ const fetchAndFilterData = async () => {
         dashStyle: "Dash",
         color: "orange",
         lineWidth: isSmallScreen ? 1 : 2,
-        zIndex: 1,
+        zIndex: 5,
         marker: { enabled: false },
-      }
+      },
+      {
+        name: 'TWC 25th-75th Percentile',
+        type: 'arearange',
+        data: twcInnerRibbon,
+        color: '#FFD996',
+        lineWidth: 1,
+        marker: { enabled: false },
+        zIndex: 1,
+        visible: false, // hidden until the user clicks it in the legend
+      },
+      {
+        name: 'TWC 5th-95th Percentile',
+        type: 'arearange',
+        data: twcOuterRibbon,
+        color: '#FFF0D5',
+        lineWidth: 1,
+        marker: { enabled: false },
+        zIndex: 0,
+        visible: false, // hidden until the user clicks it in the legend
+      },
     ];
 
     boxChartOptions.value.series = [
