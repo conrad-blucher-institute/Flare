@@ -842,6 +842,8 @@ const fetchAndFilterData = async () => {
         marker: { enabled: false },
         zIndex: 0
       },
+      // TODO: make common series lines then reuse them across different charts
+      // and make common chart options to clean up the code
       {
         name: "TWC Median Air Temperature Predictions",
         data: twcMedianFahrenheit,
