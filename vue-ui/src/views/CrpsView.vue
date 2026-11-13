@@ -123,9 +123,8 @@ const additionalInfo = [
 const missingDataWarningBanner = ref(MissingDataWarningBanner);
 const isSmallScreen = window.innerWidth <= 600;
 
-// ribbon graph
-// box plot graph
 const csvURL = ref(`${window.location.origin}/flare/csv-data/CRPS_120hrs.csv`);
+const twcURL = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD_Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
 const showChartHelp = ref(false);
 
 const ribbonChartOptions = ref({});
@@ -621,20 +620,44 @@ ribbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen, "Water Tempe
 secondRibbonChartOptions.value = reactive(buildRibbonChart(isSmallScreen , "Water Temperature Predictions with Uncertainty Estimates<br/>(Fan Plot) for Laguna Madre"));
 boxChartOptions.value = reactive(buildBoxChart(isSmallScreen));
 
+const fetchTwcMedian = async () => {
+  /*
+    fetches the TWC median and guards against failures by returning
+    an empty series if there's an error
 
-
+    Returns:
+      Array - the TWC median series as [[timestamp, value], ...]
+      or [] if the fetch fails
+  */
+  try {
+    const twcResponse = await fetch(twcURL.value);
+    if (!twcResponse.ok) {
+      throw new Error(`HTTP ${twcResponse.status}`);
+    }
+    const twcCsvText = await twcResponse.text();
+    return extractCSVColumn(twcCsvText, "TWC Air Temperature Predictions p50");
+  } catch (error) {
+    console.error("Failed to fetch TWC CSV data", error);
+    return [];
+  }
+};
 
 // Function to fetch and process second CSV data
 const fetchAndFilterData = async () => {
   try {
-    // Fetch CSV data
-    const response = await fetch(csvURL.value);
-    if (!response.ok) throw new Error("Failed to fetch ribbon CSV data");
+    // fetch main csv and twc csv in parallel
+    const [response, twcMedian] = await Promise.all([
+      fetch(csvURL.value),
+      fetchTwcMedian(),
+    ]);
 
+    if (!response.ok) {
+      // stop exec if the main CSV fails to fetch
+      throw new Error("Failed to fetch ribbon CSV data");
+    }
+
+    // convert to text and parse CSV data
     const csvText = await response.text();
-
-
-    // Parse the CSV data for the ribbon chart
     const parsedData = parseCSV(csvText);
 
     // Ensure parsed arrays are initialized
@@ -663,6 +686,7 @@ const fetchAndFilterData = async () => {
     const waterPredictionsPercentile95Fahrenheit = waterPredictionsPercentile95.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const waterPredictionsPercentileMinFahrenheit = waterPredictionsPercentileMin.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
     const waterPredictionsPercentileMaxFahrenheit = waterPredictionsPercentileMax.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
+    const twcMedianFahrenheit = twcMedian.map(([time, celsius]) => [time, +toFahrenheit(celsius).toFixed(1)]);
 
     // filter air predictions to only include future predictions
     const futureAirPredictionsFahrenheit = airPredictionsFahrenheit.filter(([time]) => time >= Date.now());
@@ -734,7 +758,7 @@ const fetchAndFilterData = async () => {
         name: "NDFD Air Temperature Predictions",
         data: futureAirPredictionsFahrenheit,
         type: "line",
-        color: "orange",
+        color: "purple",
         dashStyle: "Dash",
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1, // Ensure this is in front of the bounds
@@ -746,9 +770,19 @@ const fetchAndFilterData = async () => {
         type: "line",
         dashStyle: "Dash",
         color: "black",
-        lineWidth: isSmallScreen ? 1 : 2,
+        lineWidth: 3,
         zIndex: 3, // Ensure median is in front of the other lines
         marker: { enabled: false},
+      },
+      {
+        name: "TWC Median Air Temperature Predictions",
+        data: twcMedianFahrenheit,
+        type: "line",
+        dashStyle: "Dash",
+        color: "orange",
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 1,
+        marker: { enabled: false },
       }
     ];
      secondRibbonChartOptions.value.series = [
@@ -774,7 +808,7 @@ const fetchAndFilterData = async () => {
         name: "NDFD Air Temperature Predictions",
         data: futureAirPredictionsFahrenheit,
         type: "line",
-        color: "orange",
+        color: "purple",
         dashStyle: "Dash",
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1, // Ensure this is in front of the bounds
@@ -786,7 +820,7 @@ const fetchAndFilterData = async () => {
         type: "line",
         dashStyle: "Dash",
         color: "black",
-        lineWidth: isSmallScreen ? 1 : 2,
+        lineWidth: 3,
         zIndex: 3, // Ensure the median is in front of the other lines
         marker: { enabled: false},
       },
@@ -808,6 +842,18 @@ const fetchAndFilterData = async () => {
         marker: { enabled: false },
         zIndex: 0
       },
+      // TODO: make common series lines then reuse them across different charts
+      // and make common chart options to clean up the code
+      {
+        name: "TWC Median Air Temperature Predictions",
+        data: twcMedianFahrenheit,
+        type: "line",
+        dashStyle: "Dash",
+        color: "orange",
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 1,
+        marker: { enabled: false },
+      }
     ];
 
     boxChartOptions.value.series = [
@@ -833,7 +879,7 @@ const fetchAndFilterData = async () => {
         name: "NDFD Air Temperature Predictions",
         data: futureAirPredictionsFahrenheit,
         type: "line",
-        color: "orange",
+        color: "purple",
         dashStyle: "Dash",
         zIndex: 0,
         findnearestPoint: false,
@@ -846,7 +892,7 @@ const fetchAndFilterData = async () => {
         data: boxplotWaterPredictionsPercentile50Fahrenheit,
         type: "line",
         color: "#4A90E2",
-        lineWidth: isSmallScreen ? 1 : 2,
+        lineWidth: 3,
         zIndex: 1, // Ensure this is in front of the bounds
         marker: { enabled: false },
       },
@@ -880,13 +926,22 @@ const fetchAndFilterData = async () => {
         whiskerLength: '150%',
         color: '#4A90E2',
         fillColor: 'rgba(74,144,226,0.35)'
+      },
+      {
+        name: "TWC Median Air Temperature Predictions",
+        data: twcMedianFahrenheit,
+        type: "line",
+        dashStyle: "Dash",
+        color: "orange",
+        lineWidth: isSmallScreen ? 1 : 2,
+        zIndex: 1,
+        marker: { enabled: false },
       }
     ];
   } catch (error) {
     console.error("Error fetching or processing data:", error);
   }
 }; // end fetchAndFilterData
-
 
 // CSV parsing function for ribbon chart
 const parseCSV = (csvText) => {
@@ -973,6 +1028,65 @@ const parseCSV = (csvText) => {
     waterPredictionsPercentileMax
   };
 }; // end parseRibbonCSV
+
+const extractCSVColumn = (csvText, columnName) => {
+  /*
+    Extract a specified column from a CSV by the header name
+
+    NOTE: This cannot parse quoted values that contain commas
+    like TWC ensemble members
+
+    Args:
+      csvText (string) - the CSV data converted to text
+      columnName (string) - the name of the column to extract
+    
+    Returns:
+      array [[local_timestamp, value], ...] - the values for the series
+        with local timestamp or an empty array if the column is not found
+  */
+
+  // TWC ensemble members are not supported for CSV parsing
+  if (columnName === "TWC Air Temperature Predictions") {
+    console.error(`Column "${columnName}" contains quoted ensemble arrays, which extractCSVColumn cannot parse`);
+    return [];
+  }
+
+  const rows = csvText.trim().split("\n");
+  const headers = rows[0].split(",");
+  const colIndex = headers.indexOf(columnName);
+  const seriesValues = [];
+
+  // check the column exists
+  if (colIndex === -1) {
+    console.error(`Column "${columnName}" not found in CSV`);
+    return [];
+  }
+
+  rows.slice(1).forEach((row) => {
+    /*
+      TWC ensemble members are stored as quoted arrays in a single cell
+      such as "[a, b, c, ...]". This turns the entire cell into a single
+      empty string that will be ignored when parsing the cells
+      so that commas within the quoted array do not mess up the split
+    */
+    const cells = row.replace(/"[^"]*"/g, "").split(",");
+
+    const timestamp = cells[0];
+    const value = cells[colIndex];
+
+    // parse timestamp as UTC
+    const [year, month, day, hour, minute, second] = timestamp.split(/[- :]/).map(Number);
+    const utcTimestamp = Date.UTC(year, month - 1, day, hour, minute, second); // Parse as UTC (subtract 1 from month as Date.UTC expects 0-based months)
+    const localDate = new Date(utcTimestamp);
+
+    // add the value to the series if the timestamp and value are valid
+    if (!isNaN(localDate) && value && !isNaN(+value)) {
+      seriesValues.push([localDate.getTime(), +value]);
+    }
+  });
+
+  return seriesValues;
+};
 
 onMounted(() => {
   const loadCharts = () => {
