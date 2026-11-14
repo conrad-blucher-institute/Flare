@@ -22,6 +22,8 @@ import "highcharts/modules/offline-exporting";
 
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
 import AdditionalInfoButton from "@/components/AdditionalInfoButton.vue";
+import ToggleLegendItemsText from "@/components/ToggleLegendItemsText.vue";
+
 const missingDataWarningBanner = ref(null);
 const isSmallScreen = window.innerWidth <= 600;
 
@@ -812,8 +814,9 @@ onMounted(() => {
         <!-- Chart -->
         <div class="chart lg:col-span-4 relative border sm:w-full ">
           <div class="w-full overflow-x-auto">
-            <div class="min-w-[600px]  min-h-[350px] lg:min-w-[1000px] lg:h-[700px] lg:min-h-[650px]">
-              <Chart class="w-full h-full p-4" :options="chartOptions" />
+            <div class="flex flex-col px-4 pt-4 min-w-[600px] min-h-[350px] lg:min-w-[1000px] lg:h-[700px] lg:min-h-[650px]">
+              <Chart class="w-full flex-1 min-h-0" :options="chartOptions" />
+              <ToggleLegendItemsText />
             </div>
           </div>
         </div>
@@ -915,8 +918,9 @@ onMounted(() => {
         <!-- Chart -->
         <div class="chart-2 lg:col-span-4 relative border sm:w-full ">
           <div class="w-full overflow-x-auto">
-            <div class="min-w-[600px]  min-h-[350px] lg:min-w-[1000px] lg:h-[700px] lg:min-h-[650px]">
-              <Chart class="w-full h-full p-4" :options="secondChartOptions" />
+            <div class="flex flex-col px-4 pt-4 min-w-[600px] min-h-[350px] lg:min-w-[1000px] lg:h-[700px] lg:min-h-[650px]">
+              <Chart class="w-full flex-1 min-h-0" :options="secondChartOptions" />
+              <ToggleLegendItemsText />
             </div>
           </div>
         </div>
