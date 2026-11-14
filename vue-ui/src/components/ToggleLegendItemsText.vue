@@ -52,6 +52,6 @@ defineProps({
 		regardless of the text and background colors
 	*/
 
-	@apply text-center text-base lg:text-lg;
+	@apply text-center text-base lg:text-lg pb-2;
 }
 </style>
