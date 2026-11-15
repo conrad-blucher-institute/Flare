@@ -24,6 +24,7 @@ import { ref, onMounted, reactive } from "vue";
 
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
 import AdditionalInfoButton from '@/components/AdditionalInfoButton.vue';
+import ToggleLegendItemsText from '@/components/ToggleLegendItemsText.vue';
 
 // additional info left card data
 const dataOnThisGraph = [
@@ -142,6 +143,16 @@ const buildRibbonChart = (isSmallScreen, chartTitle) => {
       style: { fontFamily: "Arial" },
       marginRight: 30,
       marginTop: 100,
+      events: {
+        // tooltip.outside renders the tooltip on document.body, which is hidden in fullscreen,
+        // so render it inside the chart while fullscreen is open
+        fullscreenOpen: function () {
+          this.update({ tooltip: { outside: false } });
+        },
+        fullscreenClose: function () {
+          this.update({ tooltip: { outside: true } });
+        },
+      },
     },
     title: {
       text: chartTitle,
@@ -400,6 +411,16 @@ const buildBoxChart = (isSmallScreen) => {
       style: { fontFamily: "Arial" },
       marginRight: 30,
       marginTop: 100,
+      events: {
+        // tooltip.outside renders the tooltip on document.body, which is hidden in fullscreen,
+        // so render it inside the chart while fullscreen is open
+        fullscreenOpen: function () {
+          this.update({ tooltip: { outside: false } });
+        },
+        fullscreenClose: function () {
+          this.update({ tooltip: { outside: true } });
+        },
+      },
     },
     title: {
       text: "Water Temperature Predictions with Uncertainty Estimates<br/>(Percentile Box Plot) for Laguna Madre",
@@ -1257,11 +1278,11 @@ onMounted(() => {
       <!-- Chart -->
       <div class="chart lg:col-span-4 relative border sm:w-full ">
         <div class="w-full overflow-x-auto">
-          <div class="min-w-[600px]  min-h-[350px] lg:min-w-[1000px] lg:h-[700px] lg:min-h-[650px]">
-            <Chart class="w-full h-full p-4" :options="ribbonChartOptions" />
+          <div class="flex flex-col px-4 pt-4 min-w-[600px] min-h-[350px] lg:min-w-[1000px] lg:h-[700px] lg:min-h-[650px]">
+            <Chart class="w-full flex-1 min-h-0" :options="ribbonChartOptions" />
+            <ToggleLegendItemsText />
           </div>
         </div>
-
       </div>
 
       <!-- Graph Information -->
@@ -1347,8 +1368,9 @@ onMounted(() => {
       <!-- Chart -->
       <div class="chart-2 lg:col-span-4 relative border sm:w-full ">
         <div class="w-full overflow-x-auto">
-          <div class="min-w-[600px] lg:min-w-[1000px] lg:h-[700px] lg:min-h-[650px]">
-            <Chart class="w-full h-full p-4" :options="secondRibbonChartOptions" />
+          <div class="flex flex-col px-4 pt-4 min-w-[600px] min-h-[350px] lg:min-w-[1000px] lg:h-[700px] lg:min-h-[650px]">
+            <Chart class="w-full flex-1 min-h-0" :options="secondRibbonChartOptions" />
+            <ToggleLegendItemsText />
           </div>
         </div>
       </div>
@@ -1449,8 +1471,9 @@ onMounted(() => {
       <!-- Chart -->
       <div class="chart-3 lg:col-span-4 relative border sm:w-full ">
         <div class="w-full overflow-x-auto">
-          <div class="min-w-[600px] lg:min-w-[1000px] lg:h-[700px] lg:min-h-[650px]">
-            <Chart class="w-full h-full p-4" :options="boxChartOptions" />
+          <div class="flex flex-col px-4 pt-4 min-w-[600px] min-h-[350px] lg:min-w-[1000px] lg:h-[700px] lg:min-h-[650px]">
+            <Chart class="w-full flex-1 min-h-0" :options="boxChartOptions" />
+            <ToggleLegendItemsText />
           </div>
         </div>
       </div>
