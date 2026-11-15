@@ -1,18 +1,24 @@
 #Build node 22 image under the build name
 FROM node:22.10.0-slim AS build
 
-# get the model run time from the build args
+#Get the model run time from the build args
 ARG VITE_MODEL_RUN_TIME
 ENV VITE_MODEL_RUN_TIME=$VITE_MODEL_RUN_TIME
 
 #Set the working directory 
 WORKDIR /app
 
-#Copy the package.json and package-lock.json files
-COPY ./vue-ui ./
+#Copy only the package files first so the dependency install layer stays cached
+COPY ./vue-ui/package.json ./vue-ui/package-lock.json ./
 
-#Install npm
-RUN npm install
+#npm comes with the Node.js image
+#Install dependencies (cached unless package.json/package-lock.json change)
+#RUN npm install <- will silently install dependencies that don't match package-lock.json
+#RUN npm ci <- installs dependencies exactly as specified in package-lock.json
+RUN npm ci 
+
+#Copy the rest of the files
+COPY ./vue-ui ./
 
 #Build the Vue App
 RUN npm run build
@@ -24,7 +30,7 @@ FROM nginx:1.26.2
 #Copy the custom nginx.conf
 COPY nginx.conf  /etc/nginx/nginx.conf 
 
-# Copy the built files from the previous stage
+#Copy the built files from the previous stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
 #Set the working directory 
