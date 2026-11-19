@@ -143,6 +143,14 @@ const dailyXAxis = {
   },
 };
 
+const chartColors = {
+  twcMedian: 'blue',          // blue
+  twcInnerRibbon: '#9ACDFF',  // dark blue
+  twcOuterRibbon: '#DDEEFF',  // light blue
+  twcBoxPlot: '#4A90E2',      // different shade of blue for the box plot
+  ndfd: 'purple',             // purple
+}
+
 // spaghetti graph
 const buildChart = () => ({
   chart: commonChart("line"),
@@ -390,7 +398,7 @@ const fetchAndFilterData = async () => {
         name: "Median Air Temperature Predictions",
         type: "line",
         data: p50Fahrenheit,
-        color: "blue",
+        color: chartColors.twcMedian,
         lineWidth: 4,
         zIndex: 3,
       },
@@ -398,7 +406,7 @@ const fetchAndFilterData = async () => {
         name: '25th-75th Percentile',
         type: 'arearange',
         data: innerRibbon,
-        color: '#9ACDFF',
+        color: chartColors.twcInnerRibbon,
         lineWidth: 1,
         zIndex: 1,
         custom: { highLabel: "High (75%)", lowLabel: "Low (25%)" }
@@ -407,7 +415,7 @@ const fetchAndFilterData = async () => {
         name: '5th-95th Percentile',
         type: 'arearange',
         data: outerRibbon,
-        color: '#DDEEFF',
+        color: chartColors.twcOuterRibbon,
         lineWidth: 1,
         zIndex: 0,
         custom: { highLabel: "High (95%)", lowLabel: "Low (5%)" }
@@ -416,7 +424,7 @@ const fetchAndFilterData = async () => {
         name: "NDFD Air Temperature Predictions",
         type: "line",
         data: ndfdFahrenheit,
-        color: "purple",
+        color: chartColors.ndfd,
         lineWidth: 4,
         zIndex: 3,
       },
@@ -428,11 +436,11 @@ const fetchAndFilterData = async () => {
         name: "Box Plot Air Temperature Predictions",
         type: "boxplot",
         data: boxPlot,
-        medianColor: '#000000',
-        stemColor: '#4A90E2',
-        whiskerColor: '#4A90E2',
+        medianColor: chartColors.twcBoxPlot,
+        stemColor: chartColors.twcBoxPlot,
+        whiskerColor: chartColors.twcBoxPlot,
         whiskerLength: '150%',
-        color: '#4A90E2',
+        color: chartColors.twcBoxPlot,
         fillColor: 'rgba(74,144,226,0.35)',
         zIndex: 1,
       },
@@ -440,7 +448,7 @@ const fetchAndFilterData = async () => {
         name: "Median Air Temperature Predictions",
         type: "line",
         data: p50Fahrenheit,
-        color: "blue",
+        color: chartColors.twcMedian,
         lineWidth: 4,
         zIndex: 3,
       },
@@ -448,7 +456,7 @@ const fetchAndFilterData = async () => {
         name: "NDFD Air Temperature Predictions",
         type: "line",
         data: ndfdFahrenheit,
-        color: "purple",
+        color: chartColors.ndfd,
         lineWidth: 4,
         zIndex: 3, 
       }
