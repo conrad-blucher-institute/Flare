@@ -47,7 +47,7 @@ const showChartHelp = ref(false);
 
           <div>
             <h3 class="help-heading">👆 Show or Hide Chart Lines</h3>
-            <p>Click a name in the legend below the chart to show or hide that line.</p>
+            <p>Click a name in the legend below the charts to show or hide that line.</p>
           </div>
 
           <div>
