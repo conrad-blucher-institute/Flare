@@ -35,6 +35,14 @@
                 "interval": 3600,
                 "range": [0, 144]
             }
+        },
+        {
+            "key": "SemaphoreOutputTimeSpan",
+            "args": {
+                "column_name": "magnolia",
+                "time_range": [0, 48],
+                "models": ["magnolia_12", "magnolia_24", "magnolia_48"]
+            }
         }
     ],
     "post_processing" : [],
@@ -43,7 +51,8 @@
         "included_columns": [
             "Hohonu-Water-Level-Measurements",
             "Port Lavaca Air Temperature Measurement",
-            "Air Temperature Prediction"
+            "Air Temperature Prediction",
+            "magnolia"
         ]
     }
 }
