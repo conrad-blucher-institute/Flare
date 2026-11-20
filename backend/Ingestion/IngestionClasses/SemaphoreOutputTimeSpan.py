@@ -172,8 +172,11 @@ class SemaphoreOutputTimeSpan(IDataIngestion):
                     column_name: point['dataValue'][0][0][0]
                 })
         
-        # create a temp df so the rows can be sorted and de-duplicated
         points = DataFrame(rows)
+
+        # drop nans, so if the smallest lead time is a nan,
+        # a valid point with a higher lead time can be used instead
+        points = points.dropna(subset=[column_name]) 
         points['timeVerified'] = to_datetime(points['timeVerified'])
 
         # when multiple models predict the same time, keep the point with the lowest lead time
