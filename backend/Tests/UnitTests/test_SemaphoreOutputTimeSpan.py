@@ -108,3 +108,34 @@ class TestSemaphoreOutputTimeSpan:
             )
 
         assert_frame_equal(df, expected)
+
+
+    def test_validate_response(self):
+        """tests that models with no data are removed and models with data are kept"""
+
+        sem = SemaphoreOutputTimeSpan()
+
+        # a failed request should return None
+        assert sem._validate_response(None) is None
+
+        # model_1 has data, model_2 has no data points, and model_3 doesn't exist
+        mixed_response = {
+            "model_1": response["model_1"],
+            "model_2": {"_Series__data": []},
+            "model_3": None,
+        }
+        validated = sem._validate_response(mixed_response)
+
+        # only model_1 should be kept, unchanged
+        assert list(validated.keys()) == ["model_1"]
+        assert validated["model_1"] == response["model_1"]
+
+        # if every model has no data, None should be returned
+        empty_response = {
+            "model_2": {"_Series__data": []},
+            "model_3": None,
+        }
+        assert sem._validate_response(empty_response) is None
+
+        # a response where every model has data should be returned unchanged
+        assert sem._validate_response(response) == response
