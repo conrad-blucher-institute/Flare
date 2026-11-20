@@ -908,6 +908,7 @@ const fetchAndFilterData = async () => {
         lineWidth: 1,
         marker: { enabled: false },
         zIndex: 3,
+        fillOpacity: 0.7,
       },
       {
         name: '5th-95th Percentile',
@@ -917,6 +918,7 @@ const fetchAndFilterData = async () => {
         lineWidth: 1,
         marker: { enabled: false },
         zIndex: 2,
+        fillOpacity: 0.7,
       },
       // TODO: make common series lines then reuse them across different charts
       // and make common chart options to clean up the code
