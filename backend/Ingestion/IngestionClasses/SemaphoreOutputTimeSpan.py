@@ -13,6 +13,7 @@ from Ingestion.I_Ingestion import IDataIngestion
 from runtimeContext import thread_storage
 from Ingestion.Ingestion_Utility import api_request, add_empty_column
 from pandas import DataFrame, Series, to_datetime
+from numpy import nan
 
 
 class SemaphoreOutputTimeSpan(IDataIngestion):
@@ -166,10 +167,11 @@ class SemaphoreOutputTimeSpan(IDataIngestion):
         rows = []
         for series in resp.values():
             for point in series['_Series__data']:
+                value = point['dataValue'][0][0][0] if point['dataValue'] else nan
                 rows.append({
                     'timeVerified': point['timeVerified'],
                     'leadTime': point['leadTime'],
-                    column_name: point['dataValue'][0][0][0]
+                    column_name: value
                 })
         
         points = DataFrame(rows)
