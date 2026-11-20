@@ -121,6 +121,19 @@ const additionalInfo = [
   }
 ];
 
+const chartColors = {
+  waterMeasurements: '#000000',  // black
+  airMeasurements: 'orange',     // orange
+  crpsMedian: '#000000',         // black
+  crpsInnerRibbon: '#9ACDFF',    // dark blue
+  crpsOuterRibbon: '#DDEEFF',    // light blue
+  crpsBoxPlot: '#4A90E2',        // blue
+  ndfd: '#BB79D9',               // purple
+  twcMedian: 'orange',           // orange
+  twcInnerRibbon: '#FFD996',     // dark orange
+  twcOuterRibbon: '#FFF0D5',     // light orange
+}
+
 const missingDataWarningBanner = ref(MissingDataWarningBanner);
 const isSmallScreen = window.innerWidth <= 600;
 
@@ -803,7 +816,7 @@ const fetchAndFilterData = async () => {
         name: "Water Temperature Measurements",
         data: waterMeasurementsFahrenheit,
         type: "line",
-        color: "black",
+        color: chartColors.waterMeasurements,
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1, // Ensure this is in front of the bounds
         marker: { enabled: false },
@@ -812,7 +825,7 @@ const fetchAndFilterData = async () => {
         name: "Air Temperature Measurements",
         data: airMeasurementsFahrenheit,
         type: "line",
-        color: "orange",
+        color: chartColors.airMeasurements,
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1,
         marker: { enabled: false },
@@ -821,7 +834,7 @@ const fetchAndFilterData = async () => {
         name: "NDFD Air Temperature Predictions",
         data: futureAirPredictionsFahrenheit,
         type: "line",
-        color: "purple",
+        color: chartColors.ndfd,
         dashStyle: "Dash",
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1, // Ensure this is in front of the bounds
@@ -832,7 +845,7 @@ const fetchAndFilterData = async () => {
         data: waterPredictionsPercentile50Fahrenheit,
         type: "line",
         dashStyle: "Dash",
-        color: "black",
+        color: chartColors.crpsMedian,
         lineWidth: 3,
         zIndex: 3, // Ensure median is in front of the other lines
         marker: { enabled: false},
@@ -842,7 +855,7 @@ const fetchAndFilterData = async () => {
         data: twcMedianFahrenheit,
         type: "line",
         dashStyle: "Dash",
-        color: "orange",
+        color: chartColors.twcMedian,
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1,
         marker: { enabled: false },
@@ -853,7 +866,7 @@ const fetchAndFilterData = async () => {
         name: "Water Temperature Measurements",
         data: waterMeasurementsFahrenheit,
         type: "line",
-        color: "black",
+        color: chartColors.waterMeasurements,
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 4,
         marker: { enabled: false },
@@ -862,7 +875,7 @@ const fetchAndFilterData = async () => {
         name: "Air Temperature Measurements",
         data: airMeasurementsFahrenheit,
         type: "line",
-        color: "orange",
+        color: chartColors.airMeasurements,
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 4,
         marker: { enabled: false },
@@ -871,7 +884,7 @@ const fetchAndFilterData = async () => {
         name: "NDFD Air Temperature Predictions",
         data: futureAirPredictionsFahrenheit,
         type: "line",
-        color: "purple",
+        color: chartColors.ndfd,
         dashStyle: "Dash",
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 4,
@@ -882,7 +895,7 @@ const fetchAndFilterData = async () => {
         data: waterPredictionsPercentile50Fahrenheit,
         type: "line",
         dashStyle: "Dash",
-        color: "black",
+        color: chartColors.crpsMedian,
         lineWidth: 3,
         zIndex: 6,
         marker: { enabled: false},
@@ -891,21 +904,21 @@ const fetchAndFilterData = async () => {
         name: '25th-75th Percentile',
         type: 'arearange',
         data: innerBoundsFahrenheit,
-        color: '#9ACDFF',
+        color: chartColors.crpsInnerRibbon,
         lineWidth: 1,
         marker: { enabled: false },
         zIndex: 3,
-        fillOpacity: 1
+        fillOpacity: 0.7,
       },
       {
         name: '5th-95th Percentile',
         type: 'arearange',
         data: outerBoundsFahrenheit,
-        color: '#DDEEFF',
+        color: chartColors.crpsOuterRibbon,
         lineWidth: 1,
         marker: { enabled: false },
         zIndex: 2,
-        fillOpacity: 1
+        fillOpacity: 0.7,
       },
       // TODO: make common series lines then reuse them across different charts
       // and make common chart options to clean up the code
@@ -914,7 +927,7 @@ const fetchAndFilterData = async () => {
         data: twcMedianFahrenheit,
         type: "line",
         dashStyle: "Dash",
-        color: "orange",
+        color: chartColors.twcMedian,
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 5,
         marker: { enabled: false },
@@ -923,7 +936,7 @@ const fetchAndFilterData = async () => {
         name: 'TWC 25th-75th Percentile',
         type: 'arearange',
         data: twcInnerRibbon,
-        color: '#FFD996',
+        color: chartColors.twcInnerRibbon,
         lineWidth: 1,
         marker: { enabled: false },
         zIndex: 1,
@@ -933,7 +946,7 @@ const fetchAndFilterData = async () => {
         name: 'TWC 5th-95th Percentile',
         type: 'arearange',
         data: twcOuterRibbon,
-        color: '#FFF0D5',
+        color: chartColors.twcOuterRibbon,
         lineWidth: 1,
         marker: { enabled: false },
         zIndex: 0,
@@ -946,7 +959,7 @@ const fetchAndFilterData = async () => {
         name: "Water Temperature Measurements",
         data: waterMeasurementsFahrenheit,
         type: "line",
-        color: "black",
+        color: chartColors.waterMeasurements,
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1, // Ensure this is in front of the bounds
         marker: { enabled: false },
@@ -955,7 +968,7 @@ const fetchAndFilterData = async () => {
         name: "Air Temperature Measurements",
         data: airMeasurementsFahrenheit,
         type: "line",
-        color: "orange",
+        color: chartColors.airMeasurements,
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1,
         marker: { enabled: false },
@@ -964,7 +977,7 @@ const fetchAndFilterData = async () => {
         name: "NDFD Air Temperature Predictions",
         data: futureAirPredictionsFahrenheit,
         type: "line",
-        color: "purple",
+        color: chartColors.ndfd,
         dashStyle: "Dash",
         zIndex: 0,
         findnearestPoint: false,
@@ -976,7 +989,7 @@ const fetchAndFilterData = async () => {
         name: "Water Temperature Median Predictions (50th percentile)",
         data: boxplotWaterPredictionsPercentile50Fahrenheit,
         type: "line",
-        color: "#4A90E2",
+        color: chartColors.crpsBoxPlot,
         lineWidth: 3,
         zIndex: 1, // Ensure this is in front of the bounds
         marker: { enabled: false },
@@ -985,7 +998,7 @@ const fetchAndFilterData = async () => {
         name: 'Prediction Range Max',
         data: waterPredictionsPercentileMaxFahrenheit,
         type: "line",
-        color: "#4A90E2",
+        color: chartColors.crpsBoxPlot,
         lineWidth: 0,
         zIndex: 1, // Ensure this is in front of the bounds
         marker: { enabled: true, symbol: 'triangle-down', radius: 3.5 },
@@ -994,7 +1007,7 @@ const fetchAndFilterData = async () => {
         name: 'Prediction Range Min',
         data: waterPredictionsPercentileMinFahrenheit,
         type: "line",
-        color: "#4A90E2",
+        color: chartColors.crpsBoxPlot,
         lineWidth: 0,
         zIndex: 1, // Ensure this is in front of the bounds
         marker: { enabled: true, symbol: 'triangle', radius: 3.5 },
@@ -1005,11 +1018,11 @@ const fetchAndFilterData = async () => {
         pointWidth: 10,
         data: boxPlotBoundsFahrenheit,
         lineWidth: isSmallScreen ? 2 : 3,
-        medianColor: '#000000',
-        stemColor: '#4A90E2',
-        whiskerColor: '#4A90E2',
+        medianColor: chartColors.crpsBoxPlot,
+        stemColor: chartColors.crpsBoxPlot,
+        whiskerColor: chartColors.crpsBoxPlot,
         whiskerLength: '150%',
-        color: '#4A90E2',
+        color: chartColors.crpsBoxPlot,
         fillColor: 'rgba(74,144,226,0.35)'
       },
       {
@@ -1017,7 +1030,7 @@ const fetchAndFilterData = async () => {
         data: twcMedianFahrenheit,
         type: "line",
         dashStyle: "Dash",
-        color: "orange",
+        color: chartColors.twcMedian,
         lineWidth: isSmallScreen ? 1 : 2,
         zIndex: 1,
         marker: { enabled: false },
