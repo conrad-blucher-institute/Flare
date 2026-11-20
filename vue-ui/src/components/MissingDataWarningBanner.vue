@@ -41,7 +41,6 @@ function hideBanner() {
  * @returns {void}
  */
 const checkForMissingDataAndWarn = (charts) => {
-    const moreThanOneChart = charts.length > 1;
     let chartHasMissingData = false;
     charts.forEach(chart => {
         if (!chart.series || chart.series.length === 0) {
@@ -59,7 +58,7 @@ const checkForMissingDataAndWarn = (charts) => {
     });
 
     if (chartHasMissingData) {
-        showBanner(`⚠️ Warning: ${moreThanOneChart ? 'Charts' : 'Chart'} may be inaccurate due to missing data.`);
+        showBanner(`⚠️ Warning: Some data may be missing in the charts below`);
     } else {
         hideBanner();
     }

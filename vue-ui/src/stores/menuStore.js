@@ -18,26 +18,103 @@ import TurtleImage from '@/assets/images/turtle_and_fish.png';
 //Ensure names match the route names in router/index.js for proper navigation.
 export const useMenuStore = defineStore('menu', {
   state: () => ({
+    
     dropDownMenuOptions: [
       {
         label: 'Home',
         link: { name: 'home' }
       },
       {
-        label: 'About Flare',
-        link: { name: 'about' }
-      },
-      {
-        label: 'Cold Stunning Model',
-        link: { name: 'crps' },
+        label: 'Cold Stunning Links',
         children: [
           {
             label: 'Laguna Madre',
-            link: { name: 'crps' }
-          }
+            children: [
+              {
+                label: 'Graph',
+                isHeader: true
+              },
+              {
+                label: 'Laguna Madre Coldstunning Graph',
+                link: { name: 'crps' }
+              },
+              {
+                label: 'Additional Information',
+                isHeader: true
+              },
+              {
+                label: 'Wind Speed Graph',
+                url: 'https://cbigrid.tamucc.edu/tpw/graph-only-wind.html' 
+              },
+              {
+                label: 'Ensemble Air Temperature Predictions',
+                link: { name: 'airTemperatureEnsemble' }
+              },
+              {
+                label: 'Old Version of Ensemble Water Temperature Predictions ',
+                link: { name: 'waterTemperatureEnsemble' }
+              },
+              {
+                label: 'TPW AI Water Temperature Prediction Model',
+                url: 'https://cbigrid.tamucc.edu/tpw/'
+              },
+              {
+                label: 'AI Model Performance SuperTool',
+                url: 'https://lighthouse.tamucc.edu/supertool.php?stnid=013&elev=mwl&mode=nnwtp'
+              },
+              {
+                label: 'NOAA Sea Turtle Stranding And Salvage Network',
+                url: 'https://www.fisheries.noaa.gov/national/marine-life-distress/sea-turtle-stranding-and-salvage-network'
+              }
+            ]
+          },
+         
+            {
+              label: 'Espiritu Santo Bay',
+              children: [
+                {
+                  label: 'Graph',
+                  isHeader: true
+                },
+                {
+                  label: 'Espiritu Santo Bay Graph',
+                  link: { name: 'esb' }
+                },
+                {
+                  label: 'Additional Information',
+                  isHeader: true
+                },
+                {
+                  label: "Port O'Connor Wind Speed Measurements and Predictions (Coming Soon)",
+                  url: ''
+                },
+                {
+                  label: "TWC Port O'Connor Ensemble Air Temperature Predictions ",
+                  url: "https://cbigrid.tamucc.edu/tpw/ibm-charts.html?location=port-o%27connor"
+                },
+                {
+                  label: 'NOAA Sea Turtle Stranding and Salvage Network',
+                  url: 'https://www.fisheries.noaa.gov/national/marine-life-distress/sea-turtle-stranding-and-salvage-network'
+                },
+                {
+                  label: 'Mid-Coast Sea Turtle Rescue',
+                  url: 'https://www.sabaypartnership.org/program/mid-coast-sea-turtle-rescue/'
+                },
+                {
+                  label: 'TWC Additional Locations for Ensemble Air Temperature Predictions',
+                  url: 'https://cbigrid.tamucc.edu/tpw/map-index.html'
+                }
+              ]
+            }
+
         ]
+      },
+      {
+        label: 'About Flare',
+        link: { name: 'about' }
       }
     ],
+
     slidingMenuOptions: [
       {
         label: 'Cold Stunning Group',

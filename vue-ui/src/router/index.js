@@ -22,6 +22,7 @@ import HomeView from '../views/HomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  scrollBehavior: () => ({ top: 0 }), // always move to the top when swapping to a new flare page
   routes: [
     {
       path: '/',
