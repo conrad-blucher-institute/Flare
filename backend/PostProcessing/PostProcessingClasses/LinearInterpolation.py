@@ -12,16 +12,19 @@ The post processing in this file performs linear interpolation of a column.
 #
 #Imports
 from PostProcessing.IPostProcessing import IPostProcessing
+from runtimeContext import thread_storage
 from pandas import DataFrame, date_range
 import numpy as np
 import pandas as pd
 from datetime import timedelta
-import logging
 
 class LinearInterpolation(IPostProcessing):
 
     # Dummy values used to mark to large time gaps that should not be interpolated
     DUMMY_VALUE = -9999
+
+    def __init__(self):
+        self.logger = thread_storage.logger
 
     def post_process(self, df: DataFrame, col_name: str, interpolation_interval: int, limit: int) -> DataFrame:
         """The post processing in this file performs a linear interpolation of a column.
@@ -58,10 +61,21 @@ class LinearInterpolation(IPostProcessing):
         # Create a copy to avoid modifying the input parameter
         df = df.copy()
 
+        # get the first non nan index point
+        col = df[col_name]
+        if col.first_valid_index() is None:
+            # column is all nans
+            self.logger.log_info(f"Column '{col_name}' has no valid data to interpolate. Returning original DataFrame.")
+            return df
+
+        # get the first and last valid index (aka first and last points that aren't nan) of the column to interpolate
+        grid_start = col.first_valid_index()
+        grid_end = col.last_valid_index()
+
         # Build a uniform interval index because the original index may be irregular
         target_interval_index = date_range(
-            start=df.index[0],
-            end=df.index[-1],
+            start=grid_start,
+            end=grid_end,
             freq=timedelta(seconds=interpolation_interval)
         )
         
@@ -85,7 +99,9 @@ class LinearInterpolation(IPostProcessing):
         interpolated_data_series.loc[interpolated_data_series == self.DUMMY_VALUE] = np.nan
 
         # Reindex the data to only return the requested interval
-        final_data_series = interpolated_data_series.reindex(date_range(start=interpolated_data_series.index[0], end=interpolated_data_series.index[-1], freq=timedelta(seconds=interpolation_interval)))
+        final_data_series = interpolated_data_series.reindex(
+            date_range(start=grid_start, end=grid_end, freq=timedelta(seconds=interpolation_interval))
+        )
 
         # Replace the original column in the DataFrame
         df.drop(columns=[col_name], inplace=True)
