@@ -1,0 +1,63 @@
+{
+    "chart_name": "Magnolia",
+    "CSPEC_version": "1.0.0",
+    "data_requests" : [
+        {
+            "_comment": "5 days of past water level measurements from hohonu",
+            "key": "Hohonu",
+            "args": {
+                "column_name": "hohonu_water_level_measurements",
+                "station_id": "hohonu-185",
+                "datum": "D2W",
+                "units": "english",
+                "time_range": [-120, 0]
+            }
+        },
+        {
+            "_comment": "48 hours of base magnolia predictions",
+            "key": "SemaphoreOutputTimeSpan",
+            "args": {
+                "column_name": "magnolia_water_level_predictions",
+                "time_range": [0, 48],
+                "models": ["magnolia_12", "magnolia_24", "magnolia_48"]
+            }
+        },
+        {
+            "_comment": "48 hours of magnolia transform predictions",
+            "key": "SemaphoreOutputTimeSpan",
+            "args": {
+                "column_name": "magnolia_transform_water_level_predictions",
+                "time_range": [0, 48],
+                "models": ["magnolia_transform_12", "magnolia_transform_24", "magnolia_transform_48"]
+            }
+        }
+    ],
+    "post_processing" : [
+        {
+            "_comment": "interpolates base magnolia predictions",
+            "key": "LinearInterpolation",
+            "args": {
+                "col_name": "magnolia_water_level_predictions",
+                "interpolation_interval": 3600,
+                "limit": 21600
+            }
+        },
+        {
+            "_comment": "interpolates magnolia transform predictions",
+            "key": "LinearInterpolation",
+            "args": {
+                "col_name": "magnolia_transform_water_level_predictions",
+                "interpolation_interval": 3600,
+                "limit": 21600
+            }
+        }
+    ],
+    "csv_config": {
+      "csv_name": "Magnolia.csv",
+      "included_columns": [
+        "hohonu_water_level_measurements",
+        "magnolia_water_level_predictions",
+        "magnolia_transform_water_level_predictions"
+      ]
+    }
+}
