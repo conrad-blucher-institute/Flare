@@ -58,8 +58,12 @@ const router = createRouter({
       path: '/esb',
       name: 'esb',
       component: () => import('../views/EspirituSantoBayView.vue'), // Lazy-loaded component
+    },
+    {
+      path: '/magnolia-beach',
+      name: 'magnoliaBeach',
+      component: () => import ('../views/MagnoliaView.vue')
     }
-    
   ],
 })
 
