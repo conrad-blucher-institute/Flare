@@ -25,6 +25,7 @@ import { ref, onMounted, reactive } from "vue";
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue";
 import AdditionalInfoButton from '@/components/AdditionalInfoButton.vue';
 import ToggleLegendItemsText from '@/components/ToggleLegendItemsText.vue';
+import ChartHelp from '@/components/ChartHelp.vue';
 
 // additional info left card data
 const dataOnThisGraph = [
@@ -126,7 +127,6 @@ const isSmallScreen = window.innerWidth <= 600;
 
 const csvURL = ref(`${window.location.origin}/flare/csv-data/CRPS_120hrs.csv`);
 const twcURL = ref(`${window.location.origin}/flare/csv-data/TWC-NDFD_Laguna-Madre_Air-Temperature-Predictions_240hrs.csv`);
-const showChartHelp = ref(false);
 
 const ribbonChartOptions = ref({});
 const secondRibbonChartOptions = ref({});
@@ -1214,65 +1214,8 @@ onMounted(() => {
     <MissingDataWarningBanner ref="missingDataWarningBanner" />
 
     <!-- How to Use Chart Section -->
-    <div class="flex justify-end mb-3 pr-8 pt-3 ">
-      <div class="relative inline-block">
-
-        <button
-          @click="showChartHelp = !showChartHelp"
-          class="flex items-center gap-2 text-blue-secondary hover:text-blue-600 font-medium"
-        >
-          <span
-            class="flex items-center justify-center w-6 h-6 rounded-full border-2 border-current font-bold text-xs lg:text-sm"
-          >
-            ?
-          </span>
-
-          <span class="text-xs md:text-lg">How to Use the Interactive Chart</span>
-        </button>
-
-        <div
-          v-show="showChartHelp"
-          class="chart-help-popup absolute bottom-5 right-0 w-full max-h-[150px] lg:max-h-[250px] overflow-y-auto mb-3 lg:w-[450px] bg-white rounded-sm shadow-2xl border border-gray-300 p-6 z-50 "
-        >
-          <h2 class=" text-l lg:text-xl font-semibold border-b pb-2 mb-4">
-            How to Use the Interactive Chart
-          </h2>
-
-          <div class="space-y-5">
-            <div>
-              <h3 class="font-bold">📊 See Temperature Details</h3>
-              <p>
-                Move your mouse over any line to display the exact
-                temperature, date, and time.
-              </p>
-            </div>
-
-            <div>
-              <h3 class="font-bold">🔄 Reset the View</h3>
-              <p>
-                After zooming, click <strong>Reset View</strong> in the
-                upper-right corner of the chart.
-              </p>
-            </div>
-
-            <div>
-              <h3 class="font-bold">👆 Show or Hide Chart Lines</h3>
-              <p>
-                Click a legend item below the chart to toggle a data series.
-              </p>
-            </div>
-
-            <div>
-              <h3 class="font-bold">🕒 Time</h3>
-              <p>
-                Times are shown in your local time zone.
-              </p>
-            </div>
-          </div>
-        </div>
-
-      </div>            
-    </div>
+    <ChartHelp />
+    
     <!-- First Chart Section-->
     <section class="grid grid-cols-1 lg:grid-cols-5 gap-2  px-2 lg:py-8 lg:px-4 bg-white items-stretch">
       <!-- Chart -->
@@ -1736,23 +1679,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-  .chart-help-popup::-webkit-scrollbar {
-  width: 10px;
-}
-
-.chart-help-popup::-webkit-scrollbar-track {
-  background: #818183;
-}
-
-.chart-help-popup::-webkit-scrollbar-thumb {
-  background: #5F98CA;
-  border-radius: 9999px;
-}
-
-.chart-help-popup::-webkit-scrollbar-thumb:hover {
-  background: #4a82b3;
-}
-
 .chart-info-section::-webkit-scrollbar {
   width: 10px;
 }
