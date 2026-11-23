@@ -22,7 +22,6 @@ const csvURL = `${window.location.origin}/flare/csv-data/Magnolia.csv`
 // colors of lines and text on the charts
 const chartColors = {
 	hohonu: 'blue',
-	magnolia: 'green',
 	magnoliaTransform: 'purple',
 	textColor: '#0f4f66',
 }
@@ -350,7 +349,7 @@ const parseData = (csvText) => {
 			csvText (str) - The CSV data as text
 		
 		Returns:
-			(object) - An object with the parsed data for each series (hohonu, magnolia, magnoliaTransform)
+			(object) - An object with the parsed data for each series (hohonu, magnoliaTransform)
 	*/
 
 	const lines = csvText.trim().split(/\r?\n/);
@@ -359,14 +358,12 @@ const parseData = (csvText) => {
 	
 	const data = {
 		hohonu: [],
-		magnolia: [],
 		magnoliaTransform: [],
 	}
 
 	// map the exact column name to the data key
 	const keys = {
 		hohonu: "hohonu_water_level_measurements",
-		magnolia: "magnolia_water_level_predictions",
 		magnoliaTransform: "magnolia_transform_water_level_predictions",
 	}
 
@@ -401,20 +398,17 @@ const convertToFeet = (data) => {
 		NOTE: Hohonu is already in feet so only the magnolia predictions need to be converted
 
 		Args:
-			data (object) - An object with the parsed data for each series (hohonu, magnolia, magnoliaTransform)
+			data (object) - An object with the parsed data for each series (hohonu, magnoliaTransform)
 		
 		Returns:
-			(object) - An object with the converted data for each series (hohonu, magnolia, magnoliaTransform)
+			(object) - An object with the converted data for each series (hohonu, magnoliaTransform)
 	*/
 
 	const toFeet = (meters) => meters * 3.28084
-
-	const magnolia = data.magnolia.map(([time, value]) => [time, toFeet(value)])
 	const magnoliaTransform = data.magnoliaTransform.map(([time, value]) => [time, toFeet(value)])
 
 	return {
 		hohonu: data.hohonu,
-		magnolia,
 		magnoliaTransform,
 	}
 }
@@ -425,7 +419,7 @@ const chartSeries = (data) => ([
 		creates the series for the chart with the specified data
 
 		Args:
-			data (object) - An object with the parsed data for each series (hohonu, magnolia, magnoliaTransform)
+			data (object) - An object with the parsed data for each series (hohonu, magnoliaTransform)
 		
 		Returns:
 			(array) - An array of series objects for the chart
@@ -475,9 +469,11 @@ export function useMagnolia() {
 		const parsedData = parseData(csvText)
 		const data = convertToFeet(parsedData)
 
-		// filter hohonu data to only show points in the past
+		// filter measurements to only be in the past
+		// and predictions to only be in the future
 		const now = Date.now()
 		data.hohonu = data.hohonu.filter(([time]) => time <= now)
+		data.magnoliaTransform = data.magnoliaTransform.filter(([time]) => time >= now)
 
 		chartOptions.value = {
 			...buildChart('line', 'Magnolia Water Level Predictions'),
