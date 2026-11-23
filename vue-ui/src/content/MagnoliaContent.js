@@ -14,14 +14,18 @@
 
 // footer links
 export const footerLinks = [
-  { href: "https://hohonu.io/", text: "Hohonu" },
-  { href: "https://sherlock-prod.tamucc.edu/cbocp/magnolia-beach.html", text: "CBOCP Magnolia" },
+  { href: "https://hohonu.io/", text: "Hohonu website" },
+  { href: "https://sherlock-prod.tamucc.edu/cbocp/magnolia-beach.html", text: "Legacy CBOCP Magnolia Chart" },
 ]
 
 // footer logos
 export const footerLogos = [
   { href: "https://www.conradblucherinstitute.org/", src: "CBI-Logo.png", alt: "CBI Logo", class: "max-w-[165px] lg:max-w-[250px]"},
-  { href: "https://www.coastaldynamicslab.org/", src: "CDL-Logo.png", alt: "Coastal Dynamics Lab Logo"}
+  { href: "https://www.coastaldynamicslab.org/", src: "CDL-Logo.png", alt: "Coastal Dynamics Lab Logo"},
+  { href: "https://github.com/conrad-blucher-institute/semaphore", src: "Semaphore-Logo.png", alt: "Semaphore Logo"},
+  { href: "https://www.nsf.gov/", src: "NSF-Logo.png", alt: "NSF Logo"},
+  { href: "https://www.ai2es.org/", src: "ai2es-logo.png", alt: "AI2ES Logo" },
+  { href: "https://hohonu.io/", src: "hohonu-logo.svg", alt: "Hohonu Logo"},
 ]
 
 // graph sidebar info
