@@ -19,20 +19,6 @@ const BASE_FILENAME = "Magnolia_Water_Levels"
 const csvURL = ref(`${window.location.origin}/flare/csv-data/Magnolia.csv`)
 
 
-// footer links
-const footerLinks = [
-  { href: "https://hohonu.io/", text: "Hohonu" },
-  { href: "https://sherlock-prod.tamucc.edu/cbocp/magnolia-beach.html", text: "CBOCP Magnolia" },
-]
-
-
-// footer logos
-const footerLogos = [
-  { href: "https://www.conradblucherinstitute.org/", src: "CBI-Logo.png", alt: "CBI Logo", class: "max-w-[165px] lg:max-w-[250px]"},
-  { href: "https://www.coastaldynamicslab.org/", src: "CDL-Logo.png", alt: "Coastal Dynamics Lab Logo"}
-]
-
-
 // colors of lines and text on the charts
 const chartColors = {
 	hohonu: 'blue',
@@ -448,8 +434,6 @@ export function useMagnolia() {
 			chartOptions - the magnolia chart options
 			missingDataWarningBanner - the missing data banner that checks for missing
 				data from chartOptions
-			footerLinks - the footer links to pass to the footer component
-			footerLogos - the footer logos to pass to the footer component
 	*/
 	const chartOptions = ref({})
 	const missingDataWarningBanner = ref(null)
@@ -481,5 +465,5 @@ export function useMagnolia() {
 		missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value])
 	})
 
-	return { chartOptions, missingDataWarningBanner, footerLinks, footerLogos }
+	return { chartOptions, missingDataWarningBanner }
 }
