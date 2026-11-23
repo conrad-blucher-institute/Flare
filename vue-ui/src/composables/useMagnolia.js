@@ -440,6 +440,17 @@ const chartSeries = (data) => ([
 
 
 export function useMagnolia() {
+	/*
+		main function that fetches, parses, and builds the charts
+		for the magnolia page
+
+		Returns:
+			chartOptions - the magnolia chart options
+			missingDataWarningBanner - the missing data banner that checks for missing
+				data from chartOptions
+			footerLinks - the footer links to pass to the footer component
+			footerLogos - the footer logos to pass to the footer component
+	*/
 	const chartOptions = ref({})
 	const missingDataWarningBanner = ref(null)
 
