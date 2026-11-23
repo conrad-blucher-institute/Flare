@@ -34,9 +34,9 @@ export const graphInfo = {
 		`,
 	howToRead:
 		`
-		The dark blue line is for Hohonu, the green line is
-		for base magnolia predictions, and the purple line
-		is for magnolia transform predictions.
+		D2W measures the vertical distance from the sensor to the water surface.
+		For example, a reading of 3 D2W feet indicates the water surface is 3 feet below the sensor.
+		(A lower D2W number means a higher water level.)
 		`,
 	whatToLookFor:
 		`

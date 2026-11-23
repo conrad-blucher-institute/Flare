@@ -16,7 +16,7 @@ import "highcharts/modules/offline-exporting"
 
 // name of the file when downloading the csv
 const BASE_FILENAME = "Magnolia_Water_Levels"
-const csvURL = ref(`${window.location.origin}/flare/csv-data/Magnolia.csv`)
+const csvURL = `${window.location.origin}/flare/csv-data/Magnolia.csv`
 
 
 // colors of lines and text on the charts
@@ -135,7 +135,6 @@ const xAxisProps = {
 			whiteSpace: "nowrap"
 		},
   },
-  tickInterval: 24 * 3600 * 1000,	// major ticks every 24 hours
   title: {
     text: "Time",
     style: {
@@ -144,6 +143,22 @@ const xAxisProps = {
 			color: chartColors.textColor,
 		},
   },
+	// Ensure ticks align to 12 AM
+	tickPositioner: function () {
+		const DAY = 24 * 3600 * 1000
+		const positions = []
+		const timezoneOffset = new Date().getTimezoneOffset() * 60 * 1000
+		let tick = Math.floor((this.min - timezoneOffset) / DAY) * DAY + timezoneOffset
+
+		// stop on the first tick past the last data point
+		positions.push(tick)
+		while (tick < this.max) {
+			tick += 2 * DAY		// x axis ticks every 2 days
+			positions.push(tick)
+		}
+		return positions
+	},
+	endOnTick: true,
 }
 
 
@@ -151,7 +166,7 @@ const yAxisProps = {
 	/* yAxis properties */
   labels: {
     style: {
-			fontSize: "26px",
+			fontSize: "16px",
 			color: chartColors.textColor,
 			fontFamily: "Arial" 
 		},
@@ -165,6 +180,9 @@ const yAxisProps = {
   },
   startOnTick: true,
   endOnTick: true,
+	reversed: true,
+	softMin: 3,
+	softMax: 9,
 }
 
 
@@ -175,7 +193,17 @@ const plotProps = {
 			enabled: false,
 			lineWidth: 1,
 		},
+		states: {
+			inactive: { opacity: 1 }	// do not dim other series when hovering over one
+		}
 	},
+	area: {
+		states: {
+			hover: {
+				lineWidth: 4,
+			}
+		},
+	}
 }
 
 
@@ -212,7 +240,7 @@ const tooltipProps = {
 		fontFamily: "Arial",
 	},
 	formatter: function () {
-		return tooltipHeader(this.x) + `Water Level: ${this.y.toFixed(1)} ft`;
+		return tooltipHeader(this.x) + `<b>${this.series.name}:</b> ${this.y.toFixed(1)} ft`
 	},
 }
 
@@ -242,23 +270,27 @@ const tooltipHeader = (x) => {
 }
 
 
-const nowLineProps = () => ({
-	/* vertical line marking the current time */
-	color: "red",
-	width: 2,
-	value: Date.now(),
-	dashStyle: "Solid",
-	zIndex: 5, // ensure this is above all other lines
-	label: {
-		text: "Now",
-		y: 20,
-		style: {
-			color: chartColors.textColor,
-			fontSize: "14px",
-			fontFamily: "Arial",
+const nowLineProps = () => {
+	/* vertical line marking the current time, labeled with the date and time */
+	const now = new Date()
+
+	return {
+		color: "red",
+		width: 2,
+		value: now.getTime(),
+		dashStyle: "Solid",
+		zIndex: 5,
+		label: {
+			text: 'Now',
+			y: 20,
+			style: {
+				color: chartColors.textColor,
+				fontSize: "14px",
+				fontFamily: "Arial",
+			},
 		},
-	},
-})
+	}
+}
 
 
 const buildChart = (type, title) => ({
@@ -296,7 +328,7 @@ const fetchData = async () => {
 	*/
 
 	try {
-		const resp = await fetch(csvURL.value)
+		const resp = await fetch(csvURL)
 		if (!resp.ok) {
 			throw new Error("Failed to fetch CSV data")
 		}
@@ -400,19 +432,13 @@ const chartSeries = (data) => ([
 	*/
 	{
 		name: "Hohonu Water Level Measurements",
-		type: "line",
+		type: "area",
 		data: data.hohonu,
-		color: chartColors.hohonu,
+		color: chartColors.hohonu,			// the line itself
+		fillColor: "rgba(15, 130, 245, 0.15)",	// light blue fill
+		threshold: Infinity,				// fill toward the bottom of the chart
 		lineWidth: 3,
-		zIndex: 1,
-	},
-	{
-		name: "Magnolia Water Level Predictions",
-		type: "line",
-		data: data.magnolia,
-		color: chartColors.magnolia,
-		lineWidth: 3,
-		zIndex: 1,
+		zIndex: 0,
 	},
 	{
 		name: "Magnolia Transform Water Level Predictions",
