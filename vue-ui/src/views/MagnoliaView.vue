@@ -16,6 +16,7 @@ import "highcharts/modules/offline-exporting"
 import MissingDataWarningBanner from "@/components/MissingDataWarningBanner.vue"
 import AdditionalInfoButton from "@/components/AdditionalInfoButton.vue"
 import ToggleLegendItemsText from "@/components/ToggleLegendItemsText.vue"
+import ChartFooter from "@/components/layout/ChartFooter.vue"
 
 const BASE_FILENAME = "Magnolia_Water_Levels"
 const csvURL = ref(`${window.location.origin}/flare/csv-data/Magnolia.csv`)
@@ -433,12 +434,24 @@ const loadCharts = async () => {
 	}
 }
 
-onMounted(() => {
-	loadCharts()
+onMounted(async() => {
+	await loadCharts()
 	missingDataWarningBanner.value.checkForMissingDataAndWarn([chartOptions.value])
 })
+
+const links = [
+  { href: "https://hohonu.io/", text: "Hohonu" },
+  { href: "https://sherlock-prod.tamucc.edu/cbocp/magnolia-beach.html", text: "CBOCP Magnolia" },
+]
+
+const logos = [
+  { href: "https://www.conradblucherinstitute.org/", src: "CBI-Logo.png", alt: "CBI Logo", class: "max-w-[165px] lg:max-w-[250px]"},
+  { href: "https://www.coastaldynamicslab.org/", src: "CDL-Logo.png", alt: "Coastal Dynamics Lab Logo"}
+]
 </script>
 
 <template>
+	<MissingDataWarningBanner ref="missingDataWarningBanner" />
 	<Chart class="w-full h-full p-4" :options="chartOptions" />
+	<ChartFooter :links="links" :logos="logos" />
 </template>
