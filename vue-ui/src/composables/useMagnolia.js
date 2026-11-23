@@ -3,7 +3,8 @@
 
 	Composable file for MagnoliaView.vue. This file contains
 	all the js code for MagnoliaView.vue. All HTML code
-	should go in the vue file.
+	should go in the vue file and hard coded static
+	text/values should go in /content/MagnoliaContent.js
 
 	Created by: CJ Quintero
 	Created on: 11/23/2026
